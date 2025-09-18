@@ -10,10 +10,10 @@ import com.pedropathing.paths.PathChain;
 
 @Config
 public class CustomPaths {
-    public PathBuilder builder;
+    public Follower f;
 
-    public CustomPaths(Follower drivetrain) {
-        builder = new PathBuilder(drivetrain);
+    public CustomPaths(Follower follower) {
+        f = follower;
     }
 
     public void build() {
@@ -27,12 +27,12 @@ public class CustomPaths {
                 new Pose(25.000, 56.000)
         };
 
-        straightLine = builder
-                .addPath(new BezierLine(new Pose(8.291, 65.000), endPoints[0]))
+        straightLine = f.pathBuilder()
+                .addPath(new BezierLine(new Pose(8.291, 80), endPoints[0]))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
 
-        curveRight = builder
+        curveRight = f.pathBuilder()
                 .addPath(
                         new BezierCurve(
                                 endPoints[0],

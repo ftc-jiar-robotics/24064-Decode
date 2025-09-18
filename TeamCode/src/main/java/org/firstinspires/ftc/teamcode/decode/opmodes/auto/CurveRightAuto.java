@@ -21,7 +21,7 @@ public class CurveRightAuto extends AbstractAutoPedro {
 
     @Override
     protected Pose getStartPose() {
-        return new Pose(8.291, 65.000, Math.toRadians(0));
+        return new Pose(8.291, 80, Math.toRadians(0));
     }
 
     @Override
@@ -42,12 +42,10 @@ public class CurveRightAuto extends AbstractAutoPedro {
 
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new DrivePoseLoggingAction(f, "before_drive_straight_line", true),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(0.92)), C_P.straightLine, 0.85, 0, f),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(0.8)), C_P.straightLine, 0.85, 0, f, "drive_straight_line"),
                                 new FollowPathAction(f, C_P.straightLine)
-                        ),
-                        new DrivePoseLoggingAction(f, "after_drive_straight_line")
+                        )
                 )
         );
 
@@ -59,12 +57,10 @@ public class CurveRightAuto extends AbstractAutoPedro {
 
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new DrivePoseLoggingAction(f, "before_curve", true),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(0.92)), C_P.curveRight, 0.6, 0, f),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(0.6)), C_P.curveRight, 0.3, 0, f, "curve_right"),
                                 new FollowPathAction(f, C_P.curveRight)
-                        ),
-                        new DrivePoseLoggingAction(f, "after_curve")
+                        )
                 )
         );
 

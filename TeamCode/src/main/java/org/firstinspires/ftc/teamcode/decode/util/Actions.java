@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -56,9 +58,13 @@ public final class Actions {
         private final Action action;
 
         private boolean isCalled = false;
+        private final Follower f;
+        private final String s;
 
-        public CallbackAction(Action action, PathChain pathChain, double startCondition, int index, Follower f) {
+        public CallbackAction(Action action, PathChain pathChain, double startCondition, int index, Follower f, String s) {
+            this.f = f;
             this.action = action;
+            this.s = s;
             pathChain.setCallbacks(new ParametricCallback(index, startCondition, f, () -> isCalled = true));
         }
 
@@ -66,6 +72,7 @@ public final class Actions {
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if (!isCalled) return true;
 
+            new DrivePoseLoggingAction(f, s, true).run(telemetryPacket);
             return action.run(telemetryPacket);
         }
     }

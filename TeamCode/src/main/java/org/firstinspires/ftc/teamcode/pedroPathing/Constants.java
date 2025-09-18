@@ -34,11 +34,10 @@ public class Constants {
             .useBrakeModeInTeleOp(true);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(141.314939039356)
-            .strafePodX(-109.5375)
-            .distanceUnit(DistanceUnit.MM)
+            .forwardPodY(-1)
+            .strafePodX(-6)
+            .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
-            .yawScalar(1.0)
             .encoderResolution(
                     GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD
             )
@@ -50,10 +49,10 @@ public class Constants {
             0.1,
             0.1,
             0.007,
-            500,
-            4,
+            150,
+            1.25,
             10,
-            1
+            1.5
     );
 
     public static Follower createFollower(HardwareMap hardwareMap) {

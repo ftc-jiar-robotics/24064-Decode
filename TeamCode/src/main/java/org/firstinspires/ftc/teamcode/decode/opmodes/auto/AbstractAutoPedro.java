@@ -15,7 +15,7 @@ public abstract class AbstractAutoPedro extends LinearOpMode {
 
     protected final void update() {
         robot.readSensors();
-        robot.run();
+        robot.update();
     }
 
     @Override
