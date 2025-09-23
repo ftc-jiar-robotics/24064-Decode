@@ -5,6 +5,9 @@ import com.pedropathing.geometry.Pose;
 
 @Config
 public final class Common {
+    public static final String CFG_NAME_FEEDERFRONT = "Feeder Front" ;
+    public static final String CFG_NAME_FEEDERBACK = "Feeder Back";
+    public static final String CFG_NAME_FEEDER_COLORSENSOR = "Color Sensor";
     public static Pose AUTO_END_POSE = null;
 
     public static final double
