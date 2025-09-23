@@ -14,6 +14,7 @@ public final class Robot {
     public final Follower drivetrain;
     public final BulkReader bulkReader;
     public final ActionScheduler actionScheduler;
+    public final Shooter shooter;
 
     public enum State {
         NEUTRAL
@@ -37,6 +38,7 @@ public final class Robot {
         drivetrain = Constants.createFollower(hardwareMap);
         bulkReader = new BulkReader(hardwareMap);
         actionScheduler = new ActionScheduler();
+        shooter = new Shooter(hardwareMap);
     }
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read
