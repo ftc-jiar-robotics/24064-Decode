@@ -1,13 +1,15 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
 
 @Config
 public final class Common {
-    public static final String CFG_NAME_FEEDERFRONT = "Feeder Front" ;
-    public static final String CFG_NAME_FEEDERBACK = "Feeder Back";
-    public static final String CFG_NAME_FEEDER_COLORSENSOR = "Color Sensor";
+    public static final String CFG_NAME_FEEDERFRONT = "feederFront" ;
+    public static final String CFG_NAME_FEEDERBACK = "feederBack";
+    public static final String CFG_NAME_FEEDER_COLORSENSOR = "colorSensorFeeder";
     public static Pose AUTO_END_POSE = null;
 
     public static final double
@@ -26,4 +28,6 @@ public final class Common {
     public static final double MAX_VOLTAGE = 13;
 
     public static Robot robot;
+
+    public static TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 }

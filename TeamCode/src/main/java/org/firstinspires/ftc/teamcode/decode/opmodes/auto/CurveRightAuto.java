@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.CustomPaths;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
-import org.firstinspires.ftc.teamcode.decode.util.DrivePoseLoggingAction;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Autonomous(name = "Curve Right Auto")

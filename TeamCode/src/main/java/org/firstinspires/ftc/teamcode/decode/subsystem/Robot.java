@@ -15,6 +15,8 @@ public final class Robot {
     public final BulkReader bulkReader;
     public final ActionScheduler actionScheduler;
     public final Shooter shooter;
+    public final Intake intake;
+    public final Feeder feeder;
 
     public enum State {
         NEUTRAL
@@ -39,6 +41,9 @@ public final class Robot {
         bulkReader = new BulkReader(hardwareMap);
         actionScheduler = new ActionScheduler();
         shooter = new Shooter(hardwareMap);
+        intake = new Intake(hardwareMap);
+        feeder = new Feeder(hardwareMap);
+
     }
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read

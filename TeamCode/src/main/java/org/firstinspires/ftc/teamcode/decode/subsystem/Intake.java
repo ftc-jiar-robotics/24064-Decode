@@ -1,18 +1,20 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 
+@Configurable
 public class Intake extends Subsystem<Double> {
     private final MotorEx motor;
     private final ColorSensor colorSensor;
     private float gain = 0; //TODO: change gain
     private double power = 0;
     public Intake(HardwareMap hardwareMap) {
-        this.motor = hardwareMap.get(MotorEx.class,"intake");
-        this.colorSensor = new ColorSensor(hardwareMap,"color",gain);
+        this.motor = new MotorEx(hardwareMap, "intake");
+        this.colorSensor = new ColorSensor(hardwareMap,"color", gain);
     }
 
     @Override
