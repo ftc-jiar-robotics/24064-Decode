@@ -5,6 +5,8 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import static java.lang.Math.PI;
 
+import android.util.Range;
+
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -18,6 +20,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.FeedforwardGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.LowPassGains;
+
+import java.util.stream.Stream;
 
 @Configurable
 public class Turret extends Subsystem<Double> {
@@ -120,9 +124,13 @@ public class Turret extends Subsystem<Double> {
         return Math.toDegrees(Math.atan2(dy, dx));
     }
 
+    public static double map(double value, double in_min, double in_max, double out_min, double out_max) {
+        return out_min + ((value - in_min) / (in_max - in_min)) * (out_max - out_min);
+    }
+
     @Override
     public void run() {
-        currentAngle = AngleUnit.normalizeDegrees((encoder.getVoltage()-0.043)/3.1*360 + offset);
+        currentAngle = map(AngleUnit.normalizeDegrees((encoder.getVoltage()-0.043)/3.1*360 + offset), 0, 360, 20, 380);
 
         double scalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;

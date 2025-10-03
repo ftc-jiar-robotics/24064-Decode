@@ -18,11 +18,7 @@ public final class Robot {
     public final Intake intake;
     public final Feeder feeder;
 
-    public enum State {
-        NEUTRAL
-    }
-
-    State currentState = State.NEUTRAL;
+    public final Feeder.FeederControl desiredFeederControl = new Feeder.FeederControl(false, false, Feeder.FeederStates.OFF);
 
     /**
      * Constructor used in teleOp classes that makes the current pose2d, 0
@@ -53,8 +49,10 @@ public final class Robot {
 
     // Runs all the necessary mechanisms
     public void run() {
-
         actionScheduler.run();
+        shooter.run();
+        intake.run();
+        feeder.run();
         update();
     }
 
@@ -64,12 +62,6 @@ public final class Robot {
 
     // Prints data on the driver hub for debugging and other uses
     public void printTelemetry() {
-    }
-
-    public State getCurrentState() {
-        return currentState;
-    }
-    public void setCurrentState(State state) {
-        this.currentState = state;
+        feeder.printTelemetry();
     }
 }

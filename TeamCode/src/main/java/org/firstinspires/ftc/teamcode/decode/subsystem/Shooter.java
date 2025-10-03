@@ -4,8 +4,10 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import java.util.HashMap;
+import java.util.TreeMap;
 
 @Configurable
 public class Shooter extends Subsystem<Shooter.ShooterStates> {
@@ -21,10 +23,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     private ShooterStates targetState = ShooterStates.IDLE;
 
-    private final HashMap<Double, Double> hoodAngles = new HashMap<>();
-
-    // boolean to track goal
-    // robot pose
+    private final TreeMap<Double, Double> hoodAngles = new TreeMap<>();
 
     public Shooter(HardwareMap hw) {
         this.hood = new Hood(hw);
@@ -58,6 +57,24 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return isTracking;
     }
 
+    public double getHoodAngleWithDistance(double distance) {
+        if (hoodAngles.containsKey(distance)) return hoodAngles.get(distance);
+
+        double finalDistance = Range.clip(distance, hoodAngles.firstKey(), hoodAngles.lastKey());
+
+        if (finalDistance >= hoodAngles.firstKey() && finalDistance <= hoodAngles.lastKey()) {
+            double x2 = hoodAngles.ceilingKey(finalDistance); // x2
+            double x1 = hoodAngles.floorKey(finalDistance); // x1
+
+            double y2 = hoodAngles.get(x2); // y2
+            double y1 = hoodAngles.get(x1); // y1
+
+            return y1 + ((finalDistance - x1) * (y2 - y1)) / (x2 - x1);
+        }
+
+        return hood.get();
+    }
+
     @Override
     public void run() {
         switch (targetState) {
@@ -68,13 +85,13 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             }
             case PREPARING: {
                 flywheel.set(Flywheel.FlyWheelStates.ARMING);
-                turret.set(0.0); // TODO make controls to set turret angle manually
-                hood.set(0.0); // TODO make function to set hood angle manually
+                // TODO make controls to set turret angle manually
+                // TODO make function to set hood angle manually
             }
             case TRACKING: {
                 flywheel.set(Flywheel.FlyWheelStates.ARMING);
                 isTracking = turret.setTracking(robot.drivetrain.getHeading());
-                hood.set(hoodAngles.get(turret.getDistance()));
+                hood.set(getHoodAngleWithDistance(turret.getDistance()));
             }
             case RUNNING: flywheel.set(Flywheel.FlyWheelStates.RUNNING);
         }

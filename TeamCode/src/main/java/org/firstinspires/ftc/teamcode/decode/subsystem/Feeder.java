@@ -36,6 +36,7 @@ public class Feeder extends Subsystem<Feeder.FeederControl> {
     }
 
     private final FeederControl currentControl = new FeederControl(false, false, FeederStates.OFF);
+    private final FeederControl desiredControl = new FeederControl(false, false, FeederStates.OFF);
 
     public Feeder(HardwareMap hw) {
         feederFront = hw.get(CRServo.class, Common.CFG_NAME_FEEDERFRONT);
@@ -47,13 +48,13 @@ public class Feeder extends Subsystem<Feeder.FeederControl> {
 
     @Override
     public void set(FeederControl control) {
-        currentControl.isIntaking = control.isIntaking;
-        currentControl.isShooterReady = control.isShooterReady;
+        desiredControl.isIntaking = control.isIntaking;
+        desiredControl.isShooterReady = control.isShooterReady;
 
         if (control.currentState != FeederStates.OFF && control.currentState != FeederStates.OUTTAKING) {
-            if (control.isShooterReady) currentControl.currentState = FeederStates.RUNNING;
-            else currentControl.currentState = FeederStates.IDLE;
-        } else currentControl.currentState = control.currentState;
+            if (control.isShooterReady) desiredControl.currentState = FeederStates.RUNNING;
+            else desiredControl.currentState = FeederStates.IDLE;
+        } else desiredControl.currentState = control.currentState;
     }
 
     @Override
@@ -63,24 +64,28 @@ public class Feeder extends Subsystem<Feeder.FeederControl> {
 
     @Override
     public void run() {
-        switch (currentControl.currentState) {
-            case OFF: {
-                feederFront.setPower(0);
-                feederBack.setPower(0);
-            }
-            case OUTTAKING: {
-                feederFront.setPower(0.25);
-                feederBack.setPower(-0.25);
-            }
-            case IDLE: {
-                feederFront.setPower(-0.25);
-                feederBack.setPower(-0.25);
-            }
-            case RUNNING: {
-                feederFront.setPower(-0.25);
-                feederBack.setPower(0.25);
+        if (desiredControl.currentState != currentControl.currentState) {
+            switch (desiredControl.currentState) {
+                case OFF: {
+                    feederFront.setPower(0);
+                    feederBack.setPower(0);
+                }
+                case OUTTAKING: {
+                    feederFront.setPower(1);
+                    feederBack.setPower(-1);
+                }
+                case IDLE: {
+                    feederFront.setPower(-1);
+                    feederBack.setPower(-1);
+                }
+                case RUNNING: {
+                    feederFront.setPower(-1);
+                    feederBack.setPower(1);
+                }
             }
         }
+
+        currentControl.currentState = desiredControl.currentState;
     }
 
     public void printTelemetry() {

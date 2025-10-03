@@ -18,7 +18,7 @@ public class Intake extends Subsystem<Double> {
     }
 
     @Override
-    protected void set(Double power) {
+    public void set(Double power) {
         this.power = power;
     }
 
