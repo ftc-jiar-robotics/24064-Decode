@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.graph.GraphManager;
+import com.bylazar.graph.PanelsGraph;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
@@ -30,4 +32,5 @@ public final class Common {
     public static Robot robot;
 
     public static TelemetryManager telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+    public static GraphManager graph = PanelsGraph.INSTANCE.getManager();
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes;
 
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 
@@ -54,10 +55,9 @@ public class TestOpMode extends LinearOpMode {
                 currentHoodAngle -= 30;
                 hood.set(currentHoodAngle);
             }
-
-
-            intake.set(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), true);
-
+            
+            if (gamepadEx1.isDown(LEFT_BUMPER)) intake.set(-1.0, true);
+            else intake.set(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), true);
 //            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) {
 //                feeder.set(new Feeder.FeederControl(false, false, Feeder.FeederStates.RUNNING));
 //            }
