@@ -136,11 +136,9 @@ public class Turret extends Subsystem<Double> {
 
     @Override
     public void run() {
-<<<<<<< Updated upstream
-        currentAngle = map(AngleUnit.normalizeDegrees((encoder.getVoltage()-0.043)/3.1*360 + offset), 0, 360, 20, 380);
-=======
         currentAngle = ((motorEncoder.getPosition()*ticksToDegrees)+360)%360;//AngleUnit.normalizeDegrees((encoder.getVoltage()-0.043)/3.1*360 + offset);
->>>>>>> Stashed changes
+        currentAngle = map(currentAngle, 0, 360, 20, 380);
+
 
         double scalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
