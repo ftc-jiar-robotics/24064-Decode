@@ -27,6 +27,8 @@ import java.util.stream.Stream;
 public class Turret extends Subsystem<Double> {
     private final MotorEx turret;
     private final AnalogInput encoder;
+    private final Motor.Encoder motorEncoder;
+
 
     private final VoltageSensor batteryVoltageSensor;
 
@@ -48,7 +50,8 @@ public class Turret extends Subsystem<Double> {
             kI = 0,
             kD = 0,
             kF = 0,
-            turretOffset = 2;
+            turretOffset = 2,
+            ticksToDegrees = 90.0/148.0;
 
     public static Pose
             goal = new Pose(10, 10),
@@ -65,7 +68,10 @@ public class Turret extends Subsystem<Double> {
         this.turret = new MotorEx(hw, "turret", Motor.GoBILDA.RPM_435);
         this.encoder = hw.get(AnalogInput.class, "turretEncoder");
         this.batteryVoltageSensor = hw.voltageSensor.iterator().next();
+        MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
 
+        motorEncoder = rightBack.encoder;
+        motorEncoder.reset();
         derivFilter.setGains(filterGains);
     }
 
@@ -130,7 +136,11 @@ public class Turret extends Subsystem<Double> {
 
     @Override
     public void run() {
+<<<<<<< Updated upstream
         currentAngle = map(AngleUnit.normalizeDegrees((encoder.getVoltage()-0.043)/3.1*360 + offset), 0, 360, 20, 380);
+=======
+        currentAngle = ((motorEncoder.getPosition()*ticksToDegrees)+360)%360;//AngleUnit.normalizeDegrees((encoder.getVoltage()-0.043)/3.1*360 + offset);
+>>>>>>> Stashed changes
 
         double scalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
@@ -147,6 +157,7 @@ public class Turret extends Subsystem<Double> {
     public void printTelemetry() {
         telemetry.addData("encoder angle: ", currentAngle);
         telemetry.addData("target angle: ", targetAngle);
+        telemetry.addData("raw ticks", motorEncoder.getPosition());
         telemetry.addData("calculated distance: ", getDistance());
     }
 }
