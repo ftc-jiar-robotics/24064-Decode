@@ -12,62 +12,85 @@ public class Paths {
         f = follower;
     }
 
+    public static Pose
+            control0 = new Pose(47.6, 113.1),
+            start = new Pose(32.2, 136.6),
+            end0 = new Pose(41.4, 102.2),
+            end1 = new Pose(33.3, 91.5),
+            end2 = new Pose(17.7, 88.5),
+            end3 = new Pose(44.7, 97.9),
+            end4 = new Pose(32.7, 68.0),
+            end5 = new Pose(15.2, 65.1),
+            end6 = new Pose(59.7, 84.1),
+            end7 = new Pose(34.2, 40.3),
+            end8 = new Pose(17.4, 42.5),
+            end9 = new Pose(70.7, 73.6);
+    public static double
+            startAngle = Math.toRadians(270),
+            endAngle0 = Math.toRadians(-127),
+            endAngle1 = Math.toRadians(-161),
+            endAngle2 = Math.toRadians(240),
+            endAngle3 = Math.toRadians(-157),
+            endAngle4 = Math.toRadians(-122),
+            endAngle5 = Math.toRadians(-150);
+
+
     public void buildClose() {
         close = f.pathBuilder()
                 .addPath(
-                        // Path 1
+                        // Path 0
                         new BezierCurve(
-                                new Pose(32.199, 136.621),
-                                new Pose(47.627, 113.143),
-                                new Pose(41.366, 102.186)
+                                start,
+                                control0,
+                                end0
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(-127))
+                .setLinearHeadingInterpolation(startAngle, endAngle0)
+                .addPath(
+                        // Path 1
+                        new BezierLine(end0, end1)
+                )
+                .setTangentHeadingInterpolation()
                 .addPath(
                         // Path 2
-                        new BezierLine(new Pose(41.366, 102.186), new Pose(33.317, 91.453))
+                        new BezierLine(end1, end2)
                 )
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(endAngle0, endAngle1)
                 .addPath(
                         // Path 3
-                        new BezierLine(new Pose(33.317, 91.453), new Pose(17.665, 88.547))
+                        new BezierLine(end2, end3)
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(-127), Math.toRadians(-161))
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .addPath(
                         // Path 4
-                        new BezierLine(new Pose(17.665, 88.547), new Pose(44.720, 97.938))
+                        new BezierLine(end3, end4)
                 )
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .setConstantHeadingInterpolation(endAngle2)
                 .addPath(
                         // Path 5
-                        new BezierLine(new Pose(44.720, 97.938), new Pose(32.646, 67.975))
+                        new BezierLine(end4, end5)
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(240))
+                .setLinearHeadingInterpolation(endAngle2, endAngle3)
                 .addPath(
                         // Path 6
-                        new BezierLine(new Pose(32.646, 67.975), new Pose(15.205, 65.068))
-                )
-                .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(-157))
-                .addPath(
-                        // Path 7
-                        new BezierLine(new Pose(15.205, 65.068), new Pose(59.702, 84.075))
+                        new BezierLine(end5, end6)
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .addPath(
-                        // Path 8
-                        new BezierLine(new Pose(59.702, 84.075), new Pose(34.211, 40.248))
+                        // Path 7
+                        new BezierLine(end6, end7)
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(-122))
+                .setConstantHeadingInterpolation(endAngle4)
+                .addPath(
+                        // Path 8
+                        new BezierLine(end7, end8)
+                )
+                .setLinearHeadingInterpolation(endAngle4, endAngle5)
                 .addPath(
                         // Path 9
-                        new BezierLine(new Pose(34.211, 40.248), new Pose(17.441, 42.484))
-                )
-                .setLinearHeadingInterpolation(Math.toRadians(-122), Math.toRadians(-150))
-                .addPath(
-                        // Path 10
-                        new BezierLine(new Pose(17.441, 42.484), new Pose(70.658, 73.565))
+                        new BezierLine(end8, end9)
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed()
