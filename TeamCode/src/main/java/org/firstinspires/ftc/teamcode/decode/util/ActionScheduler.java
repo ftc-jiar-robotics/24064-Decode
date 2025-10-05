@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -24,7 +26,9 @@ public final class ActionScheduler {
     }
 
     public void addAction(Action action) {
+        lockSubsytems();
         actions.add(action);
+        unlockSubsytems();
     }
 
     // Won't generate previews
@@ -60,5 +64,19 @@ public final class ActionScheduler {
 
             currentAction = actions.peek();
         }
+    }
+
+    private Action lockSubsytems() {
+        return new InstantAction(() -> {
+            robot.intake.setLocked(true);
+            robot.shooter.setLocked(true);
+        });
+    }
+
+    private Action unlockSubsytems() {
+        return new InstantAction(() -> {
+            robot.intake.setLocked(false);
+            robot.shooter.setLocked(false);
+        });
     }
 }

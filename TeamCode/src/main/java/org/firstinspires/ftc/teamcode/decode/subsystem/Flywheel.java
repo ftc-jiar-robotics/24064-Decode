@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -127,5 +128,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         telemetry.addLine("FLYWHEEL");
         telemetry.addData("current state: ", getCurrentState());
         telemetry.addData("target state: ", targetState);
+        graph.addData("current: ", flywheelCurrent);
     }
 }

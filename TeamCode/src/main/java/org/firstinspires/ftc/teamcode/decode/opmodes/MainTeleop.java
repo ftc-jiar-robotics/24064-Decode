@@ -48,7 +48,7 @@ public class MainTeleop extends LinearOpMode {
             else robot.intake.set(0.0, false);
 
             // TODO automatically detect shooting zone and shoot
-            if (gamepadEx1.wasJustPressed(A)) {
+            if (gamepadEx1.wasJustReleased(A)) {
                 robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
             }
 

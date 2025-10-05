@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,6 +18,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private final Flywheel flywheel;
     private final Turret turret;
     private final Feeder feeder;
+
+    private boolean didCurrentDrop;
 
     private int queuedShots = 0;
 
@@ -99,7 +103,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     @Override
     public void run() {
         // TODO add voltage readings for flywheel & decrement queued shots
-        boolean didCurrentDrop = flywheel.didCurrentDrop();
+        didCurrentDrop = flywheel.didCurrentDrop();
         if (didCurrentDrop) {
             queuedShots--;
         }
@@ -153,5 +157,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         flywheel.printTelemetry();
         feeder.printTelemetry();
         hood.printTelemetry();
+
+        telemetry.addLine("SHOOTER");
+        telemetry.addData("shooter state:", targetState);
+        telemetry.addData("queued shots: ", queuedShots);
+        telemetry.addData("did current drop?: ", didCurrentDrop);
     }
 }
