@@ -26,9 +26,11 @@ public final class ActionScheduler {
     }
 
     public void addAction(Action action) {
-        lockSubsytems();
-        actions.add(action);
-        unlockSubsytems();
+        if (action != null) {
+            actions.add(lockSubsytems());
+            actions.add(action);
+            actions.add(unlockSubsytems());
+        }
     }
 
     // Won't generate previews

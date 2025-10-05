@@ -50,26 +50,22 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     @Override
     public void run() {
             switch (currentState) {
-                case OFF: {
+                case OFF:
                     feederFront.setPower(0);
                     feederBack.setPower(0);
                     break;
-                }
-                case OUTTAKING: {
+                case OUTTAKING:
                     feederFront.setPower(1);
                     feederBack.setPower(-1);
                     break;
-                }
-                case IDLE: {
+                case IDLE:
                     feederFront.setPower(-1);
                     feederBack.setPower(-1);
                     break;
-                }
-                case RUNNING: {
+                case RUNNING:
                     feederFront.setPower(-1);
                     feederBack.setPower(1);
                     break;
-                }
             }
     }
 
