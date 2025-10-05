@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -9,16 +10,13 @@ import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
-@Config
+@Configurable
 public final class Robot {
     public final Follower drivetrain;
     public final BulkReader bulkReader;
     public final ActionScheduler actionScheduler;
     public final Shooter shooter;
     public final Intake intake;
-    public final Feeder feeder;
-
-    public final Feeder.FeederControl desiredFeederControl = new Feeder.FeederControl(false, false, Feeder.FeederStates.OFF);
 
     /**
      * Constructor used in teleOp classes that makes the current pose2d, 0
@@ -38,8 +36,6 @@ public final class Robot {
         actionScheduler = new ActionScheduler();
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
-        feeder = new Feeder(hardwareMap);
-
     }
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read
@@ -52,16 +48,22 @@ public final class Robot {
         actionScheduler.run();
         shooter.run();
         intake.run();
-        feeder.run();
         update();
     }
 
     public void update() {
         drivetrain.update();
+        readSensors();
     }
 
     // Prints data on the driver hub for debugging and other uses
     public void printTelemetry() {
-        feeder.printTelemetry();
+        shooter.printTelemetry();
+        Common.telemetry.addData("robot x: ", drivetrain.getPose().getX());
+        Common.telemetry.addData("robot y: ", drivetrain.getPose().getY());
+        Common.telemetry.addData("robot heading: ", Math.toDegrees(drivetrain.getPose().getHeading()));
+
+        Common.graph.update();
+        Common.telemetry.update();
     }
 }

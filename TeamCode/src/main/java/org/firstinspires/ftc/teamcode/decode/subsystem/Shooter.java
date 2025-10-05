@@ -6,19 +6,21 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import java.util.HashMap;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 import java.util.TreeMap;
 
 @Configurable
 public class Shooter extends Subsystem<Shooter.ShooterStates> {
-    private final Hood hood;
+    public final Hood hood;
     private final Flywheel flywheel;
     private final Turret turret;
+    private final Feeder feeder;
 
-    private boolean isTracking = false;
+    private int queuedShots = 0;
 
     public enum ShooterStates {
-        IDLE, PREPARING, TRACKING, RUNNING;
+        IDLE, MANUAL, TRACKING, RUNNING;
     }
 
     private ShooterStates targetState = ShooterStates.IDLE;
@@ -29,6 +31,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.hood = new Hood(hw);
         this.flywheel = new Flywheel(hw);
         this.turret = new Turret(hw);
+        this.feeder = new Feeder(hw);
 
         // k = distance (ft), v = angle (deg)
         // TODO tune LUT and interpolate w/ formula
@@ -53,8 +56,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return targetState;
     }
 
-    public boolean getTrackingState() {
-        return isTracking;
+    // TODO add motor pid checks
+    public boolean isShooterReady() {
+        return targetState == ShooterStates.RUNNING;
     }
 
     public double getHoodAngleWithDistance(double distance) {
@@ -75,26 +79,79 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return hood.get();
     }
 
+    public void runManual(double power) {
+        turret.setManualPower(power);
+    }
+
+    public int getQueuedShots() {
+        return queuedShots;
+    }
+
+    public void incrementQueuedShots(int i) {
+        this.queuedShots += i;
+    }
+
+    // TODO make decrement available only to decrement action
+    public void decrementQueuedShots() {
+        this.queuedShots--;
+    }
+
     @Override
     public void run() {
+        // TODO add voltage readings for flywheel & decrement queued shots
+        boolean didCurrentDrop = flywheel.didCurrentDrop();
+        if (didCurrentDrop) {
+            queuedShots--;
+        }
+
         switch (targetState) {
-            case IDLE: {
+            case IDLE:
+                feeder.set(Feeder.FeederStates.OFF);
                 flywheel.set(Flywheel.FlyWheelStates.IDLE);
-                turret.set(0.0); // TODO set angle to proper 0
+                turret.set(Turret.TurretStates.ODOM_TRACKING); // TODO set angle to proper 0
                 hood.set(0.0); // TODO set angle to proper 0
-            }
-            case PREPARING: {
+
+                if (queuedShots >= 1) targetState = ShooterStates.TRACKING;
+                break;
+            case MANUAL:
+                feeder.set(Feeder.FeederStates.OFF);
                 flywheel.set(Flywheel.FlyWheelStates.ARMING);
                 // TODO make controls to set turret angle manually
                 // TODO make function to set hood angle manually
-            }
-            case TRACKING: {
+                break;
+            case TRACKING:
+                feeder.set(Feeder.FeederStates.OFF);
                 flywheel.set(Flywheel.FlyWheelStates.ARMING);
-                isTracking = turret.setTracking(robot.drivetrain.getHeading());
+                turret.set(Turret.TurretStates.ODOM_TRACKING);
                 hood.set(getHoodAngleWithDistance(turret.getDistance()));
-            }
-            case RUNNING: flywheel.set(Flywheel.FlyWheelStates.RUNNING);
+
+                // TODO add checks for all PIDS
+                if (queuedShots >= 1 && flywheel.isPIDInTolerance() && turret.isPIDInTolerance()) targetState = ShooterStates.RUNNING;
+                break;
+            case RUNNING:
+                flywheel.set(Flywheel.FlyWheelStates.RUNNING);
+                feeder.set(Feeder.FeederStates.RUNNING);
+
+                if (didCurrentDrop) { // TODO needs to happen when voltage drop happens
+                    if (queuedShots == 0) targetState = ShooterStates.IDLE;
+                    else targetState = ShooterStates.TRACKING;
+
+                    feeder.set(Feeder.FeederStates.OFF);
+                }
+
+                break;
         }
 
+        turret.run();
+        flywheel.run();
+        feeder.run();
+        hood.run();
+    }
+
+    public void printTelemetry() {
+        turret.printTelemetry();
+        flywheel.printTelemetry();
+        feeder.printTelemetry();
+        hood.printTelemetry();
     }
 }

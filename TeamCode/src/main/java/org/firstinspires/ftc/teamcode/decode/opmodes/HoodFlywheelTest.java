@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel;
@@ -28,8 +29,8 @@ public class HoodFlywheelTest extends LinearOpMode {
             gamepadEx1.readButtons();
 
             double rTrigger = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
-            for (MotorEx m : flywheel.motorGroup) {
-                m.set(rTrigger);
+            for (DcMotorEx m : flywheel.motorGroup) {
+                m.setPower(rTrigger);
             }
 
             double currentHoodAngle = 0;

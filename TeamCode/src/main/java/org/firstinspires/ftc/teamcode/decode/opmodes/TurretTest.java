@@ -26,9 +26,9 @@ public class TurretTest extends LinearOpMode {
         while (opModeIsActive()) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) turret.set(0.0);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) turret.set(90.0);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) turret.set(180.0);
+//            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) turret.set(0.0);
+//            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) turret.set(90.0);
+//            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) turret.set(180.0);
 
             if (gamepadEx1.isDown(GamepadKeys.Button.LEFT_BUMPER)) turret.setManualPower(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
             else turret.setManualPower(0.0);

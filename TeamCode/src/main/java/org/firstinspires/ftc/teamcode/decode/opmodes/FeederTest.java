@@ -24,16 +24,16 @@ public class FeederTest extends LinearOpMode {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) {
-                feeder.set(new Feeder.FeederControl(false, false, Feeder.FeederStates.RUNNING));
+                feeder.set(Feeder.FeederStates.RUNNING);
             }
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.Y)) {
-                feeder.set(new Feeder.FeederControl(true, false, Feeder.FeederStates.RUNNING));
+                feeder.set(Feeder.FeederStates.IDLE);
             }
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) {
-                feeder.set(new Feeder.FeederControl(false, false, Feeder.FeederStates.OUTTAKING));
+                feeder.set(Feeder.FeederStates.OUTTAKING);
             }
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) {
-                feeder.set(new Feeder.FeederControl(false, false, Feeder.FeederStates.OFF));
+                feeder.set(Feeder.FeederStates.OFF);
             }
 
             feeder.run();

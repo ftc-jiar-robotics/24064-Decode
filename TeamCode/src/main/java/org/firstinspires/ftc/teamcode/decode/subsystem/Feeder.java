@@ -11,32 +11,23 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 
 @Configurable
-public class Feeder extends Subsystem<Feeder.FeederControl> {
-    public static class FeederControl {
-        public boolean isShooterReady;
-        public boolean isIntaking;
-        public FeederStates currentState;
+public class Feeder extends Subsystem<Feeder.FeederStates> {
 
-        public FeederControl(boolean isShooterReady, boolean isIntaking, FeederStates currentState) {
-            this.isShooterReady = isShooterReady;
-            this.isIntaking = isIntaking;
-            this.currentState = currentState;
-        }
-    }
+    // TODO make isShooterReady based whether odometry hits triangle // isTracking // shooter queue counter != 0
+    // TODO if manual, then ignore isTracking
 
     public final CRServo feederFront;
     public final CRServo feederBack;
 
     private final ColorSensor colorSensor;
 
+    private FeederStates currentState = FeederStates.OFF;
+
     private float gain = 0; //TODO: change gain
 
     public enum FeederStates {
         OFF, OUTTAKING, IDLE, RUNNING
     }
-
-    private final FeederControl currentControl = new FeederControl(false, false, FeederStates.OFF);
-    private final FeederControl desiredControl = new FeederControl(false, false, FeederStates.OFF);
 
     public Feeder(HardwareMap hw) {
         feederFront = hw.get(CRServo.class, Common.CFG_NAME_FEEDERFRONT);
@@ -47,50 +38,43 @@ public class Feeder extends Subsystem<Feeder.FeederControl> {
     }
 
     @Override
-    public void set(FeederControl control) {
-        desiredControl.isIntaking = control.isIntaking;
-        desiredControl.isShooterReady = control.isShooterReady;
-
-        if (control.currentState != FeederStates.OFF && control.currentState != FeederStates.OUTTAKING) {
-            if (control.isShooterReady) desiredControl.currentState = FeederStates.RUNNING;
-            else desiredControl.currentState = FeederStates.IDLE;
-        } else desiredControl.currentState = control.currentState;
+    public void set(FeederStates state) {
+        currentState = state;
     }
 
     @Override
-    public FeederControl get() {
-        return currentControl;
+    public FeederStates get() {
+        return currentState;
     }
 
     @Override
     public void run() {
-        if (desiredControl.currentState != currentControl.currentState) {
-            switch (desiredControl.currentState) {
+            switch (currentState) {
                 case OFF: {
                     feederFront.setPower(0);
                     feederBack.setPower(0);
+                    break;
                 }
                 case OUTTAKING: {
                     feederFront.setPower(1);
                     feederBack.setPower(-1);
+                    break;
                 }
                 case IDLE: {
                     feederFront.setPower(-1);
                     feederBack.setPower(-1);
+                    break;
                 }
                 case RUNNING: {
                     feederFront.setPower(-1);
                     feederBack.setPower(1);
+                    break;
                 }
             }
-        }
-
-        currentControl.currentState = desiredControl.currentState;
     }
 
     public void printTelemetry() {
-        telemetry.addData("current state: ", currentControl.currentState);
-        telemetry.addData("intaking boolean: ", currentControl.isIntaking);
-        telemetry.addData("shooter ready boolean: ", currentControl.isShooterReady);
+        telemetry.addLine("FEEDER");
+        telemetry.addData("current state: ", currentState);
     }
 }

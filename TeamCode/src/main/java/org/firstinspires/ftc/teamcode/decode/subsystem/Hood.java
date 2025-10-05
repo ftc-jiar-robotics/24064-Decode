@@ -12,6 +12,11 @@ public class Hood extends Subsystem<Double> {
 
     private double targetAngle;
 
+    public static double
+            PHYSICAL_MAX = 200,
+            MAX = 180,
+            MIN = 75;
+
     public Hood(HardwareMap hw) {
         this.hood = new SimpleServo(hw, "hood", Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1);
     }
@@ -32,6 +37,7 @@ public class Hood extends Subsystem<Double> {
     }
 
     public void printTelemetry() {
+        telemetry.addLine("HOOD");
         telemetry.addData("hood target angle: ", targetAngle);
     }
 }
