@@ -45,6 +45,7 @@ public class CustomPaths {
                 .build();
     }
 
+
     public Pose[] controlPoints;
     public Pose[] endPoints;
     public PathChain straightLine;

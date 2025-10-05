@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Autonomous(name = "Curve Right Auto")
-public class CurveRightAuto extends AbstractAutoPedro {
+public class CurveRightAuto extends AbstractAuto {
     public CustomPaths C_P;
     private Follower f;
 
