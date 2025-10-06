@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
 public class Shooter extends Subsystem<Shooter.ShooterStates> {
-    final Hood hood;
+    public final Hood hood; //TODO make un public
     final Flywheel flywheel;
     final Turret turret;
     final Feeder feeder;
@@ -78,7 +78,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 feeder.set(Feeder.FeederStates.OFF);
                 flywheel.set(Flywheel.FlyWheelStates.IDLE);
                 turret.set(Turret.TurretStates.ODOM_TRACKING);
-                hood.set(hood.MIN);
+//                hood.set(hood.MIN);
 
                 if (queuedShots >= 1) {
                     flywheel.set(Flywheel.FlyWheelStates.ARMING);
@@ -94,7 +94,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case TRACKING:
                 feeder.set(Feeder.FeederStates.OFF);
                 turret.set(Turret.TurretStates.ODOM_TRACKING);
-                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()));
+//                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()));
 
                 // TODO add checks for all PIDS
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {

@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.decode.opmodes;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -67,7 +69,12 @@ public class MainTeleop extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(X)) {
                 robot.shooter.clearQueueShots();
             }
-
+            if (gamepadEx1.isDown(DPAD_UP)) {
+                robot.shooter.hood.set(robot.shooter.hood.get() + .5);
+            }
+            if (gamepadEx1.isDown(DPAD_DOWN)) {
+                robot.shooter.hood.set(robot.shooter.hood.get() - .5);
+            }
             robot.printTelemetry();
         }
     }

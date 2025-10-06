@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -43,7 +42,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     public static double
             currentSpikeThreshold = 2, // TODO tune in AMPS
-            timeDropPeriod = 0.5; // TODO tune in SECONDS of how long current should drop
+            timeDropPeriod = 0.5, // TODO tune in SECONDS of how long current should drop
+            shootingRPM = 4000; //TODO fix with lut
 
     private FlyWheelStates targetState = FlyWheelStates.OFF;
 
@@ -121,14 +121,14 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 velocityController.setTarget(new State(2200, 0, 0, 0));
                 break;
             case ARMING:
-                velocityController.setTarget(new State(4000, 0, 0, 0));
+                velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
                 if (isPIDInTolerance()) {
                     targetState = FlyWheelStates.RUNNING;
                 }
                 break;
             case RUNNING:
-                velocityController.setTarget(new State(4000, 0, 0, 0));
+                velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
                 break;
         }
 
