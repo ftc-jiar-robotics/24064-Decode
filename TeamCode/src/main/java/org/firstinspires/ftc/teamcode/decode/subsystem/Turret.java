@@ -63,7 +63,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             turretOffset = 2.559,
             ticksToDegrees = 90.0/148.0,
             warpAroundAngle = 159,
-            pidTolerance = 0.05; // TODO tune in angle measurement
+            pidTolerance = 2; // TODO tune in angle measurement
 
     public static Pose
             goal = new Pose(13.4, 136.8);
@@ -99,7 +99,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public double getDistance() {
-        return Math.sqrt(Math.pow(turretPos.getX(), 2) + Math.pow(turretPos.getY(), 2));
+        double dx = goal.getX() - turretPos.getX();
+        double dy = goal.getY() - turretPos.getY();
+        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
     public void setManualPower(Double p) {
@@ -113,7 +115,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, turretOffset);
 
-        double theta = calculateAngleToGoal(turretPos, goal);
+        double theta = calculateAngleToGoal(turretPos);
         double alpha = theta - robotHeadingTurretDomain;
 
         controller.setTarget(new State(targetAngle = normalizeFrom0to360(alpha), 0, 0, 0)); //TODO fix me!
@@ -143,9 +145,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
      * Calculate θ, the raw angle from turret to goal.
      * Formula: atan2(yg - yt, xg - xt)
      */
-    public double calculateAngleToGoal(Pose turretPos, Pose goalPos) {
-        double dx = goalPos.getX() - turretPos.getX();
-        double dy = goalPos.getY() - turretPos.getY();
+    public double calculateAngleToGoal(Pose turretPos) {
+        double dx = goal.getX() - turretPos.getX();
+        double dy = goal.getY() - turretPos.getY();
         return ((360-Math.toDegrees(Math.atan2(dy, dx)))+90+360)%360;
     }
 
@@ -189,7 +191,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         telemetry.addData("encoder angle: ", currentAngle);
         telemetry.addData("target angle: ", targetAngle);
         telemetry.addData("turret domain robot heading: ", ((360 - Math.toDegrees(Common.robot.drivetrain.getHeading())) + 90 + 360) % 360);
-        telemetry.addData("calculated theta: ", calculateAngleToGoal(turretPos, goal));
+        telemetry.addData("calculated theta: ", calculateAngleToGoal(turretPos));
         telemetry.addData("turret pos x: ", turretPos.getX());
         telemetry.addData("turret pos y: ", turretPos.getY());
         telemetry.addData("raw ticks", motorEncoder.getPosition());
@@ -197,5 +199,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         telemetry.addData("calculated distance: ", getDistance());
         graph.addData("target angle", targetAngle);
         graph.addData("encoder angle", currentAngle);
+        telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
     }
 }

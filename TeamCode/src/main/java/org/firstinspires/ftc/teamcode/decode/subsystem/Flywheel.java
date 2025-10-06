@@ -1,14 +1,19 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
@@ -16,16 +21,19 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 
 @Configurable
+@Config
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final DcMotorEx shooterMaster, shooterSlave;
     public final DcMotorEx[] motorGroup;
 
+    private final Motor.Encoder shooterEncoder;
+
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains velocityPidGains = new PIDGains(
-            0.005,
-            0.002,
-            0.0001,
+            0.0000045,
+            0.000003,
+            0.000035,
             Double.POSITIVE_INFINITY
     );
 
@@ -33,26 +41,31 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         OFF, IDLE, ARMING, RUNNING;
     }
 
-    private final ElapsedTime currentSpikeCheckTimer = new ElapsedTime();
-
     public static double
-            currentSpikeThreshold = 0.5, // TODO tune in AMPS
-            timeDropPeriod = 0.2; // TODO tune in SECONDS of how long current should drop
+            currentSpikeThreshold = 2, // TODO tune in AMPS
+            timeDropPeriod = 0.5; // TODO tune in SECONDS of how long current should drop
 
     private FlyWheelStates targetState = FlyWheelStates.OFF;
 
+    private boolean inCurrentSpikeTimer = false;
     private double
-            currentPower = 0.0,
+            currentRPM = 0.0,
             flywheelCurrent = 0.0,
-            initialCurrentReading = 0.0;
+            lastCurrentReading = 0.0,
+            currentPower = 0,
+            calculatedPower = 0,
+            currentSpikeStartTime = 0;
+
 
     public Flywheel(HardwareMap hw) {
         this.shooterMaster = (DcMotorEx) hw.get(DcMotor.class, "shooterMaster");
         this.shooterSlave = (DcMotorEx) hw.get(DcMotor.class, "shooterSlave");
+        MotorEx dummy = new MotorEx(hw, "left front", Motor.GoBILDA.BARE);
 
         shooterSlave.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterMaster.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        shooterEncoder = dummy.encoder;
 
         motorGroup = new DcMotorEx[]{shooterMaster, shooterSlave};
 
@@ -69,35 +82,34 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         return targetState;
     }
 
-    public FlyWheelStates getCurrentState() {
-        if (currentPower == 0)
-            return FlyWheelStates.OFF;
-        else if (Math.abs(currentPower) <= .5)
-            return FlyWheelStates.IDLE;
-        else if (Math.abs(currentPower) <= .8)
-            return FlyWheelStates.ARMING;
-        else
-            return FlyWheelStates.RUNNING;
+    public boolean inCurrentSpikeTimer() {
+        return inCurrentSpikeTimer;
     }
+
 
     public boolean isPIDInTolerance() {
-        return velocityController.isPositionInTolerance(new State(currentPower, 0, 0, 0), 0.05);
+        return velocityController.isPositionInTolerance(new State(currentRPM, 0, 0, 0), 200);
     }
 
-    public boolean didCurrentDrop() {
-        if (flywheelCurrent > initialCurrentReading + currentSpikeThreshold) currentSpikeCheckTimer.startTime();
-        if ((currentSpikeCheckTimer.seconds() >= timeDropPeriod && currentSpikeCheckTimer.seconds() <= timeDropPeriod + 0.1) && flywheelCurrent < initialCurrentReading - currentSpikeThreshold) {
-            currentSpikeCheckTimer.reset();
+    public boolean didCurrentSpike() {
+        // if current has spiked and we're in tolerance and we're not in a timer(start time + time period > curr time
+        if (flywheelCurrent > currentSpikeThreshold && !inCurrentSpikeTimer) {
+            currentSpikeStartTime = (double) System.nanoTime() / 1E9;
+            inCurrentSpikeTimer = true;
+            return false;
+        }
 
+        if (currentSpikeStartTime + timeDropPeriod < (double) System.nanoTime() / 1E9 && inCurrentSpikeTimer) {
+            inCurrentSpikeTimer = false;
             return true;
-        } else if (currentSpikeCheckTimer.seconds() > timeDropPeriod + 0.1) currentSpikeCheckTimer.reset();
+        }
 
         return false;
     }
 
     @Override
     public void run() {
-        currentPower = shooterMaster.getPower();
+        currentRPM = shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0;
 
         flywheelCurrent = (motorGroup[0].getCurrent(CurrentUnit.AMPS) + motorGroup[1].getCurrent(CurrentUnit.AMPS))/2;
 
@@ -106,28 +118,47 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 velocityController.setTarget(new State(0, 0, 0, 0));
                 break;
             case IDLE:
-                velocityController.setTarget(new State(0.3, 0, 0, 0));
+                velocityController.setTarget(new State(2200, 0, 0, 0));
                 break;
             case ARMING:
-                velocityController.setTarget(new State(1, 0, 0, 0));
+                velocityController.setTarget(new State(4000, 0, 0, 0));
 
                 if (isPIDInTolerance()) {
-                    initialCurrentReading = (motorGroup[0].getCurrent(CurrentUnit.AMPS) + motorGroup[1].getCurrent(CurrentUnit.AMPS))/2;
                     targetState = FlyWheelStates.RUNNING;
                 }
                 break;
             case RUNNING:
-                velocityController.setTarget(new State(1, 0, 0, 0));
+                velocityController.setTarget(new State(4000, 0, 0, 0));
                 break;
         }
 
-        for (DcMotorEx m : motorGroup) m.setPower(velocityController.calculate(new State(currentPower, 0, 0, 0)));
+        calculatedPower = velocityController.calculate(new State(currentRPM, 0, 0, 0));
+        currentPower += calculatedPower;
+        currentPower = Range.clip(currentPower, 0.0, 1.0);
+
+        for (DcMotorEx m : motorGroup) m.setPower(currentPower);
     }
 
     public void printTelemetry() {
         telemetry.addLine("FLYWHEEL");
-        telemetry.addData("current state: ", getCurrentState());
+        telemetry.addData("current state: ", get());
         telemetry.addData("target state: ", targetState);
+        telemetry.addData("current RPM: ", currentRPM);
+        telemetry.addData("initial current: ", lastCurrentReading);
         graph.addData("current: ", flywheelCurrent);
+        graph.addData("current RPM: ", currentRPM);
+        graph.addData("current pos: ", shooterEncoder.getPosition());
+        graph.addData("target RPM: ", 4800);
+        telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
+
+        dashTelemetry.addData("current: ", flywheelCurrent);
+        dashTelemetry.addData("current RPM: ", currentRPM);
+        dashTelemetry.addData("calculated power: ", calculatedPower);
+        dashTelemetry.addData("current power: ", currentPower);
+        dashTelemetry.addData("is timer on: ", inCurrentSpikeTimer);
+        dashTelemetry.addData("current pos: ", shooterEncoder.getPosition());
+        dashTelemetry.addData("target RPM: ", 4000);
+        dashTelemetry.addData("target RPM (idle): ", 2200);
+
     }
 }

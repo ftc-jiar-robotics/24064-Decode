@@ -65,5 +65,6 @@ public final class Robot {
 
         Common.graph.update();
         Common.telemetry.update();
+        Common.dashTelemetry.update();
     }
 }

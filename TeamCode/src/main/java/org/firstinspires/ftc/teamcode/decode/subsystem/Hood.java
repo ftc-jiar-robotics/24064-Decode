@@ -2,9 +2,14 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
+import android.util.Log;
+
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
+
+import java.util.TreeMap;
 
 @Configurable
 public class Hood extends Subsystem<Double> {
@@ -17,8 +22,22 @@ public class Hood extends Subsystem<Double> {
             MAX = 180,
             MIN = 75;
 
+    private final TreeMap<Double, Double> hoodAngles = new TreeMap<>();
+
     public Hood(HardwareMap hw) {
         this.hood = new SimpleServo(hw, "hood", Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1);
+
+        // k = distance (ft), v = angle (deg)
+        // TODO tune LUT and interpolate w/ formula
+        // TODO change/tune values
+        hoodAngles.put(40.0, 175.0);
+        hoodAngles.put(60.0, 165.0);
+        hoodAngles.put(80.0, 155.0);
+        hoodAngles.put(100.0, 145.0);
+        hoodAngles.put(120.0, 135.0);
+        hoodAngles.put(160.0, 125.0);
+        hoodAngles.put(180.0, 115.0);
+        hoodAngles.put(200.0, 95.0);
     }
 
     @Override
@@ -28,12 +47,36 @@ public class Hood extends Subsystem<Double> {
 
     @Override
     public void set(Double a) {
-        targetAngle = a;
+        targetAngle = Range.clip(a, MIN, MAX);
+    }
+
+    public void setPhysicalMax() {
+        targetAngle = PHYSICAL_MAX;
+    }
+
+    public double getHoodAngleWithDistance(double distance) {
+        if (hoodAngles.containsKey(distance)) return hoodAngles.get(distance);
+
+        double finalDistance = Range.clip(distance, hoodAngles.firstKey(), hoodAngles.lastKey());
+
+        if (finalDistance >= hoodAngles.firstKey() && finalDistance <= hoodAngles.lastKey()) {
+            double x2 = hoodAngles.ceilingKey(finalDistance); // x2
+            double x1 = hoodAngles.floorKey(finalDistance); // x1
+
+            double y2 = hoodAngles.get(x2); // y2
+            double y1 = hoodAngles.get(x1); // y1
+
+            if (x2 == x1) return get();
+
+            return Range.clip(y1 + ((finalDistance - x1) * (y2 - y1)) / (x2 - x1), MIN, MAX);
+        }
+
+        return get();
     }
 
     @Override
     public void run() {
-        hood.turnToAngle(targetAngle);
+        hood.turnToAngle(Range.clip(targetAngle, MIN, MAX));
     }
 
     public void printTelemetry() {

@@ -55,15 +55,15 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
                     feederBack.setPower(0);
                     break;
                 case OUTTAKING:
-                    feederFront.setPower(1);
+                    feederFront.setPower(-1);
                     feederBack.setPower(-1);
                     break;
                 case IDLE:
                     feederFront.setPower(-1);
-                    feederBack.setPower(-1);
+                    feederBack.setPower(1);
                     break;
                 case RUNNING:
-                    feederFront.setPower(-1);
+                    feederFront.setPower(1);
                     feederBack.setPower(1);
                     break;
             }

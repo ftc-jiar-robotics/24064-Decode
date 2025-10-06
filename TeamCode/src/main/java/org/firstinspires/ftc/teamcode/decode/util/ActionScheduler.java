@@ -45,7 +45,7 @@ public final class ActionScheduler {
             if (!running) {
                 actions.remove();
             }
-        }
+        } else if (!actions.isEmpty()) actions.remove();
     }
 
     public void runBlocking() {

@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
@@ -25,6 +29,8 @@ public class MainTeleop extends LinearOpMode {
 
         robot = new Robot(hardwareMap);
 
+        Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         waitForStart();
 
         // TODO replace pose w/ pose at the end of auton
@@ -35,6 +41,8 @@ public class MainTeleop extends LinearOpMode {
 
         while (opModeIsActive()) {
             robot.run();
+            gamepadEx1.readButtons();
+            gamepadEx2.readButtons();
 
             robot.drivetrain.setTeleOpDrive(
                     gamepadEx1.getLeftY(),
@@ -48,8 +56,16 @@ public class MainTeleop extends LinearOpMode {
             else robot.intake.set(0.0, false);
 
             // TODO automatically detect shooting zone and shoot
-            if (gamepadEx1.wasJustReleased(A)) {
+            if (gamepadEx1.wasJustPressed(A)) {
                 robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
+            }
+
+            if (gamepadEx1.wasJustPressed(B)) {
+                robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
+            }
+
+            if (gamepadEx1.wasJustPressed(X)) {
+                robot.shooter.clearQueueShots();
             }
 
             robot.printTelemetry();
