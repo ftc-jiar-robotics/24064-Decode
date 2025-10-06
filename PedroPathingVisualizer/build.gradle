@@ -7,4 +7,5 @@ java {
 }
 dependencies {
     implementation files('C:\\Users\\kswapan\\Downloads\\Visualizer-1.0.0.jar')
+    implementation files('/Users/2ndthirdsmac/Downloads/Visualizer-1.0.0.jar')
 }

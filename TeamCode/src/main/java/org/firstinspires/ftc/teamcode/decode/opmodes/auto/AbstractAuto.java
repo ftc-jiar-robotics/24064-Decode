@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 
 
 @Disabled
-public abstract class AbstractAutoPedro extends LinearOpMode {
+public abstract class AbstractAuto extends LinearOpMode {
 
     protected final void update() {
         robot.readSensors();

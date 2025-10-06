@@ -12,7 +12,7 @@ import com.owlrobotics.visualizer.util.enums.RobotImages;
 public class PedroVisualizerTest {
 
     public static void main(String[] args) {
-        PathVisualizer visualizer = new PathVisualizer(900, 144);
+        PathVisualizer visualizer = new PathVisualizer(600, 144);
 
         PedroPathingBotEntity test = new PedroPathingBotEntity.Builder()
                 .setRobotImage(RobotImages.Pedro_CLASSIC)
@@ -27,6 +27,13 @@ public class PedroVisualizerTest {
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
+                .addPath(
+                        new BezierLine(
+                                new Pose(56, 36),
+                                new Pose(100, 100)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(90))
                 .build());
 
         visualizer
