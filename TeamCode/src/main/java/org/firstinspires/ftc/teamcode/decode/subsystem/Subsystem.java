@@ -23,4 +23,6 @@ public abstract class Subsystem<T> {
     }
 
     abstract public void run();
+
+    abstract public void printTelemetry();
 }

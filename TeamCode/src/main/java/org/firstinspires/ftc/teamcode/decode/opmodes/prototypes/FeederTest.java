@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.decode.opmodes;
+package org.firstinspires.ftc.teamcode.decode.opmodes.prototypes;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -7,9 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Feeder;
-import org.firstinspires.ftc.teamcode.decode.subsystem.Intake;
 
-@TeleOp(name = "Feeder Test", group = "24064")
+@TeleOp(name = "feeder test", group = "prototypes")
 public class FeederTest extends LinearOpMode {
     private GamepadEx gamepadEx1;
     private Feeder feeder;

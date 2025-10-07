@@ -16,8 +16,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     // TODO make isShooterReady based whether odometry hits triangle // isTracking // shooter queue counter != 0
     // TODO if manual, then ignore isTracking
 
-    public final CRServo feederFront;
-    public final CRServo feederBack;
+    private final CRServo feederFront;
+    private final CRServo feederBack;
 
     private final ColorSensor colorSensor;
 

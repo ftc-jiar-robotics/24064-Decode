@@ -19,9 +19,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
 
-@TeleOp(name = "Main Teleop", group = "24064")
-public class MainTeleop extends LinearOpMode {
+@TeleOp(name = "Main TeleOp", group = "24064")
+public class MainTeleOp extends LinearOpMode {
     GamepadEx gamepadEx1, gamepadEx2;
 
     @Override
@@ -53,8 +54,8 @@ public class MainTeleop extends LinearOpMode {
                     false
             );
 
-            double trigger = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-            if (Math.abs(trigger) > 0) robot.intake.set(trigger, false);
+            double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
+            if (Math.abs(trigger1) > 0) robot.intake.set(trigger1, false);
             else robot.intake.set(0.0, false);
 
             // TODO automatically detect shooting zone and shoot
@@ -69,12 +70,14 @@ public class MainTeleop extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(X)) {
                 robot.shooter.clearQueueShots();
             }
+
             if (gamepadEx1.isDown(DPAD_UP)) {
                 robot.shooter.hood.set(robot.shooter.hood.get() + .5);
             }
             if (gamepadEx1.isDown(DPAD_DOWN)) {
                 robot.shooter.hood.set(robot.shooter.hood.get() - .5);
             }
+
             robot.printTelemetry();
         }
     }

@@ -13,11 +13,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     final Feeder feeder;
 
     private boolean didCurrentDrop;
-
     private int queuedShots = 0;
 
     public enum ShooterStates {
-        IDLE, MANUAL, TRACKING, RUNNING;
+        IDLE, TRACKING, RUNNING;
     }
 
     private ShooterStates targetState = ShooterStates.IDLE;
@@ -37,15 +36,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     @Override
     public ShooterStates get() {
         return targetState;
-    }
-
-    // TODO add motor pid checks
-    public boolean isShooterReady() {
-        return targetState == ShooterStates.RUNNING;
-    }
-
-    public void runManual(double power) {
-        turret.setManualPower(power);
     }
 
     public int getQueuedShots() {
@@ -84,12 +74,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     flywheel.set(Flywheel.FlyWheelStates.ARMING);
                     targetState = ShooterStates.TRACKING;
                 }
-                break;
-            case MANUAL:
-                feeder.set(Feeder.FeederStates.OFF);
-                flywheel.set(Flywheel.FlyWheelStates.ARMING);
-                // TODO make controls to set turret angle manually
-                // TODO make function to set hood angle manually
                 break;
             case TRACKING:
                 feeder.set(Feeder.FeederStates.OFF);

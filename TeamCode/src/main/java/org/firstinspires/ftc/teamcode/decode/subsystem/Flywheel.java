@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -23,13 +24,20 @@ import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 @Config
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final DcMotorEx shooterMaster, shooterSlave;
-    public final DcMotorEx[] motorGroup;
+    private final DcMotorEx[] motorGroup;
 
     private final Motor.Encoder shooterEncoder;
 
     private final PIDController velocityController = new PIDController();
 
-    public static PIDGains velocityPidGains = new PIDGains(
+    public static PIDGains farVelocityPIDGains = new PIDGains(
+            0.0000045,
+            0.000003,
+            0.000035,
+            Double.POSITIVE_INFINITY
+    );
+
+    public static PIDGains closeVelocityGains = new PIDGains(
             0.0000045,
             0.000003,
             0.000035,
@@ -37,7 +45,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     );
 
     public enum FlyWheelStates {
-        OFF, IDLE, ARMING, RUNNING;
+        OFF, IDLE, ARMING, RUNNING
     }
 
     public static double
@@ -56,7 +64,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             calculatedPower = 0,
             currentSpikeStartTime = 0;
 
-
     public Flywheel(HardwareMap hw) {
         this.shooterMaster = (DcMotorEx) hw.get(DcMotor.class, "shooterMaster");
         this.shooterSlave = (DcMotorEx) hw.get(DcMotor.class, "shooterSlave");
@@ -69,7 +76,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motorGroup = new DcMotorEx[]{shooterMaster, shooterSlave};
 
-        velocityController.setGains(velocityPidGains);
+        velocityController.setGains(farVelocityPIDGains);
     }
 
     @Override
@@ -96,12 +103,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (flywheelCurrent > currentSpikeThreshold && !inCurrentSpikeTimer) {
             currentSpikeStartTime = (double) System.nanoTime() / 1E9;
             inCurrentSpikeTimer = true;
-            return false;
+            return true;
         }
 
         if (currentSpikeStartTime + timeDropPeriod < (double) System.nanoTime() / 1E9 && inCurrentSpikeTimer) {
             inCurrentSpikeTimer = false;
-            return true;
+            return false;
         }
 
         return false;
@@ -111,7 +118,14 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public void run() {
         currentRPM = shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0;
 
+        boolean isFlywheelAboveHighRange = robot.shooter.turret.getDistance() > 57;
+
         flywheelCurrent = (motorGroup[0].getCurrent(CurrentUnit.AMPS) + motorGroup[1].getCurrent(CurrentUnit.AMPS))/2;
+
+        shootingRPM = isFlywheelAboveHighRange ? 4000 : 3500;
+
+        if (isFlywheelAboveHighRange) velocityController.setGains(farVelocityPIDGains);
+        else velocityController.setGains(closeVelocityGains);
 
         switch (targetState) {
             case OFF:

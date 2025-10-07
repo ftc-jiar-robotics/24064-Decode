@@ -26,21 +26,6 @@ public class RobotActions {
         );
     }
 
-    public static Action setShooter(Shooter.ShooterStates targetState, double sleepSeconds) {
-        return new ParallelAction(
-                new InstantAction(() -> robot.shooter.set(targetState, true)),
-                new SleepAction(sleepSeconds)
-        );
-    }
-
-    private static Action runManual(double power, double sleepSeconds) {
-        return new ParallelAction(
-                new InstantAction(() -> robot.shooter.runManual(power)),
-                new SleepAction(sleepSeconds)
-        );
-    }
-
-
     public static Action shootArtifacts(int artifacts) {
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
@@ -68,18 +53,5 @@ public class RobotActions {
                 },
                 setIntake(0, 0)
             );
-    }
-
-    public static Action decrementQueuedShots() {
-        return new InstantAction(() -> robot.shooter.decrementQueuedShots());
-    }
-
-    // TODO finish manual action
-    public static Action shootArtifactManually(double power) {
-        return new SequentialAction(
-                setShooter(Shooter.ShooterStates.MANUAL, 0.2),
-                runManual(power, 0.4),
-                setShooter(Shooter.ShooterStates.RUNNING, 0)
-        );
     }
 }

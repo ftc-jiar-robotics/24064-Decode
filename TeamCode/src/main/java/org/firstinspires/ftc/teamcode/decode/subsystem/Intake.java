@@ -31,4 +31,10 @@ public class Intake extends Subsystem<Double> {
     public void run() {
         motor.set(power);
     }
+
+    @Override
+    public void printTelemetry() {
+        Common.telemetry.addLine("INTAKE");
+        Common.telemetry.addData("current power: ", power);
+    }
 }

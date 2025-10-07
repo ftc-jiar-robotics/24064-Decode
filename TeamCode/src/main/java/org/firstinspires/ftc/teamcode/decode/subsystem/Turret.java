@@ -104,10 +104,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
-    public void setManualPower(Double p) {
-        manualPower = p;
-    }
-
     private void setTracking() {
         // turning robot heading to turret heading
         double robotHeading = Common.robot.drivetrain.getHeading();

@@ -26,9 +26,9 @@ public class HoodResetttingOpMode extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            if (gamepadEx1.isDown(A)) hood.setPhysicalMax();
-            if (gamepadEx1.isDown(B)) hood.set(hood.MAX);
-            if (gamepadEx1.isDown(X)) hood.set(hood.MIN);
+            if (gamepadEx1.wasJustPressed(A)) hood.setPhysicalMax();
+            if (gamepadEx1.wasJustPressed(B)) hood.set(hood.MAX);
+            if (gamepadEx1.wasJustPressed(X)) hood.set(hood.MIN);
 
             hood.run();
             hood.printTelemetry();

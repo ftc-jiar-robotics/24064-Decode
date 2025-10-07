@@ -1,17 +1,15 @@
-package org.firstinspires.ftc.teamcode.decode.opmodes;
+package org.firstinspires.ftc.teamcode.decode.opmodes.prototypes;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Hood;
 
-@TeleOp(name = "Hood Flywheel Test", group = "24064")
+@TeleOp(name = "hood flywheel test", group = "prototypes")
 public class HoodFlywheelTest extends LinearOpMode {
     private GamepadEx gamepadEx1;
     private Hood hood;
@@ -28,16 +26,15 @@ public class HoodFlywheelTest extends LinearOpMode {
         while (opModeIsActive()) {
             gamepadEx1.readButtons();
 
-            double rTrigger = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
-            for (DcMotorEx m : flywheel.motorGroup) {
-                m.setPower(rTrigger);
-            }
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) flywheel.set(Flywheel.FlyWheelStates.RUNNING);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) flywheel.set(Flywheel.FlyWheelStates.ARMING);
 
             double currentHoodAngle = 0;
 
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) currentHoodAngle += 5;
 
             hood.set(currentHoodAngle);
+            flywheel.run();
             hood.run();
 
             hood.printTelemetry();
