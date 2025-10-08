@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
+import org.firstinspires.ftc.teamcode.decode.util.ShooterZoneChecker;
 
 @TeleOp(name = "Main TeleOp", group = "24064")
 public class MainTeleOp extends LinearOpMode {
@@ -58,7 +59,6 @@ public class MainTeleOp extends LinearOpMode {
             if (Math.abs(trigger1) > 0) robot.intake.set(trigger1, false);
             else robot.intake.set(0.0, false);
 
-            // TODO automatically detect shooting zone and shoot
             if (gamepadEx1.wasJustPressed(A)) {
                 robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
             }
@@ -70,6 +70,13 @@ public class MainTeleOp extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(X)) {
                 robot.shooter.clearQueueShots();
             }
+
+//            boolean isInFarTriangle = robot.shooterZoneChecker.checkRectangleTriangleIntersection(ShooterZoneChecker.farTriangle);
+//            boolean isInCloseTriangle = robot.shooterZoneChecker.checkRectangleTriangleIntersection(ShooterZoneChecker.closeTriangle);
+//
+//            if (isInFarTriangle || isInCloseTriangle) {
+//                robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
+//            }
 
             if (gamepadEx1.isDown(DPAD_UP)) {
                 robot.shooter.hood.set(robot.shooter.hood.get() + .5);
