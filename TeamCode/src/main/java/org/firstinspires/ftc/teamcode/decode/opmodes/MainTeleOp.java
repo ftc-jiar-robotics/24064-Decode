@@ -5,11 +5,17 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.pedropathing.geometry.Pose;
@@ -19,8 +25,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
-import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
-import org.firstinspires.ftc.teamcode.decode.util.ShooterZoneChecker;
 
 @TeleOp(name = "Main TeleOp", group = "24064")
 public class MainTeleOp extends LinearOpMode {
@@ -35,13 +39,31 @@ public class MainTeleOp extends LinearOpMode {
 
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        if (AUTO_END_POSE == null) {
+            while (opModeInInit()) {
+                gamepadEx1.readButtons();
+
+                dashTelemetry.addLine("PRESS X TO TOGGLE SIDES");
+                dashTelemetry.addLine("PRESS O TO TOGGLE TRIANGLE LOCATION");
+                dashTelemetry.addData("IS RED: ", isRed);
+                if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) Common.isRed = !isRed;
+                dashTelemetry.addData("IS BIG TRIANGLE: ", isBigTriangle);
+                if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) isBigTriangle = !isBigTriangle;
+
+                AUTO_END_POSE = isBigTriangle ? new Pose(112.75, 136.5, Math.toRadians(180)) : new Pose(88.6, 7.25, Math.toRadians(0));
+
+                dashTelemetry.update();
+            }
+        }
+
         waitForStart();
 
         // TODO replace pose w/ pose at the end of auton
-        robot.drivetrain.setStartingPose(new Pose(70, 136.8, Math.toRadians(90)));
+
+        robot.drivetrain.setStartingPose(isRed ? AUTO_END_POSE : AUTO_END_POSE.mirror());
+
         robot.drivetrain.update();
         robot.drivetrain.startTeleopDrive(true);
-
 
         while (opModeIsActive()) {
             robot.run();
@@ -56,8 +78,9 @@ public class MainTeleOp extends LinearOpMode {
             );
 
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-            if (Math.abs(trigger1) > 0) robot.intake.set(trigger1, false);
-            else robot.intake.set(0.0, false);
+
+            robot.intake.set(trigger1, false);
+            robot.shooter.setFeederManual(trigger1 * 0.7, -Math.abs(trigger1));
 
             if (gamepadEx1.wasJustPressed(A)) {
                 robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
@@ -87,5 +110,7 @@ public class MainTeleOp extends LinearOpMode {
 
             robot.printTelemetry();
         }
+
+        AUTO_END_POSE = null;
     }
 }

@@ -4,19 +4,14 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VOLTAGE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
-import android.sax.StartElementListener;
-
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.graph.PanelsGraph;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.FeedforwardGains;
@@ -62,7 +57,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             kG = 0,
             turretOffset = 2.559,
             ticksToDegrees = 90.0/148.0,
-            warpAroundAngle = 159,
+            wrapAroundAngle = 159,
             pidTolerance = 2; // TODO tune in angle measurement
 
     public static Pose
@@ -148,7 +143,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public static double normalizeFrom0to360(double angle) {
-        return angle > warpAroundAngle ? angle - 360 : angle ;
+        return angle > wrapAroundAngle ? angle - 360 : angle ;
     }
 
     @Override
@@ -163,7 +158,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         } else {
             controller.setGains(pidGains);
             derivFilter.setGains(filterGains);
-            output += controller.calculate(new State(currentAngle, 0, 0 ,0)); // derivFilter.calculate
+
+            output += controller.calculate(new State(currentAngle, 0, 0 ,0));
         }
 
         switch (currentState) {

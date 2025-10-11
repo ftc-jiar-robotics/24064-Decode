@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.acmerobotics.roadrunner.InstantAction;
@@ -10,6 +11,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.Paths;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
@@ -27,6 +29,9 @@ public class AutoClose extends AbstractAuto{
     protected void onInit() {
         f = robot.drivetrain;
         path = new Paths(f);
+
+        if (Common.isRed) path.mirrorAll();
+
         path.buildClose();
     }
     @Override

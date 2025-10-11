@@ -26,7 +26,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     private float gain = 0; //TODO: change gain
 
     public enum FeederStates {
-        OFF, OUTTAKING, IDLE, RUNNING
+        OFF, OUTTAKING, MANUAL, IDLE, RUNNING
     }
 
     public Feeder(HardwareMap hw) {
@@ -37,8 +37,16 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         feederFront.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
+    public void set(double powerFront, double powerBack) {
+        if (!isLocked() && powerFront != 0 && powerBack != 0) {
+            currentState = FeederStates.MANUAL;
+            feederFront.setPower(powerFront);
+            feederBack.setPower(powerBack);
+        }
+    }
+
     @Override
-    public void set(FeederStates state) {
+    protected void set(FeederStates state) {
         currentState = state;
     }
 
@@ -59,8 +67,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
                     feederBack.setPower(-1);
                     break;
                 case IDLE:
-                    feederFront.setPower(-1);
-                    feederBack.setPower(1);
+                    feederFront.setPower(1);
+                    feederBack.setPower(-1);
                     break;
                 case RUNNING:
                     feederFront.setPower(1);

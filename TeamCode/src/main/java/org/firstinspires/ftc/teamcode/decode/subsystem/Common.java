@@ -15,6 +15,10 @@ public final class Common {
     public static final String CFG_NAME_FEEDER_COLORSENSOR = "colorSensorFeeder";
     public static Pose AUTO_END_POSE = null;
 
+    public static boolean
+            isRed = false,
+            isBigTriangle = false;
+
     public static final double
             LEFT = Math.toRadians(180),
             FORWARD = Math.toRadians(90),

@@ -54,10 +54,10 @@ public class TestOpMode extends LinearOpMode {
             if (gamepadEx1.isDown(LEFT_BUMPER)) intake.set(-1.0, true);
             else intake.set(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), true);
 
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) feeder.set(Feeder.FeederStates.RUNNING);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.Y)) feeder.set(Feeder.FeederStates.OUTTAKING);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) feeder.set(Feeder.FeederStates.IDLE);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) feeder.set(Feeder.FeederStates.OFF);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) feeder.set(Feeder.FeederStates.RUNNING, false);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.Y)) feeder.set(Feeder.FeederStates.OUTTAKING, false);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) feeder.set(Feeder.FeederStates.IDLE, false);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) feeder.set(Feeder.FeederStates.OFF, false);
 
             hood.run();
             intake.run();

@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -12,7 +16,6 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 
 @Disabled
 public abstract class AbstractAuto extends LinearOpMode {
-
     protected final void update() {
         robot.readSensors();
         robot.update();
@@ -41,7 +44,20 @@ public abstract class AbstractAuto extends LinearOpMode {
     protected void onInit() {
         robot.drivetrain.setPose(getStartPose());
     }
-    protected void configure() {}
+
+    protected void configure() {
+        GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
+
+        while (opModeInInit()) {
+            gamepadEx1.readButtons();
+
+            dashTelemetry.addLine("PRESS A TO TOGGLE SIDES");
+            dashTelemetry.addData("IS RED: ", isRed);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) Common.isRed = !isRed;
+
+            dashTelemetry.update();
+        }
+    }
     protected abstract Pose getStartPose();
     protected abstract void onRun();
 }

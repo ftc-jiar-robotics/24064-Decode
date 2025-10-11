@@ -27,17 +27,14 @@ public class Hood extends Subsystem<Double> {
     public Hood(HardwareMap hw) {
         this.hood = new SimpleServo(hw, "hood", Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1);
 
-        // k = distance (ft), v = angle (deg)
+        // k = distance (inches), v = angle (deg)
         // TODO tune LUT and interpolate w/ formula
         // TODO change/tune values
-        hoodAngles.put(40.0, 175.0);
-        hoodAngles.put(60.0, 165.0);
-        hoodAngles.put(80.0, 155.0);
-        hoodAngles.put(100.0, 145.0);
-        hoodAngles.put(120.0, 135.0);
-        hoodAngles.put(160.0, 125.0);
-        hoodAngles.put(180.0, 115.0);
-        hoodAngles.put(200.0, 95.0);
+        hoodAngles.put(54.0, 75.0); // RPM 3500
+        hoodAngles.put(60.5, 87.0); // RPM 3500
+        hoodAngles.put(67.0, 105.0); // RPM 3500
+        hoodAngles.put(73.49, 117.5); // RPM 3500
+        hoodAngles.put(73.5, 145.0); // RPM 4000
     }
 
     @Override
@@ -76,7 +73,7 @@ public class Hood extends Subsystem<Double> {
 
     @Override
     public void run() {
-        hood.turnToAngle(Range.clip(targetAngle, MIN, MAX));
+        hood.turnToAngle(Range.clip(targetAngle, MIN, PHYSICAL_MAX));
     }
 
     public void printTelemetry() {

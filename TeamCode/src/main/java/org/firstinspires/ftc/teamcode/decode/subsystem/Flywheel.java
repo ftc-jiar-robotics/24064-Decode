@@ -30,17 +30,17 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     private final PIDController velocityController = new PIDController();
 
-    public static PIDGains farVelocityPIDGains = new PIDGains(
-            0.0000045,
-            0.000003,
-            0.000035,
+    public static PIDGains shootingVelocityGains = new PIDGains(
+            0.000375,
+            0.00001,
+            0.00015,
             Double.POSITIVE_INFINITY
     );
 
-    public static PIDGains closeVelocityGains = new PIDGains(
-            0.0000045,
+    public static PIDGains holdingVelocityGains = new PIDGains(
+            0.0000004,
+            0.000001,
             0.000003,
-            0.000035,
             Double.POSITIVE_INFINITY
     );
 
@@ -49,17 +49,21 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            currentSpikeThreshold = 2, // TODO tune in AMPS
+            currentSpikeThreshold = 2.5, // TODO tune in AMPS
             timeDropPeriod = 0.5, // TODO tune in SECONDS of how long current should drop
-            shootingRPM = 4000; //TODO fix with lut
+            rpmChangeDistance = 75.5,
+            closeRPM = 3500,
+            farRPM = 4000;
 
     private FlyWheelStates targetState = FlyWheelStates.OFF;
 
     private boolean inCurrentSpikeTimer = false;
     private double
+            rpmTolerance = 50,
             currentRPM = 0.0,
             flywheelCurrent = 0.0,
             lastCurrentReading = 0.0,
+            shootingRPM = 4000,
             currentPower = 0,
             calculatedPower = 0,
             currentSpikeStartTime = 0;
@@ -76,7 +80,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motorGroup = new DcMotorEx[]{shooterMaster, shooterSlave};
 
-        velocityController.setGains(farVelocityPIDGains);
+        velocityController.setGains(shootingVelocityGains);
     }
 
     @Override
@@ -95,7 +99,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
 
     public boolean isPIDInTolerance() {
-        return velocityController.isPositionInTolerance(new State(currentRPM, 0, 0, 0), 200);
+        return velocityController.isPositionInTolerance(new State(currentRPM, 0, 0, 0), rpmTolerance);
     }
 
     public boolean didCurrentSpike() {
@@ -117,24 +121,22 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     @Override
     public void run() {
         currentRPM = shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0;
-
-        boolean isFlywheelAboveHighRange = robot.shooter.turret.getDistance() > 57;
+        if (currentRPM > 10000) currentRPM = 0;
 
         flywheelCurrent = (motorGroup[0].getCurrent(CurrentUnit.AMPS) + motorGroup[1].getCurrent(CurrentUnit.AMPS))/2;
 
-        shootingRPM = isFlywheelAboveHighRange ? 4000 : 3500;
-
-        if (isFlywheelAboveHighRange) velocityController.setGains(farVelocityPIDGains);
-        else velocityController.setGains(closeVelocityGains);
+        shootingRPM = robot.shooter.turret.getDistance() < rpmChangeDistance ? closeRPM : farRPM;
 
         switch (targetState) {
             case OFF:
                 velocityController.setTarget(new State(0, 0, 0, 0));
                 break;
             case IDLE:
+                velocityController.setGains(holdingVelocityGains);
                 velocityController.setTarget(new State(2200, 0, 0, 0));
                 break;
             case ARMING:
+                velocityController.setGains(shootingVelocityGains);
                 velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
                 if (isPIDInTolerance()) {
@@ -146,7 +148,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 break;
         }
 
-        calculatedPower = velocityController.calculate(new State(currentRPM, 0, 0, 0));
+        if (targetState == FlyWheelStates.ARMING || targetState == FlyWheelStates.RUNNING) {
+            calculatedPower = Math.pow(velocityController.calculate(new State(currentRPM, 0, 0, 0)), 3);
+        } else calculatedPower = velocityController.calculate(new State(currentRPM, 0, 0, 0));
+
         currentPower += calculatedPower;
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 

@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
 public class Shooter extends Subsystem<Shooter.ShooterStates> {
-    public final Hood hood; //TODO make un public
+    public final Hood hood; //TODO make un public remove manual control from main teleop
     final Flywheel flywheel;
     final Turret turret;
     final Feeder feeder;
@@ -38,6 +38,15 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return targetState;
     }
 
+    @Override
+    public void setLocked(boolean isLocked) {
+        super.setLocked(isLocked);
+        feeder.setLocked(isLocked);
+        flywheel.setLocked(isLocked);
+        turret.setLocked(isLocked);
+        hood.setLocked(isLocked);
+    }
+
     public int getQueuedShots() {
         return queuedShots;
     }
@@ -55,6 +64,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         queuedShots = 0;
     }
 
+    public void setFeederManual(double powerFront, double powerBack) {
+        feeder.set(powerFront, powerBack);
+    }
+
     @Override
     public void run() {
         // TODO add voltage readings for flywheel & decrement queued shots
@@ -65,7 +78,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
         switch (targetState) {
             case IDLE:
-                feeder.set(Feeder.FeederStates.OFF);
+                if (feeder.get() != Feeder.FeederStates.IDLE) {
+                    feeder.set(Feeder.FeederStates.OFF);
+                }
+
                 flywheel.set(Flywheel.FlyWheelStates.IDLE);
                 turret.set(Turret.TurretStates.ODOM_TRACKING);
 //                hood.set(hood.MIN);
@@ -78,10 +94,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case TRACKING:
                 feeder.set(Feeder.FeederStates.OFF);
                 turret.set(Turret.TurretStates.ODOM_TRACKING);
-//                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()));
 
                 // TODO add checks for all PIDS
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
+//                    hood.set(hood.getHoodAngleWithDistance(turret.getDistance()));
                     feeder.set(Feeder.FeederStates.RUNNING);
                     targetState = ShooterStates.RUNNING;
                 }
