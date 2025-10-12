@@ -18,14 +18,15 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.FeedforwardGai
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
+import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
+import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
 @Configurable
 public class Turret extends Subsystem<Turret.TurretStates> {
     private final MotorEx turret;
     private final AnalogInput encoder;
     private final Motor.Encoder motorEncoder;
-
-
+    private final AutoAim autoAim;
     private final VoltageSensor batteryVoltageSensor;
 
     public static PIDGains pidGains = new PIDGains(
@@ -53,16 +54,17 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static LowPassGains filterGains = new LowPassGains(0, 2);
 
     public static double
-            offset = -90,
             kG = 0,
-            turretOffset = 2.559,
-            ticksToDegrees = 90.0/148.0,
-            wrapAroundAngle = 159,
-            pidTolerance = 2; // TODO tune in angle measurement
+            TURRET_OFFSET = 2.559,
+            TICKS_TO_DEGREES = 90.0 / 148.0,
+            WRAP_AROUND_ANGLE = 159,
+            PID_TOLERANCE = 2; // TODO tune in angle measurement
 
-    public static Pose
-            goal = new Pose(13.4, 136.8);
+    public static int
+            CHECK_UNDETECTED_LOOPS = (1 << 6) - 1, // checking every X loops to switch to VISION_TRACKING state
+            CHECK_DETECTED_LOOPS = (1 << 2) - 1; // checking every X loop when in VISION_TRACKING state
 
+    public static Pose goal = new Pose(13.4, 136.8);
     private Pose turretPos = new Pose(0, 0);
 
     private double
@@ -75,12 +77,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         this.encoder = hw.get(AnalogInput.class, "turretEncoder");
         this.batteryVoltageSensor = hw.voltageSensor.iterator().next();
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
-
+        autoAim = new AutoAim(hw, Common.isRed, Common.RED_GOAL_ID, Common.BLUE_GOAL_ID, Common.TAG_SIZE_METERS_DECODE, "arduCam");
         motorEncoder = rightBack.encoder;
         motorEncoder.reset();
         controller.setGains(pidGains);
         derivFilter.setGains(filterGains);
-
     }
 
     @Override
@@ -99,22 +100,28 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
-    private void setTracking() {
+    private void setOdomTracking() {
         // turning robot heading to turret heading
         double robotHeading = Common.robot.drivetrain.getHeading();
         double robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 360) % 360;
 
-        turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, turretOffset);
+        turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
 
         double theta = calculateAngleToGoal(turretPos);
         double alpha = theta - robotHeadingTurretDomain;
 
-        controller.setTarget(new State(targetAngle = normalizeFrom0to360(alpha), 0, 0, 0)); //TODO fix me!
+        controller.setTarget(new State(targetAngle = normalizeFrom0to360(alpha), 0, 0, 0));
+    }
+
+    private void setVisionTracking() {
+        controller.setTarget(new State(targetAngle = normalizeFrom0to360(currentAngle + autoAim.getTargetYawDegrees()), 0, 0, 0));
+
     }
 
     public boolean isPIDInTolerance() {
-        return controller.isPositionInTolerance(new State(currentAngle, 0, 0, 0), pidTolerance);
+        return controller.isPositionInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE);
     }
+
 
     /**
      * Calculate the turret position (xt, yt).
@@ -139,16 +146,16 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public double calculateAngleToGoal(Pose turretPos) {
         double dx = goal.getX() - turretPos.getX();
         double dy = goal.getY() - turretPos.getY();
-        return ((360-Math.toDegrees(Math.atan2(dy, dx)))+90+360)%360;
+        return ((360 - Math.toDegrees(Math.atan2(dy, dx))) + 90 + 360) % 360;
     }
 
     public static double normalizeFrom0to360(double angle) {
-        return angle > wrapAroundAngle ? angle - 360 : angle ;
+        return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle ;
     }
 
     @Override
     public void run() {
-        currentAngle = motorEncoder.getPosition() * ticksToDegrees;
+        currentAngle = motorEncoder.getPosition() * TICKS_TO_DEGREES;
 
         double scalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
@@ -167,9 +174,18 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 targetAngle = 0;
                 break;
             case ODOM_TRACKING:
-                setTracking();
-                break;
+                setOdomTracking();
+                if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
+                    if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
+                    else break;
+                } else {
+                    break;
+                }
             case VISION_TRACKING:
+                if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
+                    if (autoAim.isTargetDetected()) setVisionTracking();
+                    else currentState = TurretStates.ODOM_TRACKING;
+                }
                 break;
         }
 

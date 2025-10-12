@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
-import org.firstinspires.ftc.teamcode.decode.util.ShooterZoneChecker;
+import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
+import org.firstinspires.ftc.teamcode.decode.util.ZoneChecker;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -18,7 +18,7 @@ public final class Robot {
     public final ActionScheduler actionScheduler;
     public final Shooter shooter;
     public final Intake intake;
-    public final ShooterZoneChecker shooterZoneChecker;
+    public final ZoneChecker zoneChecker;
 
     /**
      * Constructor used in teleOp classes that makes the current pose2d, 0
@@ -38,7 +38,7 @@ public final class Robot {
         actionScheduler = new ActionScheduler();
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
-        shooterZoneChecker = new ShooterZoneChecker();
+        zoneChecker = new ZoneChecker();
     }
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read
@@ -51,12 +51,13 @@ public final class Robot {
         actionScheduler.run();
         shooter.run();
         intake.run();
+        LoopUtil.updateLoopCount();
         update();
     }
 
     public void update() {
         drivetrain.update();
-        shooterZoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
+        zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         readSensors();
     }
 

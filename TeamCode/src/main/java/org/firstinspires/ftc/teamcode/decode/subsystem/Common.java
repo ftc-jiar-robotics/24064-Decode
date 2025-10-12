@@ -30,7 +30,12 @@ public final class Common {
             SERVO_45_KG_MAX = 270,
             SERVO_AXON_MAX_1 = 270,
             SERVO_AXON_MIN = 0,
-            SERVO_AXON_MAX_2 = 355;
+            SERVO_AXON_MAX_2 = 355,
+            TAG_SIZE_METERS_DECODE = 0.2064;
+
+    public static final int
+            BLUE_GOAL_ID = 20,
+            RED_GOAL_ID  = 24;
 
     public static final double MAX_VOLTAGE = 13;
 

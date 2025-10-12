@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.decode.util;
 
 import com.pedropathing.geometry.Pose;
 
-public class ShooterZoneChecker {
+public class ZoneChecker {
     private final double
         ROBOT_WIDTH = 14.043,
         ROBOT_LENGTH = 16.3;
