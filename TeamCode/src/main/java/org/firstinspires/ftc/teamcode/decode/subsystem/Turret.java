@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VOLTAGE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
@@ -30,9 +31,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final VoltageSensor batteryVoltageSensor;
 
     public static PIDGains pidGains = new PIDGains(
-            0.025,
-            0.0030,
-            0.00065,
+            0.033,
+            0.008,
+            0.001,
             Double.POSITIVE_INFINITY
     );
 
@@ -57,14 +58,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             kG = 0,
             TURRET_OFFSET = 2.559,
             TICKS_TO_DEGREES = 90.0 / 148.0,
-            WRAP_AROUND_ANGLE = 159,
-            PID_TOLERANCE = 2; // TODO tune in angle measurement
+            WRAP_AROUND_ANGLE = 150,
+            PID_TOLERANCE = 1;
 
     public static int
             CHECK_UNDETECTED_LOOPS = (1 << 6) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 2) - 1; // checking every X loop when in VISION_TRACKING state
 
-    public static Pose goal = new Pose(13.4, 136.8);
+    public static Pose goal = new Pose(8.5, 141);
     private Pose turretPos = new Pose(0, 0);
 
     private double
@@ -82,6 +83,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         motorEncoder.reset();
         controller.setGains(pidGains);
         derivFilter.setGains(filterGains);
+        if (Common.isRed) goal = goal.mirror();
     }
 
     @Override
@@ -103,12 +105,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private void setOdomTracking() {
         // turning robot heading to turret heading
         double robotHeading = Common.robot.drivetrain.getHeading();
-        double robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 360) % 360;
-
+        double robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
+        
         turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
 
         double theta = calculateAngleToGoal(turretPos);
-        double alpha = theta - robotHeadingTurretDomain;
+        double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
 
         controller.setTarget(new State(targetAngle = normalizeFrom0to360(alpha), 0, 0, 0));
     }
@@ -146,7 +148,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public double calculateAngleToGoal(Pose turretPos) {
         double dx = goal.getX() - turretPos.getX();
         double dy = goal.getY() - turretPos.getY();
-        return ((360 - Math.toDegrees(Math.atan2(dy, dx))) + 90 + 360) % 360;
+        
+        return ((360 - Math.toDegrees(Math.atan2(dy, dx))) + 90 + 3600) % 360;
     }
 
     public static double normalizeFrom0to360(double angle) {
@@ -191,13 +194,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         rawPower = output;
         turret.set(output);
+
+        if (isPIDInTolerance()) controller.reset();
     }
 
     double rawPower = 0;
     public void printTelemetry() {
         telemetry.addLine("TURRET");
-        telemetry.addData("encoder angle: ", currentAngle);
-        telemetry.addData("target angle: ", targetAngle);
+        telemetry.addData("current state: ", currentState);
         telemetry.addData("turret domain robot heading: ", ((360 - Math.toDegrees(Common.robot.drivetrain.getHeading())) + 90 + 360) % 360);
         telemetry.addData("calculated theta: ", calculateAngleToGoal(turretPos));
         telemetry.addData("turret pos x: ", turretPos.getX());
@@ -208,5 +212,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         graph.addData("target angle", targetAngle);
         graph.addData("encoder angle", currentAngle);
         telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
+
+        dashTelemetry.addLine("TURRET");
+        dashTelemetry.addData("encoder angle: ", currentAngle);
+        dashTelemetry.addData("target angle: ", targetAngle);
     }
 }

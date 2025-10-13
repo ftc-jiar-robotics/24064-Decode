@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
@@ -40,17 +44,17 @@ public class AutoAim {
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setDrawAxes(false)
+                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setDrawCubeProjection(false);
 
-        // Only set intrinsics if provided (>0). If you don't have them, yaw is still fine.
-
         procB.setLensIntrinsics(FX, FY, CX, CY);
-
-
+        
         processor = procB.build();
 
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hw.get(WebcamName.class, webcamName))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .enableLiveView(true)
                 .addProcessor(processor)
                 .build();
     }

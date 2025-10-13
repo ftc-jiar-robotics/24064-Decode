@@ -15,7 +15,9 @@ import java.util.TreeMap;
 public class Hood extends Subsystem<Double> {
     private final SimpleServo hood;
 
-    private double targetAngle;
+    private double
+            targetAngle,
+            lutOutput;
 
     public static double
             PHYSICAL_MAX = 200,
@@ -65,7 +67,9 @@ public class Hood extends Subsystem<Double> {
 
             if (x2 == x1) return get();
 
-            return Range.clip(y1 + ((finalDistance - x1) * (y2 - y1)) / (x2 - x1), MIN, MAX);
+            lutOutput = Range.clip(y1 + ((finalDistance - x1) * (y2 - y1)) / (x2 - x1), MIN, MAX);
+
+            return lutOutput;
         }
 
         return get();
@@ -79,5 +83,7 @@ public class Hood extends Subsystem<Double> {
     public void printTelemetry() {
         telemetry.addLine("HOOD");
         telemetry.addData("hood target angle: ", targetAngle);
+        telemetry.addData("LUT output: ", lutOutput);
+
     }
 }

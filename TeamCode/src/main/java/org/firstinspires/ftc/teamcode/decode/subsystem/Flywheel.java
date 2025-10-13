@@ -156,6 +156,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 
         for (DcMotorEx m : motorGroup) m.setPower(currentPower);
+
+        if (isPIDInTolerance()) velocityController.reset();
     }
 
     public void printTelemetry() {

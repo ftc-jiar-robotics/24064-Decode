@@ -39,6 +39,10 @@ public final class Robot {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
+
+        try {
+            drivetrain.getPoseTracker().resetIMU();
+        } catch (InterruptedException ignored) {}
     }
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read

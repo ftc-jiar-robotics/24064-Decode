@@ -79,37 +79,37 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         switch (targetState) {
             case IDLE:
                 if (feeder.get() != Feeder.FeederStates.IDLE) {
-                    feeder.set(Feeder.FeederStates.OFF);
+                    feeder.set(Feeder.FeederStates.OFF, true);
                 }
 
-                flywheel.set(Flywheel.FlyWheelStates.IDLE);
-                turret.set(Turret.TurretStates.ODOM_TRACKING);
-//                hood.set(hood.MIN);
+                flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
+                turret.set(Turret.TurretStates.ODOM_TRACKING, true);
+                hood.set(hood.MIN, true);
 
                 if (queuedShots >= 1) {
-                    flywheel.set(Flywheel.FlyWheelStates.ARMING);
+                    flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.TRACKING;
                 }
                 break;
             case TRACKING:
-                feeder.set(Feeder.FeederStates.OFF);
-                turret.set(Turret.TurretStates.ODOM_TRACKING);
+                feeder.set(Feeder.FeederStates.OFF, true);
+                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+                turret.set(Turret.TurretStates.ODOM_TRACKING, true);
 
                 // TODO add checks for all PIDS
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
-//                    hood.set(hood.getHoodAngleWithDistance(turret.getDistance()));
-                    feeder.set(Feeder.FeederStates.RUNNING);
+                    feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
                 }
                 break;
             case RUNNING:
-                flywheel.set(Flywheel.FlyWheelStates.RUNNING);
+                flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
 
                 if (didCurrentDrop) { // TODO needs to happen when voltage drop happens
                     if (queuedShots <= 0) targetState = ShooterStates.IDLE;
                     else targetState = ShooterStates.TRACKING;
 
-                    feeder.set(Feeder.FeederStates.OFF);
+                    feeder.set(Feeder.FeederStates.OFF, true);
                 }
 
                 break;
