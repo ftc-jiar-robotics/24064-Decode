@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 import org.firstinspires.ftc.teamcode.decode.util.ZoneChecker;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 
 
 @Configurable
@@ -71,6 +72,8 @@ public final class Robot {
         Common.telemetry.addData("robot x: ", drivetrain.getPose().getX());
         Common.telemetry.addData("robot y: ", drivetrain.getPose().getY());
         Common.telemetry.addData("robot heading: ", Math.toDegrees(drivetrain.getPose().getHeading()));
+
+        Tuning.drawCurrentAndHistory();
 
         Common.graph.update();
         Common.telemetry.update();

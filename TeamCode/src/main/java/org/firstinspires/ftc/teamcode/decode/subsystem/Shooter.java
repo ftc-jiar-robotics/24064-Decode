@@ -7,16 +7,19 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
 public class Shooter extends Subsystem<Shooter.ShooterStates> {
-    public final Hood hood; //TODO make un public remove manual control from main teleop
+    final Hood hood;
     final Flywheel flywheel;
     final Turret turret;
     final Feeder feeder;
 
     private boolean didCurrentDrop;
+
+    private boolean isManual = false;
+
     private int queuedShots = 0;
 
     public enum ShooterStates {
-        IDLE, TRACKING, RUNNING;
+        IDLE, TRACKING, MANUAL, RUNNING
     }
 
     private ShooterStates targetState = ShooterStates.IDLE;
@@ -68,6 +71,19 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         feeder.set(powerFront, powerBack);
     }
 
+    public void toggleManual() {
+        isManual = !isManual;
+        targetState = isManual ? ShooterStates.MANUAL : ShooterStates.IDLE;
+    }
+
+    public void setTurretManual(double power) {
+        turret.setManual(power);
+    }
+
+    public void setHoodManual(double angleIncrement, boolean isIncrementing) {
+        hood.set(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
+    }
+
     @Override
     public void run() {
         // TODO add voltage readings for flywheel & decrement queued shots
@@ -83,23 +99,23 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
 
                 flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-                turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 hood.set(hood.MIN, true);
 
                 if (queuedShots >= 1) {
                     flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.TRACKING;
+                    if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 }
                 break;
             case TRACKING:
                 feeder.set(Feeder.FeederStates.OFF, true);
                 hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
-                turret.set(Turret.TurretStates.ODOM_TRACKING, true);
 
                 // TODO add checks for all PIDS
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
+                    if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 }
                 break;
             case RUNNING:
@@ -108,6 +124,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 if (didCurrentDrop) { // TODO needs to happen when voltage drop happens
                     if (queuedShots <= 0) targetState = ShooterStates.IDLE;
                     else targetState = ShooterStates.TRACKING;
+
+                    if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
 
                     feeder.set(Feeder.FeederStates.OFF, true);
                 }

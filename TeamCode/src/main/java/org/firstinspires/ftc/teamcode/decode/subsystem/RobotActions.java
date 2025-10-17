@@ -29,20 +29,19 @@ public class RobotActions {
     public static Action shootArtifacts(int artifacts) {
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
-                setIntake(1, 0),
+                setIntake(0.85, 0),
                 new InstantAction(() -> unstuckTimer = System.nanoTime() / 1E9),
                 telemetryPacket -> {
                     if (robot.shooter.get() == Shooter.ShooterStates.RUNNING) {
                         if (unstuckTimer + unstuckTime < System.nanoTime() / 1E9 && inUnstuckTimer) {
                             robot.shooter.feeder.set(Feeder.FeederStates.OUTTAKING);
-                            robot.intake.set(-0.5);
                             inUnstuckTimer = false;
                             unstuckRecoveryTimer = System.nanoTime() / 1E9;
                         }
 
                         if (!inUnstuckTimer && unstuckRecoveryTimer + unstuckRecoveryTime < System.nanoTime() / 1E9) {
                             robot.shooter.feeder.set(Feeder.FeederStates.RUNNING);
-                            robot.intake.set(1.0);
+                            robot.intake.set(0.85);
                             inUnstuckTimer = true;
                             unstuckTimer = System.nanoTime() / 1E9;
                         }

@@ -52,7 +52,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             currentSpikeThreshold = 2.5, // TODO tune in AMPS
             timeDropPeriod = 0.5, // TODO tune in SECONDS of how long current should drop
             rpmChangeDistance = 75.5,
-            closeRPM = 3500,
+            closeRPM = 3890,
             farRPM = 4000;
 
     private FlyWheelStates targetState = FlyWheelStates.OFF;
@@ -124,8 +124,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (currentRPM > 10000) currentRPM = 0;
 
         flywheelCurrent = (motorGroup[0].getCurrent(CurrentUnit.AMPS) + motorGroup[1].getCurrent(CurrentUnit.AMPS))/2;
-
-        shootingRPM = robot.shooter.turret.getDistance() < rpmChangeDistance ? closeRPM : farRPM;
 
         switch (targetState) {
             case OFF:

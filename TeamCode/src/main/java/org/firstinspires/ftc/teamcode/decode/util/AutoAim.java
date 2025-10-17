@@ -48,7 +48,7 @@ public class AutoAim {
                 .setDrawCubeProjection(false);
 
         procB.setLensIntrinsics(FX, FY, CX, CY);
-        
+
         processor = procB.build();
 
         visionPortal = new VisionPortal.Builder()

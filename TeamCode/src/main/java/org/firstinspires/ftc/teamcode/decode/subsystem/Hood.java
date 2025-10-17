@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
-import android.util.Log;
-
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -24,7 +22,8 @@ public class Hood extends Subsystem<Double> {
             MAX = 180,
             MIN = 75;
 
-    private final TreeMap<Double, Double> hoodAngles = new TreeMap<>();
+    private final TreeMap<Double, Double> closeLUT = new TreeMap<>();
+    private final TreeMap<Double, Double> farLUT = new TreeMap<>();
 
     public Hood(HardwareMap hw) {
         this.hood = new SimpleServo(hw, "hood", Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1);
@@ -32,11 +31,9 @@ public class Hood extends Subsystem<Double> {
         // k = distance (inches), v = angle (deg)
         // TODO tune LUT and interpolate w/ formula
         // TODO change/tune values
-        hoodAngles.put(54.0, 75.0); // RPM 3500
-        hoodAngles.put(60.5, 87.0); // RPM 3500
-        hoodAngles.put(67.0, 105.0); // RPM 3500
-        hoodAngles.put(73.49, 117.5); // RPM 3500
-        hoodAngles.put(73.5, 145.0); // RPM 4000
+        closeLUT.put(65.0, 75.0); // RPM 3890
+        closeLUT.put(68.0, 123.0); // RPM 3890
+        closeLUT.put(86.0, 141.5); // RPM 3890
     }
 
     @Override
@@ -54,16 +51,16 @@ public class Hood extends Subsystem<Double> {
     }
 
     public double getHoodAngleWithDistance(double distance) {
-        if (hoodAngles.containsKey(distance)) return hoodAngles.get(distance);
+        if (closeLUT.containsKey(distance)) return closeLUT.get(distance);
 
-        double finalDistance = Range.clip(distance, hoodAngles.firstKey(), hoodAngles.lastKey());
+        double finalDistance = Range.clip(distance, closeLUT.firstKey(), closeLUT.lastKey());
 
-        if (finalDistance >= hoodAngles.firstKey() && finalDistance <= hoodAngles.lastKey()) {
-            double x2 = hoodAngles.ceilingKey(finalDistance); // x2
-            double x1 = hoodAngles.floorKey(finalDistance); // x1
+        if (finalDistance >= closeLUT.firstKey() && finalDistance <= closeLUT.lastKey()) {
+            double x2 = closeLUT.ceilingKey(finalDistance); // x2
+            double x1 = closeLUT.floorKey(finalDistance); // x1
 
-            double y2 = hoodAngles.get(x2); // y2
-            double y1 = hoodAngles.get(x1); // y1
+            double y2 = closeLUT.get(x2); // y2
+            double y1 = closeLUT.get(x1); // y1
 
             if (x2 == x1) return get();
 

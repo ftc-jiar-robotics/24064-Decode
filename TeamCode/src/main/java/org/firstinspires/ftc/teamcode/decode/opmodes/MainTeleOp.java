@@ -4,8 +4,8 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
 
 @TeleOp(name = "Main TeleOp", group = "24064")
 public class MainTeleOp extends LinearOpMode {
@@ -90,8 +91,18 @@ public class MainTeleOp extends LinearOpMode {
 
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
+            double trigger2 = gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
+
             robot.intake.set(trigger1, false);
             robot.shooter.setFeederManual(trigger1 * 0.7, -Math.abs(trigger1));
+
+            if (gamepadEx2.wasJustPressed(RIGHT_BUMPER)) robot.shooter.toggleManual();
+
+            if (robot.shooter.get() == Shooter.ShooterStates.MANUAL) {
+                if (Math.abs(trigger2) > 0) robot.shooter.setTurretManual(trigger2);
+                if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
+                if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
+            }
 
             if (gamepadEx1.wasJustPressed(A)) {
                 robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));

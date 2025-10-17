@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VOLTAGE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.ODOM_TRACKING;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -38,16 +39,16 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     );
 
     public static PIDGains visionPIDGains = new PIDGains(
-            0,
-            0,
-            0,
+            0.023,
+            0.007,
+            0.0001,
             Double.POSITIVE_INFINITY
     );
     public enum TurretStates {
         IDLE, ODOM_TRACKING, VISION_TRACKING
     }
 
-    private TurretStates currentState = TurretStates.IDLE;
+    private TurretStates currentState = ODOM_TRACKING;
 
     private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
     private final PIDController odomTracking = new PIDController(derivFilter);
@@ -66,18 +67,21 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             TURRET_OFFSET = 2.559,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
-            PID_TOLERANCE = 1;
+            PID_TOLERANCE = 1,
+            MANUAL_POWER_MULTIPLIER = 0.7,
+            TARGET_YAW = -11;
 
     public static int
-            CHECK_UNDETECTED_LOOPS = (1 << 6) - 1, // checking every X loops to switch to VISION_TRACKING state
-            CHECK_DETECTED_LOOPS = (1 << 2) - 1; // checking every X loop when in VISION_TRACKING state
+            CHECK_UNDETECTED_LOOPS = (1 << 3) - 1, // checking every X loops to switch to VISION_TRACKING state
+            CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
 
-    public static Pose goal = new Pose(8.5, 141);
+    public static Pose goal = new Pose(8.5, 144);
     private Pose turretPos = new Pose(0, 0);
 
     private double
             currentAngle = 0.0,
             targetAngle = 0.0,
+            robotHeadingTurretDomain = 0,
             manualPower = 0.0;
 
     public Turret(HardwareMap hw) {
@@ -111,12 +115,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     private void setOdomTracking() {
-        // turning robot heading to turret heading
-        double robotHeading = Common.robot.drivetrain.getHeading();
-        double robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
-        
-        turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
-
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
 
@@ -124,7 +122,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return odomTracking.isPositionInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE);
+        return currentState == ODOM_TRACKING ?
+                odomTracking.isPositionInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE) :
+                visionTracking.isPositionInTolerance(new State(autoAim.getTargetYawDegrees(), 0, 0, 0), PID_TOLERANCE);
     }
 
 
@@ -159,6 +159,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle ;
     }
 
+    public void setManual(double power) {
+        manualPower = power * MANUAL_POWER_MULTIPLIER;
+    }
+
     @Override
     public void run() {
         currentAngle = motorEncoder.getPosition() * TICKS_TO_DEGREES;
@@ -171,31 +175,42 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         visionTracking.setGains(visionPIDGains);
         derivFilter.setGains(filterGains);
 
-        switch (currentState) {
-            case IDLE:
-                targetAngle = 0;
-                break;
-            case ODOM_TRACKING:
-                setOdomTracking();
-                output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
-                if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
-                    if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
-                    else break;
-                } else {
+        // turning robot heading to turret heading
+        double robotHeading = Common.robot.drivetrain.getHeading();
+        robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
+        turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
+
+        if (Math.abs(manualPower) > 0) turret.set(manualPower);
+        else {
+            switch (currentState) {
+                case IDLE:
+                    targetAngle = 0;
                     break;
-                }
-            case VISION_TRACKING:
-                if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
-                    if (autoAim.isTargetDetected()) {
-                        visionTracking.setTarget(new State(0,0,0,0));
-                        output += visionTracking.calculate(new State(autoAim.getTargetYawDegrees(), 0, 0, 0));
-                    } else currentState = TurretStates.ODOM_TRACKING;
-                }
-                break;
+                case ODOM_TRACKING:
+                    setOdomTracking();
+                    output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
+                    if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
+                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
+                        else break;
+                    } else {
+                        break;
+                    }
+                case VISION_TRACKING:
+                    if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
+                        if (autoAim.isTargetDetected()) {
+                            visionTracking.setTarget(new State(TARGET_YAW,0,0,0));
+                            output += visionTracking.calculate(new State(autoAim.getTargetYawDegrees(), 0, 0, 0));
+                        } else currentState = ODOM_TRACKING;
+                    }
+                    if (currentAngle < WRAP_AROUND_ANGLE - 360 || currentAngle > WRAP_AROUND_ANGLE) currentState = ODOM_TRACKING;
+                    break;
+            }
+
+
+            rawPower = output;
+            turret.set(output);
         }
 
-        rawPower = output;
-        turret.set(output);
 
         if (isPIDInTolerance()) odomTracking.reset();
     }
@@ -216,6 +231,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
 
         dashTelemetry.addLine("TURRET");
+        dashTelemetry.addData("vision setpoint: ", 0);
+        dashTelemetry.addData("current vision: ", autoAim.getTargetYawDegrees());
         dashTelemetry.addData("encoder angle: ", currentAngle);
         dashTelemetry.addData("target angle: ", targetAngle);
     }
