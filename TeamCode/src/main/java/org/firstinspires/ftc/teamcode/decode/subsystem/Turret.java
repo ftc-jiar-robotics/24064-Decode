@@ -26,7 +26,6 @@ import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 @Configurable
 public class Turret extends Subsystem<Turret.TurretStates> {
     private final MotorEx turret;
-    private final AnalogInput encoder;
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
     private final VoltageSensor batteryVoltageSensor;
@@ -86,7 +85,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public Turret(HardwareMap hw) {
         this.turret = new MotorEx(hw, "turret", Motor.GoBILDA.RPM_435);
-        this.encoder = hw.get(AnalogInput.class, "turretEncoder");
         this.batteryVoltageSensor = hw.voltageSensor.iterator().next();
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
         autoAim = new AutoAim(hw, Common.isRed, Common.RED_GOAL_ID, Common.BLUE_GOAL_ID, Common.TAG_SIZE_METERS_DECODE, "arduCam");
@@ -170,7 +168,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double scalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
 
-        // TODO add back manualPower
         odomTracking.setGains(odoPIDGains);
         visionTracking.setGains(visionPIDGains);
         derivFilter.setGains(filterGains);

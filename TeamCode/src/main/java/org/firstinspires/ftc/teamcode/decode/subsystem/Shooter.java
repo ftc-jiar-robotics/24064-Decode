@@ -58,11 +58,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.queuedShots += i;
     }
 
-    // TODO make decrement available only to decrement action
-    public void decrementQueuedShots() {
-        this.queuedShots--;
-    }
-
     public void clearQueueShots() {
         queuedShots = 0;
     }
@@ -86,7 +81,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     @Override
     public void run() {
-        // TODO add voltage readings for flywheel & decrement queued shots
         didCurrentDrop = flywheel.didCurrentSpike();
         if (didCurrentDrop && targetState == ShooterStates.RUNNING) {
             queuedShots--;
@@ -111,7 +105,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 feeder.set(Feeder.FeederStates.OFF, true);
                 hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
-                // TODO add checks for all PIDS
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
@@ -121,7 +114,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case RUNNING:
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
 
-                if (didCurrentDrop) { // TODO needs to happen when voltage drop happens
+                if (didCurrentDrop) {
                     if (queuedShots <= 0) targetState = ShooterStates.IDLE;
                     else targetState = ShooterStates.TRACKING;
 

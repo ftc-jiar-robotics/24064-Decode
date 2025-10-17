@@ -13,9 +13,6 @@ import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
 
-    // TODO make isShooterReady based whether odometry hits triangle // isTracking // shooter queue counter != 0
-    // TODO if manual, then ignore isTracking
-
     private final CRServo feederFront;
     private final CRServo feederBack;
 

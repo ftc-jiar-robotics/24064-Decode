@@ -49,8 +49,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            currentSpikeThreshold = 2.5, // TODO tune in AMPS
-            timeDropPeriod = 0.5, // TODO tune in SECONDS of how long current should drop
+            currentSpikeThreshold = 2.5,
+            timeDropPeriod = 0.5,
             rpmChangeDistance = 75.5,
             closeRPM = 3890,
             farRPM = 4000;
