@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.decode.opmodes.prototypes;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -36,8 +38,11 @@ public class TestOpMode extends LinearOpMode {
         while (opModeIsActive()) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) flywheel.set(Flywheel.FlyWheelStates.RUNNING);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) flywheel.set(Flywheel.FlyWheelStates.ARMING);
+            Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+            double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
+
+            flywheel.setManualPower(trigger1);
 
             double currentHoodAngle = 0;
 
@@ -62,6 +67,7 @@ public class TestOpMode extends LinearOpMode {
             hood.run();
             intake.run();
             feeder.run();
+            flywheel.run();
 
             hood.printTelemetry();
             flywheel.printTelemetry();

@@ -1,15 +1,17 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawCurrent;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
+import org.firstinspires.ftc.teamcode.decode.util.Drawing;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 import org.firstinspires.ftc.teamcode.decode.util.ZoneChecker;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 
 
 @Configurable
@@ -40,6 +42,8 @@ public final class Robot {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
+
+        Drawing.init();
 
         try {
             drivetrain.getPoseTracker().resetIMU();
@@ -73,9 +77,8 @@ public final class Robot {
         Common.telemetry.addData("robot y: ", drivetrain.getPose().getY());
         Common.telemetry.addData("robot heading: ", Math.toDegrees(drivetrain.getPose().getHeading()));
 
-        Tuning.drawCurrentAndHistory();
+        Drawing.drawDebug(drivetrain);
 
-        Common.graph.update();
         Common.telemetry.update();
         Common.dashTelemetry.update();
     }

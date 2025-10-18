@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -61,6 +59,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private double
             rpmTolerance = 50,
             currentRPM = 0.0,
+            manualPower = 0.0,
             flywheelCurrent = 0.0,
             lastCurrentReading = 0.0,
             shootingRPM = 4000,
@@ -97,6 +96,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         return inCurrentSpikeTimer;
     }
 
+    public void setManualPower(double power) {
+        manualPower = power;
+    }
 
     public boolean isPIDInTolerance() {
         return velocityController.isPositionInTolerance(new State(currentRPM, 0, 0, 0), rpmTolerance);
@@ -153,7 +155,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         currentPower += calculatedPower;
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 
-        for (DcMotorEx m : motorGroup) m.setPower(currentPower);
+        for (DcMotorEx m : motorGroup) m.setPower(Math.abs(manualPower) > 0 ? manualPower : currentPower);
 
         if (isPIDInTolerance()) velocityController.reset();
     }
@@ -164,10 +166,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         telemetry.addData("target state: ", targetState);
         telemetry.addData("current RPM: ", currentRPM);
         telemetry.addData("initial current: ", lastCurrentReading);
-        graph.addData("current: ", flywheelCurrent);
-        graph.addData("current RPM: ", currentRPM);
-        graph.addData("current pos: ", shooterEncoder.getPosition());
-        graph.addData("target RPM: ", 4800);
         telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
 
         dashTelemetry.addData("current: ", flywheelCurrent);

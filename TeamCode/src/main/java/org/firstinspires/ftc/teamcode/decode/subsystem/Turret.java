@@ -2,15 +2,14 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VOLTAGE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.graph;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.ODOM_TRACKING;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.VISION_TRACKING;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -74,7 +73,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             CHECK_UNDETECTED_LOOPS = (1 << 3) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
 
-    public static Pose goal = new Pose(8.5, 144);
+    private Pose goal = new Pose(0, 144);
     private Pose turretPos = new Pose(0, 0);
 
     private double
@@ -93,7 +92,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         odomTracking.setGains(odoPIDGains);
         visionTracking.setGains(visionPIDGains);
         derivFilter.setGains(filterGains);
-        if (Common.isRed) goal = goal.mirror();
+    }
+
+    public void setGoalAlliance(boolean isRed) {
+        goal = isRed ? new Pose(0, 144).mirror() : new Pose(0, 144);
+
     }
 
     @Override
@@ -178,6 +181,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
+
         else {
             switch (currentState) {
                 case IDLE:
@@ -186,12 +190,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case ODOM_TRACKING:
                     setOdomTracking();
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
-                    if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
-                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
-                        else break;
-                    } else {
-                        break;
-                    }
+//                    if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
+//                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
+//                        else break;
+//                    } else {
+//                        break;
+//                    }
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
                         if (autoAim.isTargetDetected()) {
@@ -205,7 +209,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
 
             rawPower = output;
-            turret.set(output);
+
+            boolean odomTrackingInTolerance = currentState == ODOM_TRACKING && odomTracking.isPositionInTolerance(new State(currentAngle, 0, 0, 0), 0.2);
+            boolean visionTrackingInTolerance =currentState == VISION_TRACKING && visionTracking.isPositionInTolerance(new State(currentAngle, 0, 0, 0), 0.2);
+
+            if (odomTrackingInTolerance || visionTrackingInTolerance) turret.set(0);
+            else turret.set(output);
+
         }
 
 
@@ -223,8 +233,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         telemetry.addData("raw ticks", motorEncoder.getPosition());
         telemetry.addData("raw power", rawPower);
         telemetry.addData("calculated distance: ", getDistance());
-        graph.addData("target angle", targetAngle);
-        graph.addData("encoder angle", currentAngle);
         telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
 
         dashTelemetry.addLine("TURRET");

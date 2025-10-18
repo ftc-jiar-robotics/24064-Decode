@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
 public class Shooter extends Subsystem<Shooter.ShooterStates> {
-    final Hood hood;
+    public final Hood hood;
     final Flywheel flywheel;
     final Turret turret;
     final Feeder feeder;
@@ -62,6 +62,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         queuedShots = 0;
     }
 
+    public void setGoalAlliance(boolean isRed) {
+        turret.setGoalAlliance(isRed);
+    }
+
     public void setFeederManual(double powerFront, double powerBack) {
         feeder.set(powerFront, powerBack);
     }
@@ -93,7 +97,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
 
                 flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-                hood.set(hood.MIN, true);
+//                hood.set(hood.MIN, true);
 
                 if (queuedShots >= 1) {
                     flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
@@ -103,7 +107,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case TRACKING:
                 feeder.set(Feeder.FeederStates.OFF, true);
-                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+//                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
@@ -113,10 +117,11 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case RUNNING:
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
+                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
                 if (didCurrentDrop) {
                     if (queuedShots <= 0) targetState = ShooterStates.IDLE;
-                    else targetState = ShooterStates.TRACKING;
+                    else targetState = ShooterStates.RUNNING;
 
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
 
