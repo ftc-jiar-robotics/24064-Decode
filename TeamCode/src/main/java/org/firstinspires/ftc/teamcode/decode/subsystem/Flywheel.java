@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -49,9 +50,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static double
             currentSpikeThreshold = 2.5,
             timeDropPeriod = 0.5,
-            rpmChangeDistance = 75.5,
-            closeRPM = 3890,
-            farRPM = 4000;
+            rpmChangeDistance = 90,
+            closeRPM = 3700,
+            farRPM = 4400;
 
     private FlyWheelStates targetState = FlyWheelStates.OFF;
 
@@ -126,6 +127,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (currentRPM > 10000) currentRPM = 0;
 
         flywheelCurrent = (motorGroup[0].getCurrent(CurrentUnit.AMPS) + motorGroup[1].getCurrent(CurrentUnit.AMPS))/2;
+        if (Common.robot.shooter.turret.getDistance() >= rpmChangeDistance) {
+            shootingRPM = farRPM;
+        } else {
+            shootingRPM = closeRPM;
+        }
+
 
         switch (targetState) {
             case OFF:

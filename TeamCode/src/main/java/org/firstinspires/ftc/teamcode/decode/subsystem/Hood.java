@@ -31,9 +31,20 @@ public class Hood extends Subsystem<Double> {
         // k = distance (inches), v = angle (deg)
         // TODO tune LUT and interpolate w/ formula
         // TODO change/tune values
-        closeLUT.put(65.0, 75.0); // RPM 3890
-        closeLUT.put(68.0, 123.0); // RPM 3890
-        closeLUT.put(86.0, 141.5); // RPM 3890
+        closeLUT.put(60.5, 103.5); // RPM 3890
+        closeLUT.put(72.0, 120.5); // RPM 3890
+        closeLUT.put(79.5, 115.5); // RPM 3890
+        closeLUT.put(88.5, 124.0); // RPM 3890
+
+
+
+        farLUT.put(97.5, 164.5); // 4300
+        farLUT.put(104.0, 157.5); // 4300
+        farLUT.put(117.0, 166.0); // 4300
+
+        farLUT.put(129.0, 166.0); // 4400
+
+        farLUT.put(149.0, 140.0); // 4400
     }
 
     @Override
@@ -51,16 +62,18 @@ public class Hood extends Subsystem<Double> {
     }
 
     public double getHoodAngleWithDistance(double distance) {
-        if (closeLUT.containsKey(distance)) return closeLUT.get(distance);
+        TreeMap<Double, Double> LUT = distance >= Flywheel.rpmChangeDistance ? farLUT : closeLUT;
 
-        double finalDistance = Range.clip(distance, closeLUT.firstKey(), closeLUT.lastKey());
+        if (LUT.containsKey(distance)) return LUT.get(distance);
 
-        if (finalDistance >= closeLUT.firstKey() && finalDistance <= closeLUT.lastKey()) {
-            double x2 = closeLUT.ceilingKey(finalDistance); // x2
-            double x1 = closeLUT.floorKey(finalDistance); // x1
+        double finalDistance = Range.clip(distance, LUT.firstKey(), LUT.lastKey());
 
-            double y2 = closeLUT.get(x2); // y2
-            double y1 = closeLUT.get(x1); // y1
+        if (finalDistance >= LUT.firstKey() && finalDistance <= LUT.lastKey()) {
+            double x2 = LUT.ceilingKey(finalDistance); // x2
+            double x1 = LUT.floorKey(finalDistance); // x1
+
+            double y2 = LUT.get(x2); // y2
+            double y1 = LUT.get(x1); // y1
 
             if (x2 == x1) return get();
 

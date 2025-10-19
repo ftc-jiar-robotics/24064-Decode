@@ -196,6 +196,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 //                    } else {
 //                        break;
 //                    }
+                    break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
                         if (autoAim.isTargetDetected()) {

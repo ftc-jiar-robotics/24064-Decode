@@ -97,7 +97,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
 
                 flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-//                hood.set(hood.MIN, true);
+                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+                //hood.set(hood.MIN, true);
 
                 if (queuedShots >= 1) {
                     flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
@@ -107,7 +108,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case TRACKING:
                 feeder.set(Feeder.FeederStates.OFF, true);
-//                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);

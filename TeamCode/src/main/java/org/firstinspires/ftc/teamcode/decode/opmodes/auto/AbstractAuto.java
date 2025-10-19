@@ -4,6 +4,8 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemet
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.geometry.Pose;
@@ -19,6 +21,8 @@ public abstract class AbstractAuto extends LinearOpMode {
     protected final void update() {
         robot.readSensors();
         robot.update();
+        robot.shooter.run();
+        robot.intake.run();
     }
 
     @Override
@@ -27,8 +31,9 @@ public abstract class AbstractAuto extends LinearOpMode {
 
         robot.actionScheduler.setUpdate(this::update);
 
-        onInit();
         configure();
+
+        onInit();
 
         if (isStopRequested()) return;
 
@@ -47,13 +52,14 @@ public abstract class AbstractAuto extends LinearOpMode {
 
     protected void configure() {
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
+        Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
             dashTelemetry.addLine("PRESS A TO TOGGLE SIDES");
-            dashTelemetry.addData("IS RED: ", isRed);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) Common.isRed = !isRed;
+            dashTelemetry.addData("IS RED: ", Common.isRed);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) Common.isRed = !Common.isRed;
 
             dashTelemetry.update();
         }

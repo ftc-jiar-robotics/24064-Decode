@@ -65,14 +65,19 @@ public final class Actions {
             this.f = f;
             this.action = action;
             this.s = s;
-            pathChain.setCallbacks(new ParametricCallback(index, startCondition, f, () -> isCalled = true));
+            pathChain.setCallbacks(new ParametricCallback(index, startCondition, f, () -> {
+                Log.d("DEBUG_CALLBACK","lehoofy was called " + s);
+                isCalled = true;
+            }));
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            Log.d("DEBUG_CALLBACK",s+"not started");
             if (!isCalled) return true;
+            Log.d("DEBUG_CALLBACK",s+"started");
 
-            new DrivePoseLoggingAction(f, s, true).run(telemetryPacket);
+//            new DrivePoseLoggingAction(f, s, true).run(telemetryPacket);
             return action.run(telemetryPacket);
         }
     }

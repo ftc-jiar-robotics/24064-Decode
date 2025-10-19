@@ -12,11 +12,12 @@ public class Paths {
         f = follower;
     }
 
+    public static boolean isPathRed = false;
     // TODO put all poses/heading in respective named list & mirror thru list
 
     public static Pose
             control0 = new Pose(47.6, 113.1),
-            start = new Pose(32.2, 136.6),
+            start = new Pose(32.2, 136.6, Math.toRadians(270)),
             end0 = new Pose(41.4, 102.2),
             end1 = new Pose(33.3, 91.5),
             end2 = new Pose(17.7, 88.5),
@@ -38,18 +39,18 @@ public class Paths {
             endAngle5 = Math.toRadians(-150);
 
     public void mirrorAll() {
-        control0.mirror();
-        start.mirror();
-        end0.mirror();
-        end1.mirror();
-        end2.mirror();
-        end3.mirror();
-        end4.mirror();
-        end5.mirror();
-        end6.mirror();
-        end7.mirror();
-        end8.mirror();
-        end0.mirror();
+        control0 = control0.mirror();
+        start = start.mirror();
+        end0 = end0.mirror();
+        end1 = end1.mirror();
+        end2 = end2.mirror();
+        end3 = end3.mirror();
+        end4 = end4.mirror();
+        end5 = end5.mirror();
+        end6 = end6.mirror();
+        end7 = end7.mirror();
+        end8 = end8.mirror();
+        end9 = end9.mirror();
 
         startAngle = mirrorAngleRad(startAngle);
         endAngle0 = mirrorAngleRad(endAngle0);

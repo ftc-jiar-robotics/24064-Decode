@@ -129,12 +129,12 @@ public class MainTeleOp extends LinearOpMode {
 //                robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
 //            }
 
-            if (gamepadEx1.isDown(DPAD_UP)) {
-                robot.shooter.hood.set(robot.shooter.hood.get() + .5);
-            }
-            if (gamepadEx1.isDown(DPAD_DOWN)) {
-                robot.shooter.hood.set(robot.shooter.hood.get() - .5);
-            }
+//            if (gamepadEx1.isDown(DPAD_UP)) {
+//                robot.shooter.hood.set(robot.shooter.hood.get() + .5);
+//            }
+//            if (gamepadEx1.isDown(DPAD_DOWN)) {
+//                robot.shooter.hood.set(robot.shooter.hood.get() - .5);
+//            }
 
             robot.printTelemetry();
         }
