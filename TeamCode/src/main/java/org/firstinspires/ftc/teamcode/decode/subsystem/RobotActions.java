@@ -17,35 +17,40 @@ public class RobotActions {
 
     public static double
             unstuckTime = 1.25,
-            unstuckRecoveryTime = 0.5;
+            unstuckRecoveryTime = 0.1;
 
     public static Action setIntake(double power, double sleepSeconds) {
         return new ParallelAction(
                 new InstantAction(() -> robot.intake.set(power, true)),
-                new SleepAction(sleepSeconds)
+                new SleepAction(sleepSeconds),
+                new InstantAction(() -> robot.shooter.setFeederIdle())
         );
+    }
+
+    public static Action armFlywheel() {
+        return new InstantAction(() -> robot.shooter.setFlywheelManual(Flywheel.FlyWheelStates.ARMING));
     }
 
     public static Action shootArtifacts(int artifacts) {
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
-                setIntake(0.85, 0),
+                new InstantAction(() -> robot.intake.set(0.85)),
                 new InstantAction(() -> unstuckTimer = System.nanoTime() / 1E9),
                 telemetryPacket -> {
-                    if (robot.shooter.get() == Shooter.ShooterStates.RUNNING) {
-                        if (unstuckTimer + unstuckTime < System.nanoTime() / 1E9 && inUnstuckTimer) {
-                            robot.shooter.feeder.set(Feeder.FeederStates.OUTTAKING);
-                            inUnstuckTimer = false;
-                            unstuckRecoveryTimer = System.nanoTime() / 1E9;
-                        }
-
-                        if (!inUnstuckTimer && unstuckRecoveryTimer + unstuckRecoveryTime < System.nanoTime() / 1E9) {
-                            robot.shooter.feeder.set(Feeder.FeederStates.RUNNING);
-                            robot.intake.set(0.85);
-                            inUnstuckTimer = true;
-                            unstuckTimer = System.nanoTime() / 1E9;
-                        }
-                    }
+//                    if (robot.shooter.get() == Shooter.ShooterStates.RUNNING) {
+//                        if (unstuckTimer + unstuckTime < System.nanoTime() / 1E9 && inUnstuckTimer) {
+//                            robot.shooter.feeder.set(Feeder.FeederStates.OUTTAKING);
+//                            inUnstuckTimer = false;
+//                            unstuckRecoveryTimer = System.nanoTime() / 1E9;
+//                        }
+//
+//                        if (!inUnstuckTimer && unstuckRecoveryTimer + unstuckRecoveryTime < System.nanoTime() / 1E9) {
+//                            robot.shooter.feeder.set(Feeder.FeederStates.RUNNING);
+//                            robot.intake.set(0.85);
+//                            inUnstuckTimer = true;
+//                            unstuckTimer = System.nanoTime() / 1E9;
+//                        }
+//                    }
 
                     return robot.shooter.getQueuedShots() != 0;
 

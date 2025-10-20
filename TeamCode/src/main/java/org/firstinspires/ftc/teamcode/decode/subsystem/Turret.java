@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VOLTAGE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.IDLE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.ODOM_TRACKING;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.VISION_TRACKING;
 
@@ -46,7 +47,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         IDLE, ODOM_TRACKING, VISION_TRACKING
     }
 
-    private TurretStates currentState = ODOM_TRACKING;
+    private TurretStates currentState = IDLE;
 
     private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
     private final PIDController odomTracking = new PIDController(derivFilter);

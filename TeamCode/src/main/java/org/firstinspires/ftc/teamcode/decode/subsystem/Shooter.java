@@ -70,6 +70,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         feeder.set(powerFront, powerBack);
     }
 
+    public void setFeederIdle() {
+        feeder.set(Feeder.FeederStates.IDLE, true);
+    }
+
     public void toggleManual() {
         isManual = !isManual;
         targetState = isManual ? ShooterStates.MANUAL : ShooterStates.IDLE;
@@ -77,6 +81,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     public void setTurretManual(double power) {
         turret.setManual(power);
+    }
+
+    public void setFlywheelManual(Flywheel.FlyWheelStates f) {
+        flywheel.set(f, false);
     }
 
     public void setHoodManual(double angleIncrement, boolean isIncrementing) {
@@ -96,7 +104,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     feeder.set(Feeder.FeederStates.OFF, true);
                 }
 
-                flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
                 hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
                 //hood.set(hood.MIN, true);
 
@@ -107,7 +114,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case TRACKING:
-                feeder.set(Feeder.FeederStates.OFF, true);
+                feeder.set(Feeder.FeederStates.IDLE, true);
                 hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
@@ -121,12 +128,19 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
                 if (didCurrentDrop) {
-                    if (queuedShots <= 0) targetState = ShooterStates.IDLE;
-                    else targetState = ShooterStates.RUNNING;
+                    if (queuedShots <= 0) {
+                        targetState = ShooterStates.IDLE;
+                        turret.set(Turret.TurretStates.IDLE);
+                        flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
+                        feeder.set(Feeder.FeederStates.IDLE, true);
+                    }
+                    else {
+                        targetState = ShooterStates.RUNNING;
+                        feeder.set(Feeder.FeederStates.RUNNING, true);
+                    }
 
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
 
-                    feeder.set(Feeder.FeederStates.OFF, true);
                 }
 
                 break;

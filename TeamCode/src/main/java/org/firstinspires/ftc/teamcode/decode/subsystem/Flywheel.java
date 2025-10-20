@@ -16,6 +16,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 
@@ -41,6 +43,13 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             0.000001,
             0.000003,
             Double.POSITIVE_INFINITY
+    );
+
+    private final FIRLowPassFilter rpmFilter = new FIRLowPassFilter();
+
+    public static LowPassGains rpmFilterGains = new LowPassGains(
+            0.3,
+            1000
     );
 
     public enum FlyWheelStates {
@@ -81,6 +90,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         motorGroup = new DcMotorEx[]{shooterMaster, shooterSlave};
 
         velocityController.setGains(shootingVelocityGains);
+        rpmFilter.setGains(rpmFilterGains);
     }
 
     @Override
@@ -123,7 +133,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     @Override
     public void run() {
-        currentRPM = shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0;
+        currentRPM = rpmFilter.calculate(shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
         if (currentRPM > 10000) currentRPM = 0;
 
         flywheelCurrent = (motorGroup[0].getCurrent(CurrentUnit.AMPS) + motorGroup[1].getCurrent(CurrentUnit.AMPS))/2;
