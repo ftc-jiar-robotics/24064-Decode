@@ -48,6 +48,8 @@ public final class Robot {
         try {
             drivetrain.getPoseTracker().resetIMU();
         } catch (InterruptedException ignored) {}
+
+        shooter.applyOffsets();
     }
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read
@@ -76,6 +78,7 @@ public final class Robot {
         Common.telemetry.addData("robot x: ", drivetrain.getPose().getX());
         Common.telemetry.addData("robot y: ", drivetrain.getPose().getY());
         Common.telemetry.addData("robot heading: ", Math.toDegrees(drivetrain.getPose().getHeading()));
+        Common.telemetry.addData("loop time", LoopUtil.getLoopTimeInHertz());
 
         Drawing.drawDebug(drivetrain);
 

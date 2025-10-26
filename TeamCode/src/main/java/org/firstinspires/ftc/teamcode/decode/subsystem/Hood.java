@@ -20,7 +20,7 @@ public class Hood extends Subsystem<Double> {
     public static double
             PHYSICAL_MAX = 200,
             MAX = 180,
-            MIN = 75;
+            MIN = 68;
 
     private final TreeMap<Double, Double> closeLUT = new TreeMap<>();
     private final TreeMap<Double, Double> farLUT = new TreeMap<>();
@@ -62,7 +62,7 @@ public class Hood extends Subsystem<Double> {
     }
 
     public double getHoodAngleWithDistance(double distance) {
-        TreeMap<Double, Double> LUT = distance >= Flywheel.rpmChangeDistance ? farLUT : closeLUT;
+        TreeMap<Double, Double> LUT = distance >= Flywheel.RPM_CHANGE_DISTANCE ? farLUT : closeLUT;
 
         if (LUT.containsKey(distance)) return LUT.get(distance);
 

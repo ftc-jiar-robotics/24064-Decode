@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -57,17 +56,19 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            currentSpikeThreshold = 2.5,
-            timeDropPeriod = 0.5,
-            rpmChangeDistance = 90,
-            closeRPM = 3700,
-            farRPM = 4400;
+            CURRENT_SPIKE_THRESHOLD = 2.5,
+            TIME_DROP_PERIOD = 0.5,
+            POWER_LOW_PASS_GAIN = 0.9,
+            RPM_CHANGE_DISTANCE = 90,
+            RPM_TOLERANCE = 50,
+            CLOSE_RPM = 3700,
+            IDLE_RPM = 2200,
+            FAR_RPM = 4400;
 
     private FlyWheelStates targetState = FlyWheelStates.OFF;
 
     private boolean inCurrentSpikeTimer = false;
     private double
-            rpmTolerance = 50,
             currentRPM = 0.0,
             manualPower = 0.0,
             flywheelCurrent = 0.0,
@@ -112,18 +113,18 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return velocityController.isPositionInTolerance(new State(currentRPM, 0, 0, 0), rpmTolerance);
+        return velocityController.isPositionInTolerance(new State(currentRPM, 0, 0, 0), RPM_TOLERANCE);
     }
 
     public boolean didCurrentSpike() {
         // if current has spiked and we're in tolerance and we're not in a timer(start time + time period > curr time
-        if (flywheelCurrent > currentSpikeThreshold && !inCurrentSpikeTimer) {
+        if (flywheelCurrent > CURRENT_SPIKE_THRESHOLD && !inCurrentSpikeTimer) {
             currentSpikeStartTime = (double) System.nanoTime() / 1E9;
             inCurrentSpikeTimer = true;
             return true;
         }
 
-        if (currentSpikeStartTime + timeDropPeriod < (double) System.nanoTime() / 1E9 && inCurrentSpikeTimer) {
+        if (currentSpikeStartTime + TIME_DROP_PERIOD < (double) System.nanoTime() / 1E9 && inCurrentSpikeTimer) {
             inCurrentSpikeTimer = false;
             return false;
         }
@@ -137,10 +138,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (currentRPM > 10000) currentRPM = 0;
 
         flywheelCurrent = (motorGroup[0].getCurrent(CurrentUnit.AMPS) + motorGroup[1].getCurrent(CurrentUnit.AMPS))/2;
-        if (Common.robot.shooter.turret.getDistance() >= rpmChangeDistance) {
-            shootingRPM = farRPM;
+        if (Common.robot.shooter.turret.getDistance() >= RPM_CHANGE_DISTANCE) {
+            shootingRPM = FAR_RPM;
         } else {
-            shootingRPM = closeRPM;
+            shootingRPM = CLOSE_RPM;
         }
 
 
@@ -150,7 +151,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 break;
             case IDLE:
                 velocityController.setGains(holdingVelocityGains);
-                velocityController.setTarget(new State(2200, 0, 0, 0));
+                velocityController.setTarget(new State(IDLE_RPM, 0, 0, 0));
                 break;
             case ARMING:
                 velocityController.setGains(shootingVelocityGains);
@@ -166,10 +167,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         }
 
         if (targetState == FlyWheelStates.ARMING || targetState == FlyWheelStates.RUNNING) {
-            calculatedPower = Math.pow(velocityController.calculate(new State(currentRPM, 0, 0, 0)), 3);
+            calculatedPower = velocityController.calculate(new State(currentRPM, 0, 0, 0));
         } else calculatedPower = velocityController.calculate(new State(currentRPM, 0, 0, 0));
 
-        currentPower += calculatedPower;
+        currentPower = POWER_LOW_PASS_GAIN * currentPower + (1 - POWER_LOW_PASS_GAIN) * Range.clip(calculatedPower, 0.0, 1.0) ;
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 
         for (DcMotorEx m : motorGroup) m.setPower(Math.abs(manualPower) > 0 ? manualPower : currentPower);
@@ -191,8 +192,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         dashTelemetry.addData("current power: ", currentPower);
         dashTelemetry.addData("is timer on: ", inCurrentSpikeTimer);
         dashTelemetry.addData("current pos: ", shooterEncoder.getPosition());
-        dashTelemetry.addData("target RPM: ", 4000);
-        dashTelemetry.addData("target RPM (idle): ", 2200);
+        dashTelemetry.addData("target RPM: ", shootingRPM);
+        dashTelemetry.addData("target RPM (idle): ", IDLE_RPM);
 
     }
 }

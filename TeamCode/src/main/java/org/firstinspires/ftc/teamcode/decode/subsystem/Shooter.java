@@ -83,6 +83,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         turret.setManual(power);
     }
 
+    public void applyOffsets() {
+        turret.applyOffset();
+    }
     public void setFlywheelManual(Flywheel.FlyWheelStates f) {
         flywheel.set(f, false);
     }
