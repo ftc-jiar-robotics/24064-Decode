@@ -16,6 +16,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
@@ -98,7 +99,7 @@ public class MainTeleOp extends LinearOpMode {
             double trigger2 = gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
             robot.intake.set(trigger1, false);
-            robot.shooter.setFeederManual(trigger1 * 0.7, -Math.abs(trigger1));
+//            robot.shooter.setFeederManual(trigger1 * 0.7, -Math.abs(trigger1));
 
             if (gamepadEx2.wasJustPressed(RIGHT_BUMPER)) robot.shooter.toggleManual();
 
@@ -129,12 +130,14 @@ public class MainTeleOp extends LinearOpMode {
 //                robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
 //            }
 
-//            if (gamepadEx1.isDown(DPAD_UP)) {
-//                robot.shooter.hood.set(robot.shooter.hood.get() + .5);
-//            }
-//            if (gamepadEx1.isDown(DPAD_DOWN)) {
-//                robot.shooter.hood.set(robot.shooter.hood.get() - .5);
-//            }
+            if (isHoodManual) {
+                if (gamepadEx1.isDown(DPAD_UP)) {
+                    robot.shooter.hood.set(robot.shooter.hood.get() + .5);
+                }
+                if (gamepadEx1.isDown(DPAD_DOWN)) {
+                    robot.shooter.hood.set(robot.shooter.hood.get() - .5);
+                }
+            }
 
             robot.printTelemetry();
         }

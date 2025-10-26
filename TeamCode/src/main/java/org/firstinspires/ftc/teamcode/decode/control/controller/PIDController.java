@@ -16,8 +16,7 @@ public class PIDController implements FeedbackController {
     private State target = new State();
 
     private final Filter derivFilter;
-    private final Differentiator errDifferentiator = new Differentiator();
-    private final Differentiator measDifferentiator = new Differentiator();
+    private final Differentiator differentiator = new Differentiator();
     private final Integrator integrator = new Integrator();
 
     private State error = new State();
@@ -44,7 +43,7 @@ public class PIDController implements FeedbackController {
 
         if (signum(error.x) != signum(lastError.x)) reset();
         errorIntegral = integrator.getIntegral(error.x);
-        rawErrorDerivative = errDifferentiator.getDerivative(error.x);
+        rawErrorDerivative = differentiator.getDerivative(error.x);
         filteredErrorDerivative = derivFilter.calculate(rawErrorDerivative);
 
         double output = (gains.kP * error.x) + (gains.kI * errorIntegral) + (gains.kD * filteredErrorDerivative);
@@ -55,7 +54,7 @@ public class PIDController implements FeedbackController {
     }
 
     public boolean isPositionInTolerance(State measurement, double tolerance) {
-        return Math.abs(measurement.subtract(target).x) <= tolerance && Math.abs(measDifferentiator.getDerivative(measurement.x)) <= 0.1;
+        return Math.abs(measurement.subtract(target).x) <= tolerance;
     }
 
     public void setTarget(State target) {

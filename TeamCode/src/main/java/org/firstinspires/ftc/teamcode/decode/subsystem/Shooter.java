@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -96,7 +97,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     @Override
     public void run() {
-        didCurrentDrop = flywheel.didCurrentSpike();
+        didCurrentDrop = flywheel.didRPMSpike();
         if (didCurrentDrop && targetState == ShooterStates.RUNNING) {
             queuedShots--;
         }
@@ -107,9 +108,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     feeder.set(Feeder.FeederStates.OFF, true);
                 }
 
-                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
-                //hood.set(hood.MIN, true);
-
                 if (queuedShots >= 1) {
                     flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.TRACKING;
@@ -118,7 +116,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case TRACKING:
                 feeder.set(Feeder.FeederStates.IDLE, true);
-                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
@@ -128,7 +125,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case RUNNING:
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
-                hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+                feeder.set(Feeder.FeederStates.RUNNING, true);
 
                 if (didCurrentDrop) {
                     if (queuedShots <= 0) {
@@ -148,6 +145,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
                 break;
         }
+
+        if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
         turret.run();
         flywheel.run();

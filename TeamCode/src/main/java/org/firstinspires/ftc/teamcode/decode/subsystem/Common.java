@@ -15,6 +15,7 @@ public final class Common {
 
     public static boolean
             isRed = false,
+            isHoodManual = false,
             isBigTriangle = false;
 
     public static final double
