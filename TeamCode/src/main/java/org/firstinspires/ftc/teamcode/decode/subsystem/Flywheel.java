@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
@@ -37,9 +36,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.0000275,
+            0.000275,
             0.0,
-            0.000005,
+            0.00005,
             Double.POSITIVE_INFINITY
     );
 
@@ -61,14 +60,17 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     public static double
             RPM_DERIVATIVE_DROP = -2000, // deacceleration
-            TIME_DROP_PERIOD = 0.2,
-            RPM_CHANGE_DISTANCE = 90,
+            TIME_DROP_PERIOD = 0.3,
             RPM_TOLERANCE = 50,
-            CLOSE_RPM = 3400,
+            CLOSE_RPM = 3100,
             MOTOR_RPM_SETTLE_TIME = 20,
             IDLE_RPM = 2200,
-            FAR_RPM = 4400,
+            MIDDLE_RPM = 3500,
+            FAR_RPM = 4100,
             MAX_RPM = 4800;
+
+    public static int[] lutDistances = {0, 90, 130, 160, 180};
+    public static int[] lutRPM = {3100, 3500, 3800, 4100, 4800};
 
     private FlyWheelStates targetState = FlyWheelStates.OFF;
 
@@ -155,24 +157,14 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 break;
             case ARMING:
                 velocityController.setGains(shootingVelocityGains);
-
-                if (Common.robot.shooter.turret.getDistance() >= RPM_CHANGE_DISTANCE) {
-                    shootingRPM = FAR_RPM;
-                } else {
-                    shootingRPM = CLOSE_RPM;
-                }
+                chooseShootingRPM();
 
                 if (isPIDInTolerance()) {
                     targetState = FlyWheelStates.RUNNING;
                 }
                 break;
             case RUNNING:
-                if (Common.robot.shooter.turret.getDistance() >= RPM_CHANGE_DISTANCE) {
-                    shootingRPM = FAR_RPM;
-                } else {
-                    shootingRPM = CLOSE_RPM;
-                }
-
+                chooseShootingRPM();
                 break;
         }
 
@@ -195,6 +187,14 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         if (isPIDInTolerance()) velocityController.reset();
     }
+
+    private void chooseShootingRPM() {
+        shootingRPM = lutRPM[0];
+        for (int i = 0; i < lutDistances.length; i++) {
+            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
+        }
+    }
+
 
     public void printTelemetry() {
         telemetry.addLine("FLYWHEEL");

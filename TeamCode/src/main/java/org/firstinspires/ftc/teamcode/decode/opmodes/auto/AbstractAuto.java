@@ -23,6 +23,7 @@ public abstract class AbstractAuto extends LinearOpMode {
         robot.update();
         robot.shooter.run();
         robot.intake.run();
+        robot.printTelemetry();
     }
 
     @Override

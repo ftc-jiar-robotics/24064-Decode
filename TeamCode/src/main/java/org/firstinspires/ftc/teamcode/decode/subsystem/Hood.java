@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel.lutDistances;
 
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.bylazar.configurables.annotations.Configurable;
@@ -22,8 +23,13 @@ public class Hood extends Subsystem<Double> {
             MAX = 180,
             MIN = 68;
 
-    private final TreeMap<Double, Double> closeLUT = new TreeMap<>();
-    private final TreeMap<Double, Double> farLUT = new TreeMap<>();
+    private final TreeMap<Double, Double> ayanLUT = new TreeMap<>();
+    private final TreeMap<Double, Double> kashifLUT = new TreeMap<>();
+    private final TreeMap<Double, Double> kayraLUT = new TreeMap<>();
+    private final TreeMap<Double, Double> abucarLUT = new TreeMap<>();
+    private final TreeMap<Double, Double> omarLUT = new TreeMap<>();
+    
+    private final TreeMap<Double, Double>[] hoodLUTS = new TreeMap[]{ayanLUT, kashifLUT, kayraLUT, abucarLUT, omarLUT};
 
     public Hood(HardwareMap hw) {
         this.hood = new SimpleServo(hw, "hood", Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1);
@@ -31,20 +37,21 @@ public class Hood extends Subsystem<Double> {
         // k = distance (inches), v = angle (deg)
         // TODO tune LUT and interpolate w/ formula
         // TODO change/tune values
-        closeLUT.put(60.5, 103.5); // RPM 3890
-        closeLUT.put(72.0, 120.5); // RPM 3890
-        closeLUT.put(79.5, 115.5); // RPM 3890
-        closeLUT.put(88.5, 124.0); // RPM 3890
+        ayanLUT.put(61.0, 100.0); // RPM 3100
+        ayanLUT.put(69.3, 100.5); // RPM 3100
+        ayanLUT.put(80.8, 92.5); // RPM 3100
+        ayanLUT.put(87.0, 91.5); // RPM 3100
 
+        kashifLUT.put(90.2, 141.4); // RPM 3500
+        kashifLUT.put(103.4, 137.4); // RPM 3500
+        kashifLUT.put(110.6, 166.0); // RPM 3500
+        kashifLUT.put(129.0, 166.0); // RPM 3500
 
+        kayraLUT.put(133.0, 100.0); // RPM 3800
 
-        farLUT.put(97.5, 164.5); // 4300
-        farLUT.put(104.0, 157.5); // 4300
-        farLUT.put(117.0, 166.0); // 4300
+        abucarLUT.put(166.0, 120.0); // RPM 4100
 
-        farLUT.put(129.0, 166.0); // 4400
-
-        farLUT.put(149.0, 140.0); // 4400
+        omarLUT.put(182.0, 130.0); // RPM 4800
     }
 
     @Override
@@ -62,18 +69,23 @@ public class Hood extends Subsystem<Double> {
     }
 
     public double getHoodAngleWithDistance(double distance) {
-        TreeMap<Double, Double> LUT = distance >= Flywheel.RPM_CHANGE_DISTANCE ? farLUT : closeLUT;
+        TreeMap<Double, Double> lut;
 
-        if (LUT.containsKey(distance)) return LUT.get(distance);
+        lut = hoodLUTS[0];
+        for (int i = 0; i < hoodLUTS.length; i++) {
+            if (distance >= lutDistances[i]) lut = hoodLUTS[i];
+        }
 
-        double finalDistance = Range.clip(distance, LUT.firstKey(), LUT.lastKey());
+        if (lut.containsKey(distance)) return lut.get(distance);
 
-        if (finalDistance >= LUT.firstKey() && finalDistance <= LUT.lastKey()) {
-            double x2 = LUT.ceilingKey(finalDistance); // x2
-            double x1 = LUT.floorKey(finalDistance); // x1
+        double finalDistance = Range.clip(distance, lut.firstKey(), lut.lastKey());
 
-            double y2 = LUT.get(x2); // y2
-            double y1 = LUT.get(x1); // y1
+        if (finalDistance >= lut.firstKey() && finalDistance <= lut.lastKey()) {
+            double x2 = lut.ceilingKey(finalDistance); // x2
+            double x1 = lut.floorKey(finalDistance); // x1
+
+            double y2 = lut.get(x2); // y2
+            double y1 = lut.get(x1); // y1
 
             if (x2 == x1) return get();
 
