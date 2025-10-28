@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -67,10 +66,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         turret.setGoalAlliance(isRed);
     }
 
-    public void setFeederManual(double powerFront, double powerBack) {
-        feeder.set(powerFront, powerBack);
-    }
-
     public void setFeederIdle() {
         feeder.set(Feeder.FeederStates.IDLE, true);
     }
@@ -115,8 +110,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case TRACKING:
-                feeder.set(Feeder.FeederStates.IDLE, true);
-
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
@@ -146,7 +139,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
         }
 
-        if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+        if (!isManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
         turret.run();
         flywheel.run();

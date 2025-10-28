@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACKSERVO;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_HOOD_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel.lutDistances;
 
@@ -32,7 +34,7 @@ public class Hood extends Subsystem<Double> {
     private final TreeMap<Double, Double>[] hoodLUTS = new TreeMap[]{ayanLUT, kashifLUT, kayraLUT, abucarLUT, omarLUT};
 
     public Hood(HardwareMap hw) {
-        this.hood = new SimpleServo(hw, "hood", Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1);
+        this.hood = new SimpleServo(hw, NAME_HOOD_SERVO, Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1);
 
         // k = distance (inches), v = angle (deg)
         // TODO tune LUT and interpolate w/ formula

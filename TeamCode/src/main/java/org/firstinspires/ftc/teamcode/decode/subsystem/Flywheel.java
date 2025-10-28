@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_MASTERMOTOR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_SLAVEMOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
@@ -88,8 +90,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             currentRPMSpikeTime = 0;
 
     public Flywheel(HardwareMap hw) {
-        this.shooterMaster = (DcMotorEx) hw.get(DcMotor.class, "shooterMaster");
-        this.shooterSlave = (DcMotorEx) hw.get(DcMotor.class, "shooterSlave");
+        this.shooterMaster = (DcMotorEx) hw.get(DcMotor.class, NAME_FLYWHEEL_MASTERMOTOR);
+        this.shooterSlave = (DcMotorEx) hw.get(DcMotor.class, NAME_FLYWHEEL_SLAVEMOTOR);
         MotorEx dummy = new MotorEx(hw, "left front", Motor.GoBILDA.BARE);
 
         shooterSlave.setDirection(DcMotorSimple.Direction.REVERSE);

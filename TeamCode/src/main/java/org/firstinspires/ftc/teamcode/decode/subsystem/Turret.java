@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VOLTAGE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_CAMERA;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_ENCODER;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.IDLE;
@@ -88,12 +91,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             manualPower = 0.0;
 
     public Turret(HardwareMap hw) {
-        this.turret = new MotorEx(hw, "turret", Motor.GoBILDA.RPM_1150);
+        this.turret = new MotorEx(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150);
         this.batteryVoltageSensor = hw.voltageSensor.iterator().next();
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
-        absoluteEncoder = hw.get(AnalogInput.class, "turretEncoder");
+        absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
 
-        autoAim = new AutoAim(hw, Common.isRed, Common.RED_GOAL_ID, Common.BLUE_GOAL_ID, Common.TAG_SIZE_METERS_DECODE, "arduCam");
+        autoAim = new AutoAim(hw, Common.isRed, Common.RED_GOAL_ID, Common.BLUE_GOAL_ID, Common.TAG_SIZE_METERS_DECODE, NAME_TURRET_CAMERA);
         motorEncoder = rightBack.encoder;
 
         motorEncoder.reset();

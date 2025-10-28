@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.BACKWARD;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -27,9 +26,9 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     }
 
     public Feeder(HardwareMap hw) {
-        feederFront = hw.get(CRServo.class, Common.CFG_NAME_FEEDERFRONT);
-        feederBack = hw.get(CRServo.class, Common.CFG_NAME_FEEDERBACK);
-        this.colorSensor = new ColorSensor(hw, Common.CFG_NAME_FEEDER_COLORSENSOR, gain);
+        feederFront = hw.get(CRServo.class, Common.NAME_FEEDER_FRONTSERVO);
+        feederBack = hw.get(CRServo.class, Common.NAME_FEEDER_BACKSERVO);
+        this.colorSensor = new ColorSensor(hw, Common.NAME_FEEDER_COLORSENSOR, gain);
 
         feederFront.setDirection(DcMotorSimple.Direction.REVERSE);
     }

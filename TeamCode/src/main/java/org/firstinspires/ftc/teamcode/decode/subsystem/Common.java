@@ -8,14 +8,26 @@ import com.pedropathing.geometry.Pose;
 
 @Config
 public final class Common {
-    public static final String CFG_NAME_FEEDERFRONT = "feederFront" ;
-    public static final String CFG_NAME_FEEDERBACK = "feederBack";
-    public static final String CFG_NAME_FEEDER_COLORSENSOR = "colorSensorFeeder";
+    public static final String NAME_FEEDER_FRONTSERVO = "feederFront" ;
+    public static final String NAME_FEEDER_BACKSERVO = "feederBack";
+    public static final String NAME_FEEDER_COLORSENSOR = "colorSensorFeeder";
+
+    public static final String NAME_FLYWHEEL_MASTERMOTOR = "shooterMaster";
+    public static final String NAME_FLYWHEEL_SLAVEMOTOR = "shooterSlave";
+
+    public static final String NAME_HOOD_SERVO = "hood";
+
+    public static final String NAME_INTAKE_MOTOR = "intake";
+    public static final String NAME_INTAKE_COLORSENSOR = "color";
+
+    public static final String NAME_TURRET_MOTOR = "turret";
+    public static final String NAME_TURRET_ENCODER = "turretEncoder";
+    public static final String NAME_TURRET_CAMERA = "arduCam";
+
     public static Pose AUTO_END_POSE = null;
 
     public static boolean
             isRed = false,
-            isHoodManual = false,
             isBigTriangle = false;
 
     public static final double

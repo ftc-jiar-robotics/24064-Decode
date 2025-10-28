@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawCurrent;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -62,12 +60,12 @@ public final class Robot {
         actionScheduler.run();
         shooter.run();
         intake.run();
-        LoopUtil.updateLoopCount();
         update();
     }
 
     public void update() {
         drivetrain.update();
+        LoopUtil.updateLoopCount();
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         readSensors();
     }
