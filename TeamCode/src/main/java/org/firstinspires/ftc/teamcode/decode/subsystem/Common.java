@@ -27,6 +27,7 @@ public final class Common {
     public static Pose AUTO_END_POSE = null;
 
     public static boolean
+            isSlowMode = false,
             isRed = false,
             isBigTriangle = false;
 
