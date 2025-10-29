@@ -42,7 +42,7 @@ public final class Common {
 
     //Goal Tings
             GOAL_FROM_TAG_X = 0,
-            GOAL_FROM_TAG_Y =0,
+            GOAL_FROM_TAG_Y = 0,
 
     //Turret Stuff
         //Distance from robot center to turret center (inches) should be negative.
@@ -55,8 +55,8 @@ public final class Common {
 
     // {tagId, tagX, tagY, tagHeight}
     public static final double [][] TAG_POSES = {
-            {20, 0.0, -72.0, 42.0}, //Blue Goal
-            {24, 0.0, 72.0, 42.0}   //Red Goal
+            {20, 0.0, 144, 42.0}, //Blue Goal
+            {24, 144, 144, 42.0}   //Red Goal
     };
 
 

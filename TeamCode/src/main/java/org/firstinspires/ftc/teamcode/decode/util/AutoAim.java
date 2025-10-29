@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.decode.util;
 import android.util.Size;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -66,12 +67,12 @@ public class AutoAim {
      *  Requires: call isTargetDetected() first so 'cached' is set.
      *  turretYawRad = absolute turret/camera yaw in field frame (radians)
      */
-    public Pose2d getRobotPos(double turretYawRad) {
-        if (cached == null) return new Pose2d(Double.NaN, Double.NaN, turretYawRad);
+    public Pose getRobotPos(double turretYawRad) {
+        if (cached == null) return new Pose(Double.NaN, Double.NaN, turretYawRad);
 
         // Tag constants
         double[] tag = (cached.id == 20) ? Common.TAG_POSES[0] : (cached.id == 24) ? Common.TAG_POSES[1] : null; // {id, tagX, tagY, tagHeight}
-        if (tag == null) return new Pose2d(Double.NaN, Double.NaN, turretYawRad);
+        if (tag == null) return new Pose(Double.NaN, Double.NaN, turretYawRad);
         final double tagX = tag[1];
         final double tagY = tag[2];
         final double tagHeight = tag[3];
@@ -102,8 +103,11 @@ public class AutoAim {
         double robotX = turX + Common.TURRET_OFFSET_Y * Math.sin(turretYawRad);
         double robotY = turY - Common.TURRET_OFFSET_Y * Math.cos(turretYawRad);
 
-        return new Pose2d(robotX, robotY, turretYawRad);
+        return new Pose(robotX, robotY, turretYawRad);
     }
+
+
+
 
     /** Turret-frame yaw correction so the FLYWHEEL points at the GOAL (not the tag).
      *  Requires: call isTargetDetected() first so 'cached' is set.
