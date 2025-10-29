@@ -161,6 +161,20 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle ;
     }
 
+    public static double turretHeadingToStandardHeading(double turretHeadingDeg) {
+        double standardDeg = (90.0 - turretHeadingDeg + 360.0) % 360.0;
+        return Math.toRadians(standardDeg);
+    }
+
+    /** Optional reverse conversion:
+     *  math radians (0 = East, CCW+) → turret-domain degrees (0 = North, 90° = East, CW+)
+     */
+    public static double standardHeadingRadToTurretHeading(double standardHeadingRad) {
+        double turretDeg = 90.0 - Math.toDegrees(standardHeadingRad);
+        turretDeg = (turretDeg % 360.0 + 360.0) % 360.0;
+        return turretDeg;
+    }
+
     public void setManual(double power) {
         manualPower = power * MANUAL_POWER_MULTIPLIER;
     }
