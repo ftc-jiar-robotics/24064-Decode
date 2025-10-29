@@ -163,14 +163,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static double turretHeadingToStandardHeading(double turretHeadingDeg) {
         double standardDeg = (90.0 - turretHeadingDeg + 360.0) % 360.0;
-        return Math.toRadians(standardDeg);
+        return Math.toDegrees(standardDeg);
     }
 
     /** Optional reverse conversion:
      *  math radians (0 = East, CCW+) → turret-domain degrees (0 = North, 90° = East, CW+)
      */
-    public static double standardHeadingRadToTurretHeading(double standardHeadingRad) {
-        double turretDeg = 90.0 - Math.toDegrees(standardHeadingRad);
+    public static double standardHeadingRadToTurretHeading(double standardHeadingDeg) {
+        double turretDeg = 90.0 - Math.toDegrees(standardHeadingDeg);
         turretDeg = (turretDeg % 360.0 + 360.0) % 360.0;
         return turretDeg;
     }
