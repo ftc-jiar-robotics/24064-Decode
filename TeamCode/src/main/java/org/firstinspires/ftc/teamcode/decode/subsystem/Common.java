@@ -29,7 +29,40 @@ public final class Common {
             SERVO_AXON_MAX_1 = 270,
             SERVO_AXON_MIN = 0,
             SERVO_AXON_MAX_2 = 355,
-            TAG_SIZE_METERS_DECODE = 0.2064;
+
+
+    //Camera Stuff
+        // Height of the ArduCam lens from the ground (inches)
+            CAM_HEIGHT = 9.8,
+        //Camera pitch (tilt upward from horizontal, radians)
+            CAM_PITCH = Math.toRadians(5.0),
+        //Camera offset from turret center (inches)
+        //+X = right, -X = left | +Y = forward, -Y = backward
+            CAM_OFFSET_X = 0,
+            CAM_OFFSET_Y =0,
+
+    //Goal Tings
+            GOAL_FROM_TAG_X = 0,
+            GOAL_FROM_TAG_Y =0,
+
+    //Turret Stuff
+        //Distance from robot center to turret center (inches)
+        // should be negative.
+            TURRET_OFFSET_Y = -4.0,
+        //Flywheel offset from camera (inches)
+        // +X = right, +Y = forward
+            FLYWHEEL_OFFSET_X = 0.0,
+            FLYWHEEL_OFFSET_Y = 0.0,
+    //
+            TAG_SIZE_METERS_DECODE = 0;
+
+    // {tagId, tagX, tagY, tagHeight}
+    public static final double [][] TAG_POSES = {
+            {20, 0.0, -72.0, 42.0}, //Blue Goal
+            {24, 0.0, 72.0, 42.0}   //Red Goal
+    };
+
+
 
     public static final int
             BLUE_GOAL_ID = 20,
