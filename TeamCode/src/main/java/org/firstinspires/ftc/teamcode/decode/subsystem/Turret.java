@@ -25,11 +25,12 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
+import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
 @Configurable
 public class Turret extends Subsystem<Turret.TurretStates> {
-    private final MotorEx turret;
+    private final CachedMotor turret;
     private final AnalogInput absoluteEncoder;
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
@@ -73,7 +74,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 150,
             PID_TOLERANCE = 1,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = 135.3,
+            ABSOLUTE_ENCODER_OFFSET = 0.3,
             TARGET_YAW = -11;
 
     public static int
@@ -91,7 +92,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             manualPower = 0.0;
 
     public Turret(HardwareMap hw) {
-        this.turret = new MotorEx(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150);
+        this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150);
         this.batteryVoltageSensor = hw.voltageSensor.iterator().next();
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);

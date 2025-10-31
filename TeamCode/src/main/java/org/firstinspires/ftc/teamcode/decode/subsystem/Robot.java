@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -72,7 +74,7 @@ public final class Robot {
 
     // Prints data on the driver hub for debugging and other uses
     public void printTelemetry() {
-        shooter.printTelemetry();
+        if (isTelemetryOn) shooter.printTelemetry();
         Common.telemetry.addData("robot x: ", drivetrain.getPose().getX());
         Common.telemetry.addData("robot y: ", drivetrain.getPose().getY());
         Common.telemetry.addData("robot heading: ", Math.toDegrees(drivetrain.getPose().getHeading()));

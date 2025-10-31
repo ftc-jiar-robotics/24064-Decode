@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.acmerobotics.roadrunner.Action;
@@ -15,7 +16,7 @@ public class RobotActions {
         return new ParallelAction(
                 new InstantAction(() -> robot.intake.set(power, true)),
                 new SleepAction(sleepSeconds),
-                new InstantAction(() -> robot.shooter.setFeederIdle())
+                new InstantAction(() -> robot.shooter.setFeederIdle(Math.abs(power) > 0))
         );
     }
 
@@ -27,10 +28,16 @@ public class RobotActions {
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
                 new InstantAction(() -> robot.intake.set(0.85)),
-                new InstantAction(() -> robot.drivetrain.setMaxPowerScaling(0.7)),
+                new InstantAction(() -> {
+                    robot.drivetrain.setMaxPowerScaling(0.7);
+                    isSlowMode = true;
+                }),
                 telemetryPacket -> robot.shooter.getQueuedShots() != 0,
                 setIntake(0, 0),
-                new InstantAction(() -> robot.drivetrain.setMaxPowerScaling(1))
+                new InstantAction(() -> {
+                    robot.drivetrain.setMaxPowerScaling(1);
+                    isSlowMode = false;
+                })
             );
     }
 }

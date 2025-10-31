@@ -18,6 +18,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_PO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.pedropathing.geometry.Pose;
@@ -70,8 +71,6 @@ public class MainTeleOp extends LinearOpMode {
         robot.drivetrain.update();
         robot.drivetrain.startTeleopDrive(true);
 
-        boolean isSlowMode = false;
-
         while (opModeIsActive()) {
             robot.run();
             gamepadEx1.readButtons();
@@ -102,7 +101,7 @@ public class MainTeleOp extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(DPAD_LEFT)) isSlowMode = !isSlowMode;
 
             robot.intake.set(trigger1, false);
-            if (Math.abs(trigger1) > 0) robot.shooter.setFeederIdle();
+            robot.shooter.setFeederIdle(Math.abs(trigger1) > 0);
 
             if (gamepadEx2.wasJustPressed(RIGHT_BUMPER)) robot.shooter.toggleManual();
 

@@ -28,6 +28,7 @@ public final class Common {
 
     public static boolean
             isSlowMode = false,
+            isTelemetryOn = false,
             isRed = false,
             isBigTriangle = false;
 

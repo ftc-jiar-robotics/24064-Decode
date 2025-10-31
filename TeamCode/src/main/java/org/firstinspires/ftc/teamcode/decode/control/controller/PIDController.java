@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.decode.control.controller;
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
 
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.MovingAverageGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.Differentiator;
 import org.firstinspires.ftc.teamcode.decode.control.motion.Integrator;
@@ -55,6 +57,14 @@ public class PIDController implements FeedbackController {
 
     public boolean isPositionInTolerance(State measurement, double tolerance) {
         return Math.abs(measurement.subtract(target).x) <= tolerance;
+    }
+
+    public boolean isErrorDerivativeInTolerance(double measurement, double tolerance, int sampleCount) {
+        MovingAverageFilter movingAverageFilter = new MovingAverageFilter(new MovingAverageGains(sampleCount));
+        double deriv = movingAverageFilter.calculate(differentiator.getDerivative(measurement));
+
+        // if current has spiked and we're in tolerance and we're not in a timer(start time + time period > curr time
+        return Math.abs(deriv) <= tolerance;
     }
 
     public void setTarget(State target) {

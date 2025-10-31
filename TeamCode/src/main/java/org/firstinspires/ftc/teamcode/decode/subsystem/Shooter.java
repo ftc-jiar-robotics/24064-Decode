@@ -66,8 +66,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         turret.setGoalAlliance(isRed);
     }
 
-    public void setFeederIdle() {
-        feeder.set(Feeder.FeederStates.IDLE, true);
+    public void setFeederIdle(boolean isIdle) {
+        if (isIdle) feeder.set(Feeder.FeederStates.IDLE, true);
+        else feeder.set(Feeder.FeederStates.OFF);
     }
 
     public void toggleManual() {
@@ -148,10 +149,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public void printTelemetry() {
-        turret.printTelemetry();
-        flywheel.printTelemetry();
-        feeder.printTelemetry();
-        hood.printTelemetry();
+        if (queuedShots > 0) {
+            turret.printTelemetry();
+            flywheel.printTelemetry();
+            feeder.printTelemetry();
+            hood.printTelemetry();
+        }
 
         telemetry.addLine("SHOOTER");
         telemetry.addData("shooter state:", targetState);

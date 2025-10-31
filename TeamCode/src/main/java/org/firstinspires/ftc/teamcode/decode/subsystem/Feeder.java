@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
-
     private final CRServo feederFront;
     private final CRServo feederBack;
 
@@ -63,8 +62,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
                     feederBack.setPower(-1);
                     break;
                 case IDLE:
-                    feederFront.setPower(1);
-                    feederBack.setPower(-0.7);
+                    feederFront.setPower(0.8);
+                    feederBack.setPower(-1);
                     break;
                 case RUNNING:
                     feederFront.setPower(1);

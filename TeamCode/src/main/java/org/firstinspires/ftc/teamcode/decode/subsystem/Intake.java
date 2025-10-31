@@ -3,20 +3,22 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_INTAKE_COLORSENSOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_INTAKE_MOTOR;
 
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
+import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 
 @Configurable
 public class Intake extends Subsystem<Double> {
-    private final MotorEx motor;
+    private final CachedMotor motor;
     private final ColorSensor colorSensor;
     private float gain = 0; //TODO: change gain
     private double power = 0;
     public Intake(HardwareMap hardwareMap) {
-        this.motor = new MotorEx(hardwareMap, NAME_INTAKE_MOTOR);
+        this.motor = new CachedMotor(hardwareMap, NAME_INTAKE_MOTOR, Motor.GoBILDA.RPM_435);
         this.colorSensor = new ColorSensor(hardwareMap, NAME_INTAKE_COLORSENSOR, gain);
     }
 

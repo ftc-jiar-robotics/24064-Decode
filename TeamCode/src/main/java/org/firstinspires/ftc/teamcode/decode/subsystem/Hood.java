@@ -74,11 +74,28 @@ public class Hood extends Subsystem<Double> {
         TreeMap<Double, Double> lut;
 
         lut = hoodLUTS[0];
-        for (int i = 0; i < hoodLUTS.length; i++) {
-            if (distance >= lutDistances[i]) lut = hoodLUTS[i];
+        int index = 0;
+        for (; index < hoodLUTS.length; index++) {
+            if (distance >= lutDistances[index]) lut = hoodLUTS[index];
         }
 
         if (lut.containsKey(distance)) return lut.get(distance);
+
+        TreeMap<Double, Double> nextLUT = hoodLUTS[Range.clip(index + 1, 0, hoodLUTS.length - 1)];
+
+        if (distance > lut.lastKey() && distance < nextLUT.firstKey()) {
+            double x2 = nextLUT.ceilingKey(distance); // x2
+            double x1 = lut.floorKey(distance); // x1
+
+            double y2 = nextLUT.get(x2); // y2
+            double y1 = lut.get(x1); // y1
+
+            if (x2 == x1) return get();
+
+            lutOutput = Range.clip(y1 + ((distance - x1) * (y2 - y1)) / (x2 - x1), MIN, MAX);
+
+            return lutOutput;
+        }
 
         double finalDistance = Range.clip(distance, lut.firstKey(), lut.lastKey());
 
