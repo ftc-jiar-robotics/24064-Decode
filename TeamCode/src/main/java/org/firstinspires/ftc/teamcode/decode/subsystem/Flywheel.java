@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_MASTERMOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_SLAVEMOTOR;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_INTAKE_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -11,9 +10,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -33,7 +29,6 @@ import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor shooterMaster, shooterSlave;
     private final CachedMotor[] motorGroup;
-
     private final Differentiator differentiator = new Differentiator();
 
     private final Motor.Encoder shooterEncoder;
@@ -41,7 +36,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.000002,
+            0.000005,
             0.0,
             0.0,
             Double.POSITIVE_INFINITY
@@ -70,9 +65,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             SMOOTH_RPM_GAIN = 0.8,
             MOTOR_POWER_GAIN = 0.9,
             DERIV_TOLERANCE = 550,
-            MOTOR_RPM_SETTLE_TIME = 45,
+            MOTOR_RPM_SETTLE_TIME_SHOOT = 55,
+            MOTOR_RPM_SETTLE_TIME_IDLE = 90,
             IDLE_RPM = 2200,
-            MAX_RPM = 4800;
+            MAX_RPM = 4800,
+            VOLTAGE_SCALER = 1.05;
 
     public static int[] lutDistances = {0, 90, 130, 160, 180};
     public static int[] lutRPM = {3100, 3600, 3900, 4150, 4800};
@@ -89,6 +86,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             currentRPMDerivative = 0.0,
             manualPower = 0.0,
             shootingRPM = 4000,
+            settleTime = MOTOR_RPM_SETTLE_TIME_IDLE,
             lastTarget = shootingRPM,
             currentPower = 0,
             calculatedPower = 0,
@@ -140,6 +138,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             currentRPMSpikeTime = (double) System.nanoTime() / 1E9;
             inCurrentRPMSpike = true;
             setTargetLoops = LoopUtil.getLoops();
+            settleTime = MOTOR_RPM_SETTLE_TIME_SHOOT;
             return true;
         }
 
@@ -161,6 +160,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         switch (targetState) {
             case IDLE:
                 shootingRPM = IDLE_RPM;
+                settleTime = MOTOR_RPM_SETTLE_TIME_IDLE;
                 break;
             case ARMING:
                 velocityController.setGains(shootingVelocityGains);
@@ -178,7 +178,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
         if (lastTarget != shootingRPM) {
-            currentPower = shootingRPM/MAX_RPM;
+            currentPower = (shootingRPM/MAX_RPM) * (Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage()) * VOLTAGE_SCALER;
             setTargetLoops = LoopUtil.getLoops();
         }
 
@@ -187,7 +187,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         calculatedPower = velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
         double currentPowerPre = currentPower;
 
-        if (LoopUtil.getLoops() > setTargetLoops + MOTOR_RPM_SETTLE_TIME) currentPowerPre += calculatedPower;
+        if (LoopUtil.getLoops() > setTargetLoops + settleTime) currentPowerPre += calculatedPower;
         else velocityController.reset();
 
         currentPower = (MOTOR_POWER_GAIN * currentPowerPre) + (1 - MOTOR_POWER_GAIN) * currentPower;
@@ -214,6 +214,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         telemetry.addData("current RPM: ", currentRPM);
         telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
 
+        dashTelemetry.addLine("FLYWHEEL");
         dashTelemetry.addData("current RPM: ", currentRPM);
         dashTelemetry.addData("current RPM Smooth: ", currentRPMSmooth);
         dashTelemetry.addData("current RPM Derivative: ", currentRPMDerivative);
@@ -223,6 +224,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         dashTelemetry.addData("current pos: ", shooterEncoder.getPosition());
         dashTelemetry.addData("target RPM: ", shootingRPM);
         dashTelemetry.addData("target RPM (idle): ", IDLE_RPM);
+        dashTelemetry.addData("current settle time (loops): ", settleTime);
 
     }
 }

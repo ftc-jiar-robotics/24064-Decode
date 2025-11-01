@@ -17,6 +17,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
@@ -103,9 +104,7 @@ public class MainTeleOp extends LinearOpMode {
             robot.intake.set(trigger1, false);
             robot.shooter.setFeederIdle(Math.abs(trigger1) > 0);
 
-            if (gamepadEx2.wasJustPressed(RIGHT_BUMPER)) robot.shooter.toggleManual();
-
-            if (robot.shooter.get() == Shooter.ShooterStates.MANUAL) {
+            if (isHoodManual) {
                 if (Math.abs(trigger2) > 0) robot.shooter.setTurretManual(trigger2);
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);

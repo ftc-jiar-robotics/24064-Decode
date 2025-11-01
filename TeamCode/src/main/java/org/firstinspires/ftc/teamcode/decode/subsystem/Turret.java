@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_ENCODER;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.IDLE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.ODOM_TRACKING;
@@ -34,8 +35,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final AnalogInput absoluteEncoder;
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
-    private final VoltageSensor batteryVoltageSensor;
-
     public static PIDGains odoPIDGains = new PIDGains(
             0.033,
             0.008,
@@ -93,7 +92,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public Turret(HardwareMap hw) {
         this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150);
-        this.batteryVoltageSensor = hw.voltageSensor.iterator().next();
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
 
@@ -183,7 +181,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public void run() {
         currentAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
 
-        double scalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
+        double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
 
         odomTracking.setGains(odoPIDGains);
@@ -191,9 +189,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         derivFilter.setGains(filterGains);
 
         // turning robot heading to turret heading
-        double robotHeading = Common.robot.drivetrain.getHeading();
+        double robotHeading = robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
-        turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
+        turretPos = calculateTurretPosition(robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
 
@@ -243,7 +241,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public void printTelemetry() {
         telemetry.addLine("TURRET");
         telemetry.addData("current state: ", currentState);
-        telemetry.addData("turret domain robot heading: ", ((360 - Math.toDegrees(Common.robot.drivetrain.getHeading())) + 90 + 360) % 360);
+        telemetry.addData("turret domain robot heading: ", ((360 - Math.toDegrees(robot.drivetrain.getHeading())) + 90 + 360) % 360);
         telemetry.addData("calculated theta: ", calculateAngleToGoal(turretPos));
         telemetry.addData("turret pos x: ", turretPos.getX());
         telemetry.addData("turret pos y: ", turretPos.getY());

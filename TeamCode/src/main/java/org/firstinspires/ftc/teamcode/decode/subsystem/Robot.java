@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetry
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
@@ -22,6 +23,8 @@ public final class Robot {
     public final Shooter shooter;
     public final Intake intake;
     public final ZoneChecker zoneChecker;
+    public final VoltageSensor batteryVoltageSensor;
+
 
     /**
      * Constructor used in teleOp classes that makes the current pose2d, 0
@@ -42,6 +45,7 @@ public final class Robot {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
+        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         Drawing.init();
 

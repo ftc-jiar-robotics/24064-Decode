@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -14,12 +15,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     private boolean didCurrentDrop;
 
-    private boolean isManual = false;
-
     private int queuedShots = 0;
 
     public enum ShooterStates {
-        IDLE, PREPPING, MANUAL, RUNNING
+        IDLE, PREPPING, RUNNING
     }
 
     private ShooterStates targetState = ShooterStates.IDLE;
@@ -60,6 +59,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     public void clearQueueShots() {
         queuedShots = 0;
+        targetState = ShooterStates.IDLE;
+        turret.set(Turret.TurretStates.IDLE);
+        flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
+        feeder.set(Feeder.FeederStates.IDLE, true);
     }
 
     public void setGoalAlliance(boolean isRed) {
@@ -70,10 +73,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         if (isIdle) feeder.set(Feeder.FeederStates.IDLE, false);
     }
 
-    public void toggleManual() {
-        isManual = !isManual;
-        targetState = isManual ? ShooterStates.MANUAL : ShooterStates.IDLE;
-    }
 
     public void setTurretManual(double power) {
         turret.setManual(power);
@@ -139,7 +138,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
         }
 
-        if (!isManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+        if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
         turret.run();
         flywheel.run();

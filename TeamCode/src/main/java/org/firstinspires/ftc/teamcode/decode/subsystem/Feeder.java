@@ -23,7 +23,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public enum FeederStates {
         OFF, OUTTAKING, IDLE, RUNNING, MANUAL
     }
-    public static double[][] feederPowers = {{0, 0}, {-1, -1}, {0.6 , -0.2} ,{1 , 1}};
+    public static double[][] feederPowers = {{0, 0}, {-1, -1}, {0.2 , -1} ,{1 , 1}};
 
     public Feeder(HardwareMap hw) {
         feederFront = hw.get(CRServo.class, Common.NAME_FEEDER_FRONTSERVO);
