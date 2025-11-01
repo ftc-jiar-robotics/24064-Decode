@@ -21,8 +21,9 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     private float gain = 0; //TODO: change gain
 
     public enum FeederStates {
-        OFF, OUTTAKING, MANUAL, IDLE, RUNNING
+        OFF, OUTTAKING, IDLE, RUNNING, MANUAL
     }
+    public static double[][] feederPowers = {{0, 0}, {-1, -1}, {0.6 , -0.2} ,{1 , 1}};
 
     public Feeder(HardwareMap hw) {
         feederFront = hw.get(CRServo.class, Common.NAME_FEEDER_FRONTSERVO);
@@ -52,24 +53,9 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     @Override
     public void run() {
-            switch (currentState) {
-                case OFF:
-                    feederFront.setPower(0);
-                    feederBack.setPower(0);
-                    break;
-                case OUTTAKING:
-                    feederFront.setPower(-1);
-                    feederBack.setPower(-1);
-                    break;
-                case IDLE:
-                    feederFront.setPower(0.8);
-                    feederBack.setPower(-1);
-                    break;
-                case RUNNING:
-                    feederFront.setPower(1);
-                    feederBack.setPower(1);
-                    break;
-            }
+            double[] ordinal = feederPowers[currentState.ordinal()];
+            feederFront.setPower(ordinal[0]);
+            feederBack.setPower(ordinal[1]);
     }
 
     public void printTelemetry() {

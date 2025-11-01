@@ -19,7 +19,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private int queuedShots = 0;
 
     public enum ShooterStates {
-        IDLE, TRACKING, MANUAL, RUNNING
+        IDLE, PREPPING, MANUAL, RUNNING
     }
 
     private ShooterStates targetState = ShooterStates.IDLE;
@@ -67,8 +67,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public void setFeederIdle(boolean isIdle) {
-        if (isIdle) feeder.set(Feeder.FeederStates.IDLE, true);
-        else feeder.set(Feeder.FeederStates.OFF);
+        if (isIdle) feeder.set(Feeder.FeederStates.IDLE, false);
     }
 
     public void toggleManual() {
@@ -106,11 +105,11 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
                 if (queuedShots >= 1) {
                     flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
-                    targetState = ShooterStates.TRACKING;
+                    targetState = ShooterStates.PREPPING;
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 }
                 break;
-            case TRACKING:
+            case PREPPING:
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
@@ -149,12 +148,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public void printTelemetry() {
-        if (queuedShots > 0) {
+//        if (queuedShots > 0) {
             turret.printTelemetry();
             flywheel.printTelemetry();
             feeder.printTelemetry();
             hood.printTelemetry();
-        }
+//        }
 
         telemetry.addLine("SHOOTER");
         telemetry.addData("shooter state:", targetState);

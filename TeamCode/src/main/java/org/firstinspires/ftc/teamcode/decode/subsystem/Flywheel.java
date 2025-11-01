@@ -41,9 +41,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.000275,
+            0.000002,
             0.0,
-            0.00005,
+            0.0,
             Double.POSITIVE_INFINITY
     );
 
@@ -60,22 +60,24 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     );
 
     public enum FlyWheelStates {
-        OFF, IDLE, ARMING, RUNNING
+        IDLE, ARMING, RUNNING
     }
 
     public static double
-            RPM_DERIVATIVE_DROP = -2000, // deacceleration
+            RPM_DERIVATIVE_DROP = -1000, // deacceleration
             TIME_DROP_PERIOD = 0.3,
             RPM_TOLERANCE = 100,
+            SMOOTH_RPM_GAIN = 0.8,
+            MOTOR_POWER_GAIN = 0.9,
             DERIV_TOLERANCE = 550,
-            MOTOR_RPM_SETTLE_TIME = 75,
+            MOTOR_RPM_SETTLE_TIME = 45,
             IDLE_RPM = 2200,
             MAX_RPM = 4800;
 
     public static int[] lutDistances = {0, 90, 130, 160, 180};
     public static int[] lutRPM = {3100, 3600, 3900, 4150, 4800};
 
-    private FlyWheelStates targetState = FlyWheelStates.OFF;
+    private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
     private int setTargetLoops = 0;
     public static int TOLERANCE_SAMPLE_COUNT = 10;
@@ -83,6 +85,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private boolean inCurrentRPMSpike = false;
     private double
             currentRPM = 0.0,
+            currentRPMSmooth = 0.0,
             currentRPMDerivative = 0.0,
             manualPower = 0.0,
             shootingRPM = 4000,
@@ -136,6 +139,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (currentRPMDerivative < RPM_DERIVATIVE_DROP && !inCurrentRPMSpike) {
             currentRPMSpikeTime = (double) System.nanoTime() / 1E9;
             inCurrentRPMSpike = true;
+            setTargetLoops = LoopUtil.getLoops();
             return true;
         }
 
@@ -149,20 +153,19 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     @Override
     public void run() {
-        currentRPM = rpmFilter.calculate(shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
+        currentRPM = (shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
+        currentRPMSmooth = (SMOOTH_RPM_GAIN * currentRPMSmooth) + (1 - SMOOTH_RPM_GAIN) * currentRPM;
         if (currentRPM > 10000) currentRPM = 0;
+        if (currentRPMSmooth > 10000) currentRPMSmooth = 0;
 
         switch (targetState) {
-            case OFF:
-                shootingRPM = 0;
-                break;
             case IDLE:
                 shootingRPM = IDLE_RPM;
                 break;
             case ARMING:
                 velocityController.setGains(shootingVelocityGains);
                 chooseShootingRPM();
-
+                velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
                 if (isPIDInTolerance()) {
                     targetState = FlyWheelStates.RUNNING;
                 }
@@ -181,9 +184,13 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         lastTarget = shootingRPM;
 
-        calculatedPower = velocityController.calculate(new State(currentRPM, 0, 0, 0));
+        calculatedPower = velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
+        double currentPowerPre = currentPower;
 
-        if (LoopUtil.getLoops() > setTargetLoops + MOTOR_RPM_SETTLE_TIME) currentPower += calculatedPower;
+        if (LoopUtil.getLoops() > setTargetLoops + MOTOR_RPM_SETTLE_TIME) currentPowerPre += calculatedPower;
+        else velocityController.reset();
+
+        currentPower = (MOTOR_POWER_GAIN * currentPowerPre) + (1 - MOTOR_POWER_GAIN) * currentPower;
 
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 
@@ -208,6 +215,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
 
         dashTelemetry.addData("current RPM: ", currentRPM);
+        dashTelemetry.addData("current RPM Smooth: ", currentRPMSmooth);
         dashTelemetry.addData("current RPM Derivative: ", currentRPMDerivative);
         dashTelemetry.addData("calculated power: ", calculatedPower);
         dashTelemetry.addData("current power: ", currentPower);
