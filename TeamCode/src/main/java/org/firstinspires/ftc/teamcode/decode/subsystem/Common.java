@@ -23,8 +23,8 @@ public final class Common {
     public static final String NAME_TURRET_MOTOR = "turret";
     public static final String NAME_TURRET_ENCODER = "turretEncoder";
     public static final String NAME_TURRET_CAMERA = "arduCam";
-    public static double forwardPodY = 82;
-    public static double strafePodX = -83.823590036;
+    public static double forwardPodY = 80;
+    public static double strafePodX = -83.5;
 
     public static Pose AUTO_END_POSE = null;
 
