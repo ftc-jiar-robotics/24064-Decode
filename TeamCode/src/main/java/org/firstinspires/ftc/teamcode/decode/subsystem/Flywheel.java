@@ -59,11 +59,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            RPM_DERIVATIVE_DROP = -1000, // deacceleration
+            RPM_DERIVATIVE_DROP = -300, // deacceleration
             TIME_DROP_PERIOD = 0.3,
             RPM_TOLERANCE = 100,
             SMOOTH_RPM_GAIN = 0.8,
-            SUPER_SMOOTH_RPM_GAIN = 0.999,
+            SUPER_SMOOTH_RPM_GAIN = 0.9,
             MOTOR_POWER_GAIN = 0.9,
             DERIV_TOLERANCE = 550,
             MOTOR_RPM_SETTLE_TIME_SHOOT = 55,
@@ -144,7 +144,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             return true;
         }
 
-        if (currentRPMSpikeTime + TIME_DROP_PERIOD < (double) System.nanoTime() / 1E9 && inCurrentRPMSpike) {
+        if ((currentRPMSpikeTime + TIME_DROP_PERIOD < (double) System.nanoTime() / 1E9 || currentRPMDerivative > RPM_DERIVATIVE_DROP) && inCurrentRPMSpike) {
             inCurrentRPMSpike = false;
             return false;
         }
@@ -159,6 +159,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         currentRPMSuperSmooth = (SUPER_SMOOTH_RPM_GAIN * currentRPMSuperSmooth) + (1 - SUPER_SMOOTH_RPM_GAIN) * currentRPM;
         if (currentRPM > 10000) currentRPM = 0;
         if (currentRPMSmooth > 10000) currentRPMSmooth = 0;
+        if (currentRPMSuperSmooth > 10000) currentRPMSuperSmooth = 0;
 
         switch (targetState) {
             case IDLE:
@@ -220,6 +221,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         dashTelemetry.addLine("FLYWHEEL");
         dashTelemetry.addData("current RPM: ", currentRPM);
         dashTelemetry.addData("current RPM Smooth: ", currentRPMSmooth);
+        dashTelemetry.addData("current RPM Super Smooth: ", currentRPMSuperSmooth);
         dashTelemetry.addData("current RPM Derivative: ", currentRPMDerivative);
         dashTelemetry.addData("calculated power: ", calculatedPower);
         dashTelemetry.addData("current power: ", currentPower);
