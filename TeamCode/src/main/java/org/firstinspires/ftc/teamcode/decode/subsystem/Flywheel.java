@@ -63,6 +63,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             TIME_DROP_PERIOD = 0.3,
             RPM_TOLERANCE = 100,
             SMOOTH_RPM_GAIN = 0.8,
+            SUPER_SMOOTH_RPM_GAIN = 0.999,
             MOTOR_POWER_GAIN = 0.9,
             DERIV_TOLERANCE = 550,
             MOTOR_RPM_SETTLE_TIME_SHOOT = 55,
@@ -71,7 +72,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             MAX_RPM = 4800,
             VOLTAGE_SCALER = 1.0;
 
-    public static int[] lutDistances = {0, 81, 130, 160, 180};
+    public static int[] lutDistances = {0, 81, 115, 160 , 180};
     public static int[] lutRPM = {2800, 3300, 3900, 4150, 4800};
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
@@ -83,6 +84,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private double
             currentRPM = 0.0,
             currentRPMSmooth = 0.0,
+            currentRPMSuperSmooth = 0.0,
             currentRPMDerivative = 0.0,
             manualPower = 0.0,
             shootingRPM = 4000,
@@ -131,7 +133,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public boolean didRPMSpike() {
-        currentRPMDerivative = rpmDerivAverageFilter.calculate(differentiator.getDerivative(currentRPM));
+        currentRPMDerivative = rpmDerivAverageFilter.calculate(differentiator.getDerivative(currentRPMSuperSmooth));
 
         // if current has spiked and we're in tolerance and we're not in a timer(start time + time period > curr time
         if (currentRPMDerivative < RPM_DERIVATIVE_DROP && !inCurrentRPMSpike) {
@@ -154,6 +156,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public void run() {
         currentRPM = (shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
         currentRPMSmooth = (SMOOTH_RPM_GAIN * currentRPMSmooth) + (1 - SMOOTH_RPM_GAIN) * currentRPM;
+        currentRPMSuperSmooth = (SUPER_SMOOTH_RPM_GAIN * currentRPMSuperSmooth) + (1 - SUPER_SMOOTH_RPM_GAIN) * currentRPM;
         if (currentRPM > 10000) currentRPM = 0;
         if (currentRPMSmooth > 10000) currentRPMSmooth = 0;
 

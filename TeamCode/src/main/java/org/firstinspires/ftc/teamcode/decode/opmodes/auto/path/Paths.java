@@ -21,7 +21,7 @@ public class Paths {
             control0 = new Pose(47.6, 113.1),
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
             end0 = new Pose(51.0, 98.0),
-            end1 = new Pose(33.3, 91.5),
+            end1 = new Pose(33.3, 89.5),
             end2 = new Pose(17.7, 88.5),
             end3 = new Pose(51.0, 98.0),
             end4 = new Pose(32.7, 68.0),
