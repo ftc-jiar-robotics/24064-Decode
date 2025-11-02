@@ -39,15 +39,15 @@ public class Hood extends Subsystem<Double> {
         // k = distance (inches), v = angle (deg)
         // TODO tune LUT and interpolate w/ formula
         // TODO change/tune values
-        ayanLUT.put(61.0, 110.0); // RPM 3100
-        ayanLUT.put(69.3, 110.5); // RPM 3100
-        ayanLUT.put(80.8, 102.5); // RPM 3100
-        ayanLUT.put(87.0, 101.5); // RPM 3100
+        ayanLUT.put(64.0, 108.0); // RPM 3100
+        ayanLUT.put(78.0, 99.5); // RPM 3100
+        ayanLUT.put(81.0, 112.5); // RPM 3100
 
-        kashifLUT.put(90.2, 151.4); // RPM 3500
-        kashifLUT.put(103.4, 147.4); // RPM 3500
-        kashifLUT.put(110.6, 176.0); // RPM 3500
-        kashifLUT.put(129.0, 176.0); // RPM 3500
+        kashifLUT.put(81.0, 139.0); // RPM 3500
+        kashifLUT.put(89.0, 152.5); // RPM 3500
+        kashifLUT.put(103.0, 139.0); // RPM 3500
+
+
 
         kayraLUT.put(133.0, 110.0); // RPM 3800
 

@@ -69,10 +69,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             MOTOR_RPM_SETTLE_TIME_IDLE = 90,
             IDLE_RPM = 2200,
             MAX_RPM = 4800,
-            VOLTAGE_SCALER = 1.05;
+            VOLTAGE_SCALER = 1.0;
 
-    public static int[] lutDistances = {0, 90, 130, 160, 180};
-    public static int[] lutRPM = {3100, 3600, 3900, 4150, 4800};
+    public static int[] lutDistances = {0, 81, 130, 160, 180};
+    public static int[] lutRPM = {2800, 3300, 3900, 4150, 4800};
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 

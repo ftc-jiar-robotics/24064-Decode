@@ -71,7 +71,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             TURRET_OFFSET = 2.559,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
-            PID_TOLERANCE = 1,
+            PID_TOLERANCE = 2,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -33.0,
             TARGET_YAW = -11;
