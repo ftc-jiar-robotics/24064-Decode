@@ -200,9 +200,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
                     break;
                 case ODOM_TRACKING:
+                    turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), TURRET_OFFSET);
                     setOdomTracking();
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
-                    turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), TURRET_OFFSET);
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
                         else break;
@@ -215,15 +215,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         if (!autoAim.isTargetDetected()) {
                             currentState = TurretStates.ODOM_TRACKING;
                             break;
-                    }
-                        Pose visionTurretPos = autoAim.getTurretPosePedro();
-                        if (visionTurretPos != null) {
-                            turretPos = visionTurretPos;
-                        } else {
-                            currentState = TurretStates.ODOM_TRACKING;
-                            break;
                         }
-
+                        turretPos = autoAim.getTurretPosePedro();
                         setOdomTracking();
                         output += odomTracking.calculate(new State(currentAngle, 0, 0, 0));
 
