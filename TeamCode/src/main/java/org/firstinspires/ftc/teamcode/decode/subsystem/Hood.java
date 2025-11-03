@@ -10,11 +10,14 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.decode.util.CachedServo;
+
 import java.util.TreeMap;
 
 @Configurable
 public class Hood extends Subsystem<Double> {
-    private final SimpleServo hood;
+    private final CachedServo hood;
 
     private double
             targetAngle,
@@ -34,7 +37,7 @@ public class Hood extends Subsystem<Double> {
     private final TreeMap<Double, Double>[] hoodLUTS = new TreeMap[]{ayanLUT, kashifLUT, kayraLUT, abucarLUT, omarLUT};
 
     public Hood(HardwareMap hw) {
-        this.hood = new SimpleServo(hw, NAME_HOOD_SERVO, Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1);
+        this.hood = new CachedServo(hw, NAME_HOOD_SERVO, Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1, AngleUnit.DEGREES);
 
         // k = distance (inches), v = angle (deg)
         // TODO tune LUT and interpolate w/ formula
