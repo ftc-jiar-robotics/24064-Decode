@@ -219,10 +219,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         turretPos = autoAim.getTurretPosePedro();
                         setOdomTracking();
                         output += odomTracking.calculate(new State(currentAngle, 0, 0, 0));
-
-                        if (currentAngle < WRAP_AROUND_ANGLE - 360 || currentAngle > WRAP_AROUND_ANGLE) {
-                            currentState = TurretStates.ODOM_TRACKING;
-                        }
+                        
                         break;
                     }
             }
