@@ -274,5 +274,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             dashTelemetry.addData("Y (in)", "%.4f", turretPose.getY());
             dashTelemetry.addData("Heading (deg)", "%.1f", turretPose.getHeading());
         }
+        Pose robotPoseFromVision = relocalizeRobotFromTurret(turretPos, Math.toDegrees(robot.drivetrain.getHeading()));
+        dashTelemetry.addLine("VISION RELOCALIZATION");
+        dashTelemetry.addData("X (in)", "%.4f", robotPoseFromVision.getX());
+        dashTelemetry.addData("Y (in)", "%.4f", robotPoseFromVision.getY());
+        dashTelemetry.addData("Heading (deg)", "%.2f", robotPoseFromVision.getHeading());
+        dashTelemetry.addData("Pose", "(%.4f, %.4f)  %.2f°", robotPoseFromVision.getX(), robotPoseFromVision.getY(), robotPoseFromVision.getHeading());
     }
 }
