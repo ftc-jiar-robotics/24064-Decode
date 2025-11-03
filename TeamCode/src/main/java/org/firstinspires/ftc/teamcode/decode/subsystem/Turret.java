@@ -218,7 +218,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         turretPos = autoAim.getTurretPosePedro();
                         double headingDeg = Math.toDegrees(robot.drivetrain.getHeading());
                         Pose robotPoseFromVision = relocalizeRobotFromTurret(turretPos, headingDeg);
-                        robot.something(robotPoseFromVision);
+                        robot.drivetrain.setPose(robotPoseFromVision);
                         setOdomTracking();
                         output += odomTracking.calculate(new State(currentAngle, 0, 0, 0));
 
