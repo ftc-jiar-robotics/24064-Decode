@@ -8,7 +8,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemet
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.IDLE;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.ODOM_TRACKING;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.VISION_TRACKING;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -17,7 +16,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
@@ -130,7 +128,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - normalizeToTurretRange((360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360)) % 360);
     }
 
-    private void setOdomTracking() {
+    private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
 
@@ -201,7 +199,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case ODOM_TRACKING:
                     turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), Common.TURRET_OFFSET_Y);
-                    setOdomTracking();
+                    setTracking();
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
@@ -220,7 +218,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         double headingDeg = Math.toDegrees(robot.drivetrain.getHeading());
                         robotPoseFromVision = relocalizeRobotFromTurret(turretPos, headingDeg);
                         robot.drivetrain.setPose(robotPoseFromVision);
-                        setOdomTracking();
+                        setTracking();
                         output += odomTracking.calculate(new State(currentAngle, 0, 0, 0));
 
                         break;
