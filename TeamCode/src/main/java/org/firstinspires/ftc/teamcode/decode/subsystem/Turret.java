@@ -82,8 +82,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private Pose goal = new Pose(0, 144);
     private Pose turretPos = new Pose(0, 0);
     private Pose robotPoseFromVision = new Pose(0, 0, 0);
-    private Pose turretPosePedro = new Pose(0, 0, 0);
-
 
     private double
             currentAngle = 0.0,
@@ -218,9 +216,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                             currentState = TurretStates.ODOM_TRACKING;
                             break;
                         }
-                        turretPosePedro = autoAim.getTurretPosePedro();
+                        turretPos = autoAim.getTurretPosePedro();
                         double headingDeg = Math.toDegrees(robot.drivetrain.getHeading());
-                        robotPoseFromVision = relocalizeRobotFromTurret(turretPosePedro, headingDeg);;
+                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, headingDeg);
                         robot.drivetrain.setPose(robotPoseFromVision);
                         setOdomTracking();
                         output += odomTracking.calculate(new State(currentAngle, 0, 0, 0));
@@ -270,11 +268,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
             dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
         }
-        if (turretPosePedro != null) {
-            dashTelemetry.addLine("TURRET POSE");
-            dashTelemetry.addData("X (in)", "%.4f", turretPosePedro.getX());
-            dashTelemetry.addData("Y (in)", "%.4f", turretPosePedro.getY());
-            dashTelemetry.addData("Heading (deg)", "%.1f", turretPosePedro.getHeading());
+        if (turretPos != null) {
+            dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
+            dashTelemetry.addData("X (in)", "%.4f", turretPos.getX());
+            dashTelemetry.addData("Y (in)", "%.4f", turretPos.getY());
+            dashTelemetry.addData("Heading (deg)", "%.1f", turretPos.getHeading());
         }
         dashTelemetry.addLine("VISION RELOCALIZATION");
         dashTelemetry.addData("X (in)", "%.4f", robotPoseFromVision.getX());
