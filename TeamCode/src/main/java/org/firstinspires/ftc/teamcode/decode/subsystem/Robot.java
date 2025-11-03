@@ -79,10 +79,10 @@ public final class Robot {
     // Prints data on the driver hub for debugging and other uses
     public void printTelemetry() {
         if (isTelemetryOn) shooter.printTelemetry();
-        Common.telemetry.addData("robot x: ", drivetrain.getPose().getX());
-        Common.telemetry.addData("robot y: ", drivetrain.getPose().getY());
-        Common.telemetry.addData("robot heading: ", Math.toDegrees(drivetrain.getPose().getHeading()));
-        Common.telemetry.addData("loop time", LoopUtil.getLoopTimeInHertz());
+        Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
+        Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
+        Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
+        Common.telemetry.addData("loop time (LOOPS): ", LoopUtil.getLoopTimeInHertz());
 
         Drawing.drawDebug(drivetrain);
 

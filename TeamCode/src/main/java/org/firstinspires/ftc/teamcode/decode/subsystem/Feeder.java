@@ -60,6 +60,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     public void printTelemetry() {
         telemetry.addLine("FEEDER");
-        telemetry.addData("current state: ", currentState);
+        telemetry.addData("current state (ENUM): ", currentState);
+        telemetry.addData("feeder front power (PERCENTAGE): ", feederFront.getPower());
+        telemetry.addData("feeder back power (PERCENTAGE): ", feederBack.getPower());
     }
 }

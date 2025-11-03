@@ -40,6 +40,6 @@ public class Intake extends Subsystem<Double> {
     @Override
     public void printTelemetry() {
         Common.telemetry.addLine("INTAKE");
-        Common.telemetry.addData("current power: ", power);
+        Common.telemetry.addData("current power (PERCENTAGE): ", power);
     }
 }

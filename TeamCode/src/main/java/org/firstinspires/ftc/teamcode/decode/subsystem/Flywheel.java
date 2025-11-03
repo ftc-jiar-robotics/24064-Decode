@@ -120,10 +120,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         return targetState;
     }
 
-    public boolean inCurrentSpikeTimer() {
-        return inCurrentRPMSpike;
-    }
-
     public void setManualPower(double power) {
         manualPower = power;
     }
@@ -213,23 +209,24 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     public void printTelemetry() {
         telemetry.addLine("FLYWHEEL");
-        telemetry.addData("current state: ", get());
-        telemetry.addData("target state: ", targetState);
-        telemetry.addData("current RPM: ", currentRPM);
-        telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
+        telemetry.addData("current state (ENUM): ", get());
+        telemetry.addData("target state (ENUM): ", targetState);
+        telemetry.addData("current RPM (ROTATIONS PER MINUTE): ", currentRPM);
+        telemetry.addData("is PID in tolerance (BOOLEAN): ", isPIDInTolerance());
 
-        dashTelemetry.addLine("FLYWHEEL");
-        dashTelemetry.addData("current RPM: ", currentRPM);
-        dashTelemetry.addData("current RPM Smooth: ", currentRPMSmooth);
-        dashTelemetry.addData("current RPM Super Smooth: ", currentRPMSuperSmooth);
-        dashTelemetry.addData("current RPM Derivative: ", currentRPMDerivative);
-        dashTelemetry.addData("calculated power: ", calculatedPower);
-        dashTelemetry.addData("current power: ", currentPower);
-        dashTelemetry.addData("is timer on: ", inCurrentRPMSpike);
-        dashTelemetry.addData("current pos: ", shooterEncoder.getPosition());
-        dashTelemetry.addData("target RPM: ", shootingRPM);
-        dashTelemetry.addData("target RPM (idle): ", IDLE_RPM);
-        dashTelemetry.addData("current settle time (loops): ", settleTime);
-
+        if (robot.shooter.getQueuedShots() > 0) {
+            dashTelemetry.addLine("FLYWHEEL");
+            dashTelemetry.addData("current RPM (ROTATIONS PER MINUTE): ", currentRPM);
+            dashTelemetry.addData("current RPM Smooth (ROTATIONS PER MINUTE): ", currentRPMSmooth);
+            dashTelemetry.addData("current RPM Super Smooth (ROTATIONS PER MINUTE): ", currentRPMSuperSmooth);
+            dashTelemetry.addData("current RPM Derivative (ROTATIONS PER MINUTE): ", currentRPMDerivative);
+            dashTelemetry.addData("calculated power (PERCENTAGE): ", calculatedPower);
+            dashTelemetry.addData("current power (PERCENTAGE): ", currentPower);
+            dashTelemetry.addData("is timer on (BOOLEAN): ", inCurrentRPMSpike);
+            dashTelemetry.addData("current pos (TICKS): ", shooterEncoder.getPosition());
+            dashTelemetry.addData("target RPM (ROTATIONS PER MINUTE): ", shootingRPM);
+            dashTelemetry.addData("target RPM (idle) (ROTATIONS PER MINUTE): ", IDLE_RPM);
+            dashTelemetry.addData("current settle time (LOOPS): ", settleTime);
+        }
     }
 }

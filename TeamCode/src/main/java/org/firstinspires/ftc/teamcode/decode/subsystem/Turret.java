@@ -240,22 +240,18 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     double rawPower = 0;
     public void printTelemetry() {
         telemetry.addLine("TURRET");
-        telemetry.addData("current state: ", currentState);
-        telemetry.addData("turret domain robot heading: ", ((360 - Math.toDegrees(robot.drivetrain.getHeading())) + 90 + 360) % 360);
-        telemetry.addData("calculated theta: ", calculateAngleToGoal(turretPos));
-        telemetry.addData("turret pos x: ", turretPos.getX());
-        telemetry.addData("turret pos y: ", turretPos.getY());
-        telemetry.addData("raw ticks", motorEncoder.getPosition());
-        telemetry.addData("raw power", rawPower);
-        telemetry.addData("calculated distance: ", getDistance());
-        telemetry.addData("is PID in tolerance: ", isPIDInTolerance());
+        telemetry.addData("current state (ENUM): ", currentState);
+        telemetry.addData("calculated distance (DISTANCE): ", getDistance());
+        telemetry.addData("is PID in tolerance (BOOLEAN): ", isPIDInTolerance());
 
-        dashTelemetry.addLine("TURRET");
-        dashTelemetry.addData("vision setpoint: ", 0);
-        dashTelemetry.addData("current vision: ", autoAim.getTargetYawDegrees());
-        dashTelemetry.addData("encoder angle: ", currentAngle);
-        dashTelemetry.addData("raw motor ticks: ", motorEncoder.getPosition());
-        dashTelemetry.addData("absolute encoder: ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
-        dashTelemetry.addData("target angle: ", targetAngle);
+        if (robot.shooter.getQueuedShots() > 0) {
+            dashTelemetry.addLine("TURRET");
+            dashTelemetry.addData("vision setpoint (YAW): ", 0);
+            dashTelemetry.addData("current vision (YAW): ", autoAim.getTargetYawDegrees());
+            dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
+            dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
+            dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
+            dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
+        }
     }
 }

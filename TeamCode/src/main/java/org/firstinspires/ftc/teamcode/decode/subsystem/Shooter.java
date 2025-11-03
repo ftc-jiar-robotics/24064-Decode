@@ -147,16 +147,14 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public void printTelemetry() {
-//        if (queuedShots > 0) {
             turret.printTelemetry();
             flywheel.printTelemetry();
             feeder.printTelemetry();
             hood.printTelemetry();
-//        }
 
         telemetry.addLine("SHOOTER");
-        telemetry.addData("shooter state:", targetState);
-        telemetry.addData("queued shots: ", queuedShots);
-        telemetry.addData("did current drop?: ", didCurrentDrop);
+        telemetry.addData("shooter state (ENUM):", targetState);
+        telemetry.addData("queued shots (DOUBLE): ", queuedShots);
+        telemetry.addData("did current drop? (BOOLEAN): ", didCurrentDrop);
     }
 }
