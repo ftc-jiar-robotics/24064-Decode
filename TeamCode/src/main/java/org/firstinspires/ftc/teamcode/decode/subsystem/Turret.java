@@ -186,11 +186,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
 
         odomTracking.setGains(odoPIDGains);
-        derivFilter.setGains(filterGans);
+        derivFilter.setGains(filterGains);
         // turning robot heading to turret heading
         double robotHeading = robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
-        Pose odoTurretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), TURRET_OFFSET);
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
 
@@ -203,7 +202,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case ODOM_TRACKING:
                     setOdomTracking();
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
-                    turretPos = odoTurretPos;
+                    turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), TURRET_OFFSET);
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
                         else break;
@@ -213,10 +212,26 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
-                        if (autoAim.isTargetDetected()) currentState = ODOM_TRACKING;
+                        if (!autoAim.isTargetDetected()) {
+                            currentState = TurretStates.ODOM_TRACKING;
+                            break;
                     }
-                    if (currentAngle < WRAP_AROUND_ANGLE - 360 || currentAngle > WRAP_AROUND_ANGLE) currentState = ODOM_TRACKING;
-                    break;
+                        Pose visionTurretPos = autoAim.getTurretPosePedro();
+                        if (visionTurretPos != null) {
+                            turretPos = visionTurretPos;
+                        } else {
+                            currentState = TurretStates.ODOM_TRACKING;
+                            break;
+                        }
+
+                        setOdomTracking();
+                        output += odomTracking.calculate(new State(currentAngle, 0, 0, 0));
+
+                        if (currentAngle < WRAP_AROUND_ANGLE - 360 || currentAngle > WRAP_AROUND_ANGLE) {
+                            currentState = TurretStates.ODOM_TRACKING;
+                        }
+                        break;
+                    }
             }
 
 
@@ -226,11 +241,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     new State(currentAngle, 0, 0, 0), 0.2
             );
 
-            if (pidInTolerance) turret.set(0);
-            else turret.set(output);
+            turret.set(pidInTolerance ? 0 : output);
 
         }
-
 
         if (isPIDInTolerance()) odomTracking.reset();
     }
@@ -250,6 +263,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
             dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
             dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
+        }
+        Pose turretPose = autoAim.getTurretPosePedro();
+        if (turretPose != null) {
+            dashTelemetry.addLine("TURRET POSE");
+            dashTelemetry.addData("X (in)", "%.4f", turretPose.getX());
+            dashTelemetry.addData("Y (in)", "%.4f", turretPose.getY());
+            dashTelemetry.addData("Heading (deg)", "%.1f", turretPose.getHeading());
         }
     }
 }

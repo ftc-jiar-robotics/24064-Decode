@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.decode.util;
 
 import android.util.Size;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -85,6 +86,12 @@ public class AutoAim {
         return false;
     }
 
+    public Pose getTurretPosePedro() {
+        double x = cached.robotPose.getPosition().x + 72;
+        double y = cached.robotPose.getPosition().y + 72;
+        double headingDeg = cached.robotPose.getOrientation().getYaw();
+        return new Pose(x, y, headingDeg);
+    }
 
     /** Horizontal yaw error (deg) from camera center to the selected target tag. */
     public double getTargetYawDegrees() {
