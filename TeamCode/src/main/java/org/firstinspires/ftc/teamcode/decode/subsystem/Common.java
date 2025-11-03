@@ -33,33 +33,32 @@ public final class Common {
 
     //Camera Stuff
         // Height of the ArduCam lens from the ground (inches)
-            CAM_HEIGHT = 9.8,
+            CAM_HEIGHT = 11.5,
         //Camera pitch (tilt upward from horizontal, radians)
           // CAM_PITCH = Math.toRadians(5.0),
         //Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
-            CAM_OFFSET_X = 0,
-            CAM_OFFSET_Y =0,
+            CAM_OFFSET_X = 1.5227665354,
+            CAM_OFFSET_Y = 5.48526,
 
-    //Goal Tings
-            GOAL_FROM_TAG_X = 0,
-            GOAL_FROM_TAG_Y = 0,
 
     //Turret Stuff
         //Distance from robot center to turret center (inches) should be negative.
-            TURRET_OFFSET_Y = -4.0,
+            TURRET_OFFSET_Y = 2.559,
         //Flywheel offset from camera (inches) +X = right, +Y = forward
             FLYWHEEL_OFFSET_X = 0.0,
-            FLYWHEEL_OFFSET_Y = 0.0,
+            FLYWHEEL_OFFSET_Y = 3.93701,
     //
-            TAG_SIZE_METERS_DECODE = 0;
+            TAG_SIZE_METERS_DECODE = 0.165;
 
     // {tagId, tagX, tagY, tagHeight}
-    public static final double [][] TAG_POSES = {
+    public static final double [][] GOAL_POSES = {
             {20, 0.0, 144, 42.0}, //Blue Goal
             {24, 144, 144, 42.0}   //Red Goal
     };
-
-
+    public static final double [][] TAG_POSES = {
+            {20, 0.0+14.5, 144-11.8, 42.0}, //Blue Goal
+            {24, 144-14.5, 144-11.8, 42.0}   //Red Goal
+    };
 
     public static final int
             BLUE_GOAL_ID = 20,

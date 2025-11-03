@@ -63,7 +63,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static double
             kG = 0,
-            TURRET_OFFSET = 2.559,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
             PID_TOLERANCE = 1,
@@ -89,7 +88,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         this.turret = new MotorEx(hw, "turret", Motor.GoBILDA.RPM_435);
         this.batteryVoltageSensor = hw.voltageSensor.iterator().next();
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
-        autoAim = new AutoAim(hw, Common.isRed, Common.RED_GOAL_ID, Common.BLUE_GOAL_ID, Common.TAG_SIZE_METERS_DECODE, "arduCam");
+        autoAim = new AutoAim(hw, "arduCam");
         motorEncoder = rightBack.encoder;
         motorEncoder.reset();
         odomTracking.setGains(odoPIDGains);
@@ -97,8 +96,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         derivFilter.setGains(filterGains);
     }
 
-    public void setGoalAlliance(boolean isRed) {
-        goal = isRed ? new Pose(0, 144).mirror() : new Pose(0, 144);
+    public void setGoalAlliance() {
+        goal = Common.isRed ? new Pose(0, 144).mirror() : new Pose(0, 144);
+        autoAim.setAlliance();
 
     }
 
@@ -183,6 +183,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     @Override
     public void run() {
         currentAngle = motorEncoder.getPosition() * TICKS_TO_DEGREES;
+        autoAim.setTurretYawRad(Math.toRadians(turretHeadingToStandardHeading(currentAngle)));
 
         double scalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
@@ -194,7 +195,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         // turning robot heading to turret heading
         double robotHeading = Common.robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
-        turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
+        turretPos = calculateTurretPosition(Common.robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, Common.TURRET_OFFSET_Y);
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
 
@@ -207,7 +208,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     setOdomTracking();
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
-                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
+                        if (autoAim.detectTarget()) currentState = TurretStates.VISION_TRACKING;
                         else break;
                     } else {
                         break;
@@ -215,11 +216,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
-                        if (autoAim.isTargetDetected()) {
-                            visionTracking.setTarget(new State(TARGET_YAW,0,0,0));
-                            robotPos = autoAim.getRobotPos(Math.toRadians(currentAngle));
-                            autoAimYawOffset = autoAim.getYawOffsetRadians(Math.toRadians(turretHeadingToStandardHeading(currentAngle)));
-                            output += visionTracking.calculate(new State(autoAimYawOffset, 0, 0, 0));
+                        if (autoAim.detectTarget()) {
+                            robotPos = autoAim.getRobotPos();
+//                            autoAimYawOffset = autoAim.getYawOffsetRadians(Math.toRadians(turretHeadingToStandardHeading(currentAngle)));
+//                            visionTracking.setTarget(new State(autoAimYawOffset,0,0,0));
+//                            output = visionTracking.calculate(new State(Math.toRadians(autoAim.getTargetYawDegrees()), 0, 0, 0));
                         } else currentState = ODOM_TRACKING;
                     }
                     if (currentAngle < WRAP_AROUND_ANGLE - 360 || currentAngle > WRAP_AROUND_ANGLE) currentState = ODOM_TRACKING;
@@ -257,10 +258,16 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         dashTelemetry.addLine("TURRET");
         dashTelemetry.addData("vision setpoint: ", 0);
-        dashTelemetry.addData("current vision: ", autoAim.getTargetYawDegrees());
+        dashTelemetry.addData("current vision yaw: ", autoAim.getTargetYawDegrees());
         dashTelemetry.addData("encoder angle: ", currentAngle);
         dashTelemetry.addData("target angle: ", targetAngle);
-        dashTelemetry.addData("yaw offset (degrees): ", Math.toDegrees(autoAimYawOffset));
+        if (AutoAim.cameraRelativePos != null && AutoAim.cameraOrientation != null) {
+            dashTelemetry.addData("(x) camera relative position to robot: ", AutoAim.cameraRelativePos.x);
+            dashTelemetry.addData("(y) camera relative position to robot: ", AutoAim.cameraRelativePos.y);
+            dashTelemetry.addData("(z) camera relative position to robot: ", AutoAim.cameraRelativePos.z);
+            dashTelemetry.addData("camera yaw: ", AutoAim.cameraOrientation.getYaw());
+        }
+//        dashTelemetry.addData("yaw offset (degrees): ", Math.toDegrees(autoAimYawOffset));
         dashTelemetry.addData("pose from camera", robotPos);
 
     }
