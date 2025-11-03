@@ -186,9 +186,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
 
         odomTracking.setGains(odoPIDGains);
-        visionTracking.setGains(visionPIDGains);
-        derivFilter.setGains(filterGains);
-
+        derivFilter.setGains(filterGans);
         // turning robot heading to turret heading
         double robotHeading = robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
@@ -201,7 +199,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case IDLE:
                     targetAngle = 0;
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
-                    turretPos = odoTurretPos;
                     break;
                 case ODOM_TRACKING:
                     setOdomTracking();
@@ -216,10 +213,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
-                        if (autoAim.isTargetDetected()) {
-                            visionTracking.setTarget(new State(TARGET_YAW,0,0,0));
-                            output += visionTracking.calculate(new State(autoAim.getTargetYawDegrees(), 0, 0, 0));
-                        } else currentState = ODOM_TRACKING;
+                        if (autoAim.isTargetDetected()) currentState = ODOM_TRACKING;
                     }
                     if (currentAngle < WRAP_AROUND_ANGLE - 360 || currentAngle > WRAP_AROUND_ANGLE) currentState = ODOM_TRACKING;
                     break;
@@ -228,10 +222,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             rawPower = output;
 
-            boolean odomTrackingInTolerance = currentState == ODOM_TRACKING && odomTracking.isPositionInTolerance(new State(currentAngle, 0, 0, 0), 0.2);
-            boolean visionTrackingInTolerance = currentState == VISION_TRACKING && visionTracking.isPositionInTolerance(new State(currentAngle, 0, 0, 0), 0.2);
+            boolean pidInTolerance = odomTracking.isPositionInTolerance(
+                    new State(currentAngle, 0, 0, 0), 0.2
+            );
 
-            if (odomTrackingInTolerance || visionTrackingInTolerance) turret.set(0);
+            if (pidInTolerance) turret.set(0);
             else turret.set(output);
 
         }
