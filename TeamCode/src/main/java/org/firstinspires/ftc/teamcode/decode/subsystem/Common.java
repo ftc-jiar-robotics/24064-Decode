@@ -51,7 +51,7 @@ public final class Common {
     // Height of the ArduCam lens from the ground (inches)
             CAM_HEIGHT = 11.5,
     //Camera pitch (tilt upward from horizontal, radians)
-             CAM_PITCH = Math.toRadians(10.0),
+             CAM_PITCH = 10.0,
     //Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
             CAM_OFFSET_X = 1.5227665354,
             CAM_OFFSET_Y = 5.48526;
