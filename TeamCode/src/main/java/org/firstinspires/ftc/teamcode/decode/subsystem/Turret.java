@@ -191,7 +191,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         // turning robot heading to turret heading
         double robotHeading = robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
-        turretPos = calculateTurretPosition(robot.drivetrain.getPose(), ((360 - Math.toDegrees(robotHeadingTurretDomain)) + 90 + 360) % 360, TURRET_OFFSET);
+        Pose odoTurretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), TURRET_OFFSET);
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
 
@@ -200,16 +200,18 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case IDLE:
                     targetAngle = 0;
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
+                    turretPos = odoTurretPos;
                     break;
                 case ODOM_TRACKING:
                     setOdomTracking();
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
-//                    if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
-//                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
-//                        else break;
-//                    } else {
-//                        break;
-//                    }
+                    turretPos = odoTurretPos;
+                    if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
+                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
+                        else break;
+                    } else {
+                        break;
+                    }
                     break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {

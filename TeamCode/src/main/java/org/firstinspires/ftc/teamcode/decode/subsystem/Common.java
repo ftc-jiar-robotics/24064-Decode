@@ -46,8 +46,15 @@ public final class Common {
             SERVO_AXON_MAX_1 = 270,
             SERVO_AXON_MIN = 0,
             SERVO_AXON_MAX_2 = 355,
-            TAG_SIZE_METERS_DECODE = 0.2064;
-
+            TAG_SIZE_METERS_DECODE = 0.2064,
+    //Camera Stuff
+    // Height of the ArduCam lens from the ground (inches)
+            CAM_HEIGHT = 11.5,
+    //Camera pitch (tilt upward from horizontal, radians)
+             CAM_PITCH = Math.toRadians(10.0),
+    //Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
+            CAM_OFFSET_X = 1.5227665354,
+            CAM_OFFSET_Y = 5.48526;
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24;

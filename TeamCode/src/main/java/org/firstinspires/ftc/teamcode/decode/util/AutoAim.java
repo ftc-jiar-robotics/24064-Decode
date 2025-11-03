@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
@@ -44,10 +47,12 @@ public class AutoAim {
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setDrawAxes(false)
+                .setLensIntrinsics(FX, FY, CX, CY)
+                .setCameraPose(new Position(DistanceUnit.INCH, Common.CAM_OFFSET_X, Common.CAM_OFFSET_Y, Common.CAM_HEIGHT, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, Common.CAM_PITCH - 90, 0, 0 ))
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setDrawCubeProjection(false);
 
-        procB.setLensIntrinsics(FX, FY, CX, CY);
+        
 
         processor = procB.build();
 
