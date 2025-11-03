@@ -54,7 +54,10 @@ public final class Common {
              CAM_PITCH = 10.0,
     //Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
             CAM_OFFSET_X = 1.5227665354,
-            CAM_OFFSET_Y = 5.48526;
+            CAM_OFFSET_Y = 5.48526,
+
+    //Turret
+           TURRET_OFFSET_Y = 2.559;
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24;

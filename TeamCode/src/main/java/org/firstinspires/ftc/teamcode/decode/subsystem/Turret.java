@@ -68,7 +68,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static double
             kG = 0,
-            TURRET_OFFSET = 2.559,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
             PID_TOLERANCE = 2,
@@ -200,7 +199,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
                     break;
                 case ODOM_TRACKING:
-                    turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), TURRET_OFFSET);
+                    turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), Common.TURRET_OFFSET_Y);
                     setOdomTracking();
                     output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
@@ -217,9 +216,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                             break;
                         }
                         turretPos = autoAim.getTurretPosePedro();
+                        double headingDeg = Math.toDegrees(robot.drivetrain.getHeading());
+                        Pose robotPoseFromVision = relocalizeRobotFromTurret(turretPos, headingDeg);
+                        robot.something(robotPoseFromVision);
                         setOdomTracking();
                         output += odomTracking.calculate(new State(currentAngle, 0, 0, 0));
-                        
+
                         break;
                     }
             }
@@ -237,6 +239,17 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         if (isPIDInTolerance()) odomTracking.reset();
     }
+
+    // Pedro frame: 0° = North (+Y), 90° = East (+X), CCW+
+    public static Pose relocalizeRobotFromTurret(Pose turretPosPedro, double robotHeading) {
+        double d = Common.TURRET_OFFSET_Y;
+        double th = robotHeading;
+        double xr = turretPosPedro.getX() - d * Math.sin(th);
+        double yr = turretPosPedro.getY() - d * Math.cos(th);
+        return new Pose(xr, yr, robotHeading);
+    }
+
+
 
     double rawPower = 0;
     public void printTelemetry() {
