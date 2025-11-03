@@ -122,8 +122,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public double getDistance() {
         double dx = goal.getX() - turretPos.getX();
         double dy = goal.getY() - turretPos.getY();
-        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+        return Math.sqrt(dx * dx + dy * dy);
     }
+
 
     public void applyOffset() {
         encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - normalizeToTurretRange((360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360)) % 360);
