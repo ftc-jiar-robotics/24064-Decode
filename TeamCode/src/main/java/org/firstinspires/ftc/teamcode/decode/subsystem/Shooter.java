@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManua
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
@@ -14,6 +15,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     final Feeder feeder;
 
     private boolean didCurrentDrop;
+
+    // Used for shoot-while-moving prediction
+    private Pose futurePose = new Pose();   // Pedro Pose
+
 
     private int queuedShots = 0;
 
@@ -145,6 +150,33 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         feeder.run();
         hood.run();
     }
+
+    public void updateFuturePose(Pose currentPose, double vx, double vy, double omega, double ax, double ay, double alpha, double timeToShoot) {
+
+        // Predict velocity after the shot delay
+        double futureVx = vx + ax * timeToShoot;
+        double futureVy = vy + ay * timeToShoot;
+        double futureOmega = omega + alpha * timeToShoot;
+
+        // Average velocity over that interval
+        double avgVx = (vx + futureVx) / 2.0;
+        double avgVy = (vy + futureVy) / 2.0;
+        double avgOmega = (omega + futureOmega) / 2.0;
+
+        // Estimate displacement (avg velocity * time)
+        double dx = avgVx * timeToShoot;
+        double dy = avgVy * timeToShoot;
+        double dh = avgOmega * timeToShoot;
+
+        // Build future pose
+        futurePose = new Pose(
+                currentPose.getX() + dx,
+                currentPose.getY() + dy,
+                currentPose.getHeading() + dh
+        );
+    }
+
+
 
     public void printTelemetry() {
             turret.printTelemetry();
