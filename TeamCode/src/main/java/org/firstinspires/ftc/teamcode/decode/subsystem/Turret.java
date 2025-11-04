@@ -254,13 +254,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public void printTelemetry() {
         telemetry.addLine("TURRET");
         telemetry.addData("current state (ENUM): ", currentState);
-        telemetry.addData("calculated distance (DISTANCE): ", getDistance());
+        telemetry.addData("calculated distance (INCHES): ", getDistance());
         telemetry.addData("is PID in tolerance (BOOLEAN): ", isPIDInTolerance());
 
         if (robot.shooter.getQueuedShots() > 0) {
             dashTelemetry.addLine("TURRET");
-            dashTelemetry.addData("vision setpoint (YAW): ", 0);
-            dashTelemetry.addData("current vision (YAW): ", autoAim.getTargetYawDegrees());
+            dashTelemetry.addData("vision setpoint (RADIANS): ", 0);
+            dashTelemetry.addData("current vision (RADIANS): ", autoAim.getTargetYawDegrees());
             dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
             dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
             dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
@@ -268,14 +268,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         }
         if (turretPos != null) {
             dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
-            dashTelemetry.addData("X (in)", "%.4f", turretPos.getX());
-            dashTelemetry.addData("Y (in)", "%.4f", turretPos.getY());
-            dashTelemetry.addData("Heading (deg)", "%.1f", turretPos.getHeading());
+            dashTelemetry.addData("X (INCHES)", "%.4f", turretPos.getX());
+            dashTelemetry.addData("Y (INCHES)", "%.4f", turretPos.getY());
+            dashTelemetry.addData("Heading (DEGREES)", "%.1f", turretPos.getHeading());
         }
         dashTelemetry.addLine("VISION RELOCALIZATION");
-        dashTelemetry.addData("X (in)", "%.4f", robotPoseFromVision.getX());
-        dashTelemetry.addData("Y (in)", "%.4f", robotPoseFromVision.getY());
-        dashTelemetry.addData("Heading (deg)", "%.2f", robotPoseFromVision.getHeading());
-        dashTelemetry.addData("Pose", "(%.4f, %.4f)  %.2f°", robotPoseFromVision.getX(), robotPoseFromVision.getY(), robotPoseFromVision.getHeading());
+        dashTelemetry.addData("X (INCHES)", "%.4f", robotPoseFromVision.getX());
+        dashTelemetry.addData("Y (INCHES)", "%.4f", robotPoseFromVision.getY());
+        dashTelemetry.addData("Heading (DEGREES)", "%.2f", robotPoseFromVision.getHeading());
+        dashTelemetry.addData("Pose (INCH, INCH, HEADING)", "(%.4f, %.4f)  %.2f°", robotPoseFromVision.getX(), robotPoseFromVision.getY(), robotPoseFromVision.getHeading());
     }
 }

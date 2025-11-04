@@ -131,7 +131,7 @@ public class Hood extends Subsystem<Double> {
     public void printTelemetry() {
         telemetry.addLine("HOOD");
         telemetry.addData("hood target angle (ANGLE): ", targetAngle);
-        telemetry.addData("LUT output (DISTANCE): ", lutOutput);
+        telemetry.addData("LUT output (INCHES): ", lutOutput);
 
     }
 }
