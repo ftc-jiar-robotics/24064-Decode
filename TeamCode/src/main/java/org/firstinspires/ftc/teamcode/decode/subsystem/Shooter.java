@@ -16,10 +16,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     private boolean didCurrentDrop;
 
-    // Used for shoot-while-moving prediction
-    private static final double VEL_THRESH_INPS = 1.0;              // 1 inch/sec
-    private static final double OMEGA_THRESH_RADPS = Math.toRadians(5);
-
 
     private int queuedShots = 0;
 
@@ -154,35 +150,29 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     public Pose getPredictedPose(Pose currentPose, double vx, double vy, double omega, double ax, double ay, double alpha, double timeToShoot) {
 
-        double speed = Math.hypot(vx, vy);
-        boolean moving = speed > VEL_THRESH_INPS || Math.abs(omega) > OMEGA_THRESH_RADPS;
-
-        if (!moving) {
-            return currentPose; // no movement, no prediction
-        }
-
-        // Predict velocity after the shot delay (accounts for accel if provided)
+        // Predict velocity at shot time (accounts for accel if available)
         double futureVx = vx + ax * timeToShoot;
         double futureVy = vy + ay * timeToShoot;
         double futureOmega = omega + alpha * timeToShoot;
 
-        // Average velocities over interval
+        // Average velocity over interval
         double avgVx = (vx + futureVx) / 2.0;
         double avgVy = (vy + futureVy) / 2.0;
         double avgOmega = (omega + futureOmega) / 2.0;
 
-        // Displacement = avg velocity × time
+        // Displacement = average velocity × time
         double dx = avgVx * timeToShoot;
         double dy = avgVy * timeToShoot;
         double dh = avgOmega * timeToShoot;
 
-        // Return new predicted pose
+        // Return new predicted pose (in inches and radians)
         return new Pose(
-                currentPose.getX()+ dx,
+                currentPose.getX() + dx,
                 currentPose.getY() + dy,
                 currentPose.getHeading() + dh
         );
     }
+
 
 
 
