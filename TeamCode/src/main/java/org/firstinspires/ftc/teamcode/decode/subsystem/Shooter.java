@@ -17,7 +17,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private boolean didCurrentDrop;
 
     // Used for shoot-while-moving prediction
-    private Pose futurePose = new Pose();   // Pedro Pose
+    private static final double VEL_THRESH_INPS = 1.0;              // 1 inch/sec
+    private static final double OMEGA_THRESH_RADPS = Math.toRadians(5);
 
 
     private int queuedShots = 0;
@@ -151,26 +152,33 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.run();
     }
 
-    public void updateFuturePose(Pose currentPose, double vx, double vy, double omega, double ax, double ay, double alpha, double timeToShoot) {
+    public Pose getPredictedPose(Pose currentPose, double vx, double vy, double omega, double ax, double ay, double alpha, double timeToShoot) {
 
-        // Predict velocity after the shot delay
+        double speed = Math.hypot(vx, vy);
+        boolean moving = speed > VEL_THRESH_INPS || Math.abs(omega) > OMEGA_THRESH_RADPS;
+
+        if (!moving) {
+            return currentPose; // no movement, no prediction
+        }
+
+        // Predict velocity after the shot delay (accounts for accel if provided)
         double futureVx = vx + ax * timeToShoot;
         double futureVy = vy + ay * timeToShoot;
         double futureOmega = omega + alpha * timeToShoot;
 
-        // Average velocity over that interval
+        // Average velocities over interval
         double avgVx = (vx + futureVx) / 2.0;
         double avgVy = (vy + futureVy) / 2.0;
         double avgOmega = (omega + futureOmega) / 2.0;
 
-        // Estimate displacement (avg velocity * time)
+        // Displacement = avg velocity × time
         double dx = avgVx * timeToShoot;
         double dy = avgVy * timeToShoot;
         double dh = avgOmega * timeToShoot;
 
-        // Build future pose
-        futurePose = new Pose(
-                currentPose.getX() + dx,
+        // Return new predicted pose
+        return new Pose(
+                currentPose.getX()+ dx,
                 currentPose.getY() + dy,
                 currentPose.getHeading() + dh
         );
