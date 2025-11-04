@@ -67,8 +67,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         feeder.set(Feeder.FeederStates.IDLE, true);
     }
 
-    public void setGoalAlliance(boolean isRed) {
-        turret.setGoalAlliance(isRed);
+    public void setGoalAlliance() {
+        turret.setGoalAlliance();
     }
 
     public void setFeederIdle(boolean isIdle) {

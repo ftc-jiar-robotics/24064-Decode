@@ -61,7 +61,7 @@ public class MainTeleOp extends LinearOpMode {
         }
 
         robot = new Robot(hardwareMap);
-        robot.shooter.setGoalAlliance(isRed);
+        robot.shooter.setGoalAlliance();
 
         waitForStart();
 

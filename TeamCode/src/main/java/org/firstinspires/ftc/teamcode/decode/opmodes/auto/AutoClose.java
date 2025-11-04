@@ -45,7 +45,7 @@ public class AutoClose extends AbstractAuto{
             Paths.isPathRed = !Paths.isPathRed;
             path.mirrorAll();
         }
-        Common.robot.shooter.setGoalAlliance(Common.isRed);
+        Common.robot.shooter.setGoalAlliance();
         path.buildClose();
     }
     @Override

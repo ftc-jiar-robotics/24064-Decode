@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACKSERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_HOOD_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel.lutDistances;
 
-import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;

@@ -20,10 +20,7 @@ import java.util.List;
 public class AutoAim {
     private final VisionPortal visionPortal;
     private final AprilTagProcessor processor;
-    private final double tagSizeMeters;
 
-    private final int redTargetId;
-    private final int blueTargetId;
     private int activeTargetId;
     private final double FX = 577.345, FY = 577.345, CX = 320.0, CY = 180.0;
 
@@ -32,17 +29,10 @@ public class AutoAim {
 
     /**
      * @param hw              FTC HardwareMap
-     * @param isRed           if true → sets AprilTag ID to red alliance at init
-     * @param redTargetId     The tag ID to track when on RED alliance
-     * @param blueTargetId    The tag ID to track when on BLUE alliance
-     * @param tagSizeMeters   Physical tag size (edge length) in meters (e.g., 0.166 for 166 mm)
      * @param webcamName      the configured camera name (e.g., "ArduCam")
      */
-    public AutoAim(HardwareMap hw, boolean isRed, int redTargetId, int blueTargetId, double tagSizeMeters, String webcamName) {
-        this.redTargetId = redTargetId;
-        this.blueTargetId = blueTargetId;
-        this.activeTargetId = (isRed) ? redTargetId : blueTargetId;
-        this.tagSizeMeters = tagSizeMeters;
+    public AutoAim(HardwareMap hw, String webcamName) {
+        setAlliance();
 
         AprilTagProcessor.Builder procB = new AprilTagProcessor.Builder()
                 .setDrawTagID(true)
@@ -66,8 +56,8 @@ public class AutoAim {
     }
 
     /** Change alliance (and active target ID) on the fly if needed. */
-    public void setAlliance(boolean isRed) {
-        this.activeTargetId = (isRed) ? redTargetId : blueTargetId;
+    public void setAlliance() {
+        this.activeTargetId = (Common.isRed) ? Common.RED_GOAL_ID : Common.BLUE_GOAL_ID;
     }
 
     /** Returns true if the selected target tag (by alliance) is currently detected. */

@@ -40,12 +40,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             Double.POSITIVE_INFINITY
     );
 
-    public static PIDGains visionPIDGains = new PIDGains(
-            0.023,
-            0.007,
-            0.0001,
-            Double.POSITIVE_INFINITY
-    );
     public enum TurretStates {
         IDLE, ODOM_TRACKING, VISION_TRACKING
     }
@@ -53,14 +47,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private TurretStates currentState = IDLE;
 
     private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
-    private final PIDController odomTracking = new PIDController(derivFilter);
-    private final PIDController visionTracking = new PIDController(derivFilter);
-
-    public static FeedforwardGains feedforwardGains = new FeedforwardGains(
-            0.005,
-            0.002,
-            0.0001
-    );
+    private final PIDController controller = new PIDController(derivFilter);
 
     public static LowPassGains filterGains = new LowPassGains(0, 2);
 
@@ -70,8 +57,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 150,
             PID_TOLERANCE = 2,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -33.0,
-            TARGET_YAW = -11;
+            ABSOLUTE_ENCODER_OFFSET = -33.0;
 
     public static int
             CHECK_UNDETECTED_LOOPS = (1 << 3) - 1, // checking every X loops to switch to VISION_TRACKING state
@@ -79,13 +65,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private Pose goal = new Pose(0, 144);
     private Pose turretPos = new Pose(0, 0);
-    private Pose robotPoseFromVision = new Pose(0, 0, 0);
+    private Pose robotPoseFromVision = new Pose(0, 0);
 
     private double
             currentAngle = 0.0,
             targetAngle = 0.0,
             encoderOffset = 0.0,
-            robotHeadingTurretDomain = 0,
+            robotHeadingTurretDomain = 0.0,
+            rawPower = 0.0,
             manualPower = 0.0;
 
     public Turret(HardwareMap hw) {
@@ -93,18 +80,17 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
 
-        autoAim = new AutoAim(hw, Common.isRed, Common.RED_GOAL_ID, Common.BLUE_GOAL_ID, Common.TAG_SIZE_METERS_DECODE, NAME_TURRET_CAMERA);
+        autoAim = new AutoAim(hw, NAME_TURRET_CAMERA);
         motorEncoder = rightBack.encoder;
 
         motorEncoder.reset();
-        odomTracking.setGains(odoPIDGains);
-        visionTracking.setGains(visionPIDGains);
+        controller.setGains(odoPIDGains);
         derivFilter.setGains(filterGains);
     }
 
-    public void setGoalAlliance(boolean isRed) {
-        goal = isRed ? new Pose(0, 144).mirror() : new Pose(0, 144);
-
+    public void setGoalAlliance() {
+        goal = Common.isRed ? new Pose(0, 144).mirror() : new Pose(0, 144);
+        autoAim.setAlliance();
     }
 
     @Override
@@ -132,12 +118,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
 
-        odomTracking.setTarget(new State(targetAngle = normalizeToTurretRange(alpha), 0, 0, 0));
+        controller.setTarget(new State(targetAngle = normalizeToTurretRange(alpha), 0, 0, 0));
     }
 
     public boolean isPIDInTolerance() {
-        if (currentState != VISION_TRACKING) return odomTracking.isPositionInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE);
-        else return visionTracking.isPositionInTolerance(new State(autoAim.getTargetYawDegrees(), 0, 0, 0), PID_TOLERANCE);
+        return controller.isPositionInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE);
     }
 
 
@@ -183,7 +168,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
 
-        odomTracking.setGains(odoPIDGains);
+        controller.setGains(odoPIDGains);
         derivFilter.setGains(filterGains);
         // turning robot heading to turret heading
         double robotHeading = robot.drivetrain.getHeading();
@@ -195,12 +180,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             switch (currentState) {
                 case IDLE:
                     targetAngle = 0;
-                    output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
+                    output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     break;
                 case ODOM_TRACKING:
                     turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), Common.TURRET_OFFSET_Y);
                     setTracking();
-                    output += odomTracking.calculate(new State(currentAngle, 0, 0 ,0));
+                    output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
                         else break;
@@ -215,11 +200,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                             break;
                         }
                         turretPos = autoAim.getTurretPosePedro();
-                        double headingDeg = Math.toDegrees(robot.drivetrain.getHeading());
-                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, headingDeg);
+                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.drivetrain.getHeading());
                         robot.drivetrain.setPose(robotPoseFromVision);
                         setTracking();
-                        output += odomTracking.calculate(new State(currentAngle, 0, 0, 0));
+                        output += controller.calculate(new State(currentAngle, 0, 0, 0));
 
                         break;
                     }
@@ -228,7 +212,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             rawPower = output;
 
-            boolean pidInTolerance = odomTracking.isPositionInTolerance(
+            boolean pidInTolerance = controller.isPositionInTolerance(
                     new State(currentAngle, 0, 0, 0), 0.2
             );
 
@@ -236,7 +220,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         }
 
-        if (isPIDInTolerance()) odomTracking.reset();
+        if (isPIDInTolerance()) controller.reset();
     }
 
     // Pedro frame: 0° = North (+Y), 90° = East (+X), CCW+
@@ -248,9 +232,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return new Pose(xr, yr, robotHeading);
     }
 
-
-
-    double rawPower = 0;
     public void printTelemetry() {
         telemetry.addLine("TURRET");
         telemetry.addData("current state (ENUM): ", currentState);
@@ -266,12 +247,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
             dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
         }
-        if (turretPos != null) {
-            dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
-            dashTelemetry.addData("X (INCHES)", "%.4f", turretPos.getX());
-            dashTelemetry.addData("Y (INCHES)", "%.4f", turretPos.getY());
-            dashTelemetry.addData("Heading (DEGREES)", "%.1f", turretPos.getHeading());
-        }
+
+        dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
+        dashTelemetry.addData("X (INCHES)", "%.4f", turretPos.getX());
+        dashTelemetry.addData("Y (INCHES)", "%.4f", turretPos.getY());
+        dashTelemetry.addData("Heading (DEGREES)", "%.1f", turretPos.getHeading());
+
         dashTelemetry.addLine("VISION RELOCALIZATION");
         dashTelemetry.addData("X (INCHES)", "%.4f", robotPoseFromVision.getX());
         dashTelemetry.addData("Y (INCHES)", "%.4f", robotPoseFromVision.getY());

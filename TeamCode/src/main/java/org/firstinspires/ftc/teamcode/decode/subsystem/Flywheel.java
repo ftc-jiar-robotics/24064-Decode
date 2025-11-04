@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_MASTERMOTOR;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_SLAVEMOTOR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_MASTER_MOTOR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_SLAVE_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -95,8 +95,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             currentRPMSpikeTime = 0;
 
     public Flywheel(HardwareMap hw) {
-        this.shooterMaster = new CachedMotor(hw, NAME_FLYWHEEL_MASTERMOTOR, Motor.GoBILDA.BARE);
-        this.shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVEMOTOR, Motor.GoBILDA.BARE);
+        this.shooterMaster = new CachedMotor(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
+        this.shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
         MotorEx dummy = new MotorEx(hw, "left front", Motor.GoBILDA.BARE);
 
         shooterSlave.setInverted(true);

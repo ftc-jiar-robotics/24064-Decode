@@ -26,9 +26,9 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public static double[][] feederPowers = {{0, 0}, {-1, -1}, {0.2 , -1} ,{1 , 1}};
 
     public Feeder(HardwareMap hw) {
-        feederFront = hw.get(CRServo.class, Common.NAME_FEEDER_FRONTSERVO);
-        feederBack = hw.get(CRServo.class, Common.NAME_FEEDER_BACKSERVO);
-        this.colorSensor = new ColorSensor(hw, Common.NAME_FEEDER_COLORSENSOR, gain);
+        feederFront = hw.get(CRServo.class, Common.NAME_FEEDER_FRONT_SERVO);
+        feederBack = hw.get(CRServo.class, Common.NAME_FEEDER_BACK_SERVO);
+        this.colorSensor = new ColorSensor(hw, Common.NAME_FEEDER_COLOR_SENSOR, gain);
 
         feederFront.setDirection(DcMotorSimple.Direction.REVERSE);
     }
