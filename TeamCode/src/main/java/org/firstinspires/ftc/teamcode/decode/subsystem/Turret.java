@@ -199,9 +199,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                             currentState = TurretStates.ODOM_TRACKING;
                             break;
                         }
+
                         turretPos = autoAim.getTurretPosePedro();
                         robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.drivetrain.getHeading());
                         robot.drivetrain.setPose(robotPoseFromVision);
+
                         setTracking();
                         output += controller.calculate(new State(currentAngle, 0, 0, 0));
 
@@ -226,9 +228,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     // Pedro frame: 0° = North (+Y), 90° = East (+X), CCW+
     public static Pose relocalizeRobotFromTurret(Pose turretPosPedro, double robotHeading) {
         double d = Common.TURRET_OFFSET_Y;
-        double th = robotHeading;
-        double xr = turretPosPedro.getX() - d * Math.sin(th);
-        double yr = turretPosPedro.getY() - d * Math.cos(th);
+        double th = Math.toRadians(robotHeading);
+        double xr = turretPosPedro.getX() - d * Math.cos(th);
+        double yr = turretPosPedro.getY() - d * Math.sin(th);
         return new Pose(xr, yr, robotHeading);
     }
 

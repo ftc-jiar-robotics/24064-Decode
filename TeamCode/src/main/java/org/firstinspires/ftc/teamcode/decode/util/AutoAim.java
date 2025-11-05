@@ -77,9 +77,9 @@ public class AutoAim {
     }
 
     public Pose getTurretPosePedro() {
-        double x = cached.robotPose.getPosition().x + 72;
-        double y = cached.robotPose.getPosition().y + 72;
-        double headingDeg = cached.robotPose.getOrientation().getYaw();
+        double x = cached.robotPose.getPosition().y + 72;
+        double y = 72 - cached.robotPose.getPosition().x;
+        double headingDeg = cached.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
         return new Pose(x, y, headingDeg);
     }
 
