@@ -27,6 +27,10 @@ import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
 import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
 @Configurable
 public class Turret extends Subsystem<Turret.TurretStates> {
     private final CachedMotor turret;
@@ -51,10 +55,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static LowPassGains filterGains = new LowPassGains(0, 2);
 
+    private Queue<Pose> visionSamplePoses = new LinkedList<>();
+    private double[] visionVariances = new double[2];
+
     public static double
             kG = 0,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
+            VARIANCE_TOLERANCE = 0.5,
+            VISION_SAMPLE_SIZE = 5,
             PID_TOLERANCE = 2,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -33.0;
@@ -187,13 +196,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     setTracking();
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
-                        if (autoAim.isTargetDetected()) {
-                            currentState = TurretStates.VISION_TRACKING;
-                            turretPos = autoAim.getTurretPosePedro();
-                            robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.drivetrain.getHeading());
-
-                            robot.drivetrain.setPose(robotPoseFromVision);
-                        }
+                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
                         else break;
                     } else {
                         break;
@@ -207,6 +210,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         }
 
                         turretPos = autoAim.getTurretPosePedro();
+                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.drivetrain.getHeading());
+
+                        visionSamplePoses.add(robotPoseFromVision);
+                        if (visionSamplePoses.size() >= VISION_SAMPLE_SIZE) visionSamplePoses.remove();
+
+                        visionVariances = getVariance(visionSamplePoses);
+                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE)
+                            robot.drivetrain.setPose(robotPoseFromVision);
 
                         setTracking();
                         output += controller.calculate(new State(currentAngle, 0, 0, 0));
@@ -232,9 +243,39 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     // Pedro frame: 0° = North (+Y), 90° = East (+X), CCW+
     public static Pose relocalizeRobotFromTurret(Pose turretPosPedro, double robotHeading) {
         double d = Common.TURRET_OFFSET_Y;
-        double xr = turretPosPedro.getX() - d * Math.cos(robotHeading);
-        double yr = turretPosPedro.getY() - d * Math.sin(robotHeading);
-        return new Pose(xr, yr, robotHeading);
+        double x = turretPosPedro.getX() - d * Math.cos(robotHeading);
+        double y = turretPosPedro.getY() - d * Math.sin(robotHeading);
+        return new Pose(x, y, robotHeading);
+    }
+
+    public static double[] getVariance(Queue<Pose> queue) {
+        double meanY = 0;
+        double meanX = 0;
+        double xVariance = 0;
+        double yVariance = 0;
+
+        double size = queue.size();
+
+        for (Pose p : queue) {
+            meanY += p.getY();
+            meanX += p.getX();
+        }
+
+        meanY /= size;
+        meanX /= size;
+
+        for (Pose p : queue) {
+            double pX = p.getX();
+            double pY = p.getY();
+
+            xVariance += (pX - meanX) * (pX - meanX);
+            yVariance += (pY - meanY) * (pY - meanY);
+        }
+
+        xVariance /= size - 1;
+        yVariance /= size - 1;
+
+        return new double[]{xVariance, yVariance};
     }
 
     public void printTelemetry() {
@@ -263,5 +304,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("Y (INCHES)", "%.4f", robotPoseFromVision.getY());
         dashTelemetry.addData("Heading (DEGREES)", "%.2f", robotPoseFromVision.getHeading());
         dashTelemetry.addData("Pose (INCH, INCH, HEADING)", "(%.4f, %.4f)  %.2f°", robotPoseFromVision.getX(), robotPoseFromVision.getY(), robotPoseFromVision.getHeading());
+        dashTelemetry.addData("Vision Variance (INCH, INCH) (X,Y)", "(%.4f, %.4f)",visionVariances[0], visionVariances[1]);
     }
 }
