@@ -187,7 +187,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     setTracking();
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
-                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
+                        if (autoAim.isTargetDetected()) {
+                            currentState = TurretStates.VISION_TRACKING;
+                            turretPos = autoAim.getTurretPosePedro();
+                            robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.drivetrain.getHeading());
+
+                            robot.drivetrain.setPose(robotPoseFromVision);
+                        }
                         else break;
                     } else {
                         break;
@@ -201,8 +207,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         }
 
                         turretPos = autoAim.getTurretPosePedro();
-                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.drivetrain.getHeading());
-                        robot.drivetrain.setPose(robotPoseFromVision);
 
                         setTracking();
                         output += controller.calculate(new State(currentAngle, 0, 0, 0));
@@ -228,9 +232,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     // Pedro frame: 0° = North (+Y), 90° = East (+X), CCW+
     public static Pose relocalizeRobotFromTurret(Pose turretPosPedro, double robotHeading) {
         double d = Common.TURRET_OFFSET_Y;
-        double th = Math.toRadians(robotHeading);
-        double xr = turretPosPedro.getX() - d * Math.cos(th);
-        double yr = turretPosPedro.getY() - d * Math.sin(th);
+        double xr = turretPosPedro.getX() - d * Math.cos(robotHeading);
+        double yr = turretPosPedro.getY() - d * Math.sin(robotHeading);
         return new Pose(xr, yr, robotHeading);
     }
 
