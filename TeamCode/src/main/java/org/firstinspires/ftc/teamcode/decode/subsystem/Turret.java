@@ -63,6 +63,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
             VARIANCE_TOLERANCE = 0.5,
+            HEADING_VARIANCE_TOLERANCE = 5,
             VISION_SAMPLE_SIZE = 5,
             PID_TOLERANCE = 2,
             MANUAL_POWER_MULTIPLIER = 0.7,
