@@ -56,7 +56,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static LowPassGains filterGains = new LowPassGains(0, 2);
 
     private Queue<Pose> visionSamplePoses = new LinkedList<>();
-    private double[] visionVariances = new double[2];
+    private double[] visionVariances = new double[3];
 
     public static double
             kG = 0,
@@ -163,7 +163,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
     // Inputs only from 0 - 360 degrees
     public static double normalizeToTurretRange(double angle) {
-        return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle ;
+        return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle;
     }
 
     public void setManual(double power) {
@@ -216,7 +216,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         if (visionSamplePoses.size() >= VISION_SAMPLE_SIZE) visionSamplePoses.remove();
 
                         visionVariances = getVariance(visionSamplePoses);
-                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE)
+
+                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
                             robot.drivetrain.setPose(robotPoseFromVision);
 
                         setTracking();
@@ -251,31 +252,39 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static double[] getVariance(Queue<Pose> queue) {
         double meanY = 0;
         double meanX = 0;
+        double meanHeading = 0;
+
         double xVariance = 0;
         double yVariance = 0;
+        double headingVariance = 0;
 
         double size = queue.size();
 
         for (Pose p : queue) {
             meanY += p.getY();
             meanX += p.getX();
+            meanHeading += p.getHeading();
         }
 
         meanY /= size;
         meanX /= size;
+        meanHeading /= size;
 
         for (Pose p : queue) {
             double pX = p.getX();
             double pY = p.getY();
+            double pH = p.getHeading();
 
             xVariance += (pX - meanX) * (pX - meanX);
             yVariance += (pY - meanY) * (pY - meanY);
+            headingVariance += (pH - meanHeading) * (pH - meanHeading);
         }
 
         xVariance /= size - 1;
         yVariance /= size - 1;
+        headingVariance /= size - 1;
 
-        return new double[]{xVariance, yVariance};
+        return new double[]{xVariance, yVariance, headingVariance};
     }
 
     public void printTelemetry() {
@@ -303,7 +312,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("X (INCHES)", "%.4f", robotPoseFromVision.getX());
         dashTelemetry.addData("Y (INCHES)", "%.4f", robotPoseFromVision.getY());
         dashTelemetry.addData("Heading (DEGREES)", "%.2f", robotPoseFromVision.getHeading());
-        dashTelemetry.addData("Pose (INCH, INCH, HEADING)", "(%.4f, %.4f)  %.2f°", robotPoseFromVision.getX(), robotPoseFromVision.getY(), robotPoseFromVision.getHeading());
-        dashTelemetry.addData("Vision Variance (INCH, INCH) (X,Y)", "(%.4f, %.4f)",visionVariances[0], visionVariances[1]);
+        dashTelemetry.addData("Pose (INCH, INCH, DEGREES)", "(%.4f, %.4f)  %.2f°", robotPoseFromVision.getX(), robotPoseFromVision.getY(), robotPoseFromVision.getHeading());
+        dashTelemetry.addData("Vision Variance (INCH, INCH, DEGREES) (X,Y, H)", "(%.4f, %.4f)", visionVariances[0], visionVariances[1], visionVariances[2]);
     }
 }
