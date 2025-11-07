@@ -51,9 +51,9 @@ public class AutoClose extends AbstractAuto{
     @Override
     protected void onRun() {
         shootPreload();
-        shootFirst();
-        shootSecond();
-        shootThird();
+//        shootFirst();
+//        shootSecond();
+//        shootThird();
     }
 
     private void shootThird() {

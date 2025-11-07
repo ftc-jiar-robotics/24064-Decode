@@ -62,8 +62,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             kG = 0,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
-            VARIANCE_TOLERANCE = 0.5,
-            HEADING_VARIANCE_TOLERANCE = 5,
+            VARIANCE_TOLERANCE = 0.04,
+            HEADING_VARIANCE_TOLERANCE = 0.04,
             VISION_SAMPLE_SIZE = 5,
             PID_TOLERANCE = 2,
             MANUAL_POWER_MULTIPLIER = 0.7,
@@ -73,7 +73,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             CHECK_UNDETECTED_LOOPS = (1 << 3) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
 
-    private Pose goal = new Pose(0, 144);
+    private Pose goal = new Pose(0, 141);
     private Pose turretPos = new Pose(0, 0);
     private Pose robotPoseFromVision = new Pose(0, 0);
 
@@ -305,15 +305,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         }
 
         dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
-        dashTelemetry.addData("X (INCHES)", "%.4f", turretPos.getX());
-        dashTelemetry.addData("Y (INCHES)", "%.4f", turretPos.getY());
+        dashTelemetry.addData("TURRET X (INCHES)", "%.4f", turretPos.getX());
+        dashTelemetry.addData("TURRET Y (INCHES)", "%.4f", turretPos.getY());
         dashTelemetry.addData("Heading (DEGREES)", "%.1f", turretPos.getHeading());
 
         dashTelemetry.addLine("VISION RELOCALIZATION");
-        dashTelemetry.addData("X (INCHES)", "%.4f", robotPoseFromVision.getX());
-        dashTelemetry.addData("Y (INCHES)", "%.4f", robotPoseFromVision.getY());
+        dashTelemetry.addData("ROBOT VISION X (INCHES)", "%.4f", robotPoseFromVision.getX());
+        dashTelemetry.addData("ROBOT VISION Y (INCHES)", "%.4f", robotPoseFromVision.getY());
         dashTelemetry.addData("Heading (DEGREES)", "%.2f", robotPoseFromVision.getHeading());
         dashTelemetry.addData("Pose (INCH, INCH, DEGREES)", "(%.4f, %.4f)  %.2f°", robotPoseFromVision.getX(), robotPoseFromVision.getY(), robotPoseFromVision.getHeading());
-        dashTelemetry.addData("Vision Variance (INCH, INCH, DEGREES) (X,Y, H)", "(%.4f, %.4f)", visionVariances[0], visionVariances[1], visionVariances[2]);
+        dashTelemetry.addData("Vision Variance (INCH, INCH, DEGREES) (X,Y, H)", "(%.4f, %.4f)  %.2f", visionVariances[0], visionVariances[1], visionVariances[2]);
     }
 }
