@@ -4,6 +4,8 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManua
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
+import android.annotation.SuppressLint;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -149,19 +151,21 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.run();
     }
 
+    private double vx, vy, omega, ax, ay, alpha;
+    private Pose currentPose, predictedPose;
     public Pose getPredictedPose() {
-        Pose currentPose = robot.drivetrain.getPose();
+        currentPose = robot.drivetrain.getPose();
+
+        double timeToShoot = Common.TIME_TO_SHOOT;
+         vx = robot.drivetrain.getVelocity().getXComponent();
+         vy = robot.drivetrain.getVelocity().getYComponent();
+
+        omega = robot.drivetrain.getAngularVelocity();
+        ax = robot.drivetrain.getAcceleration().getXComponent();                                  // ax (no accel)
+        ay = robot.drivetrain.getAcceleration().getYComponent();                                        // ay (no accel)
+        alpha = 0;
 
         double
-                timeToShoot = Common.TIME_TO_SHOOT,
-                 vx = robot.drivetrain.getVelocity().getXComponent(),
-                 vy = robot.drivetrain.getVelocity().getYComponent(),
-
-                omega = robot.drivetrain.getAngularVelocity(),
-                ax = robot.drivetrain.getAcceleration().getXComponent(),                                                // ax (no accel)
-                ay = robot.drivetrain.getAcceleration().getYComponent(),                                                // ay (no accel)
-                alpha = 0,
-
                 // Predict velocity at shot time (accounts for accel if available)
                 futureVx = vx + ax * timeToShoot,
                 futureVy = vy + ay * timeToShoot,
@@ -178,16 +182,17 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 dh = avgOmega * timeToShoot;
 
         // Return new predicted pose (in inches and radians)
-        return new Pose(
+        predictedPose = new Pose(
                 currentPose.getX() + dx,
                 currentPose.getY() + dy,
-                currentPose.getHeading() + dh
-        );
+                currentPose.getHeading() + dh);
+        return predictedPose;
     }
 
 
 
 
+    @SuppressLint("DefaultLocale")
     public void printTelemetry() {
             turret.printTelemetry();
             flywheel.printTelemetry();
@@ -198,5 +203,19 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         telemetry.addData("shooter state (ENUM):", targetState);
         telemetry.addData("queued shots (DOUBLE): ", queuedShots);
         telemetry.addData("did current drop? (BOOLEAN): ", didCurrentDrop);
+
+        telemetry.addLine("PREDICTED POSE DEBUG");
+        telemetry.addData("Velocity (vx, vy) in/s", String.format("(%.3f, %.3f)", vx, vy));
+        telemetry.addData("Acceleration (ax, ay) in/s²", String.format("(%.3f, %.3f)", ax, ay));
+        telemetry.addData("Angular Velocity ω (rad/s)", String.format("%.3f", omega));
+        telemetry.addData("ΔPose (dx, dy, dθ°)",
+                String.format("%.3f, %.3f, %.3f",
+                        predictedPose.getX() - currentPose.getX(),
+                        predictedPose.getY() - currentPose.getY(),
+                        Math.toDegrees(predictedPose.getHeading() - currentPose.getHeading())));
+        telemetry.addData("Predicted Pose (X, Y, Heading)", String.format("%.3f, %.3f, %.3f",
+                        predictedPose.getX(),
+                        predictedPose.getY(),
+                        Math.toDegrees(predictedPose.getHeading())));
     }
 }
