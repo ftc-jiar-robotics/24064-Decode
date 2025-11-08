@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.Differentiator;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
-import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
 @Configurable
 @Config
@@ -66,18 +65,17 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             SUPER_SMOOTH_RPM_GAIN = 0.9,
             MOTOR_POWER_GAIN = 0.9,
             DERIV_TOLERANCE = 550,
-            MOTOR_RPM_SETTLE_TIME_SHOOT = 55,
-            MOTOR_RPM_SETTLE_TIME_IDLE = 90,
+            MOTOR_RPM_SETTLE_TIME_SHOOT = 0.95,
+            MOTOR_RPM_SETTLE_TIME_IDLE = 0.5,
             IDLE_RPM = 2200,
             MAX_RPM = 4800,
-            VOLTAGE_SCALER = 1.0;
+            VOLTAGE_SCALER = 0.99;
 
     public static int[] lutDistances = {0, 81, 115, 160 , 180};
     public static int[] lutRPM = {2800, 3300, 3900, 4150, 4800};
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
-    private int setTargetLoops = 0;
     public static int TOLERANCE_SAMPLE_COUNT = 10;
 
     private boolean inCurrentRPMSpike = false;
@@ -91,6 +89,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             settleTime = MOTOR_RPM_SETTLE_TIME_IDLE,
             lastTarget = shootingRPM,
             currentPower = 0,
+            startPIDDisable = 0,
             calculatedPower = 0,
             currentRPMSpikeTime = 0;
 
@@ -135,7 +134,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (currentRPMDerivative < RPM_DERIVATIVE_DROP && !inCurrentRPMSpike) {
             currentRPMSpikeTime = (double) System.nanoTime() / 1E9;
             inCurrentRPMSpike = true;
-            setTargetLoops = LoopUtil.getLoops();
+            startPIDDisable = (double) System.nanoTime() / 1E9;
             settleTime = MOTOR_RPM_SETTLE_TIME_SHOOT;
             return true;
         }
@@ -178,8 +177,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
         if (lastTarget != shootingRPM) {
-            currentPower = (shootingRPM/MAX_RPM) * (Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage()) * VOLTAGE_SCALER;
-            setTargetLoops = LoopUtil.getLoops();
+            currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
+            startPIDDisable = (double) System.nanoTime() / 1E9;
         }
 
         lastTarget = shootingRPM;
@@ -187,7 +186,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         calculatedPower = velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
         double currentPowerPre = currentPower;
 
-        if (LoopUtil.getLoops() > setTargetLoops + settleTime) currentPowerPre += calculatedPower;
+        if ((double) System.nanoTime() / 1E9 > startPIDDisable + settleTime) currentPowerPre += calculatedPower;
         else velocityController.reset();
 
         currentPower = (MOTOR_POWER_GAIN * currentPowerPre) + (1 - MOTOR_POWER_GAIN) * currentPower;
@@ -214,19 +213,18 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         telemetry.addData("current RPM (ROTATIONS PER MINUTE): ", currentRPM);
         telemetry.addData("is PID in tolerance (BOOLEAN): ", isPIDInTolerance());
 
-        if (robot.shooter.getQueuedShots() > 0) {
-            dashTelemetry.addLine("FLYWHEEL");
-            dashTelemetry.addData("current RPM (ROTATIONS PER MINUTE): ", currentRPM);
-            dashTelemetry.addData("current RPM Smooth (ROTATIONS PER MINUTE): ", currentRPMSmooth);
-            dashTelemetry.addData("current RPM Super Smooth (ROTATIONS PER MINUTE): ", currentRPMSuperSmooth);
-            dashTelemetry.addData("current RPM Derivative (ROTATIONS PER MINUTE): ", currentRPMDerivative);
-            dashTelemetry.addData("calculated power (PERCENTAGE): ", calculatedPower);
-            dashTelemetry.addData("current power (PERCENTAGE): ", currentPower);
-            dashTelemetry.addData("is timer on (BOOLEAN): ", inCurrentRPMSpike);
-            dashTelemetry.addData("current pos (TICKS): ", shooterEncoder.getPosition());
-            dashTelemetry.addData("target RPM (ROTATIONS PER MINUTE): ", shootingRPM);
-            dashTelemetry.addData("target RPM (idle) (ROTATIONS PER MINUTE): ", IDLE_RPM);
-            dashTelemetry.addData("current settle time (LOOPS): ", settleTime);
-        }
+        dashTelemetry.addLine("FLYWHEEL");
+        dashTelemetry.addData("current RPM (ROTATIONS PER MINUTE): ", currentRPM);
+        dashTelemetry.addData("current RPM Smooth (ROTATIONS PER MINUTE): ", currentRPMSmooth);
+        dashTelemetry.addData("current RPM Super Smooth (ROTATIONS PER MINUTE): ", currentRPMSuperSmooth);
+        dashTelemetry.addData("current RPM Derivative (ROTATIONS PER MINUTE): ", currentRPMDerivative);
+        dashTelemetry.addData("calculated power (PERCENTAGE): ", calculatedPower);
+        dashTelemetry.addData("current power (PERCENTAGE): ", currentPower);
+        dashTelemetry.addData("is timer on (BOOLEAN): ", inCurrentRPMSpike);
+        dashTelemetry.addData("current pos (TICKS): ", shooterEncoder.getPosition());
+        dashTelemetry.addData("target RPM (ROTATIONS PER MINUTE): ", shootingRPM);
+        dashTelemetry.addData("target RPM (idle) (ROTATIONS PER MINUTE): ", IDLE_RPM);
+        dashTelemetry.addData("current settle time (LOOPS): ", settleTime);
+
     }
 }

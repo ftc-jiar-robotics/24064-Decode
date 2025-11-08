@@ -73,7 +73,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             CHECK_UNDETECTED_LOOPS = (1 << 3) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
 
-    private Pose goal = new Pose(0, 141);
+    private Pose goal = new Pose(0, 144);
     private Pose turretPos = new Pose(0, 0);
     private Pose robotPoseFromVision = new Pose(0, 0);
 
@@ -99,7 +99,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public void setGoalAlliance() {
-        goal = Common.isRed ? new Pose(0, 144).mirror() : new Pose(0, 144);
+        goal = Common.isRed ? new Pose(0, 141).mirror() : new Pose(0, 141);
         autoAim.setAlliance();
     }
 

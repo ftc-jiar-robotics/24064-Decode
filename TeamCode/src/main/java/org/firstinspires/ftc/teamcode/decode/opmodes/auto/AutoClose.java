@@ -120,9 +120,7 @@ public class AutoClose extends AbstractAuto{
                      ),
                      new InstantAction(() -> Log.d("AutoClose", "END_SHOOT_FIRST"))
         ));
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1)); //shoots first 3 balls
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1)); //shoots first 3 balls
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1)); //shoots first 3 balls
+        robot.actionScheduler.addAction(RobotActions.shootArtifacts(3)); //shoots first 3 balls
 
         robot.actionScheduler.runBlocking();
     }

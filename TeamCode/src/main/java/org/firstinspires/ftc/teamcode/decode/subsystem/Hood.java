@@ -41,6 +41,7 @@ public class Hood extends Subsystem<Double> {
         // TODO tune LUT and interpolate w/ formula
         // TODO change/tune values
         ayanLUT.put(64.0, 108.0); // RPM 3100
+        ayanLUT.put(68.2, 116.0); // RPM
         ayanLUT.put(78.0, 99.5); // RPM 3100
         ayanLUT.put(81.0, 112.5); // RPM 3100
 
