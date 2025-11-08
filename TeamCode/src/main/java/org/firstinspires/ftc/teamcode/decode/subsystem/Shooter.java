@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -148,22 +149,33 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.run();
     }
 
-    public Pose getPredictedPose(Pose currentPose, double vx, double vy, double omega, double ax, double ay, double alpha, double timeToShoot) {
+    public Pose getPredictedPose() {
+        Pose currentPose = robot.drivetrain.getPose();
 
-        // Predict velocity at shot time (accounts for accel if available)
-        double futureVx = vx + ax * timeToShoot;
-        double futureVy = vy + ay * timeToShoot;
-        double futureOmega = omega + alpha * timeToShoot;
+        double
+                timeToShoot = Common.TIME_TO_SHOOT,
+                 vx = robot.drivetrain.getVelocity().getXComponent(),
+                 vy = robot.drivetrain.getVelocity().getYComponent(),
 
-        // Average velocity over interval
-        double avgVx = (vx + futureVx) / 2.0;
-        double avgVy = (vy + futureVy) / 2.0;
-        double avgOmega = (omega + futureOmega) / 2.0;
+                omega = robot.drivetrain.getAngularVelocity(),
+                ax = robot.drivetrain.getAcceleration().getXComponent(),                                                // ax (no accel)
+                ay = robot.drivetrain.getAcceleration().getYComponent(),                                                // ay (no accel)
+                alpha = 0,
 
-        // Displacement = average velocity × time
-        double dx = avgVx * timeToShoot;
-        double dy = avgVy * timeToShoot;
-        double dh = avgOmega * timeToShoot;
+                // Predict velocity at shot time (accounts for accel if available)
+                futureVx = vx + ax * timeToShoot,
+                futureVy = vy + ay * timeToShoot,
+                futureOmega = omega + alpha * timeToShoot,
+
+                // Average velocity over interval
+                avgVx = (vx + futureVx) / 2.0,
+                avgVy = (vy + futureVy) / 2.0,
+                avgOmega = (omega + futureOmega) / 2.0,
+
+                // Displacement = average velocity × time
+                dx = avgVx * timeToShoot,
+                dy = avgVy * timeToShoot,
+                dh = avgOmega * timeToShoot;
 
         // Return new predicted pose (in inches and radians)
         return new Pose(

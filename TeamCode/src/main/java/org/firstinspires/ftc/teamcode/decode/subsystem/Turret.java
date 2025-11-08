@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VOLTAGE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_CAMERA;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_ENCODER;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_MOTOR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.TIME_TO_SHOOT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -181,7 +182,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         controller.setGains(odoPIDGains);
         derivFilter.setGains(filterGains);
         // turning robot heading to turret heading
-        double robotHeading = robot.drivetrain.getHeading();
+        double robotHeading = robot.shooter.getPredictedPose().getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
@@ -193,7 +194,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     break;
                 case ODOM_TRACKING:
-                    turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
+                    turretPos = calculateTurretPosition(robot.shooter.getPredictedPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
                     setTracking();
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
@@ -211,7 +212,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         }
 
                         turretPos = autoAim.getTurretPosePedro();
-                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.drivetrain.getHeading());
+                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.shooter.getPredictedPose().getHeading());
 
                         visionSamplePoses.add(robotPoseFromVision);
                         if (visionSamplePoses.size() >= VISION_SAMPLE_SIZE) visionSamplePoses.remove();
