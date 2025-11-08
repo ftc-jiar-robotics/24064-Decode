@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.decode.opmodes;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
@@ -16,7 +17,9 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.pedropathing.geometry.Pose;
@@ -58,24 +61,24 @@ public class MainTeleOp extends LinearOpMode {
         }
 
         robot = new Robot(hardwareMap);
-        robot.shooter.setGoalAlliance(isRed);
+        robot.shooter.setGoalAlliance();
 
         waitForStart();
 
         if (!isRed) AUTO_END_POSE = AUTO_END_POSE.mirror().setHeading(isBigTriangle ? 270 : 90);
-
-        // TODO replace pose w/ pose at the end of auton
 
         robot.drivetrain.setStartingPose(AUTO_END_POSE);
 
         robot.drivetrain.update();
         robot.drivetrain.startTeleopDrive(true);
 
-
         while (opModeIsActive()) {
             robot.run();
             gamepadEx1.readButtons();
             gamepadEx2.readButtons();
+
+            if (isSlowMode) robot.drivetrain.setMaxPowerScaling(0.7);
+            else robot.drivetrain.setMaxPowerScaling(1);
 
             if (isRed) {
                 robot.drivetrain.setTeleOpDrive(
@@ -94,46 +97,32 @@ public class MainTeleOp extends LinearOpMode {
             }
 
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-
             double trigger2 = gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
+            if (gamepadEx1.wasJustPressed(DPAD_LEFT)) isSlowMode = !isSlowMode;
+
             robot.intake.set(trigger1, false);
-            robot.shooter.setFeederManual(trigger1 * 0.7, -Math.abs(trigger1));
+            robot.shooter.setFeederIdle(Math.abs(trigger1) > 0);
 
-            if (gamepadEx2.wasJustPressed(RIGHT_BUMPER)) robot.shooter.toggleManual();
-
-            if (robot.shooter.get() == Shooter.ShooterStates.MANUAL) {
+            if (isHoodManual) {
                 if (Math.abs(trigger2) > 0) robot.shooter.setTurretManual(trigger2);
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             }
 
-            if (gamepadEx1.wasJustPressed(A)) {
-                robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
-            }
-            if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) {
-                robot.drivetrain.setPose(AUTO_END_POSE);
-            }
-            if (gamepadEx1.wasJustPressed(B)) {
-                robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
-            }
+            if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
+            if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
+            if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
 
-            if (gamepadEx1.wasJustPressed(X)) {
-                robot.shooter.clearQueueShots();
-            }
+            if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.drivetrain.setPose(AUTO_END_POSE);
 
+
+            // TODO test collisions and shooting
 //            boolean isInFarTriangle = robot.shooterZoneChecker.checkRectangleTriangleIntersection(ShooterZoneChecker.farTriangle);
 //            boolean isInCloseTriangle = robot.shooterZoneChecker.checkRectangleTriangleIntersection(ShooterZoneChecker.closeTriangle);
 //
 //            if (isInFarTriangle || isInCloseTriangle) {
 //                robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
-//            }
-
-//            if (gamepadEx1.isDown(DPAD_UP)) {
-//                robot.shooter.hood.set(robot.shooter.hood.get() + .5);
-//            }
-//            if (gamepadEx1.isDown(DPAD_DOWN)) {
-//                robot.shooter.hood.set(robot.shooter.hood.get() - .5);
 //            }
 
             robot.printTelemetry();

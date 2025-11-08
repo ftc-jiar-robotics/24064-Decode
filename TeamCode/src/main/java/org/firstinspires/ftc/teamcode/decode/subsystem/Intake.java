@@ -1,20 +1,24 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_INTAKE_COLOR_SENSOR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_INTAKE_MOTOR;
+
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
+import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 
 @Configurable
 public class Intake extends Subsystem<Double> {
-    private final MotorEx motor;
+    private final CachedMotor motor;
     private final ColorSensor colorSensor;
     private float gain = 0; //TODO: change gain
     private double power = 0;
     public Intake(HardwareMap hardwareMap) {
-        this.motor = new MotorEx(hardwareMap, "intake");
-        this.colorSensor = new ColorSensor(hardwareMap,"color", gain);
+        this.motor = new CachedMotor(hardwareMap, NAME_INTAKE_MOTOR, Motor.GoBILDA.RPM_435);
+        this.colorSensor = new ColorSensor(hardwareMap, NAME_INTAKE_COLOR_SENSOR, gain);
     }
 
     @Override
@@ -35,6 +39,6 @@ public class Intake extends Subsystem<Double> {
     @Override
     public void printTelemetry() {
         Common.telemetry.addLine("INTAKE");
-        Common.telemetry.addData("current power: ", power);
+        Common.telemetry.addData("current power (PERCENTAGE): ", power);
     }
 }

@@ -45,7 +45,7 @@ public class AutoClose extends AbstractAuto{
             Paths.isPathRed = !Paths.isPathRed;
             path.mirrorAll();
         }
-        Common.robot.shooter.setGoalAlliance(Common.isRed);
+        Common.robot.shooter.setGoalAlliance();
         path.buildClose();
     }
     @Override
@@ -63,12 +63,12 @@ public class AutoClose extends AbstractAuto{
                         new InstantAction(() -> f.setMaxPower(.3)),
                         RobotActions.armFlywheel(),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 0, f, "speed_up_4"),
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.thirdShoot, .8, 0, f, "slow_down_3"),
-                                new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.thirdShoot, 0.8, 0, f, "start_intake_3"),
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 2, f, "speed_up_5"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 0, f, "speed_up_4"), // speed up to dash to third set of balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.thirdShoot, 0.8, 0, f, "slow_down_3"), // slow down to intake balls
+                                new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.thirdShoot, 0.8, 0, f, "start_intake_3"), // start intake to intake balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 2, f, "speed_up_5"), // speed up to dash back to close triangle and start shooting procedure
 //                                new Actions.CallbackAction(RobotActions.setIntake(0,0), path.thirdShoot, 0.01, 2, f, "end_intake_3"),
-                                new FollowPathAction(f, path.thirdShoot, true) // slows down to 30% so it turns slowly & shoots second 3 balls, then speeds up, then starts intake at 80% and slows back down to 30% to intake again
+                                new FollowPathAction(f, path.thirdShoot, true)
                         ),
                         RobotActions.shootArtifacts(3) // shoots third 3 balls
                 )
@@ -86,16 +86,16 @@ public class AutoClose extends AbstractAuto{
                         new InstantAction(() -> f.setMaxPower(.3)),
                         RobotActions.armFlywheel(),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, .01, 0, f, "speed_up_2"),
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.secondIntake, .4, 0, f, "slow_down_2"),
-                                new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.secondIntake, 0.5, 0, f, "start_intake_2"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, .01, 0, f, "speed_up_2"), // speed up to dash to second balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.secondIntake, .4, 0, f, "slow_down_2"), // slow down to start in-taking balls
+                                new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.secondIntake, 0.5, 0, f, "start_intake_2"), // intake balls
 //                                new Actions.CallbackAction(RobotActions.setIntake(0,0), path.secondIntake, 0.98, 1, f, "end_intake_2"),
-                                new FollowPathAction(f, path.secondIntake) // slows down to 30% so it turns slowly & shoots first 3 balls, then speeds up, then starts intake at 50% and slows back down to 30% to intake again
+                                new FollowPathAction(f, path.secondIntake) //dashes to second 3 balls, slows down and starts intake at halfway point in path, then before dashing back to close triangle, hits bar to let all scored balls out.
                         ),
-                        new SleepAction(0.5),
+                        new SleepAction(0.5), //hits the bar to let out scored balls, and sits there for half a second
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondShoot, .01, 0, f, "speed_up_3"),
-                                new FollowPathAction(f, path.secondShoot, true) // speed up and go back to line
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondShoot, .01, 0, f, "speed_up_3"), // speed up to dash back to close triangle
+                                new FollowPathAction(f, path.secondShoot, true) //dashes at max speed back to line to prepare shooting sequence
                                 ),
                         RobotActions.shootArtifacts(3) // shoots second 3 balls
                 )
@@ -112,15 +112,15 @@ public class AutoClose extends AbstractAuto{
                      new InstantAction(() -> Log.d("AutoClose", "START_SHOOT_FIRST")),
                      RobotActions.armFlywheel(),
                      new ParallelAction(
-                             new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.firstShoot, 0.5, 0, f, "start_intake_1"),
-                             new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.firstShoot, .4, 0, f, "slow_down_1"),
-                             new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.firstShoot, .01, 2, f, "speed_up_1"),
+                             new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.firstShoot, 0.5, 0, f, "start_intake_1"), // start intake of first balls
+                             new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.firstShoot, .4, 0, f, "slow_down_1"), // slow down to intake
+                             new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.firstShoot, .01, 2, f, "speed_up_1"), // speed up to dash back to close triangle
 //                             new Actions.CallbackAction(RobotActions.setIntake(0,0), path.firstShoot, 0.01, 2, f, "end_intake_1"),
-                             new FollowPathAction(f, path.firstShoot, true) // starts intake at 80% and start intake at 50% in path
+                             new FollowPathAction(f, path.firstShoot, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path, then max power dash back to line to prepare shooting sequence
                      ),
                      new InstantAction(() -> Log.d("AutoClose", "END_SHOOT_FIRST"))
         ));
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
+        robot.actionScheduler.addAction(RobotActions.shootArtifacts(3)); //shoots first 3 balls
 
         robot.actionScheduler.runBlocking();
     }
@@ -129,7 +129,7 @@ public class AutoClose extends AbstractAuto{
         path.shootPreload.getPath(0).setTValueConstraint(0.88);
 
         robot.actionScheduler.addAction(
-            new SequentialAction(
+            new SequentialAction( //dashes to line and shoots preloaded 3 balls
                     RobotActions.armFlywheel(),
                     new InstantAction(() -> Log.d("AutoClose", "START_SHOOT_PRELOAD")),
                     new FollowPathAction(f, path.shootPreload, true),

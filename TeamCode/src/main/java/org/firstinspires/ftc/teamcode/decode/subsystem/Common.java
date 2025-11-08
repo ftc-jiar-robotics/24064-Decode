@@ -8,14 +8,31 @@ import com.pedropathing.geometry.Pose;
 
 @Config
 public final class Common {
-    public static final String CFG_NAME_FEEDERFRONT = "feederFront" ;
-    public static final String CFG_NAME_FEEDERBACK = "feederBack";
-    public static final String CFG_NAME_FEEDER_COLORSENSOR = "colorSensorFeeder";
+    public static final String
+            NAME_FEEDER_FRONT_SERVO = "feederFront" ,
+            NAME_FEEDER_BACK_SERVO = "feederBack",
+            NAME_FEEDER_COLOR_SENSOR = "colorSensorFeeder",
+
+            NAME_FLYWHEEL_MASTER_MOTOR = "shooterMaster",
+            NAME_FLYWHEEL_SLAVE_MOTOR = "shooterSlave",
+
+            NAME_HOOD_SERVO = "hood",
+
+            NAME_INTAKE_MOTOR = "intake",
+            NAME_INTAKE_COLOR_SENSOR = "color",
+
+            NAME_TURRET_MOTOR = "turret",
+            NAME_TURRET_ENCODER = "turretEncoder",
+            NAME_TURRET_CAMERA = "arduCam";
+
     public static Pose AUTO_END_POSE = null;
 
     public static boolean
+            isSlowMode = false,
+            isTelemetryOn = false,
             isRed = false,
-            isBigTriangle = false;
+            isBigTriangle = false,
+            isHoodManual = false;
 
     public static final double
             LEFT = Math.toRadians(180),
@@ -29,13 +46,24 @@ public final class Common {
             SERVO_AXON_MAX_1 = 270,
             SERVO_AXON_MIN = 0,
             SERVO_AXON_MAX_2 = 355,
-            TAG_SIZE_METERS_DECODE = 0.2064;
+
+            FORWARD_POD_Y = 80,
+            STRAFE_POD_X = -83.5,
+
+            // Camera Stuff
+            CAM_HEIGHT = 11.5,
+            CAM_PITCH = 10.0,
+
+            // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
+            CAM_OFFSET_X = -2.2,
+            CAM_OFFSET_Y = 6,
+            TURRET_OFFSET_Y = -2.559,
+
+            MAX_VOLTAGE = 13;
 
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24;
-
-    public static final double MAX_VOLTAGE = 13;
 
     public static Robot robot;
 

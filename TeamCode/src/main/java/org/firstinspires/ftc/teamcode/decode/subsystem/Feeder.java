@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.BACKWARD;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -12,7 +11,6 @@ import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
-
     private final CRServo feederFront;
     private final CRServo feederBack;
 
@@ -23,13 +21,14 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     private float gain = 0; //TODO: change gain
 
     public enum FeederStates {
-        OFF, OUTTAKING, MANUAL, IDLE, RUNNING
+        OFF, OUTTAKING, IDLE, RUNNING, MANUAL
     }
+    public static double[][] feederPowers = {{0, 0}, {-1, -1}, {0.2 , -1} ,{1 , 1}};
 
     public Feeder(HardwareMap hw) {
-        feederFront = hw.get(CRServo.class, Common.CFG_NAME_FEEDERFRONT);
-        feederBack = hw.get(CRServo.class, Common.CFG_NAME_FEEDERBACK);
-        this.colorSensor = new ColorSensor(hw, Common.CFG_NAME_FEEDER_COLORSENSOR, gain);
+        feederFront = hw.get(CRServo.class, Common.NAME_FEEDER_FRONT_SERVO);
+        feederBack = hw.get(CRServo.class, Common.NAME_FEEDER_BACK_SERVO);
+        this.colorSensor = new ColorSensor(hw, Common.NAME_FEEDER_COLOR_SENSOR, gain);
 
         feederFront.setDirection(DcMotorSimple.Direction.REVERSE);
     }
@@ -54,28 +53,15 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     @Override
     public void run() {
-            switch (currentState) {
-                case OFF:
-                    feederFront.setPower(0);
-                    feederBack.setPower(0);
-                    break;
-                case OUTTAKING:
-                    feederFront.setPower(-1);
-                    feederBack.setPower(-1);
-                    break;
-                case IDLE:
-                    feederFront.setPower(0.7);
-                    feederBack.setPower(-1);
-                    break;
-                case RUNNING:
-                    feederFront.setPower(1);
-                    feederBack.setPower(1);
-                    break;
-            }
+            double[] ordinal = feederPowers[currentState.ordinal()];
+            feederFront.setPower(ordinal[0]);
+            feederBack.setPower(ordinal[1]);
     }
 
     public void printTelemetry() {
         telemetry.addLine("FEEDER");
-        telemetry.addData("current state: ", currentState);
+        telemetry.addData("current state (ENUM): ", currentState);
+        telemetry.addData("feeder front power (PERCENTAGE): ", feederFront.getPower());
+        telemetry.addData("feeder back power (PERCENTAGE): ", feederBack.getPower());
     }
 }
