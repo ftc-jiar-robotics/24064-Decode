@@ -74,7 +74,6 @@ public final class Actions {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            Log.d("DEBUG_CALLBACK",s+"not started");
             if (!isCalled) return true;
             Log.d("DEBUG_CALLBACK",s+"started");
 

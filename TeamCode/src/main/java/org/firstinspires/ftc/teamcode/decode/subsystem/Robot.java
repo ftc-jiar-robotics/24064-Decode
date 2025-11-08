@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
@@ -82,6 +83,7 @@ public final class Robot {
         Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
         Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
         Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
+        Common.telemetry.addData("robot max power: ", robot.drivetrain.getMaxPowerScaling());
         Common.telemetry.addData("loop time (LOOPS): ", LoopUtil.getLoopTimeInHertz());
 
         Drawing.drawDebug(drivetrain);

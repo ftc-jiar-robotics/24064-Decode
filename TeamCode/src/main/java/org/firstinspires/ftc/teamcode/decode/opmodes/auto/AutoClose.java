@@ -105,8 +105,8 @@ public class AutoClose extends AbstractAuto{
     }
 
     private void shootFirst() {
-        path.firstShoot.getPath(2).setTValueConstraint(0.88);
-        path.firstShoot.getPath(1).setTValueConstraint(0.85);
+        path.firstShoot.getPath(2).setTValueConstraint(0.95);
+        path.firstShoot.getPath(1).setTValueConstraint(0.95);
         robot.actionScheduler.addAction(
              new SequentialAction(
                      new InstantAction(() -> Log.d("AutoClose", "START_SHOOT_FIRST")),
@@ -114,7 +114,7 @@ public class AutoClose extends AbstractAuto{
                      new ParallelAction(
                              new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.firstShoot, 0.5, 0, f, "start_intake_1"), // start intake of first balls
                              new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.firstShoot, .4, 0, f, "slow_down_1"), // slow down to intake
-                             new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.firstShoot, .01, 2, f, "speed_up_1"), // speed up to dash back to close triangle
+                             new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.firstShoot, .85, 1, f, "speed_up_1"), // speed up to dash back to close triangle
 //                             new Actions.CallbackAction(RobotActions.setIntake(0,0), path.firstShoot, 0.01, 2, f, "end_intake_1"),
                              new FollowPathAction(f, path.firstShoot, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path, then max power dash back to line to prepare shooting sequence
                      ),
@@ -123,6 +123,7 @@ public class AutoClose extends AbstractAuto{
         robot.actionScheduler.addAction(RobotActions.shootArtifacts(3)); //shoots first 3 balls
 
         robot.actionScheduler.runBlocking();
+
     }
 
     private void shootPreload() {
