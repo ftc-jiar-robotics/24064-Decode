@@ -58,10 +58,10 @@ public final class Common {
             CAM_OFFSET_X = -2.2,
             CAM_OFFSET_Y = 6,
             TURRET_OFFSET_Y = -2.559,
-            TIME_TO_SHOOT = 0.18,
 
             MAX_VOLTAGE = 13;
 
+    public static double TIME_TO_SHOOT = 0.2;
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24;

@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetry
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.field.Style;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -86,6 +87,7 @@ public final class Robot {
         Common.telemetry.addData("robot max power: ", robot.drivetrain.getMaxPowerScaling());
         Common.telemetry.addData("loop time (LOOPS): ", LoopUtil.getLoopTimeInHertz());
 
+        Drawing.drawRobot(robot.shooter.getPredictedPose(), new Style("", "#FF0000", 2.0));
         Drawing.drawDebug(drivetrain);
 
         Common.telemetry.update();

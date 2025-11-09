@@ -173,6 +173,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public void run() {
         currentAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
 
+
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
         double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
 
