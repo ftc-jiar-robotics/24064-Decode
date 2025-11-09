@@ -8,7 +8,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemet
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.IDLE;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.VISION_TRACKING;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -19,7 +18,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.FeedforwardGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
@@ -27,7 +25,6 @@ import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
 import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -132,7 +129,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return controller.isPositionInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE);
+        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE);
     }
 
 
@@ -231,7 +228,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             rawPower = output;
 
-            boolean pidInTolerance = controller.isPositionInTolerance(
+            boolean pidInTolerance = controller.isInTolerance(
                     new State(currentAngle, 0, 0, 0), 0.2
             );
 
