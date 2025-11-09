@@ -131,7 +131,6 @@ public class AutoClose extends AbstractAuto{
 
         robot.actionScheduler.addAction(
             new SequentialAction( //dashes to line and shoots preloaded 3 balls
-                    RobotActions.armFlywheel(),
                     new InstantAction(() -> Log.d("AutoClose", "START_SHOOT_PRELOAD")),
                     new FollowPathAction(f, path.shootPreload, true),
                     new InstantAction(() -> Log.d("AutoClose", "MID_SHOOT_PRELOAD")),

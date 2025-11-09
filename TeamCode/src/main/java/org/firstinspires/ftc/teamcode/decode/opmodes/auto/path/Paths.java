@@ -30,11 +30,7 @@ public class Paths {
 
     public static double
             startAngle = Math.toRadians(270),
-            endAngle0 = Math.toRadians(-127),
-            endAngle1 = Math.toRadians(-161),
-            endAngle2 = Math.toRadians(240),
-            endAngle3 = Math.toRadians(-157),
-            endAngle4 = Math.toRadians(-122),
+            shootAngle = Math.toRadians(-127),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150);
 
@@ -50,11 +46,7 @@ public class Paths {
         endIntake3 = endIntake3.mirror();
 
         startAngle = mirrorAngleRad(startAngle);
-        endAngle0 = mirrorAngleRad(endAngle0);
-        endAngle1 = mirrorAngleRad(endAngle1);
-        endAngle2 = mirrorAngleRad(endAngle2);
-        endAngle3 = mirrorAngleRad(endAngle3);
-        endAngle4 = mirrorAngleRad(endAngle4);
+        shootAngle = mirrorAngleRad(shootAngle);
         startIntakeAngle = mirrorAngleRad(startIntakeAngle);
         endIntakeAngle = mirrorAngleRad(endIntakeAngle);
 
@@ -74,7 +66,7 @@ public class Paths {
                                 shoot
                         )
                 )
-                .setLinearHeadingInterpolation(startAngle, endAngle0)
+                .setLinearHeadingInterpolation(startAngle, shootAngle)
                 .build();
         firstShoot = f.pathBuilder()
                 .addPath(
@@ -86,7 +78,7 @@ public class Paths {
                         // Path 2
                         new BezierLine(startIntake1, endIntake1)
                 )
-                .setLinearHeadingInterpolation(endAngle0, endAngle1)
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
                 .addPath(
                         // Path 3
                         new BezierLine(endIntake1, shoot)
@@ -98,12 +90,12 @@ public class Paths {
                         // Path 4
                         new BezierLine(shoot, startIntake2)
                 )
-                .setConstantHeadingInterpolation(endAngle2)
+                .setConstantHeadingInterpolation(startIntakeAngle)
                 .addPath(
                         // Path 5
                         new BezierLine(startIntake2, endIntake2)
                 )
-                .setLinearHeadingInterpolation(endAngle2, endAngle3)
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
                 .build();
         secondShoot = f.pathBuilder()
                 .addPath(
@@ -117,7 +109,7 @@ public class Paths {
                         // Path 7
                         new BezierLine(shoot, startIntake3)
                 )
-                .setLinearHeadingInterpolation(endAngle4, startIntakeAngle) // Intaking
+                .setLinearHeadingInterpolation(shootAngle, startIntakeAngle) // Intaking
                 .addPath(
                         // Path 8
                         new BezierLine(startIntake3, endIntake3)
