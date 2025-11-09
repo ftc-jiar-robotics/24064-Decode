@@ -21,7 +21,7 @@ public class Paths {
             control0 = new Pose(47.6, 113.1),
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
             shoot = new Pose(51.0, 98.0),
-            startIntake1 = new Pose(35.2, 88.3), // Intaking 1st
+            startIntake1 = new Pose(40.2, 88.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 88.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
             endIntake2 = new Pose(15.4, endIntake1.getY() - 24),
@@ -35,7 +35,7 @@ public class Paths {
             endAngle2 = Math.toRadians(240),
             endAngle3 = Math.toRadians(-157),
             endAngle4 = Math.toRadians(-122),
-            startIntakeAngle = Math.toRadians(-165),
+            startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150);
 
     public void mirrorAll() {
