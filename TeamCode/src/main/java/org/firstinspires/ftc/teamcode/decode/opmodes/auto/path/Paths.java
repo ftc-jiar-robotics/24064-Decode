@@ -19,8 +19,10 @@ public class Paths {
 
     public static Pose
             control0 = new Pose(47.6, 113.1),
+            control1 = new Pose(20.75, 68.0),
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
             shoot = new Pose(51.0, 98.0),
+            gate = new Pose(14.0, 78.0),
             startIntake1 = new Pose(40.2, 88.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 88.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
@@ -29,6 +31,7 @@ public class Paths {
             endIntake3 = new Pose(15.4, endIntake2.getY() - 24);
 
     public static double
+            gateAngle = Math.toRadians(-180),
             startAngle = Math.toRadians(270),
             shootAngle = Math.toRadians(-127),
             startIntakeAngle = Math.toRadians(-155),
@@ -36,6 +39,8 @@ public class Paths {
 
     public void mirrorAll() {
         control0 = control0.mirror();
+        control1 = control1.mirror();
+        gate = gate.mirror();
         start = start.mirror();
         shoot = shoot.mirror();
         startIntake1 = startIntake1.mirror();
@@ -48,6 +53,7 @@ public class Paths {
         startAngle = mirrorAngleRad(startAngle);
         shootAngle = mirrorAngleRad(shootAngle);
         startIntakeAngle = mirrorAngleRad(startIntakeAngle);
+        gateAngle = mirrorAngleRad(gateAngle);
         endIntakeAngle = mirrorAngleRad(endIntakeAngle);
 
     }
@@ -95,7 +101,16 @@ public class Paths {
                         // Path 5
                         new BezierLine(startIntake2, endIntake2)
                 )
-                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
+                .setLinearHeadingInterpolation(startIntakeAngle, gateAngle)
+                .addPath(
+                        // Path 6
+                        new BezierCurve(
+                                endIntake2,
+                                control1,
+                                gate
+                        )
+                )
+                .setConstantHeadingInterpolation(gateAngle)
                 .build();
         secondShoot = f.pathBuilder()
                 .addPath(
