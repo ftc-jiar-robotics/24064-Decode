@@ -62,14 +62,14 @@ public class PIDController implements FeedbackController {
         double deriv = movingAverageFilter.calculate(measurementDifferentiator.getDerivative(measurement.x));
 
         boolean isDerivativeInTolerance = Math.abs(deriv) <= derivTolerance;
-        boolean isMeasurementInTolerance = Math.abs(measurement.x) <= tolerance;
+        boolean isMeasurementInTolerance = Math.abs(target.x - measurement.x) <= tolerance;
 
         // if current has spiked and we're in tolerance and we're not in a timer(start time + time period > curr time
         return isDerivativeInTolerance && isMeasurementInTolerance;
     }
 
     public boolean isInTolerance(State measurement, double tolerance) {
-        return isInTolerance(measurement, tolerance, Double.POSITIVE_INFINITY);
+        return Math.abs(target.x - measurement.x) <= tolerance;
     }
 
     public void setTarget(State target) {
