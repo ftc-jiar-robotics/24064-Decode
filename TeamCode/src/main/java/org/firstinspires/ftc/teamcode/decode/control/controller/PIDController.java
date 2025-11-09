@@ -18,8 +18,11 @@ public class PIDController implements FeedbackController {
     private State target = new State();
 
     private final Filter derivFilter;
-    private final Differentiator differentiator = new Differentiator();
+    private final Differentiator errorDifferentiator = new Differentiator();
+    private final Differentiator measurementDifferentiator = new Differentiator();
     private final Integrator integrator = new Integrator();
+
+    private MovingAverageFilter movingAverageFilter = new MovingAverageFilter(new MovingAverageGains(10));
 
     private State error = new State();
     private double errorIntegral, filteredErrorDerivative, rawErrorDerivative;
@@ -45,7 +48,7 @@ public class PIDController implements FeedbackController {
 
         if (signum(error.x) != signum(lastError.x)) reset();
         errorIntegral = integrator.getIntegral(error.x);
-        rawErrorDerivative = differentiator.getDerivative(error.x);
+        rawErrorDerivative = errorDifferentiator.getDerivative(error.x);
         filteredErrorDerivative = derivFilter.calculate(rawErrorDerivative);
 
         double output = (gains.kP * error.x) + (gains.kI * errorIntegral) + (gains.kD * filteredErrorDerivative);
@@ -55,16 +58,18 @@ public class PIDController implements FeedbackController {
         return output;
     }
 
-    public boolean isPositionInTolerance(State measurement, double tolerance) {
-        return Math.abs(measurement.subtract(target).x) <= tolerance;
-    }
+    public boolean isInTolerance(State measurement, double tolerance, double derivTolerance) {
+        double deriv = movingAverageFilter.calculate(measurementDifferentiator.getDerivative(measurement.x));
 
-    public boolean isErrorDerivativeInTolerance(double measurement, double tolerance, int sampleCount) {
-        MovingAverageFilter movingAverageFilter = new MovingAverageFilter(new MovingAverageGains(sampleCount));
-        double deriv = movingAverageFilter.calculate(differentiator.getDerivative(measurement));
+        boolean isDerivativeInTolerance = Math.abs(deriv) <= derivTolerance;
+        boolean isMeasurementInTolerance = Math.abs(target.x - measurement.x) <= tolerance;
 
         // if current has spiked and we're in tolerance and we're not in a timer(start time + time period > curr time
-        return Math.abs(deriv) <= tolerance;
+        return isDerivativeInTolerance && isMeasurementInTolerance;
+    }
+
+    public boolean isInTolerance(State measurement, double tolerance) {
+        return Math.abs(target.x - measurement.x) <= tolerance;
     }
 
     public void setTarget(State target) {

@@ -37,7 +37,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static PIDGains shootingVelocityGains = new PIDGains(
             0.000005,
             0.0,
-            0.0,
+            0.000002,
             Double.POSITIVE_INFINITY
     );
 
@@ -58,15 +58,15 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            RPM_DERIVATIVE_DROP = -300, // deacceleration
+            RPM_DERIVATIVE_DROP = -800, // deacceleration
             TIME_DROP_PERIOD = 0.3,
             RPM_TOLERANCE = 100,
             SMOOTH_RPM_GAIN = 0.8,
             SUPER_SMOOTH_RPM_GAIN = 0.9,
             MOTOR_POWER_GAIN = 0.9,
-            DERIV_TOLERANCE = 550,
+            DERIV_TOLERANCE = 200,
             MOTOR_RPM_SETTLE_TIME_SHOOT = 0.95,
-            MOTOR_RPM_SETTLE_TIME_IDLE = 0.5,
+            MOTOR_RPM_SETTLE_TIME_IDLE = 1.25 ,
             IDLE_RPM = 2200,
             MAX_RPM = 4800,
             VOLTAGE_SCALER = 0.99;
@@ -124,7 +124,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return (velocityController.isPositionInTolerance(new State(currentRPM, 0, 0, 0), RPM_TOLERANCE) && velocityController.isErrorDerivativeInTolerance(currentRPM, DERIV_TOLERANCE, TOLERANCE_SAMPLE_COUNT));
+        return (velocityController.isInTolerance(new State(currentRPM, 0, 0, 0), RPM_TOLERANCE, DERIV_TOLERANCE));
     }
 
     public boolean didRPMSpike() {
