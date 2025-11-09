@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.control.filter.dualfilter;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.ComplementaryGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.ComplementaryGains;
 
 public final class ComplementaryFilter implements DualFilter {
     private ComplementaryGains gains;

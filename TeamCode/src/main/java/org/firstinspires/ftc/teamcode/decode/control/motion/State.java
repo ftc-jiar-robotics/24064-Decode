@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.control.motion;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.FeedforwardGains;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.FullStateGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.FeedforwardGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.FullStateGains;
 
 public class State {
     public double x;

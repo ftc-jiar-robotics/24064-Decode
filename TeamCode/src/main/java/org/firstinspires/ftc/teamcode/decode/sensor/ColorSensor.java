@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.HSV;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.RGB;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.RGB;
 
 public final class ColorSensor {
 
