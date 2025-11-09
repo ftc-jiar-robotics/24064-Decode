@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.LowPassGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 
 public class DistanceSensorEx {
     private final DistanceSensor distanceSensor;

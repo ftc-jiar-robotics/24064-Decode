@@ -19,8 +19,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.LowPassGains;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
 import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;

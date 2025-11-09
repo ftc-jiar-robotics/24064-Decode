@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.LowPassGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 
 /**
  * Infinite impulse response low-pass filter

@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.MovingAverageGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 
 public final class HeadingIMU {
     private final Object imuLock = new Object();

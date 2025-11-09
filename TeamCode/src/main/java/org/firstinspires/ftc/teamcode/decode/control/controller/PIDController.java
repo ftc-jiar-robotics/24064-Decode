@@ -4,8 +4,8 @@ import static java.lang.Math.abs;
 import static java.lang.Math.signum;
 
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.MovingAverageGains;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.Differentiator;
 import org.firstinspires.ftc.teamcode.decode.control.motion.Integrator;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
