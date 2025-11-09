@@ -4,13 +4,9 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.FeedforwardGains
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.FullStateGains;
 
 public class State {
-    public double x;
-    public double v;
-    public double a;
-    public double j;
+    public double x, v, a, j;
 
     public State() {
-        this(0.0, 0.0, 0.0, 0.0);
     }
 
     public State(double x, double v, double a, double j) {
@@ -23,9 +19,9 @@ public class State {
     public State add(State other) {
         return new State(
                 this.x + other.x,
-        this.v + other.v,
-        this.a + other.a,
-        this.j + other.j
+                this.v + other.v,
+                this.a + other.a,
+                this.j + other.j
         );
     }
 
