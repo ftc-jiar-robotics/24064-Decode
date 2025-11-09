@@ -8,6 +8,15 @@ public class State {
 
     public State() {
     }
+    public State(double x) {
+        this(x, 0);
+    }
+    public State(double x, double v) {
+        this(x, v, 0);
+    }
+    public State(double x, double v, double a) {
+        this(x, v, a, 0);
+    }
 
     public State(double x, double v, double a, double j) {
         this.x = x;
