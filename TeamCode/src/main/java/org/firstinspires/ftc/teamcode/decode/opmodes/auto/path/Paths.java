@@ -19,50 +19,42 @@ public class Paths {
 
     public static Pose
             control0 = new Pose(47.6, 113.1),
+            control1 = new Pose(20.75, 68.0),
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
-            end0 = new Pose(51.0, 98.0),
-            end1 = new Pose(33.3, 89.5),
-            end2 = new Pose(17.7, 88.5),
-            end3 = new Pose(51.0, 98.0),
-            end4 = new Pose(32.7, 68.0),
-            end5 = new Pose(15.2, 65.1),
-            end6 = new Pose(51.0, 98.0),
-            end7 = new Pose(34.2, 40.3),
-            end8 = new Pose(15.4, 42.5),
-            end9 = new Pose(51.0, 98.0);
+            shoot = new Pose(51.0, 98.0),
+            gate = new Pose(17.0, 78.0),
+            startIntake1 = new Pose(40.2, 88.3), // Intaking 1st
+            endIntake1 = new Pose(17.7, 88.0),
+            startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
+            endIntake2 = new Pose(15.4, endIntake1.getY() - 24),
+            startIntake3 = new Pose(startIntake1.getX(), startIntake2.getY() - 24), // Intaking 3rd
+            endIntake3 = new Pose(15.4, endIntake2.getY() - 24);
 
     public static double
+            gateAngle = Math.toRadians(-180),
             startAngle = Math.toRadians(270),
-            endAngle0 = Math.toRadians(-127),
-            endAngle1 = Math.toRadians(-161),
-            endAngle2 = Math.toRadians(240),
-            endAngle3 = Math.toRadians(-157),
-            endAngle4 = Math.toRadians(-122),
-            endAngle5 = Math.toRadians(-165),
-            endAngle6 = Math.toRadians(-150);
+            shootAngle = Math.toRadians(-127),
+            startIntakeAngle = Math.toRadians(-155),
+            endIntakeAngle = Math.toRadians(-150);
 
     public void mirrorAll() {
         control0 = control0.mirror();
+        control1 = control1.mirror();
+        gate = gate.mirror();
         start = start.mirror();
-        end0 = end0.mirror();
-        end1 = end1.mirror();
-        end2 = end2.mirror();
-        end3 = end3.mirror();
-        end4 = end4.mirror();
-        end5 = end5.mirror();
-        end6 = end6.mirror();
-        end7 = end7.mirror();
-        end8 = end8.mirror();
-        end9 = end9.mirror();
+        shoot = shoot.mirror();
+        startIntake1 = startIntake1.mirror();
+        endIntake1 = endIntake1.mirror();
+        startIntake2 = startIntake2.mirror();
+        endIntake2 = endIntake2.mirror();
+        startIntake3 = startIntake3.mirror();
+        endIntake3 = endIntake3.mirror();
 
         startAngle = mirrorAngleRad(startAngle);
-        endAngle0 = mirrorAngleRad(endAngle0);
-        endAngle1 = mirrorAngleRad(endAngle1);
-        endAngle2 = mirrorAngleRad(endAngle2);
-        endAngle3 = mirrorAngleRad(endAngle3);
-        endAngle4 = mirrorAngleRad(endAngle4);
-        endAngle5 = mirrorAngleRad(endAngle5);
-        endAngle6 = mirrorAngleRad(endAngle6);
+        shootAngle = mirrorAngleRad(shootAngle);
+        startIntakeAngle = mirrorAngleRad(startIntakeAngle);
+        gateAngle = mirrorAngleRad(gateAngle);
+        endIntakeAngle = mirrorAngleRad(endIntakeAngle);
 
     }
 
@@ -77,61 +69,70 @@ public class Paths {
                         new BezierCurve(
                                 start,
                                 control0,
-                                end0
+                                shoot
                         )
                 )
-                .setLinearHeadingInterpolation(startAngle, endAngle0)
+                .setLinearHeadingInterpolation(startAngle, shootAngle)
                 .build();
         firstShoot = f.pathBuilder()
                 .addPath(
                         // Path 1
-                        new BezierLine(end0, end1)
+                        new BezierLine(shoot, startIntake1)
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         // Path 2
-                        new BezierLine(end1, end2)
+                        new BezierLine(startIntake1, endIntake1)
                 )
-                .setLinearHeadingInterpolation(endAngle0, endAngle1)
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
                 .addPath(
                         // Path 3
-                        new BezierLine(end2, end3)
+                        new BezierLine(endIntake1, shoot)
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed() .build();
         secondIntake = f.pathBuilder()
                 .addPath(
                         // Path 4
-                        new BezierLine(end3, end4)
+                        new BezierLine(shoot, startIntake2)
                 )
-                .setConstantHeadingInterpolation(endAngle2)
+                .setConstantHeadingInterpolation(startIntakeAngle)
                 .addPath(
                         // Path 5
-                        new BezierLine(end4, end5)
+                        new BezierLine(startIntake2, endIntake2)
                 )
-                .setLinearHeadingInterpolation(endAngle2, endAngle3)
+                .setLinearHeadingInterpolation(startIntakeAngle, gateAngle)
+                .addPath(
+                        // Path 6
+                        new BezierCurve(
+                                endIntake2,
+                                control1,
+                                gate
+                        )
+                )
+                .setConstantHeadingInterpolation(gateAngle)
                 .build();
         secondShoot = f.pathBuilder()
                 .addPath(
                         // Path 6
-                        new BezierLine(end5, end6)
+                        new BezierLine(endIntake2, shoot)
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed().build();
         thirdShoot = f.pathBuilder()
                 .addPath(
                         // Path 7
-                        new BezierLine(end6, end7)
+                        new BezierLine(shoot, startIntake3)
                 )
-                .setLinearHeadingInterpolation(endAngle4, endAngle5)
+                .setLinearHeadingInterpolation(shootAngle, startIntakeAngle) // Intaking
                 .addPath(
                         // Path 8
-                        new BezierLine(end7, end8)
+                        new BezierLine(startIntake3, endIntake3)
                 )
-                .setLinearHeadingInterpolation(endAngle5, endAngle6)
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
                 .addPath(
                         // Path 9
-                        new BezierLine(end8, end9)
+                        new BezierLine(endIntake3, shoot)
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed()

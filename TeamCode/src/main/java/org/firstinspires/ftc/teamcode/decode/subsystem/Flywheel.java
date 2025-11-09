@@ -124,7 +124,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return (velocityController.isPositionInTolerance(new State(currentRPM, 0, 0, 0), RPM_TOLERANCE) && velocityController.isErrorDerivativeInTolerance(currentRPM, DERIV_TOLERANCE, TOLERANCE_SAMPLE_COUNT));
+        return (velocityController.isInTolerance(new State(currentRPM, 0, 0, 0), RPM_TOLERANCE, DERIV_TOLERANCE));
     }
 
     public boolean didRPMSpike() {

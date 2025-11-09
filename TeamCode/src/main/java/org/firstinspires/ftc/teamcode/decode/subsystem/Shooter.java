@@ -87,7 +87,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         turret.applyOffset();
     }
     public void setFlywheelManual(Flywheel.FlyWheelStates f) {
-        flywheel.set(f, false);
+        flywheel.set(f, true);
     }
 
     public void setHoodManual(double angleIncrement, boolean isIncrementing) {
@@ -108,7 +108,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
 
                 if (queuedShots >= 1) {
-                    flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
+                    if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.PREPPING;
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 }
