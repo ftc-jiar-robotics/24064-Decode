@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
 public class Shooter extends Subsystem<Shooter.ShooterStates> {
-    public final Hood hood;
+    final Hood hood;
     final Flywheel flywheel;
     final Turret turret;
     final Feeder feeder;
