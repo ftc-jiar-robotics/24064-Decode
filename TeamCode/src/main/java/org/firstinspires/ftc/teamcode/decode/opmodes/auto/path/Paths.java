@@ -23,6 +23,8 @@ public class Paths {
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
             shoot = new Pose(51.0, 98.0),
             gate = new Pose(17.0, 78.0),
+            gateCycleCP = new Pose(44.000, 65.700),
+            gateCycleIntake = new Pose(11.000, 61.900),
             startIntake1 = new Pose(40.2, 88.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 88.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
@@ -34,6 +36,8 @@ public class Paths {
             gateAngle = Math.toRadians(-180),
             startAngle = Math.toRadians(270),
             shootAngle = Math.toRadians(-127),
+            gateCycleShootAngle = Math.toRadians(250),
+            gateCycleIntakeAngle = Math.toRadians(140),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150);
 
@@ -49,12 +53,16 @@ public class Paths {
         endIntake2 = endIntake2.mirror();
         startIntake3 = startIntake3.mirror();
         endIntake3 = endIntake3.mirror();
+        gateCycleCP = gateCycleCP.mirror();
+        gateCycleIntake = gateCycleIntake.mirror();
 
         startAngle = mirrorAngleRad(startAngle);
         shootAngle = mirrorAngleRad(shootAngle);
         startIntakeAngle = mirrorAngleRad(startIntakeAngle);
         gateAngle = mirrorAngleRad(gateAngle);
         endIntakeAngle = mirrorAngleRad(endIntakeAngle);
+        gateCycleIntakeAngle = mirrorAngleRad(gateCycleIntakeAngle);
+        gateCycleShootAngle = mirrorAngleRad(gateCycleShootAngle);
 
     }
 
@@ -62,7 +70,7 @@ public class Paths {
         return Math.PI - angle;
     }
 
-    public void buildClose() {
+    public void close12Build() {
         shootPreload = f.pathBuilder()
                 .addPath(
                         // Path 0
@@ -102,7 +110,7 @@ public class Paths {
                         new BezierLine(startIntake2, endIntake2)
                 )
                 .setLinearHeadingInterpolation(startIntakeAngle, gateAngle)
-                .addPath(
+                .addPath( // Gate
                         // Path 6
                         new BezierCurve(
                                 endIntake2,
@@ -139,10 +147,64 @@ public class Paths {
                 .build();
     }
 
+    public void close18Build() {
+        shootPreload = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierCurve(
+                                start,
+                                control0,
+                                shoot
+                        )
+                )
+                .setLinearHeadingInterpolation(startAngle, shootAngle)
+                .build();
+
+        secondIntake = f.pathBuilder()
+                .addPath(
+                        // Path 4
+                        new BezierLine(shoot, startIntake2)
+                )
+                .setConstantHeadingInterpolation(startIntakeAngle)
+                .addPath(
+                        // Path 5
+                        new BezierLine(startIntake2, endIntake2)
+                )
+                .setLinearHeadingInterpolation(startIntakeAngle, gateAngle)
+                .addPath(
+                        // Path 6
+                        new BezierLine(endIntake2, shoot)
+                )
+                .setTangentHeadingInterpolation()
+                .setReversed().build();
+
+        cycleGate = f.pathBuilder()
+                .addPath(
+                        // cycleStart
+                        new BezierCurve(
+                                shoot,
+                                gateCycleCP,
+                                gateCycleIntake
+                        )
+                )
+                .setLinearHeadingInterpolation(gateCycleShootAngle, gateCycleIntakeAngle)
+                .addPath(
+                        // cycleEnd
+                        new BezierCurve(
+                                gateCycleIntake,
+                                gateCycleCP,
+                                shoot
+                        )
+                )
+                .setLinearHeadingInterpolation(gateCycleIntakeAngle, gateCycleShootAngle)
+                .build();
+    }
+
 
     public PathChain shootPreload;
     public PathChain firstShoot;
     public PathChain secondIntake;
     public PathChain secondShoot;
     public PathChain thirdShoot;
+    public PathChain cycleGate;
 }

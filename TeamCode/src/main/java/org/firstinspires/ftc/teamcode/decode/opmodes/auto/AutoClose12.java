@@ -1,22 +1,16 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import android.util.Log;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.Paths;
@@ -26,8 +20,8 @@ import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
-@Autonomous(name = "AutoClose")
-public class AutoClose extends AbstractAuto{
+@Autonomous(name = "AutoClose12")
+public class AutoClose12 extends AbstractAuto{
     private Follower f;
     private Paths path;
 
@@ -46,7 +40,7 @@ public class AutoClose extends AbstractAuto{
             path.mirrorAll();
         }
         Common.robot.shooter.setGoalAlliance();
-        path.buildClose();
+        path.close12Build();
     }
     @Override
     protected void onRun() {
@@ -144,7 +138,6 @@ public class AutoClose extends AbstractAuto{
             new SequentialAction( //dashes to line and shoots preloaded 3 balls
                     new InstantAction(() -> Log.d("AutoClose", "START_SHOOT_PRELOAD")),
                     new FollowPathAction(f, path.shootPreload, true),
-                    new InstantAction(() -> Log.d("AutoClose", "MID_SHOOT_PRELOAD")),
                     new InstantAction(() -> Log.d("AutoClose", "END_SHOOT_PRELOAD"))
             )
         );
