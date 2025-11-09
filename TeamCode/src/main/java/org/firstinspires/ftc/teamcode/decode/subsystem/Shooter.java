@@ -62,6 +62,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.queuedShots += i;
     }
 
+    public void setQueuedShots(int i) {
+        this.queuedShots = i;
+    }
+
     public void clearQueueShots() {
         queuedShots = 0;
         targetState = ShooterStates.IDLE;

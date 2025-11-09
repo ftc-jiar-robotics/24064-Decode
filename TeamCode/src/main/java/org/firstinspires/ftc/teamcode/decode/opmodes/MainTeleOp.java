@@ -21,6 +21,8 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManua
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
+import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -35,6 +37,10 @@ import org.firstinspires.ftc.teamcode.decode.util.Drawing;
 @TeleOp(name = "Main TeleOp", group = "24064")
 public class MainTeleOp extends LinearOpMode {
     GamepadEx gamepadEx1, gamepadEx2;
+
+    boolean lastInTriangle = false;
+
+    private int storedShots = 0;
 
     @Override
     public void runOpMode() {
@@ -77,7 +83,7 @@ public class MainTeleOp extends LinearOpMode {
             gamepadEx1.readButtons();
             gamepadEx2.readButtons();
 
-            if (isSlowMode) robot.drivetrain.setMaxPowerScaling(0.7);
+            if (isSlowMode) robot.drivetrain.setMaxPowerScaling(0.35);
             else robot.drivetrain.setMaxPowerScaling(1);
 
             if (isRed) {
@@ -99,7 +105,8 @@ public class MainTeleOp extends LinearOpMode {
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
             double trigger2 = gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
-            if (gamepadEx1.wasJustPressed(DPAD_LEFT)) isSlowMode = !isSlowMode;
+            if (robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING) isSlowMode = true;
+            else isSlowMode = false;
 
             robot.intake.set(trigger1, false);
             robot.shooter.setFeederIdle(Math.abs(trigger1) > 0);
@@ -110,20 +117,20 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             }
 
-            if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
-            if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
-            if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
-
             if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.drivetrain.setPose(AUTO_END_POSE);
 
+            boolean isInFarTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle);
+            boolean isInCloseTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
-            // TODO test collisions and shooting
-//            boolean isInFarTriangle = robot.shooterZoneChecker.checkRectangleTriangleIntersection(ShooterZoneChecker.farTriangle);
-//            boolean isInCloseTriangle = robot.shooterZoneChecker.checkRectangleTriangleIntersection(ShooterZoneChecker.closeTriangle);
-//
-//            if (isInFarTriangle || isInCloseTriangle) {
-//                robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
-//            }
+            if (isInFarTriangle || isInCloseTriangle) {
+                if (robot.shooter.getQueuedShots() == 0) robot.shooter.setQueuedShots(storedShots == 0 ? 1 : storedShots);
+                if (robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) robot.intake.set(0.85, true);
+            } else if (lastInTriangle) {
+                storedShots = robot.shooter.getQueuedShots();
+                robot.shooter.clearQueueShots();
+            }
+
+            lastInTriangle = isInCloseTriangle || isInFarTriangle;
 
             robot.printTelemetry();
         }
