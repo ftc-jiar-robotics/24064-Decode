@@ -22,7 +22,7 @@ public class Paths {
             control1 = new Pose(20.75, 68.0),
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
             shoot = new Pose(51.0, 98.0),
-            gate = new Pose(14.0, 78.0),
+            gate = new Pose(17.0, 78.0),
             startIntake1 = new Pose(40.2, 88.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 88.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
