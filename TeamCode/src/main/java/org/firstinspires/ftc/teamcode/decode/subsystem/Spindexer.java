@@ -129,6 +129,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
 
                 if (hasMotifArtifacts()) {
                     state = State.PREPARING_MOTIF;
+                    //TODO find index of first motif color, need alg
 //                    targetSlot = firstMotifColor(); something something
                 } else if (frontSlotHasArtifact())
                     changeSlot(1);
