@@ -118,7 +118,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
                 // TODO Remove this call and call it conditionally elsewhere (ex. only when intaking)
                 updateColorSensor();
 
-                runServosUsingPID();
+                runServosUsingPID(targetFrontSlot, 0);
 
                 break;
 
@@ -134,13 +134,13 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
                 } else if (frontSlotHasArtifact())
                     changeTargetFrontSlot(1);
 
-                runServosUsingPID();
+                runServosUsingPID(targetFrontSlot, 0);
 
                 break;
 
             case PREPARING_MOTIF:
 
-                runServosUsingPID();
+                // runServosUsingPID();
 
                 break;
 
@@ -152,8 +152,11 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         }
     }
 
-    private void runServosUsingPID() {
-        controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(normalizeRadians(getSlotRadians(targetFrontSlot) - currentRadians) + currentRadians));
+    private void runServosUsingPID(int slot, double targetRadians) {
+        double error = targetRadians - (currentRadians + getSlotRadians(slot));
+        double setpoint = normalizeRadians(error) + currentRadians;
+
+        controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(setpoint));
         setServos(controller.calculate(new org.firstinspires.ftc.teamcode.decode.control.motion.State(currentRadians)));
     }
 
