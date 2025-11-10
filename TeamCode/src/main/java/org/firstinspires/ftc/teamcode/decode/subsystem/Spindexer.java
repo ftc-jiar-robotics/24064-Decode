@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.EMPTY;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.GREEN;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.PURPLE;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.toRadians;
@@ -22,10 +20,7 @@ import org.firstinspires.ftc.teamcode.decode.util.AnalogEncoder;
 @Configurable
 public final class Spindexer extends Subsystem<Spindexer.State> {
 
-    public static double toleranceRadians = toRadians(5);
-    public static boolean inTolerance(double currentRadians, double targetRadians) {
-        return abs(targetRadians - currentRadians) <= toleranceRadians;
-    }
+    public static double RADIANS_TOLERANCE = toRadians(5);
 
     public static PIDGains gains = new PIDGains(0, 0, 0);
 
@@ -63,7 +58,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         GREEN,
         EMPTY;
 
-        public static Artifact fromHSV(HSV hsv) {
+        private static Artifact fromHSV(HSV hsv) {
             return
                     hsv.between(minPurple, maxPurple) ? PURPLE :
                     hsv.between(minGreen, maxGreen) ? GREEN :
@@ -71,6 +66,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         }
     }
 
+    // hardware
     private final ColorSensor colorSensor;
     private final AnalogEncoder encoder;
     private final CRServo[] servos = new CRServo[2];
@@ -79,14 +75,10 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     }
 
     private final PIDController controller = new PIDController();
-    private final Artifact[] slots = {EMPTY, EMPTY, EMPTY};
-    private final Artifact[] motif = {PURPLE, PURPLE, GREEN};
 
-    private int targetFrontSlot = 0;
-    private int changeTargetFrontSlot(int delta) {
-        return targetFrontSlot = (targetFrontSlot + delta) % 3;
-    }
-    private double currentRadians = 0;
+    // spindexer state
+    private final Artifact[] slots = {EMPTY, EMPTY, EMPTY};
+    private double currentRadians = 0; // physical position of slot 0
     private State state = State.PASSTHROUGH;
 
     Spindexer(HardwareMap hardwareMap) {
@@ -115,86 +107,93 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
 
             case PASSTHROUGH:
 
-                // TODO Remove this call and call it conditionally elsewhere (ex. only when intaking)
-                updateColorSensor();
-
-                runServosUsingPID(targetFrontSlot, 0);
-
                 break;
 
             case INDEXING:
-
-                // TODO Remove this call and call it conditionally elsewhere (ex. only when intaking)
-                updateColorSensor();
-
-                if (hasMotifArtifacts()) {
-                    state = State.PREPARING_MOTIF;
-                    //TODO find index of first motif color, need alg
-//                    targetFrontSlot = firstMotifColor(); something something
-                } else if (frontSlotHasArtifact())
-                    changeTargetFrontSlot(1);
-
-                runServosUsingPID(targetFrontSlot, 0);
 
                 break;
 
             case PREPARING_MOTIF:
 
-                // runServosUsingPID();
-
                 break;
 
             case SHOOTING_MOTIF:
 
-                setServos(0);
-
                 break;
         }
+
+
     }
 
-    private void runServosUsingPID(int slot, double targetRadians) {
-        double error = targetRadians - (currentRadians + getSlotRadians(slot));
-        double setpoint = normalizeRadians(error) + currentRadians;
+    /**
+     * Set PID target to rotate Spindexer until a slot is at a particular position
+     * @param slot          Slot you want to move
+     * @param targetRadians Where you want to move it to
+     */
+    private void setPIDTarget(int slot, double targetRadians) {
+        double setpoint = getError(slot, targetRadians) + currentRadians;
 
         controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(setpoint));
         setServos(controller.calculate(new org.firstinspires.ftc.teamcode.decode.control.motion.State(currentRadians)));
     }
 
+    /**
+     * @param slot          Slot whose position you are querying
+     * @param targetRadians Where it should be
+     * @return              If the given slot is at the given target, within {@link #RADIANS_TOLERANCE}
+     */
+    private boolean slotIsAtPosition(int slot, double targetRadians) {
+        return abs(getError(slot, targetRadians)) <= RADIANS_TOLERANCE;
+    }
+
+    /**
+     * @param slot          Slot whose position you are querying
+     * @param targetRadians Where the slot should be
+     * @return              Distance, in radians, between given slot's position and given targetRadians
+     */
+    private double getError(int slot, double targetRadians) {
+        double slotRadians = slot * 2 * PI / 3.0;
+        return normalizeRadians(targetRadians - (currentRadians + slotRadians));
+    }
+
     public void updateColorSensor() {
-        // dont save color value to next index spot accidentally
-        if (!inTolerance(currentRadians, getSlotRadians(targetFrontSlot))) return;
+        int slot;
+
+        if      (slotIsAtPosition(0, 0)) slot = 0;
+        else if (slotIsAtPosition(1, 0)) slot = 1;
+        else if (slotIsAtPosition(2, 0)) slot = 2;
+        else return;
 
         colorSensor.update();
-        slots[targetFrontSlot] = Artifact.fromHSV(colorSensor.hsv);
+        slots[slot] = Artifact.fromHSV(colorSensor.hsv);
     }
 
-    public boolean frontSlotHasArtifact() {
-        return slots[targetFrontSlot] != EMPTY;
-    }
-
-    public int countArtifacts(Artifact color) {
+    public static int countOf(Artifact color, Artifact[] artifacts) {
         int count = 0;
-        for (Artifact slot : slots)
+        for (Artifact slot : artifacts)
             if (slot == color)
                 count++;
         return count;
     }
 
-    public boolean hasMotifArtifacts() {
-        return countArtifacts(PURPLE) == 2 && countArtifacts(GREEN) == 1;
+    public static int indexOf(Artifact color, Artifact[] artifacts) {
+        int index = -1, length = artifacts.length;
+        for (int i = 0; i < length; i++)
+            if (artifacts[i] == color) {
+                index = i;
+                break;
+            }
+        return index;
     }
 
-    public boolean firstMotifArtifactReady() {
-        return state == State.PREPARING_MOTIF && inTolerance(currentRadians, getSlotRadians(targetFrontSlot));
-    }
+    /**
+     * Where to move the green artifact inside the spindexer to <br>
+     * Query this with the index of the green artifact in the randomized motif (GPP = 0, PGP = 1, PPG = 2)
+     */
+    private static final double[] greenIndexToTargetRadians = {PI/6, PI, -PI/6};
 
-    public static double getSlotRadians(int slot) {
-        return slot * 2 * PI / 3.0;
-    }
-
-    @Override
     public void printTelemetry() {
-        telemetry.addLine(colorSensor.hsv.toString("Spindexer Color Sensor [" + slots[targetFrontSlot].name() + "]"));
+        telemetry.addLine(colorSensor.hsv.toString(String.format("Spindexer Color Sensor [%s]", Artifact.fromHSV(colorSensor.hsv))));
     }
 
 
