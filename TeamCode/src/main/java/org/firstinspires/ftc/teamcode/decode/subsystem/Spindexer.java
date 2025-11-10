@@ -23,8 +23,8 @@ import org.firstinspires.ftc.teamcode.decode.util.AnalogEncoder;
 public final class Spindexer extends Subsystem<Spindexer.State> {
 
     public static double toleranceRadians = toRadians(5);
-    public boolean inTolerance() {
-        return abs(getTargetRadians(targetSlot) - currentRadians) <= toleranceRadians;
+    public static boolean inTolerance(double currentRadians, double targetRadians) {
+        return abs(targetRadians - currentRadians) <= toleranceRadians;
     }
 
     public static PIDGains gains = new PIDGains(0, 0, 0);
@@ -82,9 +82,9 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     private final Artifact[] slots = {EMPTY, EMPTY, EMPTY};
     private final Artifact[] motif = {PURPLE, PURPLE, GREEN};
 
-    private int targetSlot = 0;
-    private int changeSlot(int delta) {
-        return targetSlot = (targetSlot + delta) % 3;
+    private int targetFrontSlot = 0;
+    private int changeTargetFrontSlot(int delta) {
+        return targetFrontSlot = (targetFrontSlot + delta) % 3;
     }
     private double currentRadians = 0;
     private State state = State.PASSTHROUGH;
@@ -95,7 +95,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         servos[0] = hardwareMap.get(CRServo.class, "spindexer 1");
         servos[1] = hardwareMap.get(CRServo.class, "spindexer 2");
 
-        encoder = new AnalogEncoder(hardwareMap, "spindexer encoder", 2 * PI);
+        encoder = new AnalogEncoder(hardwareMap, "spindexer encoder", 3 * 2 * PI);
     }
 
     public State get() {
@@ -109,7 +109,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     public void run() {
 
         // update currentAngle with encoder readings
-        currentRadians = normalizeRadians(encoder.getPosition() * 3);
+        currentRadians = normalizeRadians(encoder.getPosition());
 
         switch (state) {
 
@@ -130,9 +130,9 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
                 if (hasMotifArtifacts()) {
                     state = State.PREPARING_MOTIF;
                     //TODO find index of first motif color, need alg
-//                    targetSlot = firstMotifColor(); something something
+//                    targetFrontSlot = firstMotifColor(); something something
                 } else if (frontSlotHasArtifact())
-                    changeSlot(1);
+                    changeTargetFrontSlot(1);
 
                 runServosUsingPID();
 
@@ -153,20 +153,20 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     }
 
     private void runServosUsingPID() {
-        controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(normalizeRadians(getTargetRadians(targetSlot) - currentRadians) + currentRadians));
+        controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(normalizeRadians(getTargetRadians(targetFrontSlot) - currentRadians) + currentRadians));
         setServos(controller.calculate(new org.firstinspires.ftc.teamcode.decode.control.motion.State(currentRadians)));
     }
 
     public void updateColorSensor() {
         // dont save color value to next index spot accidentally
-        if (!inTolerance()) return;
+        if (!inTolerance(currentRadians, getTargetRadians(targetFrontSlot))) return;
 
         colorSensor.update();
-        slots[targetSlot] = Artifact.fromHSV(colorSensor.hsv);
+        slots[targetFrontSlot] = Artifact.fromHSV(colorSensor.hsv);
     }
 
     public boolean frontSlotHasArtifact() {
-        return slots[targetSlot] != EMPTY;
+        return slots[targetFrontSlot] != EMPTY;
     }
 
     public int count(Artifact color) {
@@ -182,7 +182,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     }
 
     public boolean firstMotifArtifactReady() {
-        return state == State.PREPARING_MOTIF && inTolerance();
+        return state == State.PREPARING_MOTIF && inTolerance(currentRadians, getTargetRadians(targetFrontSlot));
     }
 
     public static double getTargetRadians(int slot) {
@@ -191,7 +191,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
 
     @Override
     public void printTelemetry() {
-        telemetry.addLine(colorSensor.hsv.toString("Spindexer Color Sensor [" + slots[targetSlot].name() + "]"));
+        telemetry.addLine(colorSensor.hsv.toString("Spindexer Color Sensor [" + slots[targetFrontSlot].name() + "]"));
     }
 
 
