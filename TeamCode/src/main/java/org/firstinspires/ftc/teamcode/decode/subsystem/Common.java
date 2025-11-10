@@ -21,7 +21,7 @@ public final class Common {
             NAME_HOOD_SERVO = "hood",
 
             NAME_INTAKE_MOTOR = "intake",
-            NAME_INTAKE_COLOR_SENSOR = "color",
+            NAME_INTAKE_COLOR_SENSOR = "colorSensorIntake",
 
             NAME_TURRET_MOTOR = "turret",
             NAME_TURRET_ENCODER = "turretEncoder",

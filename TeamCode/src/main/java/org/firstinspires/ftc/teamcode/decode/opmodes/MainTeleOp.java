@@ -120,18 +120,25 @@ public class MainTeleOp extends LinearOpMode {
 
             if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.drivetrain.setPose(AUTO_END_POSE);
 
-            boolean isInFarTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle);
-            boolean isInCloseTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
+            boolean inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
-            if ((isInFarTriangle || isInCloseTriangle) && robot.shooter.getColor() != Robot.ArtifactColor.NONE) {
-                if (robot.shooter.getQueuedShots() == 0) robot.shooter.setQueuedShots(storedShots == 0 ? 1 : storedShots);
-                if (robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) robot.intake.set(0.85, true);
+            if (inTriangle) {
+                Robot.ArtifactColor intakeColor = robot.intake.getColor();
+                Robot.ArtifactColor feederColor = robot.shooter.getColor();
+                 Robot.ArtifactColor color = intakeColor != Robot.ArtifactColor.NONE ? intakeColor : feederColor;
+                if (color != Robot.ArtifactColor.NONE) {
+                    int shots = (color == intakeColor) ? 3 : 1;
+                    if (robot.shooter.getQueuedShots() == 0)
+                        robot.shooter.setQueuedShots(storedShots == 0 ? shots : storedShots);
+                    if (robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING)
+                        robot.intake.set(0.85, true);
+                }
             } else if (lastInTriangle) {
                 storedShots = robot.shooter.getQueuedShots();
                 robot.shooter.clearQueueShots();
             }
 
-            lastInTriangle = isInCloseTriangle || isInFarTriangle;
+            lastInTriangle = inTriangle;
 
             robot.printTelemetry();
         }
