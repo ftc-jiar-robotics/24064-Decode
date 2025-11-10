@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 public class Intake extends Subsystem<Double> {
     private final CachedMotor motor;
     private final ColorSensor colorSensor;
-    private float gain = 0; //TODO: change gain
+    private float gain = 1; //TODO: change gain
     private double power = 0;
     public Intake(HardwareMap hardwareMap) {
         this.motor = new CachedMotor(hardwareMap, NAME_INTAKE_MOTOR, Motor.GoBILDA.RPM_435);
@@ -24,6 +24,10 @@ public class Intake extends Subsystem<Double> {
     @Override
     public void set(Double power) {
         this.power = power;
+    }
+
+    public Robot.ArtifactColor getColor() {
+        return Robot.getColor(colorSensor);
     }
 
     @Override

@@ -6,6 +6,8 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
 
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
+
 @Config
 public final class Common {
     public static final String
@@ -65,6 +67,13 @@ public final class Common {
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24;
+
+
+    public static HSV
+            GREEN_MIN = new HSV(145, 0.5, 0.0),
+            GREEN_MAX = new HSV(160, 0.7, 2.0),
+            PURPLE_MIN = new HSV(180, 0.3, 0.0),
+            PURPLE_MAX = new HSV(230, 0.45, 2.0);
 
     public static Robot robot;
 

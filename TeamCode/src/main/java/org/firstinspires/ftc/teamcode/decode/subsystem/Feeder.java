@@ -20,15 +20,6 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     private float gain = 1; //TODO: change gain
 
-    public enum ArtifactColor {
-        GREEN, PURPLE, NONE
-    }
-
-    public static HSV
-            GREEN_MIN = new HSV(145, 0.5, 0.0),
-            GREEN_MAX = new HSV(160, 0.7, 2.0),
-            PURPLE_MIN = new HSV(180, 0.3, 0.0),
-            PURPLE_MAX = new HSV(230, 0.45, 2.0);
 
     public enum FeederStates {
         OFF, OUTTAKING, IDLE, RUNNING, MANUAL
@@ -56,10 +47,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         currentState = state;
     }
 
-    public ArtifactColor getColor() {
-        if (colorSensor.hsv.inRange(GREEN_MIN, GREEN_MAX)) return ArtifactColor.GREEN;
-        else if (colorSensor.hsv.inRange(PURPLE_MIN, PURPLE_MAX)) return ArtifactColor.PURPLE;
-        else return ArtifactColor.NONE;
+    public Robot.ArtifactColor getColor() {
+        return Robot.getColor(colorSensor);
     }
 
     @Override

@@ -9,6 +9,8 @@ import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
@@ -26,6 +28,12 @@ public final class Robot {
     public final Intake intake;
     public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
+
+    public enum ArtifactColor {
+        GREEN, PURPLE, NONE
+    }
+
+
 
 
     /**
@@ -63,6 +71,11 @@ public final class Robot {
         bulkReader.bulkRead();
     }
 
+    public static Robot.ArtifactColor getColor(ColorSensor colorSensor) {
+        if (colorSensor.hsv.inRange(Common.GREEN_MIN, Common.GREEN_MAX)) return Robot.ArtifactColor.GREEN;
+        else if (colorSensor.hsv.inRange(Common.PURPLE_MIN, Common.PURPLE_MAX)) return Robot.ArtifactColor.PURPLE;
+        else return Robot.ArtifactColor.NONE;
+    }
     // Runs all the necessary mechanisms
     public void run() {
         actionScheduler.run();
