@@ -172,7 +172,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         return slots[targetFrontSlot] != EMPTY;
     }
 
-    public int count(Artifact color) {
+    public int countArtifacts(Artifact color) {
         int count = 0;
         for (Artifact slot : slots)
             if (slot == color)
@@ -181,7 +181,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     }
 
     public boolean hasMotifArtifacts() {
-        return count(PURPLE) == 2 && count(GREEN) == 1;
+        return countArtifacts(PURPLE) == 2 && countArtifacts(GREEN) == 1;
     }
 
     public boolean firstMotifArtifactReady() {
