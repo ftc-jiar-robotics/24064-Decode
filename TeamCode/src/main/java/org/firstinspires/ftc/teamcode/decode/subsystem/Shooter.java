@@ -58,6 +58,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return queuedShots;
     }
 
+    public void armFlywheel() {
+        flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
+    }
+
     public void incrementQueuedShots(int i) {
         this.queuedShots += i;
     }

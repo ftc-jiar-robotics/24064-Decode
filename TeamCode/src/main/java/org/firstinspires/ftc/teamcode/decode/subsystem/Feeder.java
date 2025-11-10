@@ -25,10 +25,10 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     }
 
     public static HSV
-            GREEN_MIN = new HSV(130, 0.5, 0.01),
-            GREEN_MAX = new HSV(160, 1, 0.2),
-            PURPLE_MIN = new HSV(205, 0.55, 0.01),
-            PURPLE_MAX = new HSV(225, 1, 0.35);
+            GREEN_MIN = new HSV(145, 0.5, 0.0),
+            GREEN_MAX = new HSV(160, 0.7, 2.0),
+            PURPLE_MIN = new HSV(180, 0.3, 0.0),
+            PURPLE_MAX = new HSV(230, 0.45, 2.0);
 
     public enum FeederStates {
         OFF, OUTTAKING, IDLE, RUNNING, MANUAL

@@ -22,9 +22,10 @@ public class Paths {
             control1 = new Pose(20.75, 68.0),
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
             shoot = new Pose(51.0, 98.0),
-            gate = new Pose(17.0, 78.0),
+            gate = new Pose(17.0, 77.0),
             gateCycleCP = new Pose(44.000, 65.700),
-            gateCycleIntake = new Pose(11.000, 61.900),
+            gateCycleOpen = new Pose(11.000, 61.900),
+            gateCycleIntake = new Pose(11.000, 55.700),
             startIntake1 = new Pose(40.2, 88.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 88.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
@@ -54,6 +55,7 @@ public class Paths {
         startIntake3 = startIntake3.mirror();
         endIntake3 = endIntake3.mirror();
         gateCycleCP = gateCycleCP.mirror();
+        gateCycleOpen = gateCycleOpen.mirror();
         gateCycleIntake = gateCycleIntake.mirror();
 
         startAngle = mirrorAngleRad(startAngle);
@@ -185,10 +187,15 @@ public class Paths {
                         new BezierCurve(
                                 shoot,
                                 gateCycleCP,
-                                gateCycleIntake
+                                gateCycleOpen
                         )
                 )
                 .setLinearHeadingInterpolation(gateCycleShootAngle, gateCycleIntakeAngle)
+                .addPath(
+                        // Path 3
+                        new BezierLine(gateCycleOpen, gateCycleIntake)
+                )
+                .setConstantHeadingInterpolation(gateCycleIntakeAngle)
                 .addPath(
                         // cycleEnd
                         new BezierCurve(

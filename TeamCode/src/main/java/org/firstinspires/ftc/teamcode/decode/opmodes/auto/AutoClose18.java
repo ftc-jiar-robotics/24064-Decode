@@ -55,9 +55,15 @@ public class AutoClose18 extends AbstractAuto {
     private void gateCycle() {
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new FollowPathAction(f, path.cycleGate)
+                        new FollowPathAction(f, path.cycleGate.getPath(0)),
+                        RobotActions.setIntake(1, 0),
+                        new FollowPathAction(f, path.cycleGate.getPath(1)),
+                        new SleepAction(2),
+                        new FollowPathAction(f, path.cycleGate.getPath(2)),
+                        RobotActions.shootArtifacts(3)
                 )
         );
+
         robot.actionScheduler.runBlocking();
     }
 
@@ -84,9 +90,7 @@ public class AutoClose18 extends AbstractAuto {
         );
 
         //shoots first 3 balls
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
+        robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
 
         robot.actionScheduler.runBlocking();
     }
@@ -96,16 +100,18 @@ public class AutoClose18 extends AbstractAuto {
 
         robot.actionScheduler.addAction(
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
+                        new InstantAction(() -> robot.shooter.armFlywheel()),
                         new InstantAction(() -> Log.d("AutoClose", "START_SHOOT_PRELOAD")),
-                        new FollowPathAction(f, path.shootPreload, true),
+                        new ParallelAction(
+                                new Actions.CallbackAction(RobotActions.shootArtifacts(3), path.shootPreload, .20, 0, f, "shoot_preload"), // speed up to dash to second balls
+                                new FollowPathAction(f, path.shootPreload, true)
+                        ),
                         new InstantAction(() -> Log.d("AutoClose", "END_SHOOT_PRELOAD"))
                 )
         );
 
         //shoots first 3 balls
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
-        robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
+
 
         robot.actionScheduler.runBlocking();
     }

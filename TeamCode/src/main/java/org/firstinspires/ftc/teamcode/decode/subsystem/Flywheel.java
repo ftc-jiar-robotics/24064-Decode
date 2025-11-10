@@ -58,7 +58,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            RPM_DERIVATIVE_DROP = -800, // deacceleration
+            RPM_DERIVATIVE_DROP = -400, // deacceleration
             TIME_DROP_PERIOD = 0.3,
             RPM_TOLERANCE = 100,
             SMOOTH_RPM_GAIN = 0.8,
