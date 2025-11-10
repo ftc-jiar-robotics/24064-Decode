@@ -171,13 +171,14 @@ public class Paths {
                         new BezierLine(startIntake2, endIntake2)
                 )
                 .setLinearHeadingInterpolation(startIntakeAngle, gateAngle)
+                .build();
+        secondShoot = f.pathBuilder()
                 .addPath(
                         // Path 6
                         new BezierLine(endIntake2, shoot)
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed().build();
-
         cycleGate = f.pathBuilder()
                 .addPath(
                         // cycleStart

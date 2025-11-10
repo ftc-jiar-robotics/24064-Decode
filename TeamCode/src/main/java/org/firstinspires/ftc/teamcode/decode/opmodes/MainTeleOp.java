@@ -29,6 +29,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Feeder;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
@@ -122,7 +123,7 @@ public class MainTeleOp extends LinearOpMode {
             boolean isInFarTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle);
             boolean isInCloseTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
-            if (isInFarTriangle || isInCloseTriangle) {
+            if ((isInFarTriangle || isInCloseTriangle) && robot.shooter.getColor() != Feeder.ArtifactColor.NONE) {
                 if (robot.shooter.getQueuedShots() == 0) robot.shooter.setQueuedShots(storedShots == 0 ? 1 : storedShots);
                 if (robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) robot.intake.set(0.85, true);
             } else if (lastInTriangle) {

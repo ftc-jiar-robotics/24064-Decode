@@ -66,6 +66,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.queuedShots = i;
     }
 
+    public Feeder.ArtifactColor getColor() {
+        return feeder.getColor();
+    }
+
     public void clearQueueShots() {
         queuedShots = 0;
         targetState = ShooterStates.IDLE;

@@ -63,7 +63,6 @@ public class AutoClose18 extends AbstractAuto {
 
     private void shootSecond() {
         path.secondIntake.getPath(1).setTValueConstraint(0.8);
-        path.secondIntake.getPath(2).setTValueConstraint(0.88);
         path.secondShoot.getPath(0).setTValueConstraint(0.88);
 
         robot.actionScheduler.addAction(
