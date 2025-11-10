@@ -153,13 +153,13 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     }
 
     private void runServosUsingPID() {
-        controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(normalizeRadians(getTargetRadians(targetFrontSlot) - currentRadians) + currentRadians));
+        controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(normalizeRadians(getSlotRadians(targetFrontSlot) - currentRadians) + currentRadians));
         setServos(controller.calculate(new org.firstinspires.ftc.teamcode.decode.control.motion.State(currentRadians)));
     }
 
     public void updateColorSensor() {
         // dont save color value to next index spot accidentally
-        if (!inTolerance(currentRadians, getTargetRadians(targetFrontSlot))) return;
+        if (!inTolerance(currentRadians, getSlotRadians(targetFrontSlot))) return;
 
         colorSensor.update();
         slots[targetFrontSlot] = Artifact.fromHSV(colorSensor.hsv);
@@ -182,11 +182,11 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     }
 
     public boolean firstMotifArtifactReady() {
-        return state == State.PREPARING_MOTIF && inTolerance(currentRadians, getTargetRadians(targetFrontSlot));
+        return state == State.PREPARING_MOTIF && inTolerance(currentRadians, getSlotRadians(targetFrontSlot));
     }
 
-    public static double getTargetRadians(int slot) {
-        return slot * PI / 3.0;
+    public static double getSlotRadians(int slot) {
+        return slot * 2 * PI / 3.0;
     }
 
     @Override
