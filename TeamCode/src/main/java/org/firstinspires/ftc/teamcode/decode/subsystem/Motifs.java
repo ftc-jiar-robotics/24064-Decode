@@ -105,7 +105,7 @@ public class Motifs {
         }
     }
 
-    public static class MotifScoringInstructions {
+    public static class ScoringInstructions {
 
         /**
          * Run spindexer counter-clockwise (CCW) when scoring motif
@@ -123,7 +123,7 @@ public class Motifs {
          */
         public final int additionalArtifacts;
 
-        private MotifScoringInstructions(
+        private ScoringInstructions(
                 boolean counterClockwise,
                 int firstArtifactIndex,
                 int additionalArtifacts
@@ -152,7 +152,7 @@ public class Motifs {
         return index;
     }
 
-    public static MotifScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact[] spindexerSlots) {
+    public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact[] spindexerSlots) {
 
         // indices of spindexer slots
         List<Integer> slotIndices = Arrays.asList(0, 1, 2);
@@ -185,7 +185,7 @@ public class Motifs {
         if (counterClockwise || spindexerSlots[slotIndices.get(1)] == m1) additionalArtifacts++;
         if (spindexerSlots[slotIndices.get(2)] == m2) additionalArtifacts++;
 
-        return new MotifScoringInstructions(
+        return new ScoringInstructions(
                 counterClockwise,
                 firstArtifactIndex,
                 additionalArtifacts
