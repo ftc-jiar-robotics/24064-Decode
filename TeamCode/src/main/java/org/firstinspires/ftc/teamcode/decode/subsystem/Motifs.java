@@ -101,6 +101,35 @@ public class Motifs {
         }
     }
 
+    public static class MotifScoringInstructions {
+
+        /**
+         * Run spindexer counter-clockwise (CCW) when scoring motif
+         */
+        public final boolean counterClockwise;
+
+        /**
+         * Spindexer slot index of the first artifact to score
+         */
+        public final int firstArtifactIndex;
+
+        /**
+         * How many more artifacts to score after the first one ({@link #firstArtifactIndex}) <br>
+         * Can be 0, 1, or 2
+         */
+        public final int additionalArtifacts;
+
+        private MotifScoringInstructions(
+                boolean counterClockwise,
+                int firstArtifactIndex,
+                int additionalArtifacts
+        ) {
+            this.counterClockwise = counterClockwise;
+            this.firstArtifactIndex = firstArtifactIndex;
+            this.additionalArtifacts = additionalArtifacts;
+        }
+    }
+
     public static int countOf(Artifact color, Artifact... artifacts) {
         int count = 0;
         for (Artifact slot : artifacts)
