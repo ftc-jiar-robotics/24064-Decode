@@ -177,13 +177,14 @@ public class Motifs {
 
         // if the next artifact (clockwise from the first one) is NOT the  next motif color,
         // and the third IS the next motif color, run the spindexer the other way
-        boolean counterClockwise = secondArtifact != effectiveMotif.a1 && thirdArtifact == effectiveMotif.a1;
+        boolean correctSecondArtifact = secondArtifact == effectiveMotif.a1;
+        boolean counterClockwise = !correctSecondArtifact && thirdArtifact == effectiveMotif.a1;
         if (counterClockwise) thirdArtifact = secondArtifact;
 
         return new ScoringInstructions(
                 counterClockwise,
                 firstArtifactIndex,
-                (counterClockwise || secondArtifact == effectiveMotif.a1 ? (thirdArtifact == effectiveMotif.a2 ? 2 : 1) : 0)
+                counterClockwise || correctSecondArtifact ? thirdArtifact == effectiveMotif.a2 ? 2 : 1 : 0
         );
     }
 }
