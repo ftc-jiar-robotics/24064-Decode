@@ -60,19 +60,21 @@ public class Motifs {
         /**
          * Where to move our green artifact (the one inside the spindexer) to
          */
-        private final double greenArtifactRadians;
+        public final double greenArtifactRadians;
 
-        private final Artifact[] artifacts;
+        public final Artifact a0, a1, a2;
 
         private static final Motif[] motifs = values();
 
-        Motif(double greenArtifactRadians, Artifact... artifacts) {
+        Motif(double greenArtifactRadians, Artifact a0, Artifact a1, Artifact a2) {
             this.greenArtifactRadians = greenArtifactRadians;
-            this.artifacts = artifacts;
+            this.a0 = a0;
+            this.a1 = a1;
+            this.a2 = a2;
         }
 
         public Artifact[] toArray() {
-            return artifacts.clone();
+            return new Artifact[]{a0, a1, a2};
         }
 
         public int getGreenIndex() {
@@ -154,14 +156,8 @@ public class Motifs {
 
     public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact[] spindexerSlots) {
 
-        // the different colors in the provided motif
-        Artifact
-                m0 = effectiveMotif.artifacts[0],
-                m1 = effectiveMotif.artifacts[1],
-                m2 = effectiveMotif.artifacts[2];
-
         // find index of first artifact color needed for motif
-        int firstArtifactIndex = indexOf(m0, spindexerSlots);
+        int firstArtifactIndex = indexOf(effectiveMotif.a0, spindexerSlots);
 
         // we don't have the first color needed, continue intaking
         if (firstArtifactIndex == -1) return null;
@@ -171,13 +167,13 @@ public class Motifs {
 
         // if the next artifact (clockwise from the first one) is NOT the  next motif color,
         // and the third IS the next motif color, run the spindexer the other way
-        boolean counterClockwise = secondArtifact != m1 && thirdArtifact == m1;
+        boolean counterClockwise = secondArtifact != effectiveMotif.a1 && thirdArtifact == effectiveMotif.a1;
         if (counterClockwise) thirdArtifact = secondArtifact;
 
         return new ScoringInstructions(
                 counterClockwise,
                 firstArtifactIndex,
-                (counterClockwise || secondArtifact == m1 ? 1 : 0) + (thirdArtifact == m2 ? 1 : 0)
+                (counterClockwise || secondArtifact == effectiveMotif.a1 ? 1 : 0) + (thirdArtifact == effectiveMotif.a2 ? 1 : 0)
         );
     }
 }
