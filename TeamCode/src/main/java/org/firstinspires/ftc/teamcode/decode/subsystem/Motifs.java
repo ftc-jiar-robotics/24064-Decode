@@ -133,7 +133,7 @@ public class Motifs {
         }
 
         public String toString() {
-            return String.format("Rotating %s, score slot %s artifact first, then score %s more artifacts", counterClockwise ? "CCW" : "CW", firstArtifactIndex, additionalArtifacts);
+            return "Score slot " + firstArtifactIndex + " artifact" + (additionalArtifacts == 0 ? "" : " first, then score " + additionalArtifacts + " more artifact" + (additionalArtifacts == 1 ? "" : "s") + " by rotating " + (counterClockwise ? "CCW" : "CW"));
         }
     }
 
@@ -182,5 +182,18 @@ public class Motifs {
                 firstArtifactIndex,
                 counterClockwise || correctSecondArtifact ? thirdArtifact == effectiveMotif.a2 ? 2 : 1 : 0
         );
+    }
+
+    public static void main(String[] args) {
+        Artifact[] artifacts = Artifact.values();
+
+        for (Motif m : Motif.motifs)
+            for (Artifact first : artifacts)
+                for (Artifact second : artifacts)
+                    for (Artifact third : artifacts)
+                        System.out.println("Motif: " + m + ", Spindexer: " + first.name().charAt(0) + second.name().charAt(0) + third.name().charAt(0) + " --> " + getScoringInstructions(
+                                m,
+                                first, second, third
+                        ));
     }
 }
