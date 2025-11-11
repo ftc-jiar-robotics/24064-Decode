@@ -8,6 +8,7 @@ import static java.lang.Math.PI;
 import com.bylazar.configurables.annotations.Configurable;
 
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Configurable
 public class Motifs {
@@ -80,6 +81,10 @@ public class Motifs {
 
         public static Motif fromGreenIndex(int greenIndex) {
             return motifs[greenIndex];
+        }
+
+        public static Motif fromAprilTag(AprilTagDetection tag) {
+            return fromGreenIndex(tag.id);
         }
 
         /**
