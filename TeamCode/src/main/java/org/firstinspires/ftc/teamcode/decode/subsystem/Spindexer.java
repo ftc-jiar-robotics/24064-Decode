@@ -203,6 +203,17 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         return index;
     }
 
+    public static int[] reverseAt(int center, int[] array) {
+        assert array.length == 3;
+        int[] ints = array.clone();
+        int j = (center + 1) % 3;
+        int k = (j + 1) % 3;
+        int valJ = ints[j];
+        ints[j] = ints[k];
+        ints[k] = valJ;
+        return ints;
+    }
+
     public void printTelemetry() {
         telemetry.addLine(colorSensor.hsv.toString(String.format("Spindexer Color Sensor [%s]", Artifact.fromHSV(colorSensor.hsv))));
     }
