@@ -154,9 +154,6 @@ public class Motifs {
 
     public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact[] spindexerSlots) {
 
-        // indices of spindexer slots
-        List<Integer> slotIndices = Arrays.asList(0, 1, 2);
-
         // the different colors in the provided motif
         Artifact
                 m0 = effectiveMotif.artifacts[0],
@@ -169,26 +166,18 @@ public class Motifs {
         // we don't have the first color needed, continue intaking
         if (firstArtifactIndex == -1) return null;
 
-        // rotate indices so the index of the first color needed is in the first slot
-        Collections.rotate(slotIndices, -firstArtifactIndex);
+        Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % 3];
+        Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % 3];
 
-        // if the next artifact (clockwise from the first one) is NOT the right motif color,
-        // and the third IS the right color, run the spindexer the other way
-        boolean counterClockwise = spindexerSlots[slotIndices.get(1)] != m1 && spindexerSlots[slotIndices.get(2)] == m1;
-        if (counterClockwise)
-            Collections.swap(slotIndices, 1, 2);
-
-        // check if we have the right second and third artifacts to complete the motif
-        // if we reversed the spindexer earlier, we know we have the second artifact needed, so
-        // skip that check with a short circuit OR ||
-        int additionalArtifacts = 0;
-        if (counterClockwise || spindexerSlots[slotIndices.get(1)] == m1) additionalArtifacts++;
-        if (spindexerSlots[slotIndices.get(2)] == m2) additionalArtifacts++;
+        // if the next artifact (clockwise from the first one) is NOT the  next motif color,
+        // and the third IS the next motif color, run the spindexer the other way
+        boolean counterClockwise = secondArtifact != m1 && thirdArtifact == m1;
+        if (counterClockwise) thirdArtifact = secondArtifact;
 
         return new ScoringInstructions(
                 counterClockwise,
                 firstArtifactIndex,
-                additionalArtifacts
+                (counterClockwise || secondArtifact == m1 ? 1 : 0) + (thirdArtifact == m2 ? 1 : 0)
         );
     }
 }
