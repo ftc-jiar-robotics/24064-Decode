@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.EMPTY;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.GREEN;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.PURPLE;
 import static java.lang.Math.PI;
@@ -79,6 +80,18 @@ public class Motifs {
 
         public static Motif fromGreenIndex(int greenIndex) {
             return motifs[greenIndex];
+        }
+
+        /**
+         * @param classifierRamp    The artifacts currently in the classifier ramp (starting from the gate)
+         * @return                  The motif pattern to score, {@link null} if classifier is full
+         */
+        public Motif getEffectiveMotif(Artifact... classifierRamp) {
+
+            int i = indexOf(EMPTY, classifierRamp);
+            if (i == -1) return null;
+
+            return Motif.fromGreenIndex((getGreenIndex() - i) % 3);
         }
     }
 
