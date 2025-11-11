@@ -76,11 +76,12 @@ public class Motifs {
         }
 
         public static Motif fromArray(Artifact... artifacts) {
+            assert artifacts.length == 3;
             return fromGreenIndex(indexOf(GREEN, artifacts));
         }
 
         public static Motif fromGreenIndex(int greenIndex) {
-            return motifs[greenIndex];
+            return motifs[(greenIndex % 3 + 3) % 3];
         }
 
         public static Motif fromAprilTag(AprilTagDetection tag) {
