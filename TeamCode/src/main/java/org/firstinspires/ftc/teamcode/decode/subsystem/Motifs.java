@@ -183,7 +183,7 @@ public class Motifs {
         return new ScoringInstructions(
                 counterClockwise,
                 firstArtifactIndex,
-                (counterClockwise || secondArtifact == effectiveMotif.a1 ? 1 : 0) + (thirdArtifact == effectiveMotif.a2 ? 1 : 0)
+                (counterClockwise || secondArtifact == effectiveMotif.a1 ? (thirdArtifact == effectiveMotif.a2 ? 2 : 1) : 0)
         );
     }
 }
