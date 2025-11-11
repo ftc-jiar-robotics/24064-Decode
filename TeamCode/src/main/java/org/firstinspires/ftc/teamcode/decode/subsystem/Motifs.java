@@ -8,11 +8,6 @@ import static java.lang.Math.PI;
 import com.bylazar.configurables.annotations.Configurable;
 
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @Configurable
 public class Motifs {
@@ -86,13 +81,14 @@ public class Motifs {
             return fromGreenIndex(indexOf(GREEN, artifacts));
         }
 
+        /**
+         * APRIL TAG IDs (21 22 23) CAN BE PASSED DIRECTLY TO THIS
+         * @param greenIndex    Index of the green artifact in the motif GPP = 0, PGP = 1, PPG = 2
+         * @return              The {@link Motif} that has a green artifact in the specified position
+         */
         public static Motif fromGreenIndex(int greenIndex) {
             int length = motifs.length;
             return motifs[(greenIndex % length + length) % length];
-        }
-
-        public static Motif fromAprilTag(AprilTagDetection tag) {
-            return fromGreenIndex(tag.id);
         }
 
         /**
