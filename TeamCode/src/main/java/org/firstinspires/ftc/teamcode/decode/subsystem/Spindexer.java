@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.EMPTY;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.GREEN;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.PURPLE;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.toRadians;
@@ -67,18 +69,41 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     }
 
     public enum Motif {
-        GPP(PI/6),
-        PGP(PI),
-        PPG(-PI/6);
+        GPP(PI/6,   GREEN, PURPLE, PURPLE),
+        PGP(PI,     PURPLE, GREEN, PURPLE),
+        PPG(-PI/6,  PURPLE, PURPLE, GREEN);
 
         /**
          * Where to move our green artifact (the one inside the spindexer) to
          */
         private final double greenArtifactRadians;
 
-        Motif(double greenArtifactRadians) {
+        private final Artifact[] artifacts;
+
+        private static final Motif[] motifs = values();
+
+        Motif(double greenArtifactRadians, Artifact... artifacts) {
             this.greenArtifactRadians = greenArtifactRadians;
+            this.artifacts = artifacts;
         }
+        
+        public Artifact[] toArray() {
+            return artifacts.clone();
+        }
+
+        public int toGreenIndex() {
+            return ordinal();
+        }
+
+        public static Motif fromArray(Artifact... artifacts) {
+            return fromGreenIndex(indexOf(GREEN, artifacts));
+        }
+
+        public static Motif fromGreenIndex(int greenIndex) {
+            return motifs[greenIndex];
+        }
+
+
     }
 
     // hardware
