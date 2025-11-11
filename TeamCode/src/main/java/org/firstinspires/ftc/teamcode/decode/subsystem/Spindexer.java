@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.EMPTY;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.GREEN;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Spindexer.Artifact.PURPLE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.EMPTY;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.toRadians;
@@ -14,7 +12,6 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.AnalogEncoder;
@@ -26,84 +23,11 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
 
     public static PIDGains gains = new PIDGains(0, 0, 0);
 
-    public static HSV
-            minPurple = new HSV(
-                    205,
-                    0.55,
-                    0.01
-            ),
-            maxPurple = new HSV(
-                    225,
-                    1,
-                    0.35
-            ),
-            minGreen = new HSV(
-                    130,
-                    0.5,
-                    0.01
-            ),
-            maxGreen = new HSV(
-                    160,
-                    1,
-                    0.2
-            );
-
     public enum State {
         PASSTHROUGH,
         INDEXING,
         PREPARING_MOTIF,
         SHOOTING_MOTIF,
-    }
-
-    public enum Artifact {
-        PURPLE,
-        GREEN,
-        EMPTY;
-
-        private static Artifact fromHSV(HSV hsv) {
-            return
-                    hsv.between(minPurple, maxPurple) ? PURPLE :
-                    hsv.between(minGreen, maxGreen) ? GREEN :
-                    EMPTY;
-        }
-    }
-
-    public enum Motif {
-        GPP(PI/6,   GREEN, PURPLE, PURPLE),
-        PGP(PI,     PURPLE, GREEN, PURPLE),
-        PPG(-PI/6,  PURPLE, PURPLE, GREEN);
-
-        /**
-         * Where to move our green artifact (the one inside the spindexer) to
-         */
-        private final double greenArtifactRadians;
-
-        private final Artifact[] artifacts;
-
-        private static final Motif[] motifs = values();
-
-        Motif(double greenArtifactRadians, Artifact... artifacts) {
-            this.greenArtifactRadians = greenArtifactRadians;
-            this.artifacts = artifacts;
-        }
-        
-        public Artifact[] toArray() {
-            return artifacts.clone();
-        }
-
-        public int toGreenIndex() {
-            return ordinal();
-        }
-
-        public static Motif fromArray(Artifact... artifacts) {
-            return fromGreenIndex(indexOf(GREEN, artifacts));
-        }
-
-        public static Motif fromGreenIndex(int greenIndex) {
-            return motifs[greenIndex];
-        }
-
-
     }
 
     // hardware
@@ -117,7 +41,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     private final PIDController controller = new PIDController();
 
     // spindexer state
-    private final Artifact[] slots = {EMPTY, EMPTY, EMPTY};
+    private final Motifs.Artifact[] slots = {EMPTY, EMPTY, EMPTY};
     private double currentSlot0Radians = 0; // physical position of slot 0
     private double currentSlotRadians(int slot) {
         return currentSlot0Radians + slot * 2 * PI / 3.0;
@@ -207,40 +131,11 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         else return;
 
         colorSensor.update();
-        slots[slot] = Artifact.fromHSV(colorSensor.hsv);
-    }
-
-    public static int countOf(Artifact color, Artifact... artifacts) {
-        int count = 0;
-        for (Artifact slot : artifacts)
-            if (slot == color)
-                count++;
-        return count;
-    }
-
-    public static int indexOf(Artifact color, Artifact... artifacts) {
-        int index = -1, length = artifacts.length;
-        for (int i = 0; i < length; i++)
-            if (artifacts[i] == color) {
-                index = i;
-                break;
-            }
-        return index;
-    }
-
-    public static int[] reverseAt(int center, int[] array) {
-        assert array.length == 3;
-        int[] ints = array.clone();
-        int j = (center + 1) % 3;
-        int k = (j + 1) % 3;
-        int valJ = ints[j];
-        ints[j] = ints[k];
-        ints[k] = valJ;
-        return ints;
+        slots[slot] = Motifs.Artifact.fromHSV(colorSensor.hsv);
     }
 
     public void printTelemetry() {
-        telemetry.addLine(colorSensor.hsv.toString(String.format("Spindexer Color Sensor [%s]", Artifact.fromHSV(colorSensor.hsv))));
+        telemetry.addLine(colorSensor.hsv.toString(String.format("Spindexer Color Sensor [%s]", Motifs.Artifact.fromHSV(colorSensor.hsv))));
     }
 
 
