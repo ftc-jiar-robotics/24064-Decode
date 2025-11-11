@@ -185,7 +185,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         slots[slot] = Artifact.fromHSV(colorSensor.hsv);
     }
 
-    public static int countOf(Artifact color, Artifact[] artifacts) {
+    public static int countOf(Artifact color, Artifact... artifacts) {
         int count = 0;
         for (Artifact slot : artifacts)
             if (slot == color)
@@ -193,7 +193,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         return count;
     }
 
-    public static int indexOf(Artifact color, Artifact[] artifacts) {
+    public static int indexOf(Artifact color, Artifact... artifacts) {
         int index = -1, length = artifacts.length;
         for (int i = 0; i < length; i++)
             if (artifacts[i] == color) {
