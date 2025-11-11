@@ -93,7 +93,10 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
 
     // spindexer state
     private final Artifact[] slots = {EMPTY, EMPTY, EMPTY};
-    private double currentRadians = 0; // physical position of slot 0
+    private double currentSlot0Radians = 0; // physical position of slot 0
+    private double currentSlotRadians(int slot) {
+        return currentSlot0Radians + slot * 2 * PI / 3.0;
+    }
     private State state = State.PASSTHROUGH;
 
     Spindexer(HardwareMap hardwareMap) {
@@ -116,7 +119,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     public void run() {
 
         // update currentAngle with encoder readings
-        currentRadians = normalizeRadians(encoder.getPosition());
+        currentSlot0Radians = normalizeRadians(encoder.getPosition());
 
         switch (state) {
 
@@ -146,10 +149,10 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
      * @param targetRadians Where you want to move it to
      */
     private void setPIDTarget(int slot, double targetRadians) {
-        double setpoint = getError(slot, targetRadians) + currentRadians;
+        double setpoint = currentSlot0Radians + getError(slot, targetRadians);
 
         controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(setpoint));
-        setServos(controller.calculate(new org.firstinspires.ftc.teamcode.decode.control.motion.State(currentRadians)));
+        setServos(controller.calculate(new org.firstinspires.ftc.teamcode.decode.control.motion.State(currentSlot0Radians)));
     }
 
     /**
@@ -167,8 +170,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
      * @return              Distance, in radians, between given slot's position and given targetRadians
      */
     private double getError(int slot, double targetRadians) {
-        double slotRadians = slot * 2 * PI / 3.0;
-        return normalizeRadians(targetRadians - (currentRadians + slotRadians));
+        return normalizeRadians(targetRadians - currentSlotRadians(slot));
     }
 
     public void updateColorSensor() {
