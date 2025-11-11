@@ -155,7 +155,12 @@ public class Motifs {
         return index;
     }
 
-    public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact[] spindexerSlots) {
+    /**
+     * @param effectiveMotif    THIS MUST BE THE LATEST OUTPUT FROM randomization.getEffectiveMotif(classifierState)
+     * @param spindexerSlots    Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
+     * @return                  Instructions for spindexer to score artifacts in the correct order
+     */
+    public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact... spindexerSlots) {
 
         // find index of first artifact color needed for motif
         int firstArtifactIndex = indexOf(effectiveMotif.a0, spindexerSlots);
