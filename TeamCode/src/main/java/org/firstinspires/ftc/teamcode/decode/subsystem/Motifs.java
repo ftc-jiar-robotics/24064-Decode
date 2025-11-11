@@ -135,6 +135,10 @@ public class Motifs {
             this.firstArtifactIndex = firstArtifactIndex;
             this.additionalArtifacts = additionalArtifacts;
         }
+
+        public String toString() {
+            return String.format("Rotating %s, score slot %s artifact first, then score %s more artifacts", counterClockwise ? "CCW" : "CW", firstArtifactIndex, additionalArtifacts);
+        }
     }
 
     public static int countOf(Artifact color, Artifact... artifacts) {
