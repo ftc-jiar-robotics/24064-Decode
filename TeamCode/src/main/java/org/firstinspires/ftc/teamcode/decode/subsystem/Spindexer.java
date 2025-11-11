@@ -66,6 +66,21 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         }
     }
 
+    public enum Motif {
+        GPP(PI/6),
+        PGP(PI),
+        PPG(-PI/6);
+
+        /**
+         * Where to move our green artifact (the one inside the spindexer) to
+         */
+        private final double greenArtifactRadians;
+
+        Motif(double greenArtifactRadians) {
+            this.greenArtifactRadians = greenArtifactRadians;
+        }
+    }
+
     // hardware
     private final ColorSensor colorSensor;
     private final AnalogEncoder encoder;
@@ -185,12 +200,6 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
             }
         return index;
     }
-
-    /**
-     * Where to move the green artifact inside the spindexer to <br>
-     * Query this with the index of the green artifact in the randomized motif (GPP = 0, PGP = 1, PPG = 2)
-     */
-    private static final double[] greenIndexToTargetRadians = {PI/6, PI, -PI/6};
 
     public void printTelemetry() {
         telemetry.addLine(colorSensor.hsv.toString(String.format("Spindexer Color Sensor [%s]", Artifact.fromHSV(colorSensor.hsv))));
