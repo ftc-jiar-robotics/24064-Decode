@@ -148,7 +148,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
      * @param slot          Slot you want to move
      * @param targetRadians Where you want to move it to
      */
-    private void setPIDTarget(int slot, double targetRadians) {
+    private void runPID(int slot, double targetRadians) {
         double setpoint = currentSlot0Radians + getError(slot, targetRadians);
 
         controller.setTarget(new org.firstinspires.ftc.teamcode.decode.control.motion.State(setpoint));
