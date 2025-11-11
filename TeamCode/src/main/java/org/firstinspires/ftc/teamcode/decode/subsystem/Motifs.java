@@ -158,7 +158,7 @@ public class Motifs {
     /**
      * @param effectiveMotif    THIS MUST BE THE LATEST OUTPUT FROM randomization.getEffectiveMotif(classifierState)
      * @param spindexerSlots    Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
-     * @return                  Instructions for spindexer to score artifacts in the correct order
+     * @return                  Instructions for spindexer to score artifacts in the correct order, {@link null} if we don't have the artifacts needed for the motif
      */
     public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact... spindexerSlots) {
 
