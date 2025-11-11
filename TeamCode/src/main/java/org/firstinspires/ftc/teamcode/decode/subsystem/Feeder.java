@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
+import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
@@ -18,7 +18,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     private FeederStates currentState = FeederStates.OFF;
 
-    private float gain = 1; //TODO: change gain
+    public static float GAIN = 1.0f;
 
 
     public enum FeederStates {
@@ -29,7 +29,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public Feeder(HardwareMap hw) {
         feederFront = hw.get(CRServo.class, Common.NAME_FEEDER_FRONT_SERVO);
         feederBack = hw.get(CRServo.class, Common.NAME_FEEDER_BACK_SERVO);
-        this.colorSensor = new ColorSensor(hw, Common.NAME_FEEDER_COLOR_SENSOR, gain);
+        this.colorSensor = new ColorSensor(hw, Common.NAME_FEEDER_COLOR_SENSOR, GAIN);
 
         feederFront.setDirection(DcMotorSimple.Direction.REVERSE);
     }
@@ -48,7 +48,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     }
 
     public Robot.ArtifactColor getColor() {
-        return Robot.getColor(colorSensor);
+        return Robot.getColor(colorSensor, true);
     }
 
     @Override
@@ -61,8 +61,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         double[] ordinal = feederPowers[currentState.ordinal()];
         feederFront.setPower(ordinal[0]);
         feederBack.setPower(ordinal[1]);
-
-        colorSensor.update();
+        if ((LoopUtil.getLoops() & Common.COLOR_SENSOR_UPDATE_LOOPS) == 0)
+            colorSensor.update();
     }
 
     public void printTelemetry() {

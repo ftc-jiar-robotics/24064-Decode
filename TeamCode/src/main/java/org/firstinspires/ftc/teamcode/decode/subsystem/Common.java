@@ -66,14 +66,25 @@ public final class Common {
     public static double TIME_TO_SHOOT = 0.2;
     public static final int
             BLUE_GOAL_ID = 20,
-            RED_GOAL_ID  = 24;
+            RED_GOAL_ID  = 24,
+            COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 
 
     public static HSV
-            GREEN_MIN = new HSV(145, 0.5, 0.0),
-            GREEN_MAX = new HSV(160, 0.7, 2.0),
-            PURPLE_MIN = new HSV(180, 0.3, 0.0),
-            PURPLE_MAX = new HSV(230, 0.45, 2.0);
+            GREEN_MIN_REV = new HSV(145, 0.5, 0.0),
+            GREEN_MAX_REV = new HSV(160, 0.7, 2.0),
+            PURPLE_MIN_REV = new HSV(180, 0.3, 0.0),
+            PURPLE_MAX_REV = new HSV(230, 0.45, 2.0);
+
+
+
+    public static HSV
+            GREEN_MIN_CR = new HSV(55, 0.5, 0.0),
+            GREEN_MAX_CR = new HSV(90, 0.77, 2.0),
+            PURPLE_MIN_CR = new HSV(44.3, 0.45, 0.0),
+            PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0);
+
+
 
     public static Robot robot;
 

@@ -34,6 +34,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
+import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
 @TeleOp(name = "Main TeleOp", group = "24064")
 public class MainTeleOp extends LinearOpMode {
@@ -72,7 +73,7 @@ public class MainTeleOp extends LinearOpMode {
 
         waitForStart();
 
-        if (!isRed) AUTO_END_POSE = AUTO_END_POSE.mirror().setHeading(isBigTriangle ? 270 : 90);
+        if (!isRed) AUTO_END_POSE = AUTO_END_POSE.mirror().setHeading(isBigTriangle ? (3.0 * Math.PI) / 2.0 : Math.PI / 2.0);
 
         robot.drivetrain.setStartingPose(AUTO_END_POSE);
 
@@ -106,7 +107,8 @@ public class MainTeleOp extends LinearOpMode {
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
             double trigger2 = gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
-            if (robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING) isSlowMode = true;
+            if (robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING)
+                isSlowMode = true;
             else isSlowMode = false;
 
             robot.intake.set(trigger1, false);
@@ -118,21 +120,28 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             }
 
+            if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
+            if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
+            if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
             if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.drivetrain.setPose(AUTO_END_POSE);
 
             boolean inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
+            // if Intake see's one queue 3 shots,
+            // However if feeder see's smthn but intake doesn't then queue 1 shot
+            // TODO Make this an action
             if (inTriangle) {
                 Robot.ArtifactColor intakeColor = robot.intake.getColor();
                 Robot.ArtifactColor feederColor = robot.shooter.getColor();
-                 Robot.ArtifactColor color = intakeColor != Robot.ArtifactColor.NONE ? intakeColor : feederColor;
+                Robot.ArtifactColor color = intakeColor != Robot.ArtifactColor.NONE ? intakeColor : feederColor;
                 if (color != Robot.ArtifactColor.NONE) {
                     int shots = (color == intakeColor) ? 3 : 1;
                     if (robot.shooter.getQueuedShots() == 0)
                         robot.shooter.setQueuedShots(storedShots == 0 ? shots : storedShots);
-                    if (robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING)
-                        robot.intake.set(0.85, true);
+
                 }
+                if ((robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) && robot.shooter.getQueuedShots() > 0)
+                    robot.intake.set(0.85, true);
             } else if (lastInTriangle) {
                 storedShots = robot.shooter.getQueuedShots();
                 robot.shooter.clearQueueShots();

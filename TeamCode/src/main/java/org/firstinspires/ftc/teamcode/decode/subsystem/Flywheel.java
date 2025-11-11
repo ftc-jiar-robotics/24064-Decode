@@ -67,7 +67,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             DERIV_TOLERANCE = 200,
             MOTOR_RPM_SETTLE_TIME_SHOOT = 0.95,
             MOTOR_RPM_SETTLE_TIME_IDLE = 1.25 ,
-            IDLE_RPM = 2200,
+            IDLE_RPM = 1200,
             MAX_RPM = 4800,
             VOLTAGE_SCALER = 0.99;
 

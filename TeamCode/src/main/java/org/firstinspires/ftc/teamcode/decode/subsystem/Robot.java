@@ -9,8 +9,8 @@ import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
+import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
@@ -71,9 +71,14 @@ public final class Robot {
         bulkReader.bulkRead();
     }
 
-    public static Robot.ArtifactColor getColor(ColorSensor colorSensor) {
-        if (colorSensor.hsv.inRange(Common.GREEN_MIN, Common.GREEN_MAX)) return Robot.ArtifactColor.GREEN;
-        else if (colorSensor.hsv.inRange(Common.PURPLE_MIN, Common.PURPLE_MAX)) return Robot.ArtifactColor.PURPLE;
+    public static Robot.ArtifactColor getColor(ColorSensor colorSensor, boolean isRev) {
+        HSV minGreen = isRev ? Common.GREEN_MIN_REV : Common.GREEN_MIN_CR;
+        HSV maxGreen = isRev ? Common.GREEN_MAX_REV : Common.GREEN_MAX_CR;
+        HSV minPurple = isRev ? Common.PURPLE_MIN_REV : Common.PURPLE_MIN_CR;
+        HSV maxPurple = isRev ? Common.PURPLE_MAX_REV : Common.PURPLE_MAX_CR;
+
+        if (colorSensor.hsv.inRange(minGreen, maxGreen)) return Robot.ArtifactColor.GREEN;
+        else if (colorSensor.hsv.inRange(minPurple, maxPurple)) return Robot.ArtifactColor.PURPLE;
         else return Robot.ArtifactColor.NONE;
     }
     // Runs all the necessary mechanisms
@@ -93,7 +98,10 @@ public final class Robot {
 
     // Prints data on the driver hub for debugging and other uses
     public void printTelemetry() {
-        if (isTelemetryOn) shooter.printTelemetry();
+        if (isTelemetryOn) {
+            shooter.printTelemetry();
+            intake.printTelemetry();
+        }
         Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
         Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
         Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
