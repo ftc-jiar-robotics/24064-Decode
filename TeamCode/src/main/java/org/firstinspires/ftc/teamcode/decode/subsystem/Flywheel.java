@@ -163,14 +163,14 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 break;
             case ARMING:
                 velocityController.setGains(shootingVelocityGains);
-                chooseShootingRPM();
-                velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+                chooseShootingRPM(robot.shooter.turret.getDistance());
+
                 if (isPIDInTolerance()) {
                     targetState = FlyWheelStates.RUNNING;
                 }
                 break;
             case RUNNING:
-                chooseShootingRPM();
+                chooseShootingRPM(robot.shooter.turret.getDistance());
                 break;
         }
 
@@ -198,11 +198,13 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
     }
 
-    private void chooseShootingRPM() {
-        shootingRPM = lutRPM[0];
-        for (int i = 0; i < lutDistances.length; i++) {
-            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
-        }
+    private void chooseShootingRPM(double distance) {
+//        shootingRPM = lutRPM[0];
+//        for (int i = 0; i < lutDistances.length; i++) {
+//            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
+//        }
+
+        shootingRPM = (-0.08913 * (distance * distance)) + (33.68 * distance) + 906.3;
     }
 
 

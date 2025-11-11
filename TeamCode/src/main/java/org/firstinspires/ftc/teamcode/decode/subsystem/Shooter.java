@@ -106,6 +106,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.set(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
     }
 
+
     @Override
     public void run() {
         didCurrentDrop = flywheel.didRPMSpike();
@@ -154,6 +155,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
                 break;
         }
+
 
         if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
