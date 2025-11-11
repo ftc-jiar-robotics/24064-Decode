@@ -82,12 +82,13 @@ public class Motifs {
         }
 
         public static Motif fromArray(Artifact... artifacts) {
-            assert artifacts.length == 3;
+            assert artifacts.length == motifs.length;
             return fromGreenIndex(indexOf(GREEN, artifacts));
         }
 
         public static Motif fromGreenIndex(int greenIndex) {
-            return motifs[(greenIndex % 3 + 3) % 3];
+            int length = motifs.length;
+            return motifs[(greenIndex % length + length) % length];
         }
 
         public static Motif fromAprilTag(AprilTagDetection tag) {
@@ -103,7 +104,7 @@ public class Motifs {
             int i = indexOf(EMPTY, classifierRamp);
             if (i == -1) return null;
 
-            return Motif.fromGreenIndex((getGreenIndex() - i) % 3);
+            return Motif.fromGreenIndex((getGreenIndex() - i) % motifs.length);
         }
     }
 
@@ -162,8 +163,8 @@ public class Motifs {
         // we don't have the first color needed, continue intaking
         if (firstArtifactIndex == -1) return null;
 
-        Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % 3];
-        Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % 3];
+        Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % spindexerSlots.length];
+        Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % spindexerSlots.length];
 
         // if the next artifact (clockwise from the first one) is NOT the  next motif color,
         // and the third IS the next motif color, run the spindexer the other way
