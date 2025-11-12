@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.EMPTY;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.GREEN;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.PURPLE;
-import static java.lang.Math.PI;
 
 import com.bylazar.configurables.annotations.Configurable;
 
@@ -80,19 +79,6 @@ public class Motifs {
             this.a2 = a2;
         }
 
-        public Artifact[] toArray() {
-            return new Artifact[]{a0, a1, a2};
-        }
-
-        public int getGreenIndex() {
-            return ordinal();
-        }
-
-        public static Motif fromArray(Artifact... artifacts) {
-            assert artifacts.length == 3;
-            return fromGreenIndex(GREEN.indexIn(artifacts));
-        }
-
         /**
          * APRIL TAG IDs (21 22 23) CAN BE PASSED DIRECTLY TO THIS
          * @param greenIndex    Index of the green artifact in the motif GPP = 0, PGP = 1, PPG = 2
@@ -112,7 +98,7 @@ public class Motifs {
             int i = EMPTY.indexIn(classifierRamp);
             if (i == -1) return null;
 
-            return Motif.fromGreenIndex((getGreenIndex() - i) % motifs.length);
+            return Motif.fromGreenIndex((ordinal() - i) % motifs.length);
         }
     }
 
