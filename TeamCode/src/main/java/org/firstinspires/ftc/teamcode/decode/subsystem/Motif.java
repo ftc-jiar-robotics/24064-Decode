@@ -92,7 +92,7 @@ public enum Motif {
 
         return 
                 spindexerSlots[secondArtifactIndex] != second ?
-                        allowOneWrong ?
+                        allowOneWrong && spindexerSlots[thirdArtifactIndex] == third ?
                                 new int[]{firstArtifactIndex, secondArtifactIndex, thirdArtifactIndex} :
                                 new int[]{firstArtifactIndex} :
                         spindexerSlots[thirdArtifactIndex] != third && !allowOneWrong ?
