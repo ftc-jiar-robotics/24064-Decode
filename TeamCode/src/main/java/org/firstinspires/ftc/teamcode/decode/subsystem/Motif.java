@@ -37,6 +37,7 @@ public enum Motif {
      * @return                  The motif pattern to score, {@link null} if classifier is full
      */
     public Motif getEffectiveMotif(Artifact... classifierRamp) {
+        assert classifierRamp.length == 9;
 
         int i = Artifact.EMPTY.firstOccurrenceIn(classifierRamp);
         if (i == -1) return null;
@@ -49,6 +50,7 @@ public enum Motif {
      * @return The order to score the artifacts in the spindexer
      */
     public int[] getScoringOrder(Artifact... spindexerSlots) {
+        assert spindexerSlots.length == 3;
 
         int firstArtifactIndex = first.firstOccurrenceIn(spindexerSlots);
 
