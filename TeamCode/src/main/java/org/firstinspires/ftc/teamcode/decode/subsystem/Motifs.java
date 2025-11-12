@@ -9,9 +9,9 @@ import com.bylazar.configurables.annotations.Configurable;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 
 @Configurable
-public class Motifs {
+public final class Motifs {
 
-    public static HSV
+    public static final HSV
             minPurple = new HSV(
                     205,
                     0.55,
@@ -102,7 +102,7 @@ public class Motifs {
         }
     }
 
-    public static class ScoringInstructions {
+    public static final class ScoringInstructions {
 
         /**
          * Run spindexer counter-clockwise (CCW) when scoring motif
