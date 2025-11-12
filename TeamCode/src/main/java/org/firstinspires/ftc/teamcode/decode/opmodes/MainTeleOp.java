@@ -15,6 +15,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
@@ -85,7 +86,7 @@ public class MainTeleOp extends LinearOpMode {
             gamepadEx1.readButtons();
             gamepadEx2.readButtons();
 
-            if (isSlowMode) robot.drivetrain.setMaxPowerScaling(0.35);
+            if (isSlowMode) robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
             else robot.drivetrain.setMaxPowerScaling(1);
 
             if (isRed) {

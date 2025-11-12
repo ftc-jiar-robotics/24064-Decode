@@ -36,9 +36,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
     public static PIDGains odoPIDGains = new PIDGains(
-            0.033,
-            0.008,
-            0.001,
+            0.006,
+            0.0004,
+            0.00003,
             Double.POSITIVE_INFINITY
     );
 

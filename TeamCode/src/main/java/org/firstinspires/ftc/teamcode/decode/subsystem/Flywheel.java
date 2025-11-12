@@ -35,9 +35,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.000005,
+            0.0005,
             0.0,
-            0.000002,
+            0.00025,
             Double.POSITIVE_INFINITY
     );
 
@@ -176,20 +176,19 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
-        if (lastTarget != shootingRPM) {
-            currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
-            startPIDDisable = (double) System.nanoTime() / 1E9;
-        }
+        currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
+        currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
+//        startPIDDisable = (double) System.nanoTime() / 1E9;
 
-        lastTarget = shootingRPM;
+//        lastTarget = shootingRPM;
 
-        calculatedPower = velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
-        double currentPowerPre = currentPower;
+//        calculatedPower = velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
+//        double currentPowerPre = currentPower;
 
-        if ((double) System.nanoTime() / 1E9 > startPIDDisable + settleTime) currentPowerPre += calculatedPower;
-        else velocityController.reset();
+//        if ((double) System.nanoTime() / 1E9 > startPIDDisable + settleTime) currentPowerPre += calculatedPower;
+//        else velocityController.reset();
 
-        currentPower = (MOTOR_POWER_GAIN * currentPowerPre) + (1 - MOTOR_POWER_GAIN) * currentPower;
+//        currentPower = (MOTOR_POWER_GAIN * currentPowerPre) + (1 - MOTOR_POWER_GAIN) * currentPower;
 
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 
