@@ -62,20 +62,20 @@ public enum Motif {
      * @param spindexerSlots Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
      * @return How many more artifacts to score after the first one (Can be 0, 1, or 2)
      */
-    public int numAdditionalArtifacts(boolean scoringCounterClockwise, int firstArtifactIndex, Artifact... spindexerSlots) {
+    public int numAdditionalArtifacts(int firstArtifactIndex, Artifact... spindexerSlots) {
         int length = spindexerSlots.length;
         Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % length];
         Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % length];
-        if (scoringCounterClockwise)
-            thirdArtifact = secondArtifact;
+        boolean scoringCounterClockwise = scoreCounterClockwise(firstArtifactIndex, spindexerSlots);
 
-        return scoringCounterClockwise || secondArtifact == second ? thirdArtifact == third ? 2 : 1 : 0;
+        return scoringCounterClockwise || secondArtifact == second ?
+            (scoringCounterClockwise ? secondArtifact : thirdArtifact) == third ? 2 : 1 : 0;
     }
 
     public String scoringInstructions(int firstArtifactIndex, Artifact... spindexerSlots) {
         if (firstArtifactIndex == -1) return "Continue intaking";
         boolean counterClockwise = scoreCounterClockwise(firstArtifactIndex, spindexerSlots);
-        int additionalArtifacts = numAdditionalArtifacts(counterClockwise, firstArtifactIndex, spindexerSlots);
+        int additionalArtifacts = numAdditionalArtifacts(firstArtifactIndex, spindexerSlots);
         return "Score slot " + firstArtifactIndex + " artifact" + (additionalArtifacts == 0 ? "" : " first, then score " + additionalArtifacts + " more artifact" + (additionalArtifacts == 1 ? "" : "s") + " by rotating " + (counterClockwise ? "CCW" : "CW"));
     }
 
