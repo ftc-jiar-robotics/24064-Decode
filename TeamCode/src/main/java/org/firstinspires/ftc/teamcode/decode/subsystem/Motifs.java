@@ -105,54 +105,42 @@ public final class Motifs {
 
             return Motif.fromGreenIndex((ordinal() - i) % motifs.length);
         }
-    }
-
-    /**
-     * Instructions for spindexer to score artifacts in the correct order <br>
-     * {@link #firstArtifactIndex} will be -1 if we don't have the artifacts needed for the motif
-     */
-    public static final class ScoringInstructions {
 
         /**
-         * Run spindexer counter-clockwise (CCW) when scoring motif
+         * @param firstArtifactIndex Spindexer slot index of the first artifact to score
+         * @param spindexerSlots Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
+         * @return Run spindexer counter-clockwise (CCW) when scoring motif
          */
-        public final boolean counterClockwise;
-
-        /**
-         * Spindexer slot index of the first artifact to score
-         */
-        public final int firstArtifactIndex;
-
-        /**
-         * How many more artifacts to score after the first one ({@link #firstArtifactIndex}) <br>
-         * Can be 0, 1, or 2
-         */
-        public final int additionalArtifacts;
-
-        /**
-         * @param effectiveMotif    THIS MUST BE THE LATEST OUTPUT FROM randomization.getEffectiveMotif(classifierState)
-         * @param spindexerSlots    Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
-         */
-        public ScoringInstructions(Motif effectiveMotif, Artifact... spindexerSlots) {
-
-            // find index of first artifact color needed for motif
-            firstArtifactIndex = effectiveMotif.first.firstOccurrenceIn(spindexerSlots);
-
-            Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % spindexerSlots.length];
-            Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % spindexerSlots.length];
+        public boolean scoreCounterClockwise(int firstArtifactIndex, Artifact... spindexerSlots) {
+            int length = spindexerSlots.length;
+            Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % length];
+            Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % length];
 
             // if the next artifact (clockwise from the first one) is NOT the  next motif color,
             // and the third IS the next motif color, run the spindexer the other way
-            boolean correctSecondArtifact = secondArtifact == effectiveMotif.second;
-            counterClockwise = !correctSecondArtifact && thirdArtifact == effectiveMotif.second;
-            if (counterClockwise)
-                thirdArtifact = secondArtifact;
-
-            additionalArtifacts = counterClockwise || correctSecondArtifact ? thirdArtifact == effectiveMotif.third ? 2 : 1 : 0;
+            return secondArtifact != second && thirdArtifact == second;
         }
 
-        @NonNull
-        public String toString() {
+        /**
+         * @param scoringCounterClockwise Running spindexer counter-clockwise (CCW) when scoring motif
+         * @param firstArtifactIndex Spindexer slot index of the first artifact to score
+         * @param spindexerSlots Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
+         * @return How many more artifacts to score after the first one (Can be 0, 1, or 2)
+         */
+        public int numAdditionalArtifacts(boolean scoringCounterClockwise, int firstArtifactIndex, Artifact... spindexerSlots) {
+            int length = spindexerSlots.length;
+            Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % length];
+            Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % length];
+            if (scoringCounterClockwise)
+                thirdArtifact = secondArtifact;
+
+            return scoringCounterClockwise || secondArtifact == second ? thirdArtifact == third ? 2 : 1 : 0;
+        }
+
+        public String scoringInstructions(int firstArtifactIndex, Artifact... spindexerSlots) {
+            if (firstArtifactIndex == -1) return "Continue intaking";
+            boolean counterClockwise = scoreCounterClockwise(firstArtifactIndex, spindexerSlots);
+            int additionalArtifacts = numAdditionalArtifacts(counterClockwise, firstArtifactIndex, spindexerSlots);
             return "Score slot " + firstArtifactIndex + " artifact" + (additionalArtifacts == 0 ? "" : " first, then score " + additionalArtifacts + " more artifact" + (additionalArtifacts == 1 ? "" : "s") + " by rotating " + (counterClockwise ? "CCW" : "CW"));
         }
     }
@@ -160,13 +148,17 @@ public final class Motifs {
     public static void main(String[] args) {
         Artifact[] artifacts = Artifact.values();
 
-        for (Motif m : Motif.motifs)
+        for (Motif motif : Motif.motifs)
             for (Artifact first : artifacts)
                 for (Artifact second : artifacts)
-                    for (Artifact third : artifacts)
-                        System.out.println("Motif: " + m + ", Spindexer: " + first.name().charAt(0) + second.name().charAt(0) + third.name().charAt(0) + " --> " + new Motifs.ScoringInstructions(
-                                m,
-                                first, second, third
-                        ));
+                    for (Artifact third : artifacts) {
+                        char
+                                c1 = first.name().charAt(0),
+                                c2 = second.name().charAt(0),
+                                c3 = third.name().charAt(0);
+                        int firstArtifactIndex = motif.first.firstOccurrenceIn(first, second, third);
+                        System.out.println("Motif: " + motif + ", Spindexer: " + (c1 == 'E' ? '_' : c1) + (c2 == 'E' ? '_' : c2) + (c3 == 'E' ? '_' : c3) + " --> " +
+                                motif.scoringInstructions(firstArtifactIndex, first, second, third));
+                    }
     }
 }
