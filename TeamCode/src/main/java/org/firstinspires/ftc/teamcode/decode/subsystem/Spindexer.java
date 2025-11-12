@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.EMPTY;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Artifact.EMPTY;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.toRadians;
@@ -41,7 +41,7 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
     private final PIDController controller = new PIDController();
 
     // spindexer state
-    private final Motifs.Artifact[] slots = {EMPTY, EMPTY, EMPTY};
+    private final Artifact[] slots = {EMPTY, EMPTY, EMPTY};
     private double currentSlot0Radians = 0; // physical position of slot 0
     private double currentSlotRadians(int slot) {
         return currentSlot0Radians + slot * 2 * PI / 3.0;
@@ -131,11 +131,11 @@ public final class Spindexer extends Subsystem<Spindexer.State> {
         else return;
 
         colorSensor.update();
-        slots[slot] = Motifs.Artifact.fromHSV(colorSensor.hsv);
+        slots[slot] = Artifact.fromHSV(colorSensor.hsv);
     }
 
     public void printTelemetry() {
-        telemetry.addLine(colorSensor.hsv.toString(String.format("Spindexer Color Sensor [%s]", Motifs.Artifact.fromHSV(colorSensor.hsv))));
+        telemetry.addLine(colorSensor.hsv.toString(String.format("Spindexer Color Sensor [%s]", Artifact.fromHSV(colorSensor.hsv))));
     }
 
 
