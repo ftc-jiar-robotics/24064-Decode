@@ -19,14 +19,17 @@ public enum Motif {
         this.third = third;
     }
 
+    private static int wrap(int n, int max) {
+        return (n % max + max) % max;
+    }
+
     /**
      * APRIL TAG IDs (21 22 23) CAN BE PASSED DIRECTLY TO THIS
      * @param greenIndex    Index of the green artifact in the motif GPP = 0, PGP = 1, PPG = 2
      * @return              The {@link Motif} that has a green artifact in the specified position
      */
     public static Motif fromGreenIndex(int greenIndex) {
-        int length = motifs.length;
-        return motifs[(greenIndex % length + length) % length];
+        return motifs[wrap(greenIndex, motifs.length)];
     }
 
     /**
@@ -54,8 +57,8 @@ public enum Motif {
 
         int 
                 length = spindexerSlots.length,
-                secondArtifactIndex = (firstArtifactIndex + 1) % length,
-                thirdArtifactIndex = (firstArtifactIndex + 2) % length;
+                secondArtifactIndex = wrap(firstArtifactIndex + 1, length),
+                thirdArtifactIndex = wrap(firstArtifactIndex + 2, length);
 
         if (spindexerSlots[secondArtifactIndex] != second && spindexerSlots[thirdArtifactIndex] == second) {
             int temp = secondArtifactIndex;
