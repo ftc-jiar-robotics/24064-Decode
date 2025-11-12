@@ -48,7 +48,7 @@ public final class Motifs {
         }
 
         /**
-         * @return The number times this artifact color appears in the provided array
+         * @return The number of times this artifact color appears in the provided array
          */
         public int countOccurrencesIn(Artifact... artifacts) {
             int count = 0;
