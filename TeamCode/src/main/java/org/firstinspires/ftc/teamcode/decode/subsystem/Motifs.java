@@ -45,6 +45,24 @@ public class Motifs {
                     hsv.between(minGreen, maxGreen) ? GREEN :
                     EMPTY;
         }
+
+        public int countIn(Artifact... artifacts) {
+            int count = 0;
+            for (Artifact slot : artifacts)
+                if (slot == this)
+                    count++;
+            return count;
+        }
+
+        public int indexIn(Artifact... artifacts) {
+            int index = -1, length = artifacts.length;
+            for (int i = 0; i < length; i++)
+                if (artifacts[i] == this) {
+                    index = i;
+                    break;
+                }
+            return index;
+        }
     }
 
     public enum Motif {
@@ -78,7 +96,7 @@ public class Motifs {
 
         public static Motif fromArray(Artifact... artifacts) {
             assert artifacts.length == motifs.length;
-            return fromGreenIndex(indexOf(GREEN, artifacts));
+            return fromGreenIndex(GREEN.indexIn(artifacts));
         }
 
         /**
@@ -97,7 +115,7 @@ public class Motifs {
          */
         public Motif getEffectiveMotif(Artifact... classifierRamp) {
 
-            int i = indexOf(EMPTY, classifierRamp);
+            int i = EMPTY.indexIn(classifierRamp);
             if (i == -1) return null;
 
             return Motif.fromGreenIndex((getGreenIndex() - i) % motifs.length);
@@ -137,24 +155,6 @@ public class Motifs {
         }
     }
 
-    public static int countOf(Artifact color, Artifact... artifacts) {
-        int count = 0;
-        for (Artifact slot : artifacts)
-            if (slot == color)
-                count++;
-        return count;
-    }
-
-    public static int indexOf(Artifact color, Artifact... artifacts) {
-        int index = -1, length = artifacts.length;
-        for (int i = 0; i < length; i++)
-            if (artifacts[i] == color) {
-                index = i;
-                break;
-            }
-        return index;
-    }
-
     /**
      * @param effectiveMotif    THIS MUST BE THE LATEST OUTPUT FROM randomization.getEffectiveMotif(classifierState)
      * @param spindexerSlots    Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
@@ -163,7 +163,7 @@ public class Motifs {
     public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact... spindexerSlots) {
 
         // find index of first artifact color needed for motif
-        int firstArtifactIndex = indexOf(effectiveMotif.a0, spindexerSlots);
+        int firstArtifactIndex = effectiveMotif.a0.indexIn(spindexerSlots);
 
         // we don't have the first color needed, continue intaking
         if (firstArtifactIndex == -1)
