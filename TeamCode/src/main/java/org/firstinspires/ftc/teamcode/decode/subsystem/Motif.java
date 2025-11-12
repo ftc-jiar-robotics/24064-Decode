@@ -38,7 +38,7 @@ public enum Motif {
         int i = Artifact.EMPTY.firstOccurrenceIn(classifierRamp);
         if (i == -1) return null;
 
-        return Motif.fromGreenIndex((ordinal() - i) % motifs.length);
+        return Motif.fromGreenIndex(ordinal() - i);
     }
 
     /**
