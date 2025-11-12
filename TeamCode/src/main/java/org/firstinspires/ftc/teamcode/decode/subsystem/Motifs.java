@@ -89,7 +89,7 @@ public class Motifs {
         }
 
         public static Motif fromArray(Artifact... artifacts) {
-            assert artifacts.length == motifs.length;
+            assert artifacts.length == 3;
             return fromGreenIndex(GREEN.indexIn(artifacts));
         }
 
