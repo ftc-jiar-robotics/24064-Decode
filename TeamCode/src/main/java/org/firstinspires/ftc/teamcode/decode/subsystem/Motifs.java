@@ -66,21 +66,15 @@ public class Motifs {
     }
 
     public enum Motif {
-        GPP(PI / 6,     GREEN, PURPLE, PURPLE),
-        PGP(PI,         PURPLE, GREEN, PURPLE),
-        PPG(-PI / 6,    PURPLE, PURPLE, GREEN);
-
-        /**
-         * Where to move our green artifact (the one inside the spindexer) to
-         */
-        public final double greenArtifactRadians;
+        GPP(GREEN, PURPLE, PURPLE),
+        PGP(PURPLE, GREEN, PURPLE),
+        PPG(PURPLE, PURPLE, GREEN);
 
         public final Artifact a0, a1, a2;
 
         private static final Motif[] motifs = values();
 
-        Motif(double greenArtifactRadians, Artifact a0, Artifact a1, Artifact a2) {
-            this.greenArtifactRadians = greenArtifactRadians;
+        Motif(Artifact a0, Artifact a1, Artifact a2) {
             this.a0 = a0;
             this.a1 = a1;
             this.a2 = a2;
