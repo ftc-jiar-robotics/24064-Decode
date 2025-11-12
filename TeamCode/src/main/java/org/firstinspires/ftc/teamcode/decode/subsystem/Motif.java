@@ -50,7 +50,7 @@ public enum Motif {
         int firstArtifactIndex = first.firstOccurrenceIn(spindexerSlots);
 
         if (firstArtifactIndex == -1)
-            return null;
+            return new int[]{};
 
         int 
                 length = spindexerSlots.length,
@@ -74,15 +74,15 @@ public enum Motif {
 
     public String getScoringInstructions(Artifact... spindexerSlots) {
         int[] scoringOrder = getScoringOrder(spindexerSlots);
-        if (scoringOrder == null) 
+        if (scoringOrder.length == 0)
             return "Continue intaking";
-        String s = "Score ";
+        StringBuilder s = new StringBuilder(String.format("Score slot%s ", scoringOrder.length > 1 ? "s" : ""));
+        for (int k : scoringOrder)
+            s.append(k).append(" ");
+        s.append("(");
         for (int i : scoringOrder)
-            s += i;
-        s += " = "
-        for (int i : scoringOrder)
-            s += spindexerSlots[i];
-        return s;
+            s.append(spindexerSlots[i].name().charAt(0));
+        return s.toString() + ')';
     }
 
     public static void main(String[] args) {
