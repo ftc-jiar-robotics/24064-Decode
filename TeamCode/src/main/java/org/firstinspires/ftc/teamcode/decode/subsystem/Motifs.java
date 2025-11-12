@@ -4,6 +4,8 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.EM
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.GREEN;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Motifs.Artifact.PURPLE;
 
+import androidx.annotation.NonNull;
+
 import com.bylazar.configurables.annotations.Configurable;
 
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
@@ -102,6 +104,10 @@ public final class Motifs {
         }
     }
 
+    /**
+     * Instructions for spindexer to score artifacts in the correct order <br>
+     * {@link #firstArtifactIndex} will be -1 if we don't have the artifacts needed for the motif
+     */
     public static final class ScoringInstructions {
 
         /**
@@ -120,50 +126,32 @@ public final class Motifs {
          */
         public final int additionalArtifacts;
 
-        private ScoringInstructions(
-                boolean counterClockwise,
-                int firstArtifactIndex,
-                int additionalArtifacts
-        ) {
-            this.counterClockwise = counterClockwise;
-            this.firstArtifactIndex = firstArtifactIndex;
-            this.additionalArtifacts = additionalArtifacts;
+        /**
+         * @param effectiveMotif    THIS MUST BE THE LATEST OUTPUT FROM randomization.getEffectiveMotif(classifierState)
+         * @param spindexerSlots    Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
+         */
+        public ScoringInstructions(Motif effectiveMotif, Artifact... spindexerSlots) {
+
+            // find index of first artifact color needed for motif
+            firstArtifactIndex = effectiveMotif.first.indexIn(spindexerSlots);
+
+            Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % spindexerSlots.length];
+            Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % spindexerSlots.length];
+
+            // if the next artifact (clockwise from the first one) is NOT the  next motif color,
+            // and the third IS the next motif color, run the spindexer the other way
+            boolean correctSecondArtifact = secondArtifact == effectiveMotif.second;
+            counterClockwise = !correctSecondArtifact && thirdArtifact == effectiveMotif.second;
+            if (counterClockwise)
+                thirdArtifact = secondArtifact;
+
+            additionalArtifacts = counterClockwise || correctSecondArtifact ? thirdArtifact == effectiveMotif.third ? 2 : 1 : 0;
         }
 
+        @NonNull
         public String toString() {
             return "Score slot " + firstArtifactIndex + " artifact" + (additionalArtifacts == 0 ? "" : " first, then score " + additionalArtifacts + " more artifact" + (additionalArtifacts == 1 ? "" : "s") + " by rotating " + (counterClockwise ? "CCW" : "CW"));
         }
-    }
-
-    /**
-     * @param effectiveMotif    THIS MUST BE THE LATEST OUTPUT FROM randomization.getEffectiveMotif(classifierState)
-     * @param spindexerSlots    Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
-     * @return                  Instructions for spindexer to score artifacts in the correct order, {@link null} if we don't have the artifacts needed for the motif
-     */
-    public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact... spindexerSlots) {
-
-        // find index of first artifact color needed for motif
-        int firstArtifactIndex = effectiveMotif.first.indexIn(spindexerSlots);
-
-        // we don't have the first color needed, continue intaking
-        if (firstArtifactIndex == -1)
-            return null;
-
-        Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % spindexerSlots.length];
-        Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % spindexerSlots.length];
-
-        // if the next artifact (clockwise from the first one) is NOT the  next motif color,
-        // and the third IS the next motif color, run the spindexer the other way
-        boolean correctSecondArtifact = secondArtifact == effectiveMotif.second;
-        boolean counterClockwise = !correctSecondArtifact && thirdArtifact == effectiveMotif.second;
-        if (counterClockwise)
-            thirdArtifact = secondArtifact;
-
-        return new ScoringInstructions(
-                counterClockwise,
-                firstArtifactIndex,
-                counterClockwise || correctSecondArtifact ? thirdArtifact == effectiveMotif.third ? 2 : 1 : 0
-        );
     }
 
     public static void main(String[] args) {
@@ -173,7 +161,7 @@ public final class Motifs {
             for (Artifact first : artifacts)
                 for (Artifact second : artifacts)
                     for (Artifact third : artifacts)
-                        System.out.println("Motif: " + m + ", Spindexer: " + first.name().charAt(0) + second.name().charAt(0) + third.name().charAt(0) + " --> " + getScoringInstructions(
+                        System.out.println("Motif: " + m + ", Spindexer: " + first.name().charAt(0) + second.name().charAt(0) + third.name().charAt(0) + " --> " + new Motifs.ScoringInstructions(
                                 m,
                                 first, second, third
                         ));
