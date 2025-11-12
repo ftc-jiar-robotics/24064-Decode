@@ -47,22 +47,25 @@ public final class Motifs {
                     EMPTY;
         }
 
-        public int countIn(Artifact... artifacts) {
+        /**
+         * @return The number times this artifact color appears in the provided array
+         */
+        public int countOccurrencesIn(Artifact... artifacts) {
             int count = 0;
-            for (Artifact slot : artifacts)
-                if (slot == this)
+            for (Artifact artifact : artifacts)
+                if (artifact == this)
                     count++;
             return count;
         }
 
-        public int indexIn(Artifact... artifacts) {
-            int index = -1, length = artifacts.length;
-            for (int i = 0; i < length; i++)
-                if (artifacts[i] == this) {
-                    index = i;
-                    break;
-                }
-            return index;
+        /**
+         * @return The index of the first occurrence of this artifact color in the provided array, -1 if no occurrences
+         */
+        public int firstOccurrenceIn(Artifact... artifacts) {
+            for (int i = 0; i < artifacts.length; i++)
+                if (artifacts[i] == this)
+                    return i;
+            return -1;
         }
     }
 
@@ -97,7 +100,7 @@ public final class Motifs {
          */
         public Motif getEffectiveMotif(Artifact... classifierRamp) {
 
-            int i = EMPTY.indexIn(classifierRamp);
+            int i = EMPTY.firstOccurrenceIn(classifierRamp);
             if (i == -1) return null;
 
             return Motif.fromGreenIndex((ordinal() - i) % motifs.length);
@@ -133,7 +136,7 @@ public final class Motifs {
         public ScoringInstructions(Motif effectiveMotif, Artifact... spindexerSlots) {
 
             // find index of first artifact color needed for motif
-            firstArtifactIndex = effectiveMotif.first.indexIn(spindexerSlots);
+            firstArtifactIndex = effectiveMotif.first.firstOccurrenceIn(spindexerSlots);
 
             Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % spindexerSlots.length];
             Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % spindexerSlots.length];
