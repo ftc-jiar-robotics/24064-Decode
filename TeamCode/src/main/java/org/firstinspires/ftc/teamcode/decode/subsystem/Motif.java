@@ -72,7 +72,7 @@ public enum Motif {
         ;
     }
 
-    public String scoringInstructions(int firstArtifactIndex, Artifact... spindexerSlots) {
+    public String getScoringInstructions(Artifact... spindexerSlots) {
         int[] scoringOrder = getScoringOrder(spindexerSlots);
         if (scoringOrder == null) 
             return "Continue intaking";
@@ -97,7 +97,7 @@ public enum Motif {
                                 c2 = second.name().charAt(0),
                                 c3 = third.name().charAt(0);
                         System.out.println("Motif: " + motif + ", Spindexer: " + (c1 == 'E' ? '_' : c1) + (c2 == 'E' ? '_' : c2) + (c3 == 'E' ? '_' : c3) + " --> " +
-                                motif.scoringInstructions(first, second, third));
+                                motif.getScoringInstructions(first, second, third));
                     }
     }
 }
