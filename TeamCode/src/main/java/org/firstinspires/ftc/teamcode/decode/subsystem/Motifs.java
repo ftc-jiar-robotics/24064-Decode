@@ -166,7 +166,8 @@ public class Motifs {
         int firstArtifactIndex = indexOf(effectiveMotif.a0, spindexerSlots);
 
         // we don't have the first color needed, continue intaking
-        if (firstArtifactIndex == -1) return null;
+        if (firstArtifactIndex == -1)
+            return null;
 
         Artifact secondArtifact = spindexerSlots[(firstArtifactIndex + 1) % spindexerSlots.length];
         Artifact thirdArtifact = spindexerSlots[(firstArtifactIndex + 2) % spindexerSlots.length];
@@ -175,7 +176,8 @@ public class Motifs {
         // and the third IS the next motif color, run the spindexer the other way
         boolean correctSecondArtifact = secondArtifact == effectiveMotif.a1;
         boolean counterClockwise = !correctSecondArtifact && thirdArtifact == effectiveMotif.a1;
-        if (counterClockwise) thirdArtifact = secondArtifact;
+        if (counterClockwise)
+            thirdArtifact = secondArtifact;
 
         return new ScoringInstructions(
                 counterClockwise,
