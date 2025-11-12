@@ -69,14 +69,14 @@ public class Motifs {
         PGP(PURPLE, GREEN, PURPLE),
         PPG(PURPLE, PURPLE, GREEN);
 
-        public final Artifact a0, a1, a2;
+        public final Artifact first, second, third;
 
         private static final Motif[] motifs = values();
 
-        Motif(Artifact a0, Artifact a1, Artifact a2) {
-            this.a0 = a0;
-            this.a1 = a1;
-            this.a2 = a2;
+        Motif(Artifact first, Artifact second, Artifact third) {
+            this.first = first;
+            this.second = second;
+            this.third = third;
         }
 
         /**
@@ -143,7 +143,7 @@ public class Motifs {
     public static ScoringInstructions getScoringInstructions(Motif effectiveMotif, Artifact... spindexerSlots) {
 
         // find index of first artifact color needed for motif
-        int firstArtifactIndex = effectiveMotif.a0.indexIn(spindexerSlots);
+        int firstArtifactIndex = effectiveMotif.first.indexIn(spindexerSlots);
 
         // we don't have the first color needed, continue intaking
         if (firstArtifactIndex == -1)
@@ -154,15 +154,15 @@ public class Motifs {
 
         // if the next artifact (clockwise from the first one) is NOT the  next motif color,
         // and the third IS the next motif color, run the spindexer the other way
-        boolean correctSecondArtifact = secondArtifact == effectiveMotif.a1;
-        boolean counterClockwise = !correctSecondArtifact && thirdArtifact == effectiveMotif.a1;
+        boolean correctSecondArtifact = secondArtifact == effectiveMotif.second;
+        boolean counterClockwise = !correctSecondArtifact && thirdArtifact == effectiveMotif.second;
         if (counterClockwise)
             thirdArtifact = secondArtifact;
 
         return new ScoringInstructions(
                 counterClockwise,
                 firstArtifactIndex,
-                counterClockwise || correctSecondArtifact ? thirdArtifact == effectiveMotif.a2 ? 2 : 1 : 0
+                counterClockwise || correctSecondArtifact ? thirdArtifact == effectiveMotif.third ? 2 : 1 : 0
         );
     }
 
