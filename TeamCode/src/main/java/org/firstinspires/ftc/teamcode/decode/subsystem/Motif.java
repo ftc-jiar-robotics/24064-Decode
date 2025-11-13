@@ -20,8 +20,15 @@ public enum Motif {
         this.third = third;
     }
 
-    private static int wrap(int n, int max) {
-        return (n % max + max) % max;
+    /**
+     * @param num   Number to wrap
+     * @param from  Lower bound (INCLUSIVE)
+     * @param to    Upper bound (EXCLUSIVE), must be greater than from
+     * @return      The number wrapped to the range [from, to)
+     */
+    public static int wrap(int num, int from, int to) {
+        int mod = to - from;
+        return ((num - from) % mod + mod) % mod + from;
     }
 
     /**
@@ -30,7 +37,7 @@ public enum Motif {
      * @return              The {@link Motif} that has a green artifact in the specified position
      */
     public static Motif fromGreenIndex(int greenIndex) {
-        return motifs[wrap(greenIndex, motifs.length)];
+        return motifs[wrap(greenIndex, 0, motifs.length)];
     }
 
     /**
@@ -68,8 +75,8 @@ public enum Motif {
             if (secondArtifactIndex == -1)
                 return new int[]{};
 
-            firstArtifactIndex = wrap(secondArtifactIndex - 1, length);
-            int thirdArtifactIndex = wrap(secondArtifactIndex + 1, length);
+            firstArtifactIndex = wrap(secondArtifactIndex - 1, 0, length);
+            int thirdArtifactIndex = wrap(secondArtifactIndex + 1, 0, length);
 
             return
                     spindexerSlots[thirdArtifactIndex] == third ?
@@ -81,8 +88,8 @@ public enum Motif {
         }
 
         int
-                secondArtifactIndex = wrap(firstArtifactIndex + 1, length),
-                thirdArtifactIndex = wrap(firstArtifactIndex + 2, length);
+                secondArtifactIndex = wrap(firstArtifactIndex + 1, 0, length),
+                thirdArtifactIndex = wrap(firstArtifactIndex + 2, 0, length);
 
         if (spindexerSlots[secondArtifactIndex] != second && spindexerSlots[thirdArtifactIndex] == second) {
             int temp = secondArtifactIndex;
