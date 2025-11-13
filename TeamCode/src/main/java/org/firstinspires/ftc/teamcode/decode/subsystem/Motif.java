@@ -40,26 +40,27 @@ public enum Motif {
         return motifs[wrap(greenIndex, 0, motifs.length)];
     }
 
+    public Motif getEffectiveMotif(int numClassifierSlotsEmpty) {
+        return Motif.fromGreenIndex(ordinal() - (9 - numClassifierSlotsEmpty));
+    }
+
     /**
-     * @param classifierRamp The artifacts currently in the classifier ramp (starting from the gate)
+     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
      * @param spindexerSlots Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
      * @param allowOneWrong Allow one wrong artifact color when scoring three artifacts
      * @return The order to score the artifacts in the spindexer
      */
-    public int[] getScoringOrder(boolean allowOneWrong, Artifact[] classifierRamp, Artifact... spindexerSlots) {
+    public int[] getScoringOrder(boolean allowOneWrong, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
 
-        assert classifierRamp.length == 9;
-
-        int numEmptySlots = EMPTY.countOccurrencesIn(classifierRamp);
-        if (numEmptySlots == 0)
+        if (numClassifierSlotsEmpty == 0)
             return new int[]{};
 
-        Motif effectiveMotif = Motif.fromGreenIndex(ordinal() - EMPTY.firstOccurrenceIn(classifierRamp));
+        Motif effectiveMotif = getEffectiveMotif(numClassifierSlotsEmpty);
 
         int length = spindexerSlots.length;
         assert length == 3;
 
-        allowOneWrong = allowOneWrong && EMPTY.countOccurrencesIn(spindexerSlots) == 0 && numEmptySlots >= 3;
+        allowOneWrong = allowOneWrong && EMPTY.countOccurrencesIn(spindexerSlots) == 0 && numClassifierSlotsEmpty >= 3;
 
         int firstArtifactIndex = effectiveMotif.first.firstOccurrenceIn(spindexerSlots);
 
@@ -93,8 +94,8 @@ public enum Motif {
             thirdArtifactIndex = temp;
         }
 
-        boolean validSecond = numEmptySlots >= 2 && spindexerSlots[secondArtifactIndex] == effectiveMotif.second;
-        boolean validThird = numEmptySlots >= 3 && spindexerSlots[thirdArtifactIndex] == effectiveMotif.third;
+        boolean validSecond = numClassifierSlotsEmpty >= 2 && spindexerSlots[secondArtifactIndex] == effectiveMotif.second;
+        boolean validThird = numClassifierSlotsEmpty >= 3 && spindexerSlots[thirdArtifactIndex] == effectiveMotif.third;
         return
                 validSecond ?
                         validThird ?
@@ -106,14 +107,12 @@ public enum Motif {
         ;
     }
 
-    public int getScoreValue(int[] scoringOrder, Artifact[] classifierRamp, Artifact... spindexerSlots) {
+    public int getScoreValue(int[] scoringOrder, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
 
-        assert classifierRamp.length == 9;
-
-        if (EMPTY.countOccurrencesIn(classifierRamp) == 0)
+        if (numClassifierSlotsEmpty == 0)
             return 0;
 
-        Motif effectiveMotif = Motif.fromGreenIndex(ordinal() - EMPTY.firstOccurrenceIn(classifierRamp));
+        Motif effectiveMotif = getEffectiveMotif(numClassifierSlotsEmpty);
 
         return scoringOrder.length * 3 +
                             (scoringOrder.length > 0 && spindexerSlots[scoringOrder[0]] == effectiveMotif.first ? 2 : 0) +
@@ -122,8 +121,8 @@ public enum Motif {
         ;
     }
 
-    public String getScoringInstructions(boolean allowOneWrong, Artifact[] classifierRamp, Artifact... spindexerSlots) {
-        int[] scoringOrder = getScoringOrder(allowOneWrong, classifierRamp, spindexerSlots);
+    public String getScoringInstructions(boolean allowOneWrong, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
+        int[] scoringOrder = getScoringOrder(allowOneWrong, numClassifierSlotsEmpty, spindexerSlots);
         if (scoringOrder.length == 0)
             return "Continue intaking";
         StringBuilder s = new StringBuilder(String.format("Score slot%s ", scoringOrder.length > 1 ? "s" : ""));
@@ -132,22 +131,20 @@ public enum Motif {
         s.append("(");
         for (int i : scoringOrder)
             s.append(spindexerSlots[i].name().charAt(0));
-        return s + ") for " + getScoreValue(scoringOrder, classifierRamp, spindexerSlots) + " pts";
+        return s + ") for " + getScoreValue(scoringOrder, numClassifierSlotsEmpty, spindexerSlots) + " pts";
     }
 
     public static void main(String[] args) {
 
         // edit these for testing:
-        Artifact[] classifierRamp = {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY};
+        String classifierRamp = "PPGPGP___";
         boolean allowOneWrong = true;
 
-        System.out.print("Classifier:");
-        for (Artifact a : classifierRamp) {
-            System.out.print(" " + a);
-        }
-        System.out.println();
+        System.out.println("Classifier: " + classifierRamp);
 
         Artifact[] artifacts = Artifact.values();
+
+        int numClassifierSlotsEmpty = classifierRamp.length() - classifierRamp.replace("_", "").length();
 
         for (Motif motif : Motif.motifs)
             for (Artifact first : artifacts)
@@ -158,7 +155,7 @@ public enum Motif {
                                 c2 = second.name().charAt(0),
                                 c3 = third.name().charAt(0);
                         System.out.println("Randomization: " + motif + ", Spindexer: " + (c1 == 'E' ? '_' : c1) + (c2 == 'E' ? '_' : c2) + (c3 == 'E' ? '_' : c3) + " --> " +
-                                motif.getScoringInstructions(allowOneWrong, classifierRamp, first, second, third));
+                                motif.getScoringInstructions(allowOneWrong, numClassifierSlotsEmpty, first, second, third));
                     }
     }
 }
