@@ -116,9 +116,9 @@ public enum Motif {
         Motif effectiveMotif = Motif.fromGreenIndex(ordinal() - EMPTY.firstOccurrenceIn(classifierRamp));
 
         return scoringOrder.length * 3 +
-                            (scoringOrder.length > 0 && spindexerSlots[scoringOrder[0]] == first ? 2 : 0) +
-                            (scoringOrder.length > 1 && spindexerSlots[scoringOrder[1]] == first ? 2 : 0) +
-                            (scoringOrder.length > 2 && spindexerSlots[scoringOrder[2]] == first ? 2 : 0)
+                            (scoringOrder.length > 0 && spindexerSlots[scoringOrder[0]] == effectiveMotif.first ? 2 : 0) +
+                            (scoringOrder.length > 1 && spindexerSlots[scoringOrder[1]] == effectiveMotif.second ? 2 : 0) +
+                            (scoringOrder.length > 2 && spindexerSlots[scoringOrder[2]] == effectiveMotif.third ? 2 : 0)
         ;
     }
 
@@ -132,7 +132,7 @@ public enum Motif {
         s.append("(");
         for (int i : scoringOrder)
             s.append(spindexerSlots[i].name().charAt(0));
-        return s.toString() + ") for " + getScoreValue(scoringOrder, classifierRamp, spindexerSlots) + " pts";
+        return s + ") for " + getScoreValue(scoringOrder, classifierRamp, spindexerSlots) + " pts";
     }
 
     public static void main(String[] args) {
