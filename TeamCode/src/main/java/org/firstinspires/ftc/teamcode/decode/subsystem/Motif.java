@@ -137,16 +137,16 @@ public enum Motif {
     public static void main(String[] args) {
 
         // edit these for testing:
-        String classifierRamp = "PPGPGP___";
+        String classifierRamp = "PPG PGP ___";
         boolean allowOneWrong = true;
 
         System.out.println("Classifier: " + classifierRamp);
 
         Artifact[] artifacts = Artifact.values();
 
-        int numClassifierSlotsEmpty = classifierRamp.length() - classifierRamp.replace("_", "").length();
+        int numClassifierSlotsEmpty = classifierRamp.replace(" ", "").length() - classifierRamp.replace(" ", "").replace("_", "").length();
 
-        for (Motif motif : Motif.motifs)
+        for (Motif randomization : Motif.motifs)
             for (Artifact first : artifacts)
                 for (Artifact second : artifacts)
                     for (Artifact third : artifacts) {
@@ -154,8 +154,8 @@ public enum Motif {
                                 c1 = first.name().charAt(0),
                                 c2 = second.name().charAt(0),
                                 c3 = third.name().charAt(0);
-                        System.out.println("Randomization: " + motif + ", Spindexer: " + (c1 == 'E' ? '_' : c1) + (c2 == 'E' ? '_' : c2) + (c3 == 'E' ? '_' : c3) + " --> " +
-                                motif.getScoringInstructions(allowOneWrong, numClassifierSlotsEmpty, first, second, third));
+                        System.out.println("Randomization: " + randomization + ", Spindexer: " + (c1 == 'E' ? '_' : c1) + (c2 == 'E' ? '_' : c2) + (c3 == 'E' ? '_' : c3) + " --> " +
+                                randomization.getScoringInstructions(allowOneWrong, numClassifierSlotsEmpty, first, second, third));
                     }
     }
 }
