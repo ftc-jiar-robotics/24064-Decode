@@ -59,7 +59,7 @@ public enum Motif {
         int length = spindexerSlots.length;
         assert length == 3;
 
-        allowOneWrong = allowOneWrong && EMPTY.countOccurrencesIn(spindexerSlots) == 0;
+        allowOneWrong = allowOneWrong && EMPTY.countOccurrencesIn(spindexerSlots) == 0 && numEmptySlots >= 3;
 
         int firstArtifactIndex = effectiveMotif.first.firstOccurrenceIn(spindexerSlots);
 
