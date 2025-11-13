@@ -137,7 +137,10 @@ public enum Motif {
 
     public static void main(String[] args) {
 
+        // edit these for testing:
         Artifact[] classifierRamp = {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY};
+        boolean allowOneWrong = true;
+
         System.out.print("Classifier:");
         for (Artifact a : classifierRamp) {
             System.out.print(" " + a);
@@ -155,7 +158,7 @@ public enum Motif {
                                 c2 = second.name().charAt(0),
                                 c3 = third.name().charAt(0);
                         System.out.println("Randomization: " + motif + ", Spindexer: " + (c1 == 'E' ? '_' : c1) + (c2 == 'E' ? '_' : c2) + (c3 == 'E' ? '_' : c3) + " --> " +
-                                motif.getScoringInstructions(true, classifierRamp, first, second, third));
+                                motif.getScoringInstructions(allowOneWrong, classifierRamp, first, second, third));
                     }
     }
 }
