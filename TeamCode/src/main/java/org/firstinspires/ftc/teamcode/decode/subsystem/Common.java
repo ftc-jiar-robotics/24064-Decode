@@ -63,14 +63,18 @@ public final class Common {
 
             MAX_VOLTAGE = 13;
 
-    public static double
-            LAUNCH_DELAY = 0.07,    // seconds (feeder > ball leaves flywheel)
-            AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
-            AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
-            MIN_AIRTIME  = 0.02; //safety
-    public static double getAirtimeForDistance(double distanceInches) {
-        double t = AIRTIME_A * distanceInches + AIRTIME_B;
-        return Math.max(MIN_AIRTIME, t);
+    public static double TIME_TO_SHOOT = 0.2;
+    public static final double LAUNCH_DELAY = 0.07;
+    public static double getAirtimeForDistance(double distanceInches, double rpm) {
+        double dMeters = distanceInches * 0.0254;
+
+        // Initial guess: t = a * d + b
+        double a = 0.06; // seconds per meter (tune)
+        double b = 0.05; // base flight time (tune)
+
+        double t = a * dMeters + b;
+
+        return Math.max(0.03, t);
     }
     public static final int
             BLUE_GOAL_ID = 20,
