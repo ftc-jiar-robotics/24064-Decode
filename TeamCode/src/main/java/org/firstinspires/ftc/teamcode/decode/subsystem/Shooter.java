@@ -170,8 +170,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public Pose getPredictedPose() {
         currentPose = robot.drivetrain.getPose();
 
-        double timeToShoot = Common.TIME_TO_SHOOT;
-         vx = robot.drivetrain.getVelocity().getXComponent();
+        double distanceInches = turret.getDistance();
+        double rpmTarget = 0.0;
+        double tLaunch = Common.LAUNCH_DELAY;
+        double airtime = Common.getAirtimeForDistance(distanceInches, rpmTarget);
+        double timeToShoot = tLaunch + airtime;
+        vx = robot.drivetrain.getVelocity().getXComponent();
          vy = robot.drivetrain.getVelocity().getYComponent();
 
         omega = robot.drivetrain.getAngularVelocity();
