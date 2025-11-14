@@ -71,20 +71,19 @@ public enum Motif {
         allowOneWrong = allowOneWrong && EMPTY.countOccurrencesIn(spindexerSlots) == 0 && numClassifierSlotsEmpty >= 3;
 
         int firstArtifactIndex = effectiveMotif.getArtifact(0).firstOccurrenceIn(spindexerSlots);
-        int auditIndex;
+        int auditIndex = 1;
 
         if (firstArtifactIndex == -1) {
             if (!allowOneWrong)
                 return new int[]{};
 
-            int secondArtifactIndex = effectiveMotif.getArtifact(1).firstOccurrenceIn(spindexerSlots);
+            firstArtifactIndex = effectiveMotif.getArtifact(1).firstOccurrenceIn(spindexerSlots) - 1;
 
-            if (secondArtifactIndex == -1)
+            if (firstArtifactIndex == -2)
                 return new int[]{};
 
-            firstArtifactIndex = secondArtifactIndex - 1;
             auditIndex = 0;
-        } else auditIndex = 1;
+        }
 
         Collections.rotate(scoringOrder, -firstArtifactIndex);
 
