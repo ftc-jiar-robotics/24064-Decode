@@ -23,7 +23,10 @@ public enum Motif {
         this.artifacts = artifacts;
     }
 
-    public Artifact getArtifact(int i) {
+    /**
+     * @return The artifact located at the provided index i in this motif
+     */
+    public Artifact get(int i) {
         return artifacts[wrap(i, 0, artifacts.length)];
     }
 
@@ -47,14 +50,19 @@ public enum Motif {
         return motifs[wrap(greenIndex, 0, motifs.length)];
     }
 
+
+    /**
+     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
+     * @return The motif pattern to score
+     */
     public Motif getEffectiveMotif(int numClassifierSlotsEmpty) {
         return Motif.fromGreenIndex(ordinal() - (9 - numClassifierSlotsEmpty));
     }
 
     /**
-     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
-     * @param spindexerSlots Artifacts available in the spindexer (0 = front, 1 = back left, 2 = back right)
      * @param allowOneWrong Allow one wrong artifact color when scoring three artifacts
+     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
+     * @param spindexerSlots Artifacts available in the spindexer
      * @return The order to score the artifacts in the spindexer
      */
     public int[] getScoringOrder(boolean allowOneWrong, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
@@ -70,14 +78,14 @@ public enum Motif {
 
         allowOneWrong = allowOneWrong && EMPTY.countOccurrencesIn(spindexerSlots) == 0 && numClassifierSlotsEmpty >= 3;
 
-        int firstArtifactIndex = effectiveMotif.getArtifact(0).firstOccurrenceIn(spindexerSlots);
+        int firstArtifactIndex = effectiveMotif.get(0).firstOccurrenceIn(spindexerSlots);
         int auditIndex = 1;
 
         if (firstArtifactIndex == -1) {
             if (!allowOneWrong)
                 return new int[]{};
 
-            firstArtifactIndex = effectiveMotif.getArtifact(1).firstOccurrenceIn(spindexerSlots) - 1;
+            firstArtifactIndex = effectiveMotif.get(1).firstOccurrenceIn(spindexerSlots) - 1;
 
             if (firstArtifactIndex == -2)
                 return new int[]{};
@@ -87,14 +95,14 @@ public enum Motif {
 
         Collections.rotate(scoringOrder, -firstArtifactIndex);
 
-        boolean correctAudited = spindexerSlots[scoringOrder.get(auditIndex)] == effectiveMotif.getArtifact(auditIndex);
+        boolean correctAudited = spindexerSlots[scoringOrder.get(auditIndex)] == effectiveMotif.get(auditIndex);
 
-        if (!correctAudited && spindexerSlots[scoringOrder.get(2)] == effectiveMotif.getArtifact(auditIndex)) {
+        if (!correctAudited && spindexerSlots[scoringOrder.get(2)] == effectiveMotif.get(auditIndex)) {
             Collections.swap(scoringOrder, auditIndex, 2);
             correctAudited = true;
         }
 
-        boolean correctThird = spindexerSlots[scoringOrder.get(2)] == effectiveMotif.getArtifact(2);
+        boolean correctThird = spindexerSlots[scoringOrder.get(2)] == effectiveMotif.get(2);
         boolean scoringTwoThirds = correctThird && allowOneWrong;
 
         if ((!correctAudited || numClassifierSlotsEmpty < 2) && !scoringTwoThirds)
@@ -105,6 +113,11 @@ public enum Motif {
         return toIntArray(scoringOrder);
     }
 
+    /**
+     *
+     * @param list {@link Integer}s in a {@link List}
+     * @return Same values but in an int[]
+     */
     private static int[] toIntArray(List<Integer> list)  {
         int[] ret = new int[list.size()];
         int i = 0;
@@ -113,6 +126,12 @@ public enum Motif {
         return ret;
     }
 
+    /**
+     * @param scoringOrder The order to score the artifacts in the spindexer
+     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
+     * @param spindexerSlots Artifacts available in the spindexer
+     * @return The number of points scored by following the provided scoringOrder
+     */
     public int getScoreValue(int[] scoringOrder, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
 
         if (numClassifierSlotsEmpty == 0)
@@ -127,6 +146,12 @@ public enum Motif {
         ;
     }
 
+    /**
+     * @param allowOneWrong Allow one wrong artifact color when scoring three artifacts
+     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
+     * @param spindexerSlots Artifacts available in the spindexer
+     * @return The order to score the artifacts in the spindexer, as a {@link String}
+     */
     public String getScoringInstructions(boolean allowOneWrong, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
         int[] scoringOrder = getScoringOrder(allowOneWrong, numClassifierSlotsEmpty, spindexerSlots);
         if (scoringOrder.length == 0)
