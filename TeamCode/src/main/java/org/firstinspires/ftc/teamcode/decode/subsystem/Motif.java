@@ -76,7 +76,7 @@ public enum Motif {
 
         Motif effectiveMotif = getEffectiveMotif(numClassifierSlotsEmpty);
 
-        allowOneWrong = allowOneWrong && EMPTY.countOccurrencesIn(spindexerSlots) == 0 && numClassifierSlotsEmpty >= 3;
+        allowOneWrong = allowOneWrong && EMPTY.numOccurrencesIn(spindexerSlots) == 0 && numClassifierSlotsEmpty >= 3;
 
         int firstArtifactIndex = effectiveMotif.get(0).firstOccurrenceIn(spindexerSlots);
         int auditIndex = 1;

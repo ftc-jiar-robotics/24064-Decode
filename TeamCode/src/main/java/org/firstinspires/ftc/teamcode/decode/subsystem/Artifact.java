@@ -42,7 +42,7 @@ public enum Artifact {
     /**
      * @return The number of times this artifact color appears in the provided array
      */
-    public int countOccurrencesIn(Artifact... artifacts) {
+    public int numOccurrencesIn(Artifact... artifacts) {
         int count = 0;
         for (Artifact artifact : artifacts)
             if (artifact == this)
