@@ -53,7 +53,7 @@ public enum Motif {
 
     /**
      * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
-     * @return The motif pattern to score
+     * @return The motif pattern to score to satisfy the randomization
      */
     public Motif getEffectiveMotif(int numClassifierSlotsEmpty) {
         return Motif.fromGreenIndex(ordinal() - (9 - numClassifierSlotsEmpty));
@@ -67,14 +67,14 @@ public enum Motif {
      */
     public int[] getScoringOrder(boolean allowOneWrong, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
 
+        if (numClassifierSlotsEmpty == 0)
+            return new int[0];
+
         ArrayList<Integer> scoringOrder = new ArrayList<>(Arrays.asList(0, 1, 2));
 
         assert spindexerSlots.length == scoringOrder.size();
 
-        if (numClassifierSlotsEmpty == 0)
-            return new int[]{};
-
-        Motif effectiveMotif = getEffectiveMotif(numClassifierSlotsEmpty);
+        Motif effectiveMotif = this.getEffectiveMotif(numClassifierSlotsEmpty);
 
         allowOneWrong = allowOneWrong && EMPTY.numOccurrencesIn(spindexerSlots) == 0 && numClassifierSlotsEmpty >= 3;
 
@@ -83,12 +83,12 @@ public enum Motif {
 
         if (firstArtifactIndex == -1) {
             if (!allowOneWrong)
-                return new int[]{};
+                return new int[0];
 
             firstArtifactIndex = effectiveMotif.get(1).firstOccurrenceIn(spindexerSlots) - 1;
 
             if (firstArtifactIndex == -2)
-                return new int[]{};
+                return new int[0];
 
             auditIndex = 0;
         }
