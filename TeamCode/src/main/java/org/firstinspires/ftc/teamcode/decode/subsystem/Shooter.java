@@ -165,16 +165,18 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.run();
     }
 
-    private double vx, vy, omega, ax, ay, alpha;
+    private double vx;
+    private double vy;
+    private double omega;
+    private double ax;
+    private double ay;
+    private double alpha;
     private Pose currentPose, predictedPose;
     public Pose getPredictedPose() {
         currentPose = robot.drivetrain.getPose();
-
         double distanceInches = turret.getDistance();
-        double rpmTarget = 0.0;
-        double tLaunch = Common.LAUNCH_DELAY;
-        double airtime = Common.getAirtimeForDistance(distanceInches, rpmTarget);
-        double timeToShoot = tLaunch + airtime;
+        double airtime = Common.getAirtimeForDistance(distanceInches);
+        double timeToShoot = Common.LAUNCH_DELAY + airtime;
         vx = robot.drivetrain.getVelocity().getXComponent();
          vy = robot.drivetrain.getVelocity().getYComponent();
 
