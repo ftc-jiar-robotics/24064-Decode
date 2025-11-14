@@ -64,18 +64,6 @@ public final class Common {
             MAX_VOLTAGE = 13;
 
     public static double TIME_TO_SHOOT = 0.2;
-    public static final double LAUNCH_DELAY = 0.07;
-    public static double getAirtimeForDistance(double distanceInches, double rpm) {
-        double dMeters = distanceInches * 0.0254;
-
-        // Initial guess: t = a * d + b
-        double a = 0.06; // seconds per meter (tune)
-        double b = 0.05; // base flight time (tune)
-
-        double t = a * dMeters + b;
-
-        return Math.max(0.03, t);
-    }
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
