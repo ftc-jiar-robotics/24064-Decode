@@ -79,15 +79,17 @@ public enum Motif {
         allowOneWrong = allowOneWrong && EMPTY.numOccurrencesIn(spindexerSlots) == 0 && numClassifierSlotsEmpty >= 3;
 
         int firstArtifactIndex = effectiveMotif.get(0).firstOccurrenceIn(spindexerSlots);
-        int auditIndex = 1;
+        int auditIndex = 1; // spindexer slot to check after first one
 
+        // no artifact in spindexer matches first color of motif
         if (firstArtifactIndex == -1) {
             if (!allowOneWrong)
                 return new int[0];
 
+            // find occurrence of second motif color in spindexer
             firstArtifactIndex = effectiveMotif.get(1).firstOccurrenceIn(spindexerSlots) - 1;
 
-            if (firstArtifactIndex == -2)
+            if (firstArtifactIndex == -2) // -2 because search result was followed by - 1
                 return new int[0];
 
             auditIndex = 0;
