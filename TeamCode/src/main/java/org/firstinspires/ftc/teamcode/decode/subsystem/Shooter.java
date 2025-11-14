@@ -179,23 +179,27 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
          vy = robot.drivetrain.getVelocity().getYComponent();
 
         omega = robot.drivetrain.getAngularVelocity();
-        ax = robot.drivetrain.getAcceleration().getXComponent();
-        ay = robot.drivetrain.getAcceleration().getYComponent();
+        ax = robot.drivetrain.getAcceleration().getXComponent();                                  // ax (no accel)
+        ay = robot.drivetrain.getAcceleration().getYComponent();                                        // ay (no accel)
         alpha = 0;
 
         double
+                // Predict velocity at shot time (accounts for accel if available)
                 futureVx = vx + ax * timeToShoot,
                 futureVy = vy + ay * timeToShoot,
                 futureOmega = omega + alpha * timeToShoot,
 
+                // Average velocity over interval
                 avgVx = (vx + futureVx) / 2.0,
                 avgVy = (vy + futureVy) / 2.0,
                 avgOmega = (omega + futureOmega) / 2.0,
 
+                // Displacement = average velocity × time
                 dx = avgVx * timeToShoot,
                 dy = avgVy * timeToShoot,
                 dh = avgOmega * timeToShoot;
 
+        // Return new predicted pose (in inches and radians)
         predictedPose = new Pose(
                 currentPose.getX() + dx,
                 currentPose.getY() + dy,
