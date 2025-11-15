@@ -56,7 +56,7 @@ public enum Motif {
      * @return The motif pattern to score to satisfy the randomization
      */
     public Motif getEffectiveMotif(int numClassifierSlotsEmpty) {
-        return Motif.fromGreenIndex(ordinal() + numClassifierSlotsEmpty);
+        return Motif.fromGreenIndex(this.ordinal() + numClassifierSlotsEmpty);
     }
 
     /**
@@ -179,17 +179,16 @@ public enum Motif {
 
         int numClassifierSlotsEmpty = classifierRamp.replace(" ", "").length() - classifierRamp.replace(" ", "").replace("_", "").length();
 
-        for (Motif randomization : Motif.motifs)
-            for (Artifact first : artifacts)
-                for (Artifact second : artifacts)
-                    for (Artifact third : artifacts) {
-                        System.out.printf("Randomization: %s, Spindexer: %s%s%s --> %s%n",
-                                randomization,
-                                first.name().replace("E", "_").charAt(0),
-                                second.name().replace("E", "_").charAt(0),
-                                third.name().replace("E", "_").charAt(0),
-                                randomization.getScoringInstructions(allowOneWrong, numClassifierSlotsEmpty, first, second, third)
-                        );
-                    }
+        for (Motif randomization : Motif.motifs) {
+            System.out.printf("Randomization: %s, Effective: %s%nSpindexer: %n", randomization, randomization.getEffectiveMotif(numClassifierSlotsEmpty));
+            for (Artifact first : artifacts) for (Artifact second : artifacts) for (Artifact third : artifacts) {
+                System.out.printf("     %s%s%s --> %s%n",
+                        first.name().replace("E", "_").charAt(0),
+                        second.name().replace("E", "_").charAt(0),
+                        third.name().replace("E", "_").charAt(0),
+                        randomization.getScoringInstructions(allowOneWrong, numClassifierSlotsEmpty, first, second, third)
+                );
+            }
+        }
     }
 }
