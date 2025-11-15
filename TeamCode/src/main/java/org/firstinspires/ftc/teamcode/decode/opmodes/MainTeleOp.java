@@ -106,17 +106,13 @@ public class MainTeleOp extends LinearOpMode {
             }
 
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-            double trigger2 = gamepadEx2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
-            if (robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING)
-                isSlowMode = true;
-            else isSlowMode = false;
+            isSlowMode = robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING;
 
             robot.intake.set(trigger1, false);
             robot.shooter.setFeederIdle(Math.abs(trigger1) > 0);
 
             if (isHoodManual) {
-                if (Math.abs(trigger2) > 0) robot.shooter.setTurretManual(trigger2);
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             }

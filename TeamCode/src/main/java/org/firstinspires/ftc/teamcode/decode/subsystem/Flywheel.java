@@ -213,7 +213,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         dashTelemetry.addData("is timer on (BOOLEAN): ", inCurrentRPMSpike);
         dashTelemetry.addData("current pos (TICKS): ", shooterEncoder.getPosition());
         dashTelemetry.addData("target RPM (ROTATIONS PER MINUTE): ", shootingRPM);
-        dashTelemetry.addData("target RPM (idle) (ROTATIONS PER MINUTE): ", IDLE_RPM);
         dashTelemetry.addData("current settle time (LOOPS): ", settleTime);
 
     }
