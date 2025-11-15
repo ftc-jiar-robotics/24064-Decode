@@ -56,7 +56,7 @@ public enum Motif {
      * @return The motif pattern to score to satisfy the randomization
      */
     public Motif getEffectiveMotif(int numClassifierSlotsEmpty) {
-        return Motif.fromGreenIndex(ordinal() - (9 - numClassifierSlotsEmpty));
+        return Motif.fromGreenIndex(ordinal() + numClassifierSlotsEmpty);
     }
 
     /**
