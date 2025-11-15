@@ -36,9 +36,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
     public static PIDGains odoPIDGains = new PIDGains(
-            0.008,
-            0.0004,
-            0.00005,
+            0.0235,
+            0.004,
+            0.001,
             Double.POSITIVE_INFINITY
     );
 
@@ -195,7 +195,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case ODOM_TRACKING:
                     turretPos = calculateTurretPosition(robot.shooter.getPredictedPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
                     setTracking();
-                    output = controller.calculate(new State(currentAngle, 0, 0 ,0));
+                    output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
                         else break;
@@ -222,7 +222,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 //                            robot.drivetrain.setPose(robotPoseFromVision);
 
                         setTracking();
-                        output = controller.calculate(new State(currentAngle, 0, 0, 0));
+                        output += controller.calculate(new State(currentAngle, 0, 0, 0));
 
                         break;
                     }

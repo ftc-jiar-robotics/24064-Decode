@@ -64,7 +64,8 @@ public final class Common {
             MAX_VOLTAGE = 13;
 
     public static double
-            TIME_TO_SHOOT = 0.3,
+            TIME_TO_SHOOT = 0.4,
+            ANG_VELOCITY_MULTIPLER = 0.4,
             SLOW_MODE = 0.4;
 
     public static final int
