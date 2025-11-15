@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
@@ -25,7 +26,7 @@ public class RobotActions {
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
                 new InstantAction(() -> robot.intake.set(0.85)),
                 new InstantAction(() -> {
-                    robot.drivetrain.setMaxPowerScaling(0.7);
+                    robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
                     isSlowMode = true;
                 }),
                 telemetryPacket -> robot.shooter.getQueuedShots() != 0,

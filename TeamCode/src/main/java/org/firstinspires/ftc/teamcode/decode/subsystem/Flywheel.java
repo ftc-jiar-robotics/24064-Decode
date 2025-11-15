@@ -35,9 +35,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.000005,
+            0.0005,
             0.0,
-            0.000002,
+            0.00025,
             Double.POSITIVE_INFINITY
     );
 
@@ -63,7 +63,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             RPM_TOLERANCE = 100,
             SMOOTH_RPM_GAIN = 0.8,
             SUPER_SMOOTH_RPM_GAIN = 0.9,
-            MOTOR_POWER_GAIN = 0.9,
+            ROUNDING_POINT = 100000,
             DERIV_TOLERANCE = 200,
             MOTOR_RPM_SETTLE_TIME_SHOOT = 0.95,
             MOTOR_RPM_SETTLE_TIME_IDLE = 1.25 ,
@@ -94,8 +94,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             currentRPMSpikeTime = 0;
 
     public Flywheel(HardwareMap hw) {
-        this.shooterMaster = new CachedMotor(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
-        this.shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
+        this.shooterMaster = new CachedMotor(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE, ROUNDING_POINT);
+        this.shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE, ROUNDING_POINT);
         MotorEx dummy = new MotorEx(hw, "left front", Motor.GoBILDA.BARE);
 
         shooterSlave.setInverted(true);
@@ -176,20 +176,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
-        if (lastTarget != shootingRPM) {
-            currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
-            startPIDDisable = (double) System.nanoTime() / 1E9;
-        }
-
-        lastTarget = shootingRPM;
-
-        calculatedPower = velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
-        double currentPowerPre = currentPower;
-
-        if ((double) System.nanoTime() / 1E9 > startPIDDisable + settleTime) currentPowerPre += calculatedPower;
-        else velocityController.reset();
-
-        currentPower = (MOTOR_POWER_GAIN * currentPowerPre) + (1 - MOTOR_POWER_GAIN) * currentPower;
+        currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
+        currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
 
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 

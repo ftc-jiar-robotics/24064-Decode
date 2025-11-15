@@ -10,10 +10,18 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class CachedMotor extends MotorEx {
     private double currentOutput;
     
-    public static double roundingPoint = 1000;
+    private final double roundingPoint;
 
     public CachedMotor(@NonNull HardwareMap hardwareMap, String id, @NonNull GoBILDA gobildaType) {
         super(hardwareMap, id, gobildaType);
+
+        roundingPoint = 1000;
+    }
+
+    public CachedMotor(@NonNull HardwareMap hardwareMap, String id, @NonNull GoBILDA gobildaType, double roundingPoint) {
+        super(hardwareMap, id, gobildaType);
+
+        this.roundingPoint = roundingPoint;
     }
 
     @Override

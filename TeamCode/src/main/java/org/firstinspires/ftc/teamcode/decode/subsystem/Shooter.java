@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -174,7 +175,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
          vx = robot.drivetrain.getVelocity().getXComponent();
          vy = robot.drivetrain.getVelocity().getYComponent();
 
-        omega = robot.drivetrain.getAngularVelocity();
+        omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
         ax = robot.drivetrain.getAcceleration().getXComponent();                                  // ax (no accel)
         ay = robot.drivetrain.getAcceleration().getYComponent();                                        // ay (no accel)
         alpha = 0;

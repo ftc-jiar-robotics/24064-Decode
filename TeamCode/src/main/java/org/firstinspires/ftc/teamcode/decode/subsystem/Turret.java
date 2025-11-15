@@ -36,8 +36,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
     public static PIDGains odoPIDGains = new PIDGains(
-            0.033,
-            0.008,
+            0.0235,
+            0.004,
             0.001,
             Double.POSITIVE_INFINITY
     );
@@ -60,6 +60,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             kG = 0,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
+            ROUNDING_POINT = 10000,
             VARIANCE_TOLERANCE = 0.04,
             HEADING_VARIANCE_TOLERANCE = 0.04,
             VISION_SAMPLE_SIZE = 5,
@@ -84,7 +85,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             manualPower = 0.0;
 
     public Turret(HardwareMap hw) {
-        this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150);
+        this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150, ROUNDING_POINT);
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
 
@@ -194,7 +195,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case ODOM_TRACKING:
                     turretPos = calculateTurretPosition(robot.shooter.getPredictedPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
                     setTracking();
-                    output = controller.calculate(new State(currentAngle, 0, 0 ,0));
+                    output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
                         else break;
@@ -221,7 +222,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 //                            robot.drivetrain.setPose(robotPoseFromVision);
 
                         setTracking();
-                        output = controller.calculate(new State(currentAngle, 0, 0, 0));
+                        output += controller.calculate(new State(currentAngle, 0, 0, 0));
 
                         break;
                     }
