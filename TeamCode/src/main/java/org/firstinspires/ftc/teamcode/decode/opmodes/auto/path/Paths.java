@@ -49,6 +49,7 @@ public class Paths {
         gate = gate.mirror();
         start = start.mirror();
         shoot = shoot.mirror();
+        leave = leave.mirror();
         startIntake1 = startIntake1.mirror();
         endIntake1 = endIntake1.mirror();
         startIntake2 = startIntake2.mirror();
@@ -111,7 +112,7 @@ public class Paths {
                         // Path 0
                         new BezierLine(gate, shoot)
                 )
-                .setTangentHeadingInterpolation()
+                .setConstantHeadingInterpolation(gateAngle)
                 .setReversed() .build();
         secondIntake = f.pathBuilder()
                 .addPath(

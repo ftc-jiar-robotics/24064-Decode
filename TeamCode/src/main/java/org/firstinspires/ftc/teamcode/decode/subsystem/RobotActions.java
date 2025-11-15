@@ -29,7 +29,6 @@ public class RobotActions {
     }
 
     public static Action shootArtifacts(int artifacts, double seconds) {
-        shotTimer.reset();
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
                 new InstantAction(() -> robot.intake.set(0.85)),
@@ -37,6 +36,7 @@ public class RobotActions {
                     robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
                     isSlowMode = true;
                 }),
+                new InstantAction(shotTimer::reset),
                 telemetryPacket -> robot.shooter.getQueuedShots() > 0 && shotTimer.seconds() <= seconds,
                 new InstantAction(() -> robot.shooter.clearQueueShots()),
                 setIntake(0, 0),
