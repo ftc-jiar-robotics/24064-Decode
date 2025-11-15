@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
 @Autonomous(name = "AutoClose18")
-public class AutoClose18 extends AbstractAuto {
+public class AutoGoal18 extends AbstractAuto {
     private Follower f;
     private Paths path;
     public static int CYCLES = 2;
@@ -41,7 +41,7 @@ public class AutoClose18 extends AbstractAuto {
             path.mirrorAll();
         }
         Common.robot.shooter.setGoalAlliance();
-        path.close18Build();
+        path.goal18Build();
     }
     @Override
     protected void onRun() {

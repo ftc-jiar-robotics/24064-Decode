@@ -9,10 +9,13 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 // TODO tune timings
 
 public class RobotActions {
+    private static final ElapsedTime shotTimer = new ElapsedTime();
+
     public static Action setIntake(double power, double sleepSeconds) {
         return new ParallelAction(
                 new InstantAction(() -> robot.intake.set(power, true)),
@@ -22,6 +25,11 @@ public class RobotActions {
     }
 
     public static Action shootArtifacts(int artifacts) {
+        return shootArtifacts(artifacts, Double.POSITIVE_INFINITY);
+    }
+
+    public static Action shootArtifacts(int artifacts, double seconds) {
+        shotTimer.reset();
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
                 new InstantAction(() -> robot.intake.set(0.85)),
@@ -29,7 +37,8 @@ public class RobotActions {
                     robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
                     isSlowMode = true;
                 }),
-                telemetryPacket -> robot.shooter.getQueuedShots() != 0,
+                telemetryPacket -> robot.shooter.getQueuedShots() > 0 && shotTimer.seconds() <= seconds,
+                new InstantAction(() -> robot.shooter.clearQueueShots()),
                 setIntake(0, 0),
                 new InstantAction(() -> {
                     robot.drivetrain.setMaxPowerScaling(1);
