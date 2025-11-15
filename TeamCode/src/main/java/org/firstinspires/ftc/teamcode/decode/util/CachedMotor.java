@@ -11,6 +11,7 @@ public class CachedMotor extends MotorEx {
     private double currentOutput;
     
     private final double roundingPoint;
+    public static double SLEW_RATE = 0.2;
 
     public CachedMotor(@NonNull HardwareMap hardwareMap, String id, @NonNull GoBILDA gobildaType) {
         super(hardwareMap, id, gobildaType);
@@ -35,7 +36,11 @@ public class CachedMotor extends MotorEx {
         }
 
         if (currentOutput != output || (currentOutput != 0 && output == 0)) {
-            super.set(output);
+
+            double desiredChange = output - currentOutput;
+            double limitedChange = Math.max(-SLEW_RATE, Math.min(desiredChange, SLEW_RATE));
+            super.set(currentOutput += limitedChange);
+
             currentOutput = output;
         }
     }
