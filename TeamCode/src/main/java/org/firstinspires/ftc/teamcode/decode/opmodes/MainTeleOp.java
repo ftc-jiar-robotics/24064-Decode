@@ -18,6 +18,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_PO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
@@ -51,6 +52,8 @@ public class MainTeleOp extends LinearOpMode {
         gamepadEx2 = new GamepadEx(gamepad2);
 
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        isFuturePoseOn = true;
 
         if (AUTO_END_POSE == null) {
             while (opModeInInit()) {

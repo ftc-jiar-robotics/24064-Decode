@@ -30,6 +30,7 @@ public final class Common {
     public static Pose AUTO_END_POSE = null;
 
     public static boolean
+            isFuturePoseOn = false,
             isSlowMode = false,
             isTelemetryOn = false,
             isRed = false,

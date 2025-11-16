@@ -26,8 +26,8 @@ import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 @Configurable
 @Config
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
-    private final CachedMotor shooterMaster, shooterSlave;
-    private final CachedMotor[] motorGroup;
+    private final MotorEx shooterMaster, shooterSlave;
+    private final MotorEx[] motorGroup;
     private final Differentiator differentiator = new Differentiator();
 
     private final Motor.Encoder shooterEncoder;
@@ -43,7 +43,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     private final FIRLowPassFilter rpmFilter = new FIRLowPassFilter();
     public static MovingAverageGains rpmDerivAverageFilterGains = new MovingAverageGains(
-            10
+            3
     );
 
     private final MovingAverageFilter rpmDerivAverageFilter = new MovingAverageFilter(rpmDerivAverageFilterGains);
@@ -58,12 +58,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            RPM_DERIVATIVE_DROP = -400, // deacceleration
-            TIME_DROP_PERIOD = 0.3,
+            RPM_DERIVATIVE_DROP = -1500, // deacceleration
+            TIME_DROP_PERIOD = 0.5,
             RPM_TOLERANCE = 100,
             SMOOTH_RPM_GAIN = 0.8,
-            SUPER_SMOOTH_RPM_GAIN = 0.9,
-            ROUNDING_POINT = 100000,
+            SUPER_SMOOTH_RPM_GAIN = 0.85,
             DERIV_TOLERANCE = 200,
             MOTOR_RPM_SETTLE_TIME_SHOOT = 0.95,
             MOTOR_RPM_SETTLE_TIME_IDLE = 1.25 ,
@@ -94,8 +93,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             currentRPMSpikeTime = 0;
 
     public Flywheel(HardwareMap hw) {
-        this.shooterMaster = new CachedMotor(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE, ROUNDING_POINT);
-        this.shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE, ROUNDING_POINT);
+        this.shooterMaster = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
+        this.shooterSlave = new MotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
         MotorEx dummy = new MotorEx(hw, "left front", Motor.GoBILDA.BARE);
 
         shooterSlave.setInverted(true);
@@ -103,7 +102,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         shooterEncoder = dummy.encoder;
 
-        motorGroup = new CachedMotor[]{shooterMaster, shooterSlave};
+        motorGroup = new MotorEx[]{shooterMaster, shooterSlave};
 
         velocityController.setGains(shootingVelocityGains);
         rpmFilter.setGains(rpmFilterGains);
@@ -124,7 +123,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return (velocityController.isInTolerance(new State(currentRPM, 0, 0, 0), RPM_TOLERANCE, DERIV_TOLERANCE));
+        return (velocityController.isInTolerance(new State(currentRPMSmooth, 0, 0, 0), RPM_TOLERANCE, DERIV_TOLERANCE));
     }
 
     public boolean didRPMSpike() {
@@ -159,6 +158,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         switch (targetState) {
             case IDLE:
                 shootingRPM = IDLE_RPM;
+                velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+
                 settleTime = MOTOR_RPM_SETTLE_TIME_IDLE;
                 break;
             case ARMING:
@@ -174,14 +175,13 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 break;
         }
 
-        velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
         currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
         currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
 
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 
-        for (CachedMotor m : motorGroup) m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
+        for (MotorEx m : motorGroup) m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
 
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
     }
@@ -193,6 +193,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //        }
 
         shootingRPM = (-0.08913 * (distance * distance)) + (33.68 * distance) + 906.3;
+        velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
     }
 
 

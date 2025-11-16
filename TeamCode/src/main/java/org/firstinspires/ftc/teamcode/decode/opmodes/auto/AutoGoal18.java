@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import android.util.Log;
@@ -36,6 +37,8 @@ public class AutoGoal18 extends AbstractAuto {
         f = robot.drivetrain;
         path = new Paths(f);
 
+        isFuturePoseOn = false;
+
         if (Common.isRed != Paths.isPathRed) {
             Paths.isPathRed = !Paths.isPathRed;
             path.mirrorAll();
@@ -68,18 +71,18 @@ public class AutoGoal18 extends AbstractAuto {
     }
 
     private void shootSecond() {
-        path.secondIntake.getPath(1).setTValueConstraint(0.8);
+        path.secondIntakeAndShoot.getPath(1).setTValueConstraint(0.8);
         path.secondShoot.getPath(0).setTValueConstraint(0.88);
 
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> f.setMaxPower(.3)),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, .01, 0, f, "speed_up_2"), // speed up to dash to second balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.secondIntake, .4, 0, f, "slow_down_2"), // slow down to start in-taking balls
-                                new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.secondIntake, 0.5, 0, f, "start_intake_2"), // intake balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntakeAndShoot, .01, 0, f, "speed_up_2"), // speed up to dash to second balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.5)), path.secondIntakeAndShoot, .4, 0, f, "slow_down_2"), // slow down to start in-taking balls
+                                new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.secondIntakeAndShoot, 0.5, 0, f, "start_intake_2"), // intake balls
 //                                new Actions.CallbackAction(RobotActions.setIntake(0,0), path.secondIntake, 0.98, 1, f, "end_intake_2"),
-                                new FollowPathAction(f, path.secondIntake) //dashes to second 3 balls, slows down and starts intake at halfway point in path, then before dashing back to close triangle, hits bar to let all scored balls out.
+                                new FollowPathAction(f, path.secondIntakeAndShoot) //dashes to second 3 balls, slows down and starts intake at halfway point in path, then before dashing back to close triangle, hits bar to let all scored balls out.
                         ),
                         new SleepAction(0.5), //hits the bar to let out scored balls, and sits there for half a second
                         new ParallelAction(

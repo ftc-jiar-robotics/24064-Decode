@@ -21,21 +21,21 @@ public class Paths {
             control0 = new Pose(47.6, 113.1),
             control1 = new Pose(22.1, 78.4),
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
-            shoot = new Pose(51.0, 98.0),
-            gate = new Pose(15.5, 71.6),
+            shoot = new Pose(51.0, 101.0),
+            gate = new Pose(15.5, 73),
             leave = new Pose(37.5,90.1),
             gateCycleCP = new Pose(44.000, 65.700),
             gateCycleOpen = new Pose(11.000, 61.900),
             gateCycleIntake = new Pose(11.000, 55.700),
-            startIntake1 = new Pose(40.2, 88.3), // Intaking 1st
-            endIntake1 = new Pose(17.7, 88.0),
+            startIntake1 = new Pose(38.2, 91.3), // Intaking 1st
+            endIntake1 = new Pose(17.7, 91.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
             endIntake2 = new Pose(15.4, endIntake1.getY() - 24),
             startIntake3 = new Pose(startIntake1.getX(), startIntake2.getY() - 24), // Intaking 3rd
             endIntake3 = new Pose(15.4, endIntake2.getY() - 24);
 
     public static double
-            gateAngle = Math.toRadians(-180),
+            gateAngle = Math.toRadians(0),
             startAngle = Math.toRadians(270),
             shootAngle = Math.toRadians(-127),
             gateCycleShootAngle = Math.toRadians(250),
@@ -114,7 +114,7 @@ public class Paths {
                 )
                 .setConstantHeadingInterpolation(gateAngle)
                 .setReversed() .build();
-        secondIntake = f.pathBuilder()
+        secondIntakeAndShoot = f.pathBuilder()
                 .addPath(
                         // Path 0
                         new BezierLine(shoot, startIntake2)
@@ -154,7 +154,7 @@ public class Paths {
                         new BezierLine(shoot, leave)
                 )
                 .setTangentHeadingInterpolation()
-                .setReversed().build();
+                .build();
     }
 
     public void goal18Build() {
@@ -170,7 +170,7 @@ public class Paths {
                 .setLinearHeadingInterpolation(startAngle, shootAngle)
                 .build();
 
-        secondIntake = f.pathBuilder()
+        secondIntakeAndShoot = f.pathBuilder()
                 .addPath(
                         // Path 4
                         new BezierLine(shoot, startIntake2)
@@ -220,7 +220,7 @@ public class Paths {
     public PathChain shootPreload;
     public PathChain firstIntake;
     public PathChain firstShoot;
-    public PathChain secondIntake;
+    public PathChain secondIntakeAndShoot;
     public PathChain secondShoot;
     public PathChain thirdShoot;
     public PathChain goalLeave;
