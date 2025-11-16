@@ -22,7 +22,7 @@ public class LEDController {
 
         switch (ballCount) {
             case 3:
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.FIRE_LARGE);
+                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
                 break;
             case 2:
             case 1:
@@ -43,7 +43,13 @@ public class LEDController {
             case IDLE:
             case PREPPING:
             default:
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                if (!robot.shooter.flywheel.isPIDInTolerance()) {
+                    if (!robot.shooter.turret.isPIDInTolerance())
+                        blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                    else
+                        blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+                } else
+                    blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
                 break;
         }
     }
