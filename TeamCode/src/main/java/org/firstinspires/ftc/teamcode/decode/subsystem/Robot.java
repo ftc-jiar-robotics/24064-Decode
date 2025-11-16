@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
+import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.Style;
@@ -28,6 +30,7 @@ public final class Robot {
     public final Intake intake;
     public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
+    public final LEDController ledController;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -55,6 +58,8 @@ public final class Robot {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
+        ledController = new LEDController(hardwareMap);
+
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         Drawing.init();
@@ -93,6 +98,9 @@ public final class Robot {
         drivetrain.update();
         LoopUtil.updateLoopCount();
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
+        Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
+
+        ledController.update(shooter.getQueuedShots(), Common.inTriangle);
         readSensors();
     }
 
