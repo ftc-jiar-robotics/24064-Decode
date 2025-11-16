@@ -35,8 +35,8 @@ public class Paths {
             endIntake2 = new Pose(15.4, endIntake1.getY() - 24),
             startIntake3 = new Pose(startIntake1.getX(), startIntake2.getY() - 24), // Intaking 3rd
             endIntake3 = new Pose(15.4, endIntake2.getY() - 24),
-            startIntakeHP = new Pose(15.4, endIntake2.getY() - 24),
-            endIntakeHP = new Pose(15.4, endIntake2.getY() - 24);
+            startIntakeHP = new Pose(13.5, 18.6),//TODO Can't these 2 be j 1 pose?
+            endIntakeHP = new Pose(5.3, 7.3);
 
     public static double
             gateAngle = Math.toRadians(0),
@@ -46,8 +46,8 @@ public class Paths {
             gateCycleIntakeAngle = Math.toRadians(140),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
-            startIntakeAngleHP = Math.toRadians(0),
-            endIntakeAngleHP = Math.toRadians(0);
+            startIntakeAngleHP = Math.toRadians(-106), //TODO Can't these 2 be j 1 angle?
+            endIntakeAngleHP = Math.toRadians(-140);
 
 
     public void mirrorAll() {
@@ -168,7 +168,7 @@ public class Paths {
                 .setLinearHeadingInterpolation(shootAngle, startIntakeAngleHP) // Intaking
                 .addPath(
                         //Path 1
-                        new BezierLine(startIntakeHP, endIntakeHP)
+                        new BezierLine(startIntakeHP, endIntakeHP) //TODO don't need this path if start&end is j 1 pose
                 )
                 .setLinearHeadingInterpolation(startIntakeAngleHP, endIntakeAngleHP)
                 .addPath(
