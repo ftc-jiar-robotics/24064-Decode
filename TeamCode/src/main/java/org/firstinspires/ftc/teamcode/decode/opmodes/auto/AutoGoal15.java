@@ -65,14 +65,14 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_HP")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 0, f, "speed_up_3"), // speed up to dash to third set of balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 0, f, "speed_up_HP"), // speed up to dash to third set of balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(.5)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.humanPlayerShoot, 0.8, 0, f, "slow_down_4"), // slow down to intake balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 2, f, "speed_up_3_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                        path.humanPlayerShoot, 0.8, 0, f, "slow_down_HP"), // slow down to intake balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 2, f, "speed_up_HP_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
