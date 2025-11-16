@@ -16,16 +16,17 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.Paths;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
+import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
-@Autonomous(name = "AutoClose18")
-public class AutoGoal18 extends AbstractAuto {
+@Autonomous(name = "AutoGoal15")
+public class AutoGoal15 extends AbstractAuto{
     private Follower f;
     private Paths path;
-    public static int CYCLES = 2;
 
     @Override
     protected Pose getStartPose() {
@@ -44,27 +45,47 @@ public class AutoGoal18 extends AbstractAuto {
             path.mirrorAll();
         }
         Common.robot.shooter.setGoalAlliance();
-        path.goal18Build();
+        path.goal12Build();
     }
     @Override
     protected void onRun() {
         shootPreload();
         shootFirst();
         shootSecond();
-        for (int i = 0; i < CYCLES; i++) {
-            gateCycle();
-        }
+        shootThird();
     }
 
-    private void gateCycle() {
+
+    private void shootThird() {
+        path.thirdShoot.getPath(2).setTValueConstraint(0.88);
+        path.thirdShoot.getPath(1).setTValueConstraint(0.88);
+        path.thirdShoot.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new FollowPathAction(f, path.cycleGate.getPath(0)),
-                        RobotActions.setIntake(1, 0),
-                        new FollowPathAction(f, path.cycleGate.getPath(1)),
-                        new SleepAction(2),
-                        new FollowPathAction(f, path.cycleGate.getPath(2)),
-                        RobotActions.shootArtifacts(3)
+                        new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_THIRD")),
+                        new ParallelAction(
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 0, f, "speed_up_3"), // speed up to dash to third set of balls
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(.5)),
+                                                RobotActions.setIntake(1, 0)
+                                        ),
+                                        path.thirdShoot, 0.8, 0, f, "slow_down_3"), // slow down to intake balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 2, f, "speed_up_3_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(1)),
+                                                RobotActions.armTurret(),
+                                                RobotActions.armFlywheel()
+                                        ),
+                                        path.thirdShoot, 0.01, 2, f, "Arm_flywheel_and_turret"
+                                ),
+                                new FollowPathAction(f, path.thirdShoot, true)
+                        ),
+
+                        RobotActions.shootArtifacts(3, 3),
+                        new FollowPathAction(f, path.goalLeave),
+                        new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )
         );
 
@@ -88,7 +109,15 @@ public class AutoGoal18 extends AbstractAuto {
                                         ),
                                         path.secondIntakeAndShoot, 0.8, 0, f, "slow_down_2"), // slow down to intake balls
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntakeAndShoot, 0.01, 2, f, "speed_up_2_post_intake"), // lets go fast after intake balls, back to triangle to shoot
-                                new FollowPathAction(f, path.secondIntakeAndShoot) //dashes to second 3 balls, slows down and starts intake at halfway point in path
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(1)),
+                                                RobotActions.armTurret(),
+                                                RobotActions.armFlywheel()
+                                        ),
+                                        path.secondIntakeAndShoot, 0.01, 2, f, "Arm_flywheel_and_turret"
+                                ),
+                                new FollowPathAction(f, path.secondIntakeAndShoot)//dashes to second 3 balls, slows down and starts intake at halfway point in path
                         ),
 
                         //shoots first 3 balls
@@ -120,8 +149,18 @@ public class AutoGoal18 extends AbstractAuto {
                                 new FollowPathAction(f, path.firstIntake, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path, then goes to gate and releases scored balls
                         ),
                         new SleepAction(0.6), //hits the bar to let out scored balls, and sits there for half a second
-                        new FollowPathAction(f, path.firstShoot, true), //dashes at max speed back to line to prepare shooting sequence
+                        new ParallelAction(
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(1)),
+                                                RobotActions.armTurret(),
+                                                RobotActions.armFlywheel()
+                                        ),
+                                        path.firstShoot, 0.01, 0, f, "Arm_flywheel_and_turret"
+                                ),
+                                new FollowPathAction(f, path.firstShoot, true) //dashes at max speed back to line to prepare shooting sequence
 
+                        ),
                         //shoots first 3 balls
                         RobotActions.shootArtifacts(3, 3),
 

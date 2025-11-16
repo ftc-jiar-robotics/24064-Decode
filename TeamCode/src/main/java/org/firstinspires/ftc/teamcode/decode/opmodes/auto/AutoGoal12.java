@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
-
+// TODO add priming for shooting
 @Configurable
 @Autonomous(name = "AutoGoal12")
 public class AutoGoal12 extends AbstractAuto{

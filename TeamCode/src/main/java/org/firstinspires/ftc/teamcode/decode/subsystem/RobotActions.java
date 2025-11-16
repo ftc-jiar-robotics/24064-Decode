@@ -28,7 +28,7 @@ public class RobotActions {
         return shootArtifacts(artifacts, Double.POSITIVE_INFINITY);
     }
 
-    public static Action shootArtifacts(int artifacts, double seconds) {
+    public static Action  shootArtifacts(int artifacts, double seconds) {
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
                 new InstantAction(() -> robot.intake.set(0.85)),
@@ -45,5 +45,13 @@ public class RobotActions {
                     isSlowMode = false;
                 })
             );
+    }
+
+    public static Action armFlywheel() {
+        return new InstantAction(() -> robot.shooter.setFlywheelManual(Flywheel.FlyWheelStates.ARMING));
+    }
+
+    public static Action armTurret() {
+        return new InstantAction(() -> robot.shooter.setTurretManual(Turret.TurretStates.ODOM_TRACKING));
     }
 }

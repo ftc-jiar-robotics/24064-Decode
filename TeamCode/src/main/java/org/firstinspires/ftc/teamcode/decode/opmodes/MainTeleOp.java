@@ -65,19 +65,16 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) Common.isRed = !isRed;
                 dashTelemetry.addData("IS BIG TRIANGLE: ", isBigTriangle);
                 if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) isBigTriangle = !isBigTriangle;
-
-                AUTO_END_POSE = isBigTriangle ? new Pose(113.5, 135.5, Math.toRadians(270)) : new Pose(88.6, 7.25, Math.toRadians(90));
-
                 dashTelemetry.update();
             }
+            AUTO_END_POSE = isRed ? (isBigTriangle ? Common.RED_BIG_TRIANGLE : Common.RED_SMALL_TRIANGLE) : (isBigTriangle ? Common.BLUE_BIG_TRIANGLE : Common.BLUE_SMALL_TRIANGLE);
+
         }
 
         robot = new Robot(hardwareMap);
         robot.shooter.setGoalAlliance();
 
         waitForStart();
-
-        if (!isRed) AUTO_END_POSE = AUTO_END_POSE.mirror().setHeading(isBigTriangle ? (3.0 * Math.PI) / 2.0 : Math.PI / 2.0);
 
         robot.drivetrain.setStartingPose(AUTO_END_POSE);
 

@@ -92,8 +92,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
 
-    public void setTurretManual(double power) {
-        turret.setManual(power);
+    public void setTurretManual(Turret.TurretStates t) {
+        turret.set(t, true);
     }
 
     public void applyOffsets() {
