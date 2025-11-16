@@ -45,7 +45,7 @@ public class AutoGoal15 extends AbstractAuto{
             path.mirrorAll();
         }
         Common.robot.shooter.setGoalAlliance();
-        path.goal12Build();
+        path.goal15Build();
     }
     @Override
     protected void onRun() {
@@ -53,8 +53,43 @@ public class AutoGoal15 extends AbstractAuto{
         shootFirst();
         shootSecond();
         shootThird();
+        shootHP();
     }
 
+
+private void shootHP() { //shoot hp? :whatwasyourauton:
+        path.humanPlayerShoot.getPath(2).setTValueConstraint(0.88); //TODO tune all these constraints
+        path.humanPlayerShoot.getPath(1).setTValueConstraint(0.88);
+        path.humanPlayerShoot.getPath(0).setTValueConstraint(0.88);
+        robot.actionScheduler.addAction(
+                new SequentialAction(
+                        new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_HP")),
+                        new ParallelAction(
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 0, f, "speed_up_3"), // speed up to dash to third set of balls
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(.5)),
+                                                RobotActions.setIntake(1, 0)
+                                        ),
+                                        path.humanPlayerShoot, 0.8, 0, f, "slow_down_4"), // slow down to intake balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 2, f, "speed_up_3_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(1)),
+                                                RobotActions.armTurret(),
+                                                RobotActions.armFlywheel()
+                                        ),
+                                        path.humanPlayerShoot, 0.01, 2, f, "Arm_flywheel_and_turret"
+                                ),
+                                new FollowPathAction(f, path.humanPlayerShoot, true)
+                        ),
+
+                        RobotActions.shootArtifacts(3, 3),
+                        new FollowPathAction(f, path.goalLeave),
+                        new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_HP"))
+                )
+        );
+    }
 
     private void shootThird() {
         path.thirdShoot.getPath(2).setTValueConstraint(0.88);
@@ -84,7 +119,6 @@ public class AutoGoal15 extends AbstractAuto{
                         ),
 
                         RobotActions.shootArtifacts(3, 3),
-                        new FollowPathAction(f, path.goalLeave),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )
         );

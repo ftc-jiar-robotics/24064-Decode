@@ -17,6 +17,8 @@ public class Paths {
     public static boolean isPathRed = false;
     // TODO put all poses/heading in respective named list & mirror thru list
 
+    //TODO all HP angles + positions need to be tuned
+
     public static Pose
             control0 = new Pose(47.6, 113.1),
             control1 = new Pose(22.1, 78.4),
@@ -32,7 +34,9 @@ public class Paths {
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
             endIntake2 = new Pose(15.4, endIntake1.getY() - 24),
             startIntake3 = new Pose(startIntake1.getX(), startIntake2.getY() - 24), // Intaking 3rd
-            endIntake3 = new Pose(15.4, endIntake2.getY() - 24);
+            endIntake3 = new Pose(15.4, endIntake2.getY() - 24),
+            startIntakeHP = new Pose(15.4, endIntake2.getY() - 24),
+            endIntakeHP = new Pose(15.4, endIntake2.getY() - 24);
 
     public static double
             gateAngle = Math.toRadians(0),
@@ -41,7 +45,10 @@ public class Paths {
             gateCycleShootAngle = Math.toRadians(250),
             gateCycleIntakeAngle = Math.toRadians(140),
             startIntakeAngle = Math.toRadians(-155),
-            endIntakeAngle = Math.toRadians(-150);
+            endIntakeAngle = Math.toRadians(-150),
+            startIntakeAngleHP = Math.toRadians(0),
+            endIntakeAngleHP = Math.toRadians(0);
+
 
     public void mirrorAll() {
         control0 = control0.mirror();
@@ -56,6 +63,8 @@ public class Paths {
         endIntake2 = endIntake2.mirror();
         startIntake3 = startIntake3.mirror();
         endIntake3 = endIntake3.mirror();
+        startIntakeHP = startIntakeHP.mirror();
+        endIntakeHP = endIntakeHP.mirror();
         gateCycleCP = gateCycleCP.mirror();
         gateCycleOpen = gateCycleOpen.mirror();
         gateCycleIntake = gateCycleIntake.mirror();
@@ -65,6 +74,8 @@ public class Paths {
         startIntakeAngle = mirrorAngleRad(startIntakeAngle);
         gateAngle = mirrorAngleRad(gateAngle);
         endIntakeAngle = mirrorAngleRad(endIntakeAngle);
+        startIntakeAngleHP = mirrorAngleRad(startIntakeAngleHP);
+        endIntakeAngleHP = mirrorAngleRad(endIntakeAngleHP);
         gateCycleIntakeAngle = mirrorAngleRad(gateCycleIntakeAngle);
         gateCycleShootAngle = mirrorAngleRad(gateCycleShootAngle);
 
@@ -73,6 +84,111 @@ public class Paths {
     public double mirrorAngleRad(double angle) {
         return Math.PI - angle;
     }
+
+
+    public void goal15Build(){
+        shootPreload = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierCurve(
+                                start,
+                                control0,
+                                shoot
+                        )
+                )
+                .setLinearHeadingInterpolation(startAngle, shootAngle)
+                .build();
+        firstIntake = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(shoot, startIntake1)
+                )
+                .setTangentHeadingInterpolation()
+                .addPath(
+                        // Path 1
+                        new BezierLine(startIntake1, endIntake1)
+                )
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
+                .addPath( // Gate
+                        // Path 2
+                        new BezierCurve(
+                                endIntake1,
+                                control1,
+                                gate
+                        )
+                )
+                .setConstantHeadingInterpolation(gateAngle)
+                .setReversed() .build();
+        firstShoot = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(gate, shoot)
+                )
+                .setConstantHeadingInterpolation(gateAngle)
+                .setReversed() .build();
+        secondIntakeAndShoot = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(shoot, startIntake2)
+                )
+                .setConstantHeadingInterpolation(startIntakeAngle)
+                .addPath(
+                        // Path 1
+                        new BezierLine(startIntake2, endIntake2)
+                )
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
+                .addPath(
+                        // Path 2
+                        new BezierLine(endIntake2, shoot)
+                )
+                .setTangentHeadingInterpolation()
+                .setReversed().build();
+        thirdShoot = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(shoot, startIntake3)
+                )
+                .setLinearHeadingInterpolation(shootAngle, startIntakeAngle) // Intaking
+                .addPath(
+                        // Path 1
+                        new BezierLine(startIntake3, endIntake3)
+                )
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
+                .addPath(
+                        // Path 2
+                        new BezierLine(endIntake3, shoot)
+                )
+                .setTangentHeadingInterpolation()
+                .setReversed().build();
+        humanPlayerShoot = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(shoot, startIntakeHP)
+                )
+                .setLinearHeadingInterpolation(shootAngle, startIntakeAngleHP) // Intaking
+                .addPath(
+                        //Path 1
+                        new BezierLine(startIntakeHP, endIntakeHP)
+                )
+                .setLinearHeadingInterpolation(startIntakeAngleHP, endIntakeAngleHP)
+                .addPath(
+                        //Path 2
+                        new BezierLine(endIntakeHP, shoot)
+                )
+                .setTangentHeadingInterpolation()
+                .setReversed().build();
+        goalLeave = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(shoot, leave)
+                )
+                .setTangentHeadingInterpolation()
+                .build();
+    }
+
+
+
+
 
     public void goal12Build() {
         shootPreload = f.pathBuilder()
@@ -223,6 +339,7 @@ public class Paths {
     public PathChain secondIntakeAndShoot;
     public PathChain secondShoot;
     public PathChain thirdShoot;
+    public PathChain humanPlayerShoot;
     public PathChain goalLeave;
     public PathChain cycleGate;
 }
