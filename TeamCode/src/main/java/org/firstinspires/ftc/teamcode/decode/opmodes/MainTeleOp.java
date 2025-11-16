@@ -125,12 +125,11 @@ public class MainTeleOp extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
             if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.drivetrain.setPose(AUTO_END_POSE);
 
-            boolean inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
             // if Intake see's one queue 3 shots,
             // However if feeder see's smthn but intake doesn't then queue 1 shot
             // TODO Make this an action
-            if (inTriangle) {
+            if (Common.inTriangle) {
                 Robot.ArtifactColor feederColor = robot.shooter.getColor();
                 if (feederColor != Robot.ArtifactColor.NONE) {
                     int shots = (robot.intake.getColor() != Robot.ArtifactColor.NONE) ? 3 : 1;
@@ -145,7 +144,7 @@ public class MainTeleOp extends LinearOpMode {
                 robot.shooter.clearQueueShots();
             }
 
-            lastInTriangle = inTriangle;
+            lastInTriangle = Common.inTriangle;
 
             robot.printTelemetry();
         }

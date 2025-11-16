@@ -35,7 +35,8 @@ public final class Common {
             isTelemetryOn = false,
             isRed = false,
             isBigTriangle = false,
-            isHoodManual = false;
+            isHoodManual = false,
+            inTriangle = false;
 
     public static final double
             LEFT = Math.toRadians(180),
