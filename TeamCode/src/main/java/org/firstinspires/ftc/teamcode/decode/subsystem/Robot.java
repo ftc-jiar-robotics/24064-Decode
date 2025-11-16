@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_COLOR_SENSOR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
@@ -100,7 +102,27 @@ public final class Robot {
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
-        ledController.update(shooter.getQueuedShots(), Common.inTriangle);
+        int ballCount = 0;
+
+        if (!inTriangle && shooter.getQueuedShots() <= 0) {
+            switch (shooter.getColor()) {
+                case NONE: break;
+                case GREEN:
+                case PURPLE:
+                default:
+                    ballCount = 1;
+                    switch (intake.getColor()) {
+                        case NONE: break;
+                        case GREEN:
+                        case PURPLE:
+                            ballCount = 3;
+                    }
+            }
+
+            ledController.update(ballCount);
+        } else ledController.showShooterTolerance();
+
+
         readSensors();
     }
 
