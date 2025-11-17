@@ -32,22 +32,23 @@ public class Paths {
             startIntake1 = new Pose(38.2, 91.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 91.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
-            endIntake2 = new Pose(15.4, endIntake1.getY() - 24),
+            endIntake2 = new Pose(16.4, endIntake1.getY() - 24),
             startIntake3 = new Pose(startIntake1.getX(), startIntake2.getY() - 24), // Intaking 3rd
-            endIntake3 = new Pose(15.4, endIntake2.getY() - 24),
-            startIntakeHP = new Pose(13.5, 18.6),//TODO Can't these 2 be j 1 pose?
-            endIntakeHP = new Pose(5.3, 7.3);
+            endIntake3 = new Pose(16.4, endIntake2.getY() - 24),
+            endIntakeHP = new Pose(9.300, 10.600),//TODO Can't these 2 be j 1 pose?
+            midIntakeHP = new Pose(18.300, 10.600),
+            controlHP = new Pose(57.300, 17.400);
 
     public static double
-            gateAngle = Math.toRadians(0),
+            gateAngle = Math.toRadians(180),
             startAngle = Math.toRadians(270),
             shootAngle = Math.toRadians(-127),
             gateCycleShootAngle = Math.toRadians(250),
             gateCycleIntakeAngle = Math.toRadians(140),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
-            startIntakeAngleHP = Math.toRadians(-106), //TODO Can't these 2 be j 1 angle?
-            endIntakeAngleHP = Math.toRadians(-140);
+            startIntakeAngleHP = Math.toRadians(180), //TODO Can't these 2 be j 1 angle?
+            shootHPAngle = Math.toRadians(-114);
 
 
     public void mirrorAll() {
@@ -63,11 +64,12 @@ public class Paths {
         endIntake2 = endIntake2.mirror();
         startIntake3 = startIntake3.mirror();
         endIntake3 = endIntake3.mirror();
-        startIntakeHP = startIntakeHP.mirror();
         endIntakeHP = endIntakeHP.mirror();
+        midIntakeHP = midIntakeHP.mirror();
         gateCycleCP = gateCycleCP.mirror();
         gateCycleOpen = gateCycleOpen.mirror();
         gateCycleIntake = gateCycleIntake.mirror();
+        controlHP = controlHP.mirror();
 
         startAngle = mirrorAngleRad(startAngle);
         shootAngle = mirrorAngleRad(shootAngle);
@@ -75,9 +77,9 @@ public class Paths {
         gateAngle = mirrorAngleRad(gateAngle);
         endIntakeAngle = mirrorAngleRad(endIntakeAngle);
         startIntakeAngleHP = mirrorAngleRad(startIntakeAngleHP);
-        endIntakeAngleHP = mirrorAngleRad(endIntakeAngleHP);
         gateCycleIntakeAngle = mirrorAngleRad(gateCycleIntakeAngle);
         gateCycleShootAngle = mirrorAngleRad(gateCycleShootAngle);
+        shootHPAngle = mirrorAngleRad(shootHPAngle);
 
     }
 
@@ -118,14 +120,14 @@ public class Paths {
                         )
                 )
                 .setConstantHeadingInterpolation(gateAngle)
-                .setReversed() .build();
+                .build();
         firstShoot = f.pathBuilder()
                 .addPath(
                         // Path 0
                         new BezierLine(gate, shoot)
                 )
                 .setConstantHeadingInterpolation(gateAngle)
-                .setReversed() .build();
+                .build();
         secondIntakeAndShoot = f.pathBuilder()
                 .addPath(
                         // Path 0
@@ -160,23 +162,39 @@ public class Paths {
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed().build();
+        humanPlayerIntake0 = f.pathBuilder()
+                .addPath(
+                    // Path 0
+                    new BezierCurve(
+                            shoot,
+                            controlHP,
+                            endIntakeHP
+                    )
+                )
+                .setTangentHeadingInterpolation()
+                .build();
+
+        humanPlayerIntake1 = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(endIntakeHP, midIntakeHP)
+                )
+                .setConstantHeadingInterpolation(startIntakeAngleHP)
+                .build();
+
         humanPlayerShoot = f.pathBuilder()
                 .addPath(
                         // Path 0
-                        new BezierLine(shoot, startIntakeHP)
+                        new BezierLine(midIntakeHP, endIntakeHP)
                 )
-                .setLinearHeadingInterpolation(shootAngle, startIntakeAngleHP) // Intaking
+                .setConstantHeadingInterpolation(startIntakeAngleHP)
                 .addPath(
-                        //Path 1
-                        new BezierLine(startIntakeHP, endIntakeHP) //TODO don't need this path if start&end is j 1 pose
-                )
-                .setLinearHeadingInterpolation(startIntakeAngleHP, endIntakeAngleHP)
-                .addPath(
-                        //Path 2
+                        // Path 1
                         new BezierLine(endIntakeHP, shoot)
                 )
-                .setTangentHeadingInterpolation()
-                .setReversed().build();
+                .setConstantHeadingInterpolation(shootHPAngle)
+                .build();
+
         goalLeave = f.pathBuilder()
                 .addPath(
                         // Path 0
@@ -339,6 +357,8 @@ public class Paths {
     public PathChain secondIntakeAndShoot;
     public PathChain secondShoot;
     public PathChain thirdShoot;
+    public PathChain humanPlayerIntake0;
+    public PathChain humanPlayerIntake1;
     public PathChain humanPlayerShoot;
     public PathChain goalLeave;
     public PathChain cycleGate;

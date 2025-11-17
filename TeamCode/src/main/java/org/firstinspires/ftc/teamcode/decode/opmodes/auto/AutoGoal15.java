@@ -16,9 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.Paths;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
-import org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
-import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
@@ -38,7 +36,7 @@ public class AutoGoal15 extends AbstractAuto{
         f = robot.drivetrain;
         path = new Paths(f);
 
-        isFuturePoseOn = true;
+        isFuturePoseOn = false;
 
         if (Common.isRed != Paths.isPathRed) {
             Paths.isPathRed = !Paths.isPathRed;
@@ -58,37 +56,44 @@ public class AutoGoal15 extends AbstractAuto{
 
 
 private void shootHP() { //shoot hp? :whatwasyourauton:
-        path.humanPlayerShoot.getPath(2).setTValueConstraint(0.88); //TODO tune all these constraints
-        path.humanPlayerShoot.getPath(1).setTValueConstraint(0.88);
-        path.humanPlayerShoot.getPath(0).setTValueConstraint(0.88);
+    path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.88);
+    path.humanPlayerShoot.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_HP")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 0, f, "speed_up_HP"), // speed up to dash to third set of balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake0, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(.5)),
+                                                new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.humanPlayerShoot, 0.8, 0, f, "slow_down_HP"), // slow down to intake balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 2, f, "speed_up_HP_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                        path.humanPlayerIntake0, 0.8, 0, f, "slow_down_hp"), // slow down to intake balls
+                                new FollowPathAction(f, path.humanPlayerIntake0, true)
+                        ),
+                        new SleepAction(0.3),
+                        new FollowPathAction(f, path.humanPlayerIntake1, true),
+                        new SleepAction(0.3),
+                        new ParallelAction(
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.humanPlayerShoot, 0.01, 2, f, "Arm_flywheel_and_turret"
+                                        path.humanPlayerShoot, 0.01, 1, f, "arm_flywheel_and_turret_hp"
                                 ),
                                 new FollowPathAction(f, path.humanPlayerShoot, true)
                         ),
 
-                        RobotActions.shootArtifacts(3, 3),
+                        RobotActions.shootArtifacts(3, 2.5),
                         new FollowPathAction(f, path.goalLeave),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_HP"))
                 )
         );
+
+        robot.actionScheduler.runBlocking();
     }
 
     private void shootThird() {
@@ -102,7 +107,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 0, f, "speed_up_3"), // speed up to dash to third set of balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(.5)),
+                                                new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.thirdShoot, 0.8, 0, f, "slow_down_3"), // slow down to intake balls
@@ -113,12 +118,12 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.thirdShoot, 0.01, 2, f, "Arm_flywheel_and_turret"
+                                        path.thirdShoot, 0.01, 2, f, "arm_flywheel_and_turret_3"
                                 ),
                                 new FollowPathAction(f, path.thirdShoot, true)
                         ),
 
-                        RobotActions.shootArtifacts(3, 3),
+                        RobotActions.shootArtifacts(3, 2.5),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )
         );
@@ -138,7 +143,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntakeAndShoot, 0.01, 0, f, "speed_up_2"), // speed up to dash to second balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(.5)),
+                                                new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.secondIntakeAndShoot, 0.8, 0, f, "slow_down_2"), // slow down to intake balls
@@ -149,13 +154,13 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.secondIntakeAndShoot, 0.01, 2, f, "Arm_flywheel_and_turret"
+                                        path.secondIntakeAndShoot, 0.01, 2, f, "arm_flywheel_and_turret_2"
                                 ),
                                 new FollowPathAction(f, path.secondIntakeAndShoot)//dashes to second 3 balls, slows down and starts intake at halfway point in path
                         ),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 3),
+                        RobotActions.shootArtifacts(3, 2.5),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_SECOND"))
                 )
@@ -175,7 +180,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                         new ParallelAction(
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(.5)),
+                                                new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.firstIntake, 0.3, 0, f, "slow_down_1"), // slow down to intake balls
@@ -190,13 +195,13 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.firstShoot, 0.01, 0, f, "Arm_flywheel_and_turret"
+                                        path.firstShoot, 0.01, 0, f, "arm_flywheel_and_turret_1"
                                 ),
                                 new FollowPathAction(f, path.firstShoot, true) //dashes at max speed back to line to prepare shooting sequence
 
                         ),
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 3),
+                        RobotActions.shootArtifacts(3, 2.5),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_FIRST"))
                 ));
@@ -213,7 +218,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_PRELOAD")),
                         new FollowPathAction(f, path.shootPreload, true),
-                        RobotActions.shootArtifacts(3, 3),
+                        RobotActions.shootArtifacts(3, 2.5),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_PRELOAD"))
                 )
         );

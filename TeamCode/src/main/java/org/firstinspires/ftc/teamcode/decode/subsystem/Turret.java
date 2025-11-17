@@ -65,9 +65,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             VARIANCE_TOLERANCE = 0.04,
             HEADING_VARIANCE_TOLERANCE = 0.04,
             VISION_SAMPLE_SIZE = 5,
-            PID_TOLERANCE = 2,
+            PID_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -33.0;
+            ABSOLUTE_ENCODER_OFFSET = -34.0;
 
     public static int
             CHECK_UNDETECTED_LOOPS = (1 << 3) - 1, // checking every X loops to switch to VISION_TRACKING state
