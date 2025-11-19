@@ -72,23 +72,23 @@ public class AutoGoal18 extends AbstractAuto {
     }
 
     private void shootSecond() {
-        path.secondIntakeAndShoot.getPath(2).setTValueConstraint(0.88);
-        path.secondIntakeAndShoot.getPath(1).setTValueConstraint(0.8);
-        path.secondIntakeAndShoot.getPath(0).setTValueConstraint(0.88);
+        path.secondIntake.getPath(2).setTValueConstraint(0.88);
+        path.secondIntake.getPath(1).setTValueConstraint(0.8);
+        path.secondIntake.getPath(0).setTValueConstraint(0.88);
 
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_SECOND")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntakeAndShoot, 0.01, 0, f, "speed_up_2"), // speed up to dash to second balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 0, f, "speed_up_2"), // speed up to dash to second balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(.5)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.secondIntakeAndShoot, 0.8, 0, f, "slow_down_2"), // slow down to intake balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntakeAndShoot, 0.01, 2, f, "speed_up_2_post_intake"), // lets go fast after intake balls, back to triangle to shoot
-                                new FollowPathAction(f, path.secondIntakeAndShoot) //dashes to second 3 balls, slows down and starts intake at halfway point in path
+                                        path.secondIntake, 0.8, 0, f, "slow_down_2"), // slow down to intake balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 2, f, "speed_up_2_post_intake"), // lets go fast after intake balls, back to triangle to shoot
+                                new FollowPathAction(f, path.secondIntake) //dashes to second 3 balls, slows down and starts intake at halfway point in path
                         ),
 
                         //shoots first 3 balls

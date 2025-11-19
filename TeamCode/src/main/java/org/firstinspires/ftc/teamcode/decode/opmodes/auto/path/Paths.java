@@ -21,7 +21,8 @@ public class Paths {
 
     public static Pose
             control0 = new Pose(47.6, 113.1),
-            control1 = new Pose(22.1, 78.4),
+            gateControl12 = new Pose(22.1, 78.4),
+            gateControl15 = new Pose(27.1, 72.4),
             start = new Pose(30.5, 135.5, Math.toRadians(270)),
             shoot = new Pose(51.0, 101.0),
             gate = new Pose(15.5, 73),
@@ -32,9 +33,9 @@ public class Paths {
             startIntake1 = new Pose(38.2, 91.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 91.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
-            endIntake2 = new Pose(16.4, endIntake1.getY() - 24),
+            endIntake2 = new Pose(17.7, endIntake1.getY() - 24),
             startIntake3 = new Pose(startIntake1.getX(), startIntake2.getY() - 24), // Intaking 3rd
-            endIntake3 = new Pose(16.4, endIntake2.getY() - 24),
+            endIntake3 = new Pose(17.7, endIntake2.getY() - 24),
             endIntakeHP = new Pose(9.300, 10.600),//TODO Can't these 2 be j 1 pose?
             midIntakeHP = new Pose(18.300, 10.600),
             controlHP = new Pose(57.300, 17.400);
@@ -53,7 +54,8 @@ public class Paths {
 
     public void mirrorAll() {
         control0 = control0.mirror();
-        control1 = control1.mirror();
+        gateControl12 = gateControl12.mirror();
+        gateControl15 = gateControl15.mirror();
         gate = gate.mirror();
         start = start.mirror();
         shoot = shoot.mirror();
@@ -100,6 +102,7 @@ public class Paths {
                 )
                 .setLinearHeadingInterpolation(startAngle, shootAngle)
                 .build();
+
         firstIntake = f.pathBuilder()
                 .addPath(
                         // Path 0
@@ -111,24 +114,15 @@ public class Paths {
                         new BezierLine(startIntake1, endIntake1)
                 )
                 .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
-                .addPath( // Gate
-                        // Path 2
-                        new BezierCurve(
-                                endIntake1,
-                                control1,
-                                gate
-                        )
-                )
-                .setConstantHeadingInterpolation(gateAngle)
-                .build();
-        firstShoot = f.pathBuilder()
                 .addPath(
-                        // Path 0
-                        new BezierLine(gate, shoot)
+                        // Path 2
+                        new BezierLine(endIntake1, shoot)
                 )
-                .setConstantHeadingInterpolation(gateAngle)
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
-        secondIntakeAndShoot = f.pathBuilder()
+
+        secondIntake = f.pathBuilder()
                 .addPath(
                         // Path 0
                         new BezierLine(shoot, startIntake2)
@@ -139,12 +133,26 @@ public class Paths {
                         new BezierLine(startIntake2, endIntake2)
                 )
                 .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
-                .addPath(
+                .addPath( // Gate
                         // Path 2
-                        new BezierLine(endIntake2, shoot)
+                        new BezierCurve(
+                                endIntake2,
+                                gateControl15,
+                                gate
+                        )
+                )
+                .setConstantHeadingInterpolation(gateAngle)
+                .build();
+
+        secondShoot = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(gate, shoot)
                 )
                 .setTangentHeadingInterpolation()
-                .setReversed().build();
+                .setReversed()
+                .build();
+
         thirdShoot = f.pathBuilder()
                 .addPath(
                         // Path 0
@@ -220,6 +228,7 @@ public class Paths {
                 )
                 .setLinearHeadingInterpolation(startAngle, shootAngle)
                 .build();
+
         firstIntake = f.pathBuilder()
                 .addPath(
                         // Path 0
@@ -235,20 +244,24 @@ public class Paths {
                         // Path 2
                         new BezierCurve(
                                 endIntake1,
-                                control1,
+                                gateControl12,
                                 gate
                         )
                 )
                 .setConstantHeadingInterpolation(gateAngle)
-                .setReversed() .build();
+                .setReversed()
+                .build();
+
         firstShoot = f.pathBuilder()
                 .addPath(
                         // Path 0
                         new BezierLine(gate, shoot)
                 )
                 .setConstantHeadingInterpolation(gateAngle)
-                .setReversed() .build();
-        secondIntakeAndShoot = f.pathBuilder()
+                .setReversed()
+                .build();
+
+        secondIntake = f.pathBuilder()
                 .addPath(
                         // Path 0
                         new BezierLine(shoot, startIntake2)
@@ -265,6 +278,7 @@ public class Paths {
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed().build();
+
         thirdShoot = f.pathBuilder()
                 .addPath(
                         // Path 0
@@ -304,7 +318,7 @@ public class Paths {
                 .setLinearHeadingInterpolation(startAngle, shootAngle)
                 .build();
 
-        secondIntakeAndShoot = f.pathBuilder()
+        secondIntake = f.pathBuilder()
                 .addPath(
                         // Path 4
                         new BezierLine(shoot, startIntake2)
@@ -354,8 +368,9 @@ public class Paths {
     public PathChain shootPreload;
     public PathChain firstIntake;
     public PathChain firstShoot;
-    public PathChain secondIntakeAndShoot;
+    public PathChain secondIntake;
     public PathChain secondShoot;
+    public PathChain thirdIntake;
     public PathChain thirdShoot;
     public PathChain humanPlayerIntake0;
     public PathChain humanPlayerIntake1;
