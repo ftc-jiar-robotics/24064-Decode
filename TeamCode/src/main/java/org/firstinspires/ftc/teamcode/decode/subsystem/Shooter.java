@@ -111,7 +111,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     @Override
     public void run() {
         didCurrentDrop = flywheel.didRPMSpike();
-        if (didCurrentDrop && targetState == ShooterStates.RUNNING) {
+        if (didCurrentDrop && targetState == ShooterStates.RUNNING && (feeder.isInLeftRange() || feeder.isInRightRange())) {
             queuedShots--;
         }
 
