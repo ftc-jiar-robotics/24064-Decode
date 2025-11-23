@@ -108,7 +108,7 @@ public enum Motif {
 
         if ((!correctAudited || numArtifactsScored == 8) && !scoringTwoThirds) {
             scoringOrder.remove(1);
-            scoringOrder.remove(2);
+            scoringOrder.remove(1);
         } else if (!correctThird || numArtifactsScored == 7)
             scoringOrder.remove(2);
 
