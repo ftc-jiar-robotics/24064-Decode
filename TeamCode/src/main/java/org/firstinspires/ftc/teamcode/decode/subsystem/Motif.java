@@ -52,7 +52,7 @@ public enum Motif {
 
     /**
      * @param numArtifactsScored Number of artifacts in the classifier ramp
-     * @return The motif pattern to score to satisfy the randomization
+     * @return The motif pattern to score to satisfy this randomization
      */
     public Motif getEffectiveMotif(int numArtifactsScored) {
         return Motif.fromGreenIndex(this.ordinal() - numArtifactsScored);
