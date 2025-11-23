@@ -52,31 +52,31 @@ public enum Motif {
 
 
     /**
-     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
+     * @param numArtifactsScored Number of artifacts in the classifier ramp
      * @return The motif pattern to score to satisfy the randomization
      */
-    public Motif getEffectiveMotif(int numClassifierSlotsEmpty) {
-        return Motif.fromGreenIndex(this.ordinal() + numClassifierSlotsEmpty);
+    public Motif getEffectiveMotif(int numArtifactsScored) {
+        return Motif.fromGreenIndex(this.ordinal() - numArtifactsScored);
     }
 
     /**
      * @param allowOneWrong Allow one wrong artifact color when scoring three artifacts
-     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
+     * @param numArtifactsScored Number of artifacts in the classifier ramp
      * @param spindexerSlots Artifacts available in the spindexer
      * @return The order to score the artifacts in the spindexer
      */
-    public int[] getScoringOrder(boolean allowOneWrong, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
+    public int[] getScoringOrder(boolean allowOneWrong, int numArtifactsScored, Artifact... spindexerSlots) {
 
-        if (numClassifierSlotsEmpty == 0)
+        if (numArtifactsScored == 9)
             return new int[0];
 
         ArrayList<Integer> scoringOrder = new ArrayList<>(Arrays.asList(0, 1, 2));
 
         assert spindexerSlots.length == scoringOrder.size();
 
-        Motif effectiveMotif = this.getEffectiveMotif(numClassifierSlotsEmpty);
+        Motif effectiveMotif = this.getEffectiveMotif(numArtifactsScored);
 
-        allowOneWrong = allowOneWrong && EMPTY.numOccurrencesIn(spindexerSlots) == 0 && numClassifierSlotsEmpty >= 3;
+        allowOneWrong = allowOneWrong && EMPTY.numOccurrencesIn(spindexerSlots) == 0 && numArtifactsScored <= 6;
 
         int firstArtifactIndex = effectiveMotif.get(0).firstOccurrenceIn(spindexerSlots);
         int auditIndex = 1; // spindexer slot to check after first one
@@ -107,9 +107,9 @@ public enum Motif {
         boolean correctThird = spindexerSlots[scoringOrder.get(2)] == effectiveMotif.get(2);
         boolean scoringTwoThirds = correctThird && allowOneWrong;
 
-        if ((!correctAudited || numClassifierSlotsEmpty < 2) && !scoringTwoThirds)
+        if ((!correctAudited || numArtifactsScored == 8) && !scoringTwoThirds)
             scoringOrder.subList(1, scoringOrder.size()).clear();
-        else if (!correctThird || numClassifierSlotsEmpty < 3)
+        else if (!correctThird || numArtifactsScored == 7)
             scoringOrder.remove(2);
 
         return toIntArray(scoringOrder);
@@ -130,16 +130,16 @@ public enum Motif {
 
     /**
      * @param scoringOrder The order to score the artifacts in the spindexer
-     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
+     * @param numArtifactsScored Number of artifacts in the classifier ramp
      * @param spindexerSlots Artifacts available in the spindexer
      * @return The number of points scored by following the provided scoringOrder
      */
-    public int getScoreValue(int[] scoringOrder, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
+    public int getScoreValue(int[] scoringOrder, int numArtifactsScored, Artifact... spindexerSlots) {
 
-        if (numClassifierSlotsEmpty == 0)
+        if (numArtifactsScored == 9)
             return 0;
 
-        Motif effectiveMotif = getEffectiveMotif(numClassifierSlotsEmpty);
+        Motif effectiveMotif = getEffectiveMotif(numArtifactsScored);
 
         return scoringOrder.length * 3 +
                             (scoringOrder.length > 0 && spindexerSlots[scoringOrder[0]] == effectiveMotif.artifacts[0] ? 2 : 0) +
@@ -150,12 +150,12 @@ public enum Motif {
 
     /**
      * @param allowOneWrong Allow one wrong artifact color when scoring three artifacts
-     * @param numClassifierSlotsEmpty Number of empty spots in the classifier ramp
+     * @param numArtifactsScored Number of artifacts in the classifier ramp
      * @param spindexerSlots Artifacts available in the spindexer
      * @return The order to score the artifacts in the spindexer, as a {@link String}
      */
-    public String getScoringInstructions(boolean allowOneWrong, int numClassifierSlotsEmpty, Artifact... spindexerSlots) {
-        int[] scoringOrder = getScoringOrder(allowOneWrong, numClassifierSlotsEmpty, spindexerSlots);
+    public String getScoringInstructions(boolean allowOneWrong, int numArtifactsScored, Artifact... spindexerSlots) {
+        int[] scoringOrder = getScoringOrder(allowOneWrong, numArtifactsScored, spindexerSlots);
         if (scoringOrder.length == 0)
             return "Continue intaking";
         StringBuilder s = new StringBuilder(String.format("Score slot%s ", scoringOrder.length > 1 ? "s" : ""));
@@ -164,29 +164,29 @@ public enum Motif {
         s.append("(");
         for (int i : scoringOrder)
             s.append(spindexerSlots[i].name().charAt(0));
-        return s + ") for " + getScoreValue(scoringOrder, numClassifierSlotsEmpty, spindexerSlots) + " pts";
+        return s + ") for " + getScoreValue(scoringOrder, numArtifactsScored, spindexerSlots) + " pts";
     }
 
     public static void main(String[] args) {
 
         // edit these for testing:
-        String classifierRamp = "PPG PGP ___";
+        String classifierRamp = "PPG PGG GG_";
         boolean allowOneWrong = true;
 
         System.out.println("Classifier: " + classifierRamp);
 
         Artifact[] artifacts = Artifact.values();
 
-        int numClassifierSlotsEmpty = classifierRamp.replace(" ", "").length() - classifierRamp.replace(" ", "").replace("_", "").length();
+        int numArtifactsScored = classifierRamp.replace(" ", "").replace("_", "").length();
 
         for (Motif randomization : Motif.motifs) {
-            System.out.printf("Randomization: %s, Effective: %s%nSpindexer: %n", randomization, randomization.getEffectiveMotif(numClassifierSlotsEmpty));
+            System.out.printf("Randomization: %s%nEffective: %s%nSpindexer: %n", randomization, randomization.getEffectiveMotif(numArtifactsScored));
             for (Artifact first : artifacts) for (Artifact second : artifacts) for (Artifact third : artifacts) {
                 System.out.printf("     %s%s%s --> %s%n",
                         first.name().replace("E", "_").charAt(0),
                         second.name().replace("E", "_").charAt(0),
                         third.name().replace("E", "_").charAt(0),
-                        randomization.getScoringInstructions(allowOneWrong, numClassifierSlotsEmpty, first, second, third)
+                        randomization.getScoringInstructions(allowOneWrong, numArtifactsScored, first, second, third)
                 );
             }
         }
