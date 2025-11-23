@@ -16,6 +16,8 @@ public final class Common {
             NAME_FEEDER_COLOR_SENSOR = "colorSensorFeeder",
             NAME_FEEDER_LEFT_DISTANCE_SENSOR = "leftDistanceSensorFeeder",
             NAME_FEEDER_RIGHT_DISTANCE_SENSOR = "rightDistanceSensorFeeder",
+            NAME_FEEDER_LEFT_PIN0 = "leftDistancePin0",
+            NAME_FEEDER_RIGHT_PIN0 = "rightDistancePin0",
 
             NAME_FLYWHEEL_MASTER_MOTOR = "shooterMaster",
             NAME_FLYWHEEL_SLAVE_MOTOR = "shooterSlave",
@@ -82,7 +84,8 @@ public final class Common {
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
-            DISTANCE_SENSOR_UPDATE_LOOPS = (1 << 4) - 1, // TODO tune this
+            MIN_DISTANCE = 0, // TODO mm
+            MAX_DISTANCE = 100, // TODO mm
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 
 

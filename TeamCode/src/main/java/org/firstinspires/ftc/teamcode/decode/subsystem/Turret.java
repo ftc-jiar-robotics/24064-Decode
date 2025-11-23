@@ -37,9 +37,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
     public static PIDGains odoPIDGains = new PIDGains(
-            0.02475,
-            0.0008,
-            0.001,
+            0.02275,
+            0.000925,
+            0.00075,
             Double.POSITIVE_INFINITY
     );
 
@@ -240,7 +240,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         }
 
-        if (isPIDInTolerance()) controller.reset();
+        if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) controller.reset();
     }
 
     // Pedro frame: 0° = North (+Y), 90° = East (+X), CCW+
