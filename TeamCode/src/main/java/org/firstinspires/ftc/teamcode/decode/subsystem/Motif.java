@@ -106,9 +106,10 @@ public enum Motif {
         boolean correctThird = spindexerSlots[scoringOrder.get(2)] == effectiveMotif.get(2);
         boolean scoringTwoThirds = correctThird && allowOneWrong;
 
-        if ((!correctAudited || numArtifactsScored == 8) && !scoringTwoThirds)
-            scoringOrder.subList(1, scoringOrder.size()).clear();
-        else if (!correctThird || numArtifactsScored == 7)
+        if ((!correctAudited || numArtifactsScored == 8) && !scoringTwoThirds) {
+            scoringOrder.remove(1);
+            scoringOrder.remove(2);
+        } else if (!correctThird || numArtifactsScored == 7)
             scoringOrder.remove(2);
 
         return scoringOrder;
