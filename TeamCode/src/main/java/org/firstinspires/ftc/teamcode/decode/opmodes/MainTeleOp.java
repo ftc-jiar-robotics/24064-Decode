@@ -125,14 +125,14 @@ public class MainTeleOp extends LinearOpMode {
 
             // if Intake see's one queue 3 shots,
             // However if feeder see's smthn but intake doesn't then queue 1 shot
-            // TODO Make this an action
             if (Common.inTriangle) {
                 Robot.ArtifactColor feederColor = robot.shooter.getColor();
                 if (feederColor != Robot.ArtifactColor.NONE) {
                     int shots = (robot.intake.getColor() != Robot.ArtifactColor.NONE) ? 3 : 1;
-                    if (robot.shooter.getQueuedShots() == 0)
+                    if (robot.shooter.getQueuedShots() == 0) {
                         robot.shooter.setQueuedShots(storedShots == 0 ? shots : storedShots);
-
+                        storedShots = 0;
+                    }
                 }
                 if ((robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) && robot.shooter.getQueuedShots() > 0)
                     robot.intake.set(0.85, true);
