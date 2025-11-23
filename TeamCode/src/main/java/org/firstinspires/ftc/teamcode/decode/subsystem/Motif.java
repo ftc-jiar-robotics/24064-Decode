@@ -7,7 +7,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Artifact.PURPLE;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public enum Motif {
 
@@ -65,14 +64,12 @@ public enum Motif {
      * @param spindexerSlots Artifacts available in the spindexer
      * @return The order to score the artifacts in the spindexer
      */
-    public int[] getScoringOrder(boolean allowOneWrong, int numArtifactsScored, Artifact... spindexerSlots) {
+    public ArrayList<Integer> getScoringOrder(boolean allowOneWrong, int numArtifactsScored, Artifact... spindexerSlots) {
 
         if (numArtifactsScored == 9)
-            return new int[0];
+            return new ArrayList<>();
 
-        ArrayList<Integer> scoringOrder = new ArrayList<>(Arrays.asList(0, 1, 2));
-
-        assert spindexerSlots.length == scoringOrder.size();
+        assert spindexerSlots.length == 3;
 
         Motif effectiveMotif = this.getEffectiveMotif(numArtifactsScored);
 
@@ -84,16 +81,18 @@ public enum Motif {
         // no artifact in spindexer matches first color of motif
         if (firstArtifactIndex == -1) {
             if (!allowOneWrong)
-                return new int[0];
+                return new ArrayList<>();
 
             // find occurrence of second motif color in spindexer
             firstArtifactIndex = effectiveMotif.get(1).firstOccurrenceIn(spindexerSlots) - 1;
 
             if (firstArtifactIndex == -2) // -2 because search result was followed by - 1
-                return new int[0];
+                return new ArrayList<>();
 
             auditIndex = 0;
         }
+
+        ArrayList<Integer> scoringOrder = new ArrayList<>(Arrays.asList(0, 1, 2));
 
         Collections.rotate(scoringOrder, -firstArtifactIndex);
 
@@ -112,20 +111,7 @@ public enum Motif {
         else if (!correctThird || numArtifactsScored == 7)
             scoringOrder.remove(2);
 
-        return toIntArray(scoringOrder);
-    }
-
-    /**
-     *
-     * @param list {@link Integer}s in a {@link List}
-     * @return Same values but in an int[]
-     */
-    private static int[] toIntArray(List<Integer> list)  {
-        int[] ret = new int[list.size()];
-        int i = 0;
-        for (Integer e : list)
-            ret[i++] = e;
-        return ret;
+        return scoringOrder;
     }
 
     /**
@@ -134,17 +120,17 @@ public enum Motif {
      * @param spindexerSlots Artifacts available in the spindexer
      * @return The number of points scored by following the provided scoringOrder
      */
-    public int getScoreValue(int[] scoringOrder, int numArtifactsScored, Artifact... spindexerSlots) {
+    public int getScoreValue(ArrayList<Integer> scoringOrder, int numArtifactsScored, Artifact... spindexerSlots) {
 
         if (numArtifactsScored == 9)
             return 0;
 
         Motif effectiveMotif = getEffectiveMotif(numArtifactsScored);
 
-        return scoringOrder.length * 3 +
-                            (scoringOrder.length > 0 && spindexerSlots[scoringOrder[0]] == effectiveMotif.artifacts[0] ? 2 : 0) +
-                            (scoringOrder.length > 1 && spindexerSlots[scoringOrder[1]] == effectiveMotif.artifacts[1] ? 2 : 0) +
-                            (scoringOrder.length > 2 && spindexerSlots[scoringOrder[2]] == effectiveMotif.artifacts[2] ? 2 : 0)
+        return scoringOrder.size() * 3 +
+                            (!scoringOrder.isEmpty() && spindexerSlots[scoringOrder.get(0)] == effectiveMotif.artifacts[0] ? 2 : 0) +
+                            (scoringOrder.size() > 1 && spindexerSlots[scoringOrder.get(1)] == effectiveMotif.artifacts[1] ? 2 : 0) +
+                            (scoringOrder.size() > 2 && spindexerSlots[scoringOrder.get(2)] == effectiveMotif.artifacts[2] ? 2 : 0)
         ;
     }
 
@@ -155,10 +141,10 @@ public enum Motif {
      * @return The order to score the artifacts in the spindexer, as a {@link String}
      */
     public String getScoringInstructions(boolean allowOneWrong, int numArtifactsScored, Artifact... spindexerSlots) {
-        int[] scoringOrder = getScoringOrder(allowOneWrong, numArtifactsScored, spindexerSlots);
-        if (scoringOrder.length == 0)
+        ArrayList<Integer> scoringOrder = getScoringOrder(allowOneWrong, numArtifactsScored, spindexerSlots);
+        if (scoringOrder.isEmpty())
             return "Continue intaking";
-        StringBuilder s = new StringBuilder(String.format("Score slot%s ", scoringOrder.length > 1 ? "s" : ""));
+        StringBuilder s = new StringBuilder(String.format("Score slot%s ", scoringOrder.size() > 1 ? "s" : ""));
         for (int k : scoringOrder)
             s.append(k).append(" ");
         s.append("(");
