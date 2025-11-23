@@ -28,8 +28,8 @@ public class Paths {
             gate = new Pose(15.5, 73),
             leave = new Pose(37.5,90.1),
             gateCycleCP = new Pose(30.000, 55.700),
-            gateCycleOpen = new Pose(11.000, 61.900),
-            gateCycleIntake = new Pose(9.000, 63.700),
+            gateCycleOpen = new Pose(11.000, 62.400),
+            gateCycleIntake = new Pose(9.000, 64.200),
             startIntake1 = new Pose(38.2, 91.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 91.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
@@ -45,7 +45,7 @@ public class Paths {
             startAngle = Math.toRadians(270),
             shootAngle = Math.toRadians(-127),
             gateCycleShootAngle = Math.toRadians(215),
-            gateCycleIntakeAngle = Math.toRadians(140),
+            gateCycleIntakeAngle = Math.toRadians(120),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
             startIntakeAngleHP = Math.toRadians(180), //TODO Can't these 2 be j 1 angle?

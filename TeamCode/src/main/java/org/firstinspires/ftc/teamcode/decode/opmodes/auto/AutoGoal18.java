@@ -37,7 +37,7 @@ public class AutoGoal18 extends AbstractAuto {
         f = robot.drivetrain;
         path = new Paths(f);
 
-        isFuturePoseOn = true;
+        isFuturePoseOn = false;
 
         if (Common.isRed != Paths.isPathRed) {
             Paths.isPathRed = !Paths.isPathRed;
@@ -63,7 +63,11 @@ public class AutoGoal18 extends AbstractAuto {
                         RobotActions.setIntake(1, 0),
                         new FollowPathAction(f, path.cycleGate.getPath(1)),
                         new SleepAction(2),
-                        new FollowPathAction(f, path.cycleGate.getPath(2), true),
+                        new ParallelAction(
+                                RobotActions.armFlywheel(),
+                                RobotActions.armTurret(),
+                                new FollowPathAction(f, path.cycleGate.getPath(2), true)
+                        ),
                         RobotActions.shootArtifacts(3, 2.5)
                 )
         );
@@ -95,7 +99,8 @@ public class AutoGoal18 extends AbstractAuto {
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
-                                                RobotActions.armFlywheel()
+                                                RobotActions.armFlywheel(),
+                                                RobotActions.armTurret()
                                         ),
                                         path.secondShoot, 0.01, 0, f, "arm_flywheel_and_turret_2"
                                 ),
@@ -131,7 +136,8 @@ public class AutoGoal18 extends AbstractAuto {
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
-                                                RobotActions.armFlywheel()
+                                                RobotActions.armFlywheel(),
+                                                RobotActions.armTurret()
                                         ),
                                         path.firstIntake, 0.01, 2, f, "arm_flywheel_and_turret_1"
                                 ),
