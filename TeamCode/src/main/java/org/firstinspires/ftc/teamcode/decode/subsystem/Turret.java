@@ -236,7 +236,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     new State(currentAngle, 0, 0, 0), 0.2
             );
 
-            turret.set(pidInTolerance ? 0 : output);
+            if(pidInTolerance) output = 0;
+            turret.set(output);
 
         }
 
