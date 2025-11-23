@@ -122,13 +122,13 @@ public enum Motif {
      */
     public int getScoreValue(ArrayList<Integer> scoringOrder, int numArtifactsScored, Artifact... spindexerSlots) {
 
-        if (numArtifactsScored == 9)
+        if (numArtifactsScored == 9 || scoringOrder.isEmpty())
             return 0;
 
         Motif effectiveMotif = getEffectiveMotif(numArtifactsScored);
 
         return scoringOrder.size() * 3 +
-                            (!scoringOrder.isEmpty() && spindexerSlots[scoringOrder.get(0)] == effectiveMotif.artifacts[0] ? 2 : 0) +
+                            (spindexerSlots[scoringOrder.get(0)] == effectiveMotif.artifacts[0] ? 2 : 0) +
                             (scoringOrder.size() > 1 && spindexerSlots[scoringOrder.get(1)] == effectiveMotif.artifacts[1] ? 2 : 0) +
                             (scoringOrder.size() > 2 && spindexerSlots[scoringOrder.get(2)] == effectiveMotif.artifacts[2] ? 2 : 0)
         ;
@@ -156,7 +156,7 @@ public enum Motif {
     public static void main(String[] args) {
 
         // edit these for testing:
-        String classifierRamp = "PPG PGG GG_";
+        String classifierRamp = "PPG PGG ___";
         boolean allowOneWrong = true;
 
         System.out.println("Classifier: " + classifierRamp);
