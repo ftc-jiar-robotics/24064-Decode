@@ -27,9 +27,9 @@ public class Paths {
             shoot = new Pose(51.0, 101.0),
             gate = new Pose(15.5, 73),
             leave = new Pose(37.5,90.1),
-            gateCycleCP = new Pose(44.000, 65.700),
+            gateCycleCP = new Pose(30.000, 55.700),
             gateCycleOpen = new Pose(11.000, 61.900),
-            gateCycleIntake = new Pose(11.000, 55.700),
+            gateCycleIntake = new Pose(9.000, 63.700),
             startIntake1 = new Pose(38.2, 91.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 91.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
@@ -44,7 +44,7 @@ public class Paths {
             gateAngle = Math.toRadians(180),
             startAngle = Math.toRadians(270),
             shootAngle = Math.toRadians(-127),
-            gateCycleShootAngle = Math.toRadians(250),
+            gateCycleShootAngle = Math.toRadians(215),
             gateCycleIntakeAngle = Math.toRadians(140),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
@@ -272,12 +272,16 @@ public class Paths {
                         new BezierLine(startIntake2, endIntake2)
                 )
                 .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
-                .addPath(
+                .addPath( // Gate
                         // Path 2
-                        new BezierLine(endIntake2, shoot)
+                        new BezierCurve(
+                                endIntake2,
+                                gateControl15,
+                                gate
+                        )
                 )
-                .setTangentHeadingInterpolation()
-                .setReversed().build();
+                .setConstantHeadingInterpolation(gateAngle)
+                .build();
 
         thirdShoot = f.pathBuilder()
                 .addPath(
@@ -318,25 +322,56 @@ public class Paths {
                 .setLinearHeadingInterpolation(startAngle, shootAngle)
                 .build();
 
+        firstIntake = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(shoot, startIntake1)
+                )
+                .setTangentHeadingInterpolation()
+                .addPath(
+                        // Path 1
+                        new BezierLine(startIntake1, endIntake1)
+                )
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
+                .addPath(
+                        // Path 2
+                        new BezierLine(endIntake1, shoot)
+                )
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
+
         secondIntake = f.pathBuilder()
                 .addPath(
-                        // Path 4
+                        // Path 0
                         new BezierLine(shoot, startIntake2)
                 )
                 .setConstantHeadingInterpolation(startIntakeAngle)
                 .addPath(
-                        // Path 5
+                        // Path 1
                         new BezierLine(startIntake2, endIntake2)
                 )
-                .setLinearHeadingInterpolation(startIntakeAngle, gateAngle)
+                .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
+                .addPath( // Gate
+                        // Path 2
+                        new BezierCurve(
+                                endIntake2,
+                                gateControl15,
+                                gate
+                        )
+                )
+                .setConstantHeadingInterpolation(gateAngle)
                 .build();
+
         secondShoot = f.pathBuilder()
                 .addPath(
-                        // Path 6
-                        new BezierLine(endIntake2, shoot)
+                        // Path 0
+                        new BezierLine(gate, shoot)
                 )
                 .setTangentHeadingInterpolation()
-                .setReversed().build();
+                .setReversed()
+                .build();
+
         cycleGate = f.pathBuilder()
                 .addPath(
                         // cycleStart

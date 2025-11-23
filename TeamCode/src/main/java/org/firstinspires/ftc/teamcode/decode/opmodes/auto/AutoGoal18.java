@@ -59,12 +59,12 @@ public class AutoGoal18 extends AbstractAuto {
     private void gateCycle() {
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new FollowPathAction(f, path.cycleGate.getPath(0)),
+                        new FollowPathAction(f, path.cycleGate.getPath(0), true),
                         RobotActions.setIntake(1, 0),
                         new FollowPathAction(f, path.cycleGate.getPath(1)),
                         new SleepAction(2),
-                        new FollowPathAction(f, path.cycleGate.getPath(2)),
-                        RobotActions.shootArtifacts(3)
+                        new FollowPathAction(f, path.cycleGate.getPath(2), true),
+                        RobotActions.shootArtifacts(3, 2.5)
                 )
         );
 
@@ -83,16 +83,27 @@ public class AutoGoal18 extends AbstractAuto {
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 0, f, "speed_up_2"), // speed up to dash to second balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(.5)),
+                                                new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.secondIntake, 0.8, 0, f, "slow_down_2"), // slow down to intake balls
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 2, f, "speed_up_2_post_intake"), // lets go fast after intake balls, back to triangle to shoot
-                                new FollowPathAction(f, path.secondIntake) //dashes to second 3 balls, slows down and starts intake at halfway point in path
+                                new FollowPathAction(f, path.secondIntake)//dashes to second 3 balls, slows down and starts intake at halfway point in path
+                        ),
+                        new SleepAction(0.6), // sleep to let balls roll out of classifier
+                        new ParallelAction(
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(1)),
+                                                RobotActions.armFlywheel()
+                                        ),
+                                        path.secondShoot, 0.01, 0, f, "arm_flywheel_and_turret_2"
+                                ),
+                                new FollowPathAction(f, path.secondShoot) // goes from gate to shoot second set
                         ),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 3),
+                        RobotActions.shootArtifacts(3, 2.5),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_SECOND"))
                 )
@@ -112,25 +123,29 @@ public class AutoGoal18 extends AbstractAuto {
                         new ParallelAction(
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(.5)),
+                                                new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.firstIntake, 0.3, 0, f, "slow_down_1"), // slow down to intake balls
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.firstIntake, 0.01, 2, f, "speed_up_1_post_intake"), // speed up after intake
-                                new FollowPathAction(f, path.firstIntake, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path, then goes to gate and releases scored balls
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(1)),
+                                                RobotActions.armFlywheel()
+                                        ),
+                                        path.firstIntake, 0.01, 2, f, "arm_flywheel_and_turret_1"
+                                ),
+                                new FollowPathAction(f, path.firstIntake, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path
                         ),
-                        new SleepAction(0.6), //hits the bar to let out scored balls, and sits there for half a second
-                        new FollowPathAction(f, path.firstShoot, true), //dashes at max speed back to line to prepare shooting sequence
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 3),
+                        RobotActions.shootArtifacts(3, 2.5),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_FIRST"))
                 ));
 
 
         robot.actionScheduler.runBlocking();
-
     }
 
     private void shootPreload() {
