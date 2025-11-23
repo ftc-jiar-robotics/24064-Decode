@@ -145,13 +145,23 @@ public enum Motif {
         ArrayList<Integer> scoringOrder = getScoringOrder(allowOneWrong, numArtifactsScored, spindexerSlots);
         if (scoringOrder.isEmpty())
             return "Continue intaking";
-        StringBuilder s = new StringBuilder(String.format("Score slot%s ", scoringOrder.size() > 1 ? "s" : ""));
+
+        StringBuilder indices = new StringBuilder();
         for (int k : scoringOrder)
-            s.append(k).append(" ");
-        s.append("(");
+            indices.append(k).append(" ");
+
+        StringBuilder colors = new StringBuilder();
         for (int i : scoringOrder)
-            s.append(spindexerSlots[i].name().charAt(0));
-        return s + ") for " + getScoreValue(scoringOrder, numArtifactsScored, spindexerSlots) + " pts";
+            colors.append(spindexerSlots[i].name().charAt(0));
+
+        return String.format(
+                "Score slot%s %s(%s) for %d pts",
+
+                scoringOrder.size() > 1 ? "s" : "",
+                indices,
+                colors,
+                getScoreValue(scoringOrder, numArtifactsScored, spindexerSlots)
+        );
     }
 
     public static void main(String[] args) {
