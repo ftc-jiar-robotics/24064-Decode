@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MAX_CR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MIN_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_COLOR_SENSOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
@@ -76,6 +78,10 @@ public final class Robot {
     // Reads all the necessary sensors (including battery volt.) in one bulk read
     public void readSensors() {
         bulkReader.bulkRead();
+    }
+
+    public static boolean isArtifactFound(ColorSensor colorSensor) {
+        return !colorSensor.hsv.inRange(INTAKE_NONE_MIN_CR, INTAKE_NONE_MAX_CR);
     }
 
     public static Robot.ArtifactColor getColor(ColorSensor colorSensor, boolean isRev) {

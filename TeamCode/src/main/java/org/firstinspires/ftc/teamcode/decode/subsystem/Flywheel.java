@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_MASTER_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_SLAVE_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFlywheelManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
@@ -157,7 +158,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         switch (targetState) {
             case IDLE:
-                shootingRPM = IDLE_RPM;
+                if (!isFlywheelManual) shootingRPM = IDLE_RPM;
                 velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
                 settleTime = MOTOR_RPM_SETTLE_TIME_IDLE;
@@ -186,14 +187,22 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
     }
 
+    public void incrementFlywheelRPM(double RPM, boolean isIncrementing) {
+        if (isIncrementing) shootingRPM += RPM;
+        else shootingRPM -= RPM;
+
+        velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+    }
+
     private void chooseShootingRPM(double distance) {
 //        shootingRPM = lutRPM[0];
 //        for (int i = 0; i < lutDistances.length; i++) {
 //            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
 //        }
-
-        shootingRPM = (-0.08913 * (distance * distance)) + (33.68 * distance) + 906.3;
-        velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+        if (!isFlywheelManual) {
+            shootingRPM = (9.96931333e-04*(distance*distance*distance)-3.30349107e-01 * (distance * distance)) + (4.91516956e+01 * distance) + 6.72693763e+02;
+            velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+        }
     }
 
 

@@ -31,7 +31,7 @@ public class Intake extends Subsystem<Double> {
     }
 
     public Robot.ArtifactColor getColor() {
-        return Robot.getColor(colorSensor, false);
+        return Robot.isArtifactFound(colorSensor) ? Robot.ArtifactColor.PURPLE : Robot.ArtifactColor.NONE;
     }
 
     @Override

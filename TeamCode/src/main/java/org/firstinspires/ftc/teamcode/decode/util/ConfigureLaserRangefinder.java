@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
-import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 
 @Autonomous
@@ -36,10 +34,10 @@ public class ConfigureLaserRangefinder extends LinearOpMode {
         rightLRF.setTiming(10, 0);
         leftLRF.setROI(0, 15, 15, 0);
         rightLRF.setROI(0, 15, 15, 0);
-        leftLRF.setPin0Digital(Common.MIN_DISTANCE, Common.MAX_DISTANCE);
-        leftLRF.setPin1Digital(Common.MIN_DISTANCE, Common.MAX_DISTANCE);
-        rightLRF.setPin0Digital(Common.MIN_DISTANCE, Common.MAX_DISTANCE);
-        rightLRF.setPin0Digital(Common.MIN_DISTANCE, Common.MAX_DISTANCE);
+        leftLRF.setPin0Digital(Common.MIN_DISTANCE_FEEDER, Common.MAX_DISTANCE_FEEDER);
+        leftLRF.setPin1Digital(Common.MIN_DISTANCE_FEEDER, Common.MAX_DISTANCE_FEEDER);
+        rightLRF.setPin0Digital(Common.MIN_DISTANCE_FEEDER, Common.MAX_DISTANCE_FEEDER);
+        rightLRF.setPin0Digital(Common.MIN_DISTANCE_FEEDER, Common.MAX_DISTANCE_FEEDER);
 
     }
 }

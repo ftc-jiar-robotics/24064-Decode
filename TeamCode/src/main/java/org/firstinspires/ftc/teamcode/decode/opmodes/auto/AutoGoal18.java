@@ -54,19 +54,37 @@ public class AutoGoal18 extends AbstractAuto {
         for (int i = 0; i < CYCLES; i++) {
             gateCycle();
         }
+        leave();
+    }
+
+    private void leave() {
+        robot.actionScheduler.addAction(new FollowPathAction(f, path.goalLeave));
+
+        robot.actionScheduler.runBlocking();
     }
 
     private void gateCycle() {
+        path.intakeGate.getPath(0).setTValueConstraint(0.9725);
+        path.intakeGate.getPath(1).setTValueConstraint(0.95);
+        path.shootGate.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new FollowPathAction(f, path.cycleGate.getPath(0), true),
-                        RobotActions.setIntake(1, 0),
-                        new FollowPathAction(f, path.cycleGate.getPath(1)),
-                        new SleepAction(2),
                         new ParallelAction(
-                                RobotActions.armFlywheel(),
-                                RobotActions.armTurret(),
-                                new FollowPathAction(f, path.cycleGate.getPath(2), true)
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(0.3)), path.intakeGate, 0.8, 0, f, "slow_down_gate_intake"),
+                                new Actions.CallbackAction(RobotActions.setIntake(1, 0), path.intakeGate, 0.01, 1, f, "start_intake_gate"),
+                                new FollowPathAction(f, path.intakeGate)
+                        ),
+                        new SleepAction(1.5),
+                        new InstantAction(() -> f.setMaxPower(1)),
+                        new ParallelAction(
+                                new Actions.CallbackAction(
+                                       new ParallelAction(
+                                               RobotActions.armFlywheel(),
+                                               RobotActions.armTurret()
+                                       ),
+                                        path.shootGate, 0.01, 0, f, "arm_flywheel_shoot_gate"
+                                ),
+                                new FollowPathAction(f, path.shootGate, true)
                         ),
                         RobotActions.shootArtifacts(3, 2.5)
                 )

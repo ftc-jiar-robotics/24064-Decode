@@ -89,7 +89,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150, ROUNDING_POINT);
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
-
+        this.turret.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         autoAim = new AutoAim(hw, NAME_TURRET_CAMERA);
         motorEncoder = rightBack.encoder;
 

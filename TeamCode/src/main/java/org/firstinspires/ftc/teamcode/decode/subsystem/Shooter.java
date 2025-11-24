@@ -107,6 +107,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.set(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
     }
 
+    public void incrementFlywheelRPM(double rpmIncrement, boolean isIncrementing) {
+        flywheel.incrementFlywheelRPM(rpmIncrement, isIncrementing);
+    }
+
 
     @Override
     public void run() {
@@ -128,7 +132,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
-                if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance()) {
+                if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && turret.getDistance() > Common.MIN_SHOOTING_DISTANCE) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);

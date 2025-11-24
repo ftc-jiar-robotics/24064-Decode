@@ -40,6 +40,7 @@ public final class Common {
             isRed = false,
             isBigTriangle = false,
             isHoodManual = false,
+            isFlywheelManual = false,
             inTriangle = false;
 
     public static final double
@@ -77,15 +78,16 @@ public final class Common {
 
 
     public static double
-            TIME_TO_SHOOT = 0.4,
+            TIME_TO_SHOOT = 0.5,
             ANG_VELOCITY_MULTIPLER = 0.4,
             SLOW_MODE = 0.4;
 
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
-            MIN_DISTANCE = 0, // TODO mm
-            MAX_DISTANCE = 100, // TODO mm
+            MIN_DISTANCE_FEEDER = 0, // TODO mm
+            MAX_DISTANCE_FEEDER = 100, // TODO mm
+            MIN_SHOOTING_DISTANCE = 40,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 
 
@@ -96,13 +98,13 @@ public final class Common {
             PURPLE_MIN_REV = new HSV(180, 0.3, 0.0),
             PURPLE_MAX_REV = new HSV(230, 0.45, 2.0);
 
-
-
     public static HSV
             GREEN_MIN_CR = new HSV(55, 0.5, 0.0),
             GREEN_MAX_CR = new HSV(90, 0.77, 2.0),
             PURPLE_MIN_CR = new HSV(44.3, 0.45, 0.0),
-            PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0);
+            PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0),
+            INTAKE_NONE_MIN_CR = new HSV(98, 0.275, 0),
+            INTAKE_NONE_MAX_CR = new HSV(102, 0.415, 2);
 
 
 

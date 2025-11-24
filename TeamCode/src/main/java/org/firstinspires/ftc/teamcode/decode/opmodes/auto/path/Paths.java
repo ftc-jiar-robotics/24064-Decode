@@ -28,15 +28,15 @@ public class Paths {
             gate = new Pose(15.5, 73),
             leave = new Pose(37.5,90.1),
             gateCycleCP = new Pose(30.000, 55.700),
-            gateCycleOpen = new Pose(11.000, 62.400),
-            gateCycleIntake = new Pose(9.000, 64.200),
+            gateCycleOpen = new Pose(12.200, 64.800),
+            gateCycleIntake = new Pose(11.900, 64.60),
             startIntake1 = new Pose(38.2, 91.3), // Intaking 1st
             endIntake1 = new Pose(17.7, 91.0),
             startIntake2 = new Pose(startIntake1.getX(), startIntake1.getY() - 24), // Intaking 2nd
             endIntake2 = new Pose(17.7, endIntake1.getY() - 24),
             startIntake3 = new Pose(startIntake1.getX(), startIntake2.getY() - 24), // Intaking 3rd
             endIntake3 = new Pose(17.7, endIntake2.getY() - 24),
-            endIntakeHP = new Pose(9.300, 10.600),//TODO Can't these 2 be j 1 pose?
+            endIntakeHP = new Pose(9.300, 10.600),
             midIntakeHP = new Pose(18.300, 10.600),
             controlHP = new Pose(57.300, 17.400);
 
@@ -45,10 +45,10 @@ public class Paths {
             startAngle = Math.toRadians(270),
             shootAngle = Math.toRadians(-127),
             gateCycleShootAngle = Math.toRadians(215),
-            gateCycleIntakeAngle = Math.toRadians(120),
+            gateCycleIntakeAngle = Math.toRadians(135),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
-            startIntakeAngleHP = Math.toRadians(180), //TODO Can't these 2 be j 1 angle?
+            startIntakeAngleHP = Math.toRadians(180),
             shootHPAngle = Math.toRadians(-114);
 
 
@@ -372,7 +372,7 @@ public class Paths {
                 .setReversed()
                 .build();
 
-        cycleGate = f.pathBuilder()
+        intakeGate = f.pathBuilder()
                 .addPath(
                         // cycleStart
                         new BezierCurve(
@@ -387,6 +387,9 @@ public class Paths {
                         new BezierLine(gateCycleOpen, gateCycleIntake)
                 )
                 .setConstantHeadingInterpolation(gateCycleIntakeAngle)
+                .build();
+
+        shootGate = f.pathBuilder()
                 .addPath(
                         // cycleEnd
                         new BezierCurve(
@@ -396,6 +399,14 @@ public class Paths {
                         )
                 )
                 .setLinearHeadingInterpolation(gateCycleIntakeAngle, gateCycleShootAngle)
+                .build();
+
+        goalLeave = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(shoot, leave)
+                )
+                .setTangentHeadingInterpolation()
                 .build();
     }
 
@@ -411,5 +422,6 @@ public class Paths {
     public PathChain humanPlayerIntake1;
     public PathChain humanPlayerShoot;
     public PathChain goalLeave;
-    public PathChain cycleGate;
+    public PathChain intakeGate;
+    public PathChain shootGate;
 }

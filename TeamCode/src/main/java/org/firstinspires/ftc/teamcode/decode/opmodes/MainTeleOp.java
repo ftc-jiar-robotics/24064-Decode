@@ -6,7 +6,9 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -18,6 +20,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_PO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFlywheelManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
@@ -117,10 +120,16 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             }
 
+            if (isFlywheelManual) {
+                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5, true);
+                if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(5, false);
+
+            }
+
             if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
             if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
             if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
-            if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.drivetrain.setPose(AUTO_END_POSE);
+            if (gamepadEx1.isDown(RIGHT_STICK_BUTTON) && gamepadEx1.isDown(LEFT_STICK_BUTTON)) robot.drivetrain.setPose(AUTO_END_POSE);
 
 
             // if Intake see's one queue 3 shots,
