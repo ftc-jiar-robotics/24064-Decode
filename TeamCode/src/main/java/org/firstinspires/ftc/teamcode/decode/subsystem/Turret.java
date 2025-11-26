@@ -198,7 +198,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     setTracking();
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
-                        if (autoAim.isTargetDetected()) currentState = TurretStates.VISION_TRACKING;
+                        boolean seesTag = autoAim.isTargetDetected();
+                        autoAim.updateDecimation();
+                        if (seesTag) currentState = TurretStates.VISION_TRACKING;
                         else break;
                     } else {
                         break;
