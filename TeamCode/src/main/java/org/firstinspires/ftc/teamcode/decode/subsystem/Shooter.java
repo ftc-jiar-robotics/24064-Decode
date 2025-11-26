@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_SHOOTING_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -125,6 +126,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     feeder.set(Feeder.FeederStates.OFF, true);
                 }
 
+                hood.set(Hood.MIN);
+
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.PREPPING;
@@ -132,6 +135,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
+                hood.set(Hood.MIN);
+
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && turret.getDistance() > Common.MIN_SHOOTING_DISTANCE) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
@@ -139,6 +144,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case RUNNING:
+                if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
                 feeder.set(Feeder.FeederStates.RUNNING, true);
 
@@ -161,8 +168,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
         }
 
-
-        if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
         turret.run();
         flywheel.run();

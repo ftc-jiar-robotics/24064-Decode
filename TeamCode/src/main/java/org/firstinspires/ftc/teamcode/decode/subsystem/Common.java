@@ -60,12 +60,12 @@ public final class Common {
             STRAFE_POD_X = -83.5,
 
             // Camera Stuff
-            CAM_HEIGHT = 11.5,
-            CAM_PITCH = 10.0,
+            CAM_HEIGHT = 14.5,
+            CAM_PITCH = 20.0,
 
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
-            CAM_OFFSET_X = -2.2,
-            CAM_OFFSET_Y = 6,
+            CAM_OFFSET_X = -1,
+            CAM_OFFSET_Y = -3.5,
             TURRET_OFFSET_Y = -2.559,
 
             MAX_VOLTAGE = 13;
@@ -86,7 +86,7 @@ public final class Common {
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
-            MAX_DISTANCE_FEEDER = 100, // TODO mm
+            MAX_DISTANCE_FEEDER = 67, // TODO mm
             MIN_SHOOTING_DISTANCE = 40,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 

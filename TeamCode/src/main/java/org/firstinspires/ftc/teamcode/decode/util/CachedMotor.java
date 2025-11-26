@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class CachedMotor extends MotorEx {
     private double currentOutput;
     
-    private final double roundingPoint;
+    private double roundingPoint;
     public static double SLEW_RATE = 0.2;
 
     public CachedMotor(@NonNull HardwareMap hardwareMap, String id, @NonNull GoBILDA gobildaType) {
@@ -22,6 +22,10 @@ public class CachedMotor extends MotorEx {
     public CachedMotor(@NonNull HardwareMap hardwareMap, String id, @NonNull GoBILDA gobildaType, double roundingPoint) {
         super(hardwareMap, id, gobildaType);
 
+        this.roundingPoint = roundingPoint;
+    }
+
+    public void setRoundingPoint(double roundingPoint) {
         this.roundingPoint = roundingPoint;
     }
 

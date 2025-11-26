@@ -4,12 +4,11 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VOLTAGE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_CAMERA;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_ENCODER;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_MOTOR;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.TIME_TO_SHOOT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.IDLE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.ODOM_TRACKING;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -36,7 +35,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final AnalogInput absoluteEncoder;
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
-    public static PIDGains odoPIDGains = new PIDGains(
+    public static PIDGains closeGains = new PIDGains(
+            0.02125,
+            0,
+            0.0003,
+            Double.POSITIVE_INFINITY
+    );
+
+    public static PIDGains farGains = new PIDGains(
             0.02275,
             0.000925,
             0.00075,
@@ -47,7 +53,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         IDLE, ODOM_TRACKING, VISION_TRACKING
     }
 
-    private TurretStates currentState = IDLE;
+    private TurretStates currentState = ODOM_TRACKING;
 
     private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
     private final PIDController controller = new PIDController(derivFilter);
@@ -58,14 +64,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double[] visionVariances = new double[3];
 
     public static double
-            kG = 0,
+            kS = -0.1167,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
-            ROUNDING_POINT = 10000,
+            ROUNDING_POINT = 100000,
+            PID_SWITCH_ANGLE = 20,
             VARIANCE_TOLERANCE = 0.04,
             HEADING_VARIANCE_TOLERANCE = 0.04,
             VISION_SAMPLE_SIZE = 5,
-            PID_TOLERANCE = 4,
+            PID_TOLERANCE = 3,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -34.0;
 
@@ -94,7 +101,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         motorEncoder = rightBack.encoder;
 
         motorEncoder.reset();
-        controller.setGains(odoPIDGains);
+        controller.setGains(closeGains);
         derivFilter.setGains(filterGains);
     }
 
@@ -174,12 +181,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     @Override
     public void run() {
         currentAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
+        double error = currentAngle - targetAngle;
 
+        PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
-        double output = Math.abs(currentAngle - targetAngle) >= 2 ? kG * scalar : 0;
+        double output = error > PID_TOLERANCE ? kS * scalar : (error < -PID_TOLERANCE ? -kS * scalar : 0);
 
-        controller.setGains(odoPIDGains);
+        controller.setGains(gains);
         derivFilter.setGains(filterGains);
         // turning robot heading to turret heading
         double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading();
@@ -230,7 +239,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         break;
                     }
             }
-
 
             rawPower = output;
 
@@ -293,20 +301,20 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public void printTelemetry() {
+        turret.setRoundingPoint(ROUNDING_POINT);
+
         telemetry.addLine("TURRET");
         telemetry.addData("current state (ENUM): ", currentState);
         telemetry.addData("calculated distance (INCHES): ", getDistance());
         telemetry.addData("is PID in tolerance (BOOLEAN): ", isPIDInTolerance());
 
-        if (robot.shooter.getQueuedShots() > 0) {
-            dashTelemetry.addLine("TURRET");
-            dashTelemetry.addData("vision setpoint (RADIANS): ", 0);
-            dashTelemetry.addData("current vision (RADIANS): ", autoAim.getTargetYawDegrees());
-            dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
-            dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
-            dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
-            dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
-        }
+        dashTelemetry.addLine("TURRET");
+        dashTelemetry.addData("vision setpoint (RADIANS): ", 0);
+        dashTelemetry.addData("current vision (RADIANS): ", autoAim.getTargetYawDegrees());
+        dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
+        dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
+        dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
+        dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
 
         dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
         dashTelemetry.addData("TURRET X (INCHES)", "%.4f", turretPos.getX());

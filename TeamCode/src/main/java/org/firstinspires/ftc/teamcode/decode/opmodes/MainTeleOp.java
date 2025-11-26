@@ -144,7 +144,7 @@ public class MainTeleOp extends LinearOpMode {
             if (Common.inTriangle) {
                 Robot.ArtifactColor feederColor = robot.shooter.getColor();
                 if (feederColor != Robot.ArtifactColor.NONE) {
-                    int shots = (robot.intake.getColor() != Robot.ArtifactColor.NONE) ? 3 : 1;
+                    int shots = (robot.intake.getColor() != Robot.ArtifactColor.NONE) && robot.shooter.getQueuedShots() <= 1 ? 3 : 1;
                     if (robot.shooter.getQueuedShots() == 0) {
                         robot.shooter.setQueuedShots(storedShots == 0 ? shots : storedShots);
                         storedShots = 0;
