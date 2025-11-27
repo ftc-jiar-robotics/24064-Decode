@@ -19,7 +19,7 @@ public class AutoAim {
     private final AprilTagProcessor processor;
 
     private int activeTargetId;
-    private final double FX = 577.345, FY = 577.345, CX = 320.0, CY = 180.0;
+    private final double FX = 577.345, FY = 577.345, CX = 320.0, CY = 240.0;
 
     // distance where we're near/far from the tag
     private static double NEAR_DIST_IN = 24.0;

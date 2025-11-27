@@ -200,7 +200,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
 //        }
         if (!isFlywheelManual) {
-            shootingRPM = (9.96931333e-04*(distance*distance*distance)-3.30349107e-01 * (distance * distance)) + (4.91516956e+01 * distance) + 6.72693763e+02;
+            shootingRPM = (-2.47750596e-03*(distance*distance*distance) +
+                    7.74743432e-01 * (distance * distance)) +
+                    (-6.33192246e+01 * distance) +
+                    4.32745250e+03;
             velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
         }
     }

@@ -64,8 +64,8 @@ public final class Common {
             CAM_PITCH = 20.0,
 
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
-            CAM_OFFSET_X = -1.254,
-            CAM_OFFSET_Y = -3.281,
+            CAM_OFFSET_X = 0,//-1.254,
+            CAM_OFFSET_Y = 0, //-3.281,
             TURRET_OFFSET_Y = -2.559,
 
             MAX_VOLTAGE = 13;
