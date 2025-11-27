@@ -36,16 +36,16 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final Motor.Encoder motorEncoder;
     private final AutoAim autoAim;
     public static PIDGains closeGains = new PIDGains(
-            0.02125,
+            0.01925,
             0,
-            0.0003,
+            0.00025,
             Double.POSITIVE_INFINITY
     );
 
     public static PIDGains farGains = new PIDGains(
-            0.02275,
-            0.000925,
-            0.00075,
+            0.0067,
+            0,
+            0.0000667,
             Double.POSITIVE_INFINITY
     );
 
@@ -68,7 +68,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,
-            PID_SWITCH_ANGLE = 20,
+            PID_SWITCH_ANGLE = 15,
             VARIANCE_TOLERANCE = 0.04,
             HEADING_VARIANCE_TOLERANCE = 0.04,
             VISION_SAMPLE_SIZE = 5,
@@ -208,7 +208,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         boolean seesTag = autoAim.isTargetDetected();
-                        autoAim.updateDecimation();
+//                        autoAim.updateDecimation();
                         if (seesTag) currentState = TurretStates.VISION_TRACKING;
                         else break;
                     } else {

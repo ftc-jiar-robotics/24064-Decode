@@ -135,7 +135,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
-                hood.set(Hood.MIN);
+                if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
 
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && turret.getDistance() > Common.MIN_SHOOTING_DISTANCE) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
