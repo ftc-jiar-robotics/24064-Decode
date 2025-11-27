@@ -26,13 +26,7 @@ public class FeederTest extends LinearOpMode {
                 feeder.set(Feeder.FeederStates.RUNNING, false);
             }
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.Y)) {
-                feeder.set(Feeder.FeederStates.IDLE, false);
-            }
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) {
-                feeder.set(Feeder.FeederStates.OUTTAKING, false);
-            }
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) {
-                feeder.set(Feeder.FeederStates.OFF, false);
+                feeder.set(Feeder.FeederStates.BLOCKING, false);
             }
 
             feeder.run();

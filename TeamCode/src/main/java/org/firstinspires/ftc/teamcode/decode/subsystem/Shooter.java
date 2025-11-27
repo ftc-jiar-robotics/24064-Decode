@@ -81,7 +81,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         targetState = ShooterStates.IDLE;
         turret.set(Turret.TurretStates.IDLE);
         flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-        feeder.set(Feeder.FeederStates.IDLE, true);
+        feeder.set(Feeder.FeederStates.RUNNING, true);
     }
 
     public void setGoalAlliance() {
@@ -89,7 +89,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public void setFeederIdle(boolean isIdle) {
-        if (isIdle) feeder.set(Feeder.FeederStates.IDLE, false);
+        if (isIdle) feeder.set(Feeder.FeederStates.RUNNING, false);
     }
 
 
@@ -122,9 +122,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
         switch (targetState) {
             case IDLE:
-                if (feeder.get() != Feeder.FeederStates.IDLE) {
-                    feeder.set(Feeder.FeederStates.OFF, true);
-                }
+                feeder.set(Feeder.FeederStates.BLOCKING);
 
                 hood.set(Hood.MIN);
 
@@ -154,7 +152,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                         targetState = ShooterStates.IDLE;
                         turret.set(Turret.TurretStates.IDLE);
                         flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-                        feeder.set(Feeder.FeederStates.IDLE, true);
+                        feeder.set(Feeder.FeederStates.BLOCKING, true);
                     }
                     else {
                         targetState = ShooterStates.RUNNING;
