@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.prototypes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -15,6 +17,7 @@ public class FeederTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         gamepadEx1 = new GamepadEx(gamepad1);
 
         feeder = new Feeder(hardwareMap);

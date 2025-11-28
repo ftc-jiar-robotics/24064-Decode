@@ -122,7 +122,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
         switch (targetState) {
             case IDLE:
-                feeder.set(Feeder.FeederStates.BLOCKING);
+                feeder.set(Feeder.FeederStates.BLOCKING, true);
 
                 hood.set(Hood.MIN);
 

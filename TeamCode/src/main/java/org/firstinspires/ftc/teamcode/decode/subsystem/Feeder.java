@@ -19,7 +19,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     private final DigitalChannel pin0Left, pin0Right;
 
-    private FeederStates currentState = FeederStates.RUNNING;
+    private FeederStates currentState = FeederStates.BLOCKING;
 
     public static float GAIN = 1.0f;
 
@@ -32,11 +32,11 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     }
 
     public static double
-        BLOCKING_ANGLE = 0,
-        RUNNING_ANGLE = 0; // default
+        BLOCKING_ANGLE = 325,
+        RUNNING_ANGLE = 350; // default
 
     public Feeder(HardwareMap hw) {
-        feederGate = new SimpleServoPivot(RUNNING_ANGLE, BLOCKING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
+        feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
         colorSensor = new ColorSensor(hw, Common.NAME_FEEDER_COLOR_SENSOR, GAIN);
         pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
         pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);

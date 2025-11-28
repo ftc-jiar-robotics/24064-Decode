@@ -113,7 +113,6 @@ public class MainTeleOp extends LinearOpMode {
             isSlowMode = robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING;
 
             robot.intake.set(trigger1, false);
-            robot.shooter.setFeederIdle(Math.abs(trigger1) > 0);
 
             if (isHoodManual) {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
