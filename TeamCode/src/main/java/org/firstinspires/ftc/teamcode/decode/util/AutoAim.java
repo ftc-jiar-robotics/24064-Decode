@@ -7,6 +7,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -30,6 +32,12 @@ public class AutoAim {
     //decimation we want when near/far
     private static float  NEAR_DECIM   = 3.0f;
     private static float  FAR_DECIM    = 1.2f;
+    private static int    X_BUFFER_SIZE = 3;
+    private static int    Y_BUFFER_SIZE = 3;
+
+    private MovingAverageFilter xFilter = new MovingAverageFilter(new MovingAverageGains(X_BUFFER_SIZE));
+    private MovingAverageFilter yFilter = new MovingAverageFilter(new MovingAverageGains(Y_BUFFER_SIZE));
+
 
 
 
@@ -51,8 +59,6 @@ public class AutoAim {
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setDrawCubeProjection(false);
 
-        
-
         processor = procB.build();
 
         visionPortal = new VisionPortal.Builder()
@@ -69,7 +75,7 @@ public class AutoAim {
     }
 
     /** Returns true if the selected target tag (by alliance) is currently detected. */
-    public boolean isTargetDetected() {
+    public boolean detectTarget() {
         cached = null;
         List<AprilTagDetection> dets = processor.getDetections();
         if (dets == null || dets.isEmpty()) return false;
@@ -83,24 +89,15 @@ public class AutoAim {
         }
         return false;
     }
-    public void updateDecimation() {
-        double r = (cached == null) ? Double.POSITIVE_INFINITY : cached.ftcPose.range;
-        double t = (r - NEAR_DIST_IN) / (FAR_DIST_IN - NEAR_DIST_IN);
-        t = Math.max(0.0, Math.min(1.0, t));
-        float dec = (float)(NEAR_DECIM + t * (FAR_DECIM - NEAR_DECIM));
-        dec = Math.max(MIN_DECIM, Math.min(MAX_DECIM, dec));
-        processor.setDecimation(dec);
-    }
-
-
-
 
     public Pose getTurretPosePedro() {
         double x = cached.robotPose.getPosition().y + 72;
         double y = 72 - cached.robotPose.getPosition().x;
         double headingDeg = cached.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
-        return new Pose(x, y, headingDeg);
+        return new Pose(xFilter.calculate(x), yFilter.calculate(y), headingDeg);
     }
+
+
 
     /** Horizontal yaw error (deg) from camera center to the selected target tag. */
     public double getTargetYawDegrees() {

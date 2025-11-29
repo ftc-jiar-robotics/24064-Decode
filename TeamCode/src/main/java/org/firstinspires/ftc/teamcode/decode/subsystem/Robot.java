@@ -80,6 +80,7 @@ public final class Robot {
         bulkReader.bulkRead();
     }
 
+
     public static boolean isArtifactFound(ColorSensor colorSensor) {
         return !colorSensor.hsv.inRange(INTAKE_NONE_MIN_CR, INTAKE_NONE_MAX_CR);
     }
@@ -111,19 +112,13 @@ public final class Robot {
         int ballCount = 0;
 
         if (!inTriangle && shooter.getQueuedShots() <= 0) {
-            switch (shooter.getColor()) {
-                case NONE: break;
-                case GREEN:
-                case PURPLE:
-                default:
-                    ballCount = 1;
-                    switch (intake.getColor()) {
-                        case NONE: break;
-                        case GREEN:
-                        case PURPLE:
-                            ballCount = 3;
-                    }
-            }
+                switch (intake.getColor()) {
+                    case NONE: break;
+                    case GREEN:
+                    case PURPLE:
+                        ballCount = 3;
+                }
+
 
             ledController.update(ballCount);
         } else ledController.showShooterTolerance();

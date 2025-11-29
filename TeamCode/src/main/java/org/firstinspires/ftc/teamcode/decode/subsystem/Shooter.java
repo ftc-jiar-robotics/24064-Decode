@@ -117,7 +117,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public void run() {
         didCurrentDrop = feeder.didShotOccur();
         if (targetState == ShooterStates.RUNNING && didCurrentDrop) {
-            queuedShots--;
+            queuedShots = 0;
         }
 
         switch (targetState) {

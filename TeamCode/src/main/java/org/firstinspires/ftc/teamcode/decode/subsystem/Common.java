@@ -24,7 +24,7 @@ public final class Common {
             NAME_HOOD_SERVO = "hood",
 
             NAME_INTAKE_MOTOR = "intake",
-            NAME_INTAKE_COLOR_SENSOR = "colorSensorIntake",
+            NAME_INTAKE_DISTANCE_SENSOR = "distanceSensorIntake",
 
             NAME_TURRET_MOTOR = "turret",
             NAME_TURRET_ENCODER = "turretEncoder",
@@ -63,8 +63,8 @@ public final class Common {
             CAM_PITCH = 20.0,
 
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
-            CAM_OFFSET_X = 0,//-1.254,
-            CAM_OFFSET_Y = 0, //-3.281,
+            CAM_OFFSET_X = -1.254,
+            CAM_OFFSET_Y = -3.281,
             TURRET_OFFSET_Y = -2.559,
 
             MAX_VOLTAGE = 13;
@@ -85,7 +85,7 @@ public final class Common {
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
-            MAX_DISTANCE_FEEDER = 100, // TODO mm
+            MAX_DISTANCE_FEEDER = 90, // TODO mm
             MIN_SHOOTING_DISTANCE = 40,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 

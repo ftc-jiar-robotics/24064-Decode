@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_GATE_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
@@ -23,17 +25,18 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     public static float GAIN = 1.0f;
 
-    private boolean
-            lastPinState = false,
-            currentPinState = false;
+    private int
+            lastPinState = 0,
+            currentPinState = 0;
 
     public enum FeederStates {
         BLOCKING, RUNNING
     }
 
     public static double
-        BLOCKING_ANGLE = 325,
-        RUNNING_ANGLE = 350; // default
+        BLOCKING_ANGLE = 240,
+        RUNNING_ANGLE = 310,
+        MAX_PIN_STATE = 7; // default
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
@@ -57,10 +60,11 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     }
 
     public boolean didShotOccur() {
-        currentPinState = pin0Left.getState() || pin0Right.getState();
+        currentPinState += pin0Left.getState() || pin0Right.getState() ? 5:-1;
+        currentPinState = (int)Range.clip(currentPinState,0,MAX_PIN_STATE);
 
-        if (lastPinState && !currentPinState) {
-            lastPinState = false;
+        if (lastPinState>0 && currentPinState==0) {
+            lastPinState = 0;
             return true;
         }
 
@@ -72,14 +76,14 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
 
-        if ((LoopUtil.getLoops() & Common.COLOR_SENSOR_UPDATE_LOOPS) == 0)
+        if ((LoopUtil.getLoops() & Common.COLOR_SENSOR_UPDATE_LOOPS) == 0 && robot.shooter.get() == Shooter.ShooterStates.IDLE && Common.inTriangle)
             colorSensor.update();
 
         feederGate.run();
     }
 
     public void printTelemetry() {
-        feederGate.updateAngles(RUNNING_ANGLE, BLOCKING_ANGLE);
+        feederGate.updateAngles(BLOCKING_ANGLE, RUNNING_ANGLE);
 
         telemetry.addLine("FEEDER");
         telemetry.addData("current state (ENUM): ", currentState);
@@ -89,7 +93,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         telemetry.addData("curr color (ENUM): ", getColor());
         telemetry.addData("curr color (HSV): ", colorSensor.hsv);
 
-        dashTelemetry.addData("current pin state (INT): ", currentPinState ? 1 : 0);
-        dashTelemetry.addData("last pin state (INT): ", lastPinState ? 1 : 0);
+        dashTelemetry.addData("current pin state (INT): ", currentPinState);
+        dashTelemetry.addData("last pin state (INT): ", lastPinState);
     }
 }
