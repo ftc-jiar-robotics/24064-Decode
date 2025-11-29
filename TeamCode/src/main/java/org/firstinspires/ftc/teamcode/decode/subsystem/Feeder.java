@@ -10,14 +10,12 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 import org.firstinspires.ftc.teamcode.decode.util.SimpleServoPivot;
 
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
     private final SimpleServoPivot feederGate;
-    private final ColorSensor colorSensor;
 
     private final DigitalChannel pin0Left, pin0Right;
 
@@ -40,7 +38,6 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
-        colorSensor = new ColorSensor(hw, Common.NAME_FEEDER_COLOR_SENSOR, GAIN);
         pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
         pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);
     }
@@ -50,8 +47,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         currentState = state;
     }
 
-    public Robot.ArtifactColor getColor() {
-        return Robot.getColor(colorSensor, true);
+    public boolean isBallPresent() {
+        return currentPinState != 0;
     }
 
     @Override
@@ -75,10 +72,6 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     @Override
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
-
-        if ((LoopUtil.getLoops() & Common.COLOR_SENSOR_UPDATE_LOOPS) == 0 && robot.shooter.get() == Shooter.ShooterStates.IDLE && Common.inTriangle)
-            colorSensor.update();
-
         feederGate.run();
     }
 
@@ -90,8 +83,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         telemetry.addData("is feeder gate activated? (BOOLEAN: ", feederGate.isActivated());
         telemetry.addData("feeder left in range (BOOLEAN): ", pin0Left.getState());
         telemetry.addData("feeder right in range (BOOLEAN): ", pin0Right.getState());
-        telemetry.addData("curr color (ENUM): ", getColor());
-        telemetry.addData("curr color (HSV): ", colorSensor.hsv);
+        telemetry.addData("is ball present? (BOOLEAN): ", isBallPresent());
 
         dashTelemetry.addData("current pin state (INT): ", currentPinState);
         dashTelemetry.addData("last pin state (INT): ", lastPinState);

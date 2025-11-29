@@ -112,13 +112,8 @@ public final class Robot {
         int ballCount = 0;
 
         if (!inTriangle && shooter.getQueuedShots() <= 0) {
-                switch (intake.getColor()) {
-                    case NONE: break;
-                    case GREEN:
-                    case PURPLE:
-                        ballCount = 3;
-                }
-
+            if (robot.shooter.isBallPresent()) ballCount = 3;
+            else ballCount = 0;
 
             ledController.update(ballCount);
         } else ledController.showShooterTolerance();

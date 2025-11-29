@@ -120,10 +120,7 @@ public class Hood extends Subsystem<Double> {
 //        }
 
 //        return get();
-        return Range.clip((9.77765706e-05*(distance * distance* distance)+
-                -3.13295687e-02 * (distance * distance)) +
-                (3.85767094e+00  * distance) -
-                3.38639559e+01, MIN, MAX);
+        return Range.clip((-5.359957472035305*(1) + 1.8463751311255852*(distance) + -0.004995315415870249*(distance*distance)), MIN, MAX);
     }
 
     @Override

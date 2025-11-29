@@ -77,7 +77,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             ABSOLUTE_ENCODER_OFFSET = -34.0;
 
     public static int
-            CHECK_UNDETECTED_LOOPS = (1 << 3) - 1, // checking every X loops to switch to VISION_TRACKING state
+            CHECK_UNDETECTED_LOOPS = (1 << 4) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
 
     private Pose goal = new Pose(0, 144);
@@ -103,6 +103,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         motorEncoder.reset();
         controller.setGains(closeGains);
         derivFilter.setGains(filterGains);
+    }
+
+    public void closeAutoAim() {
+        autoAim.close();
     }
 
     public void setGoalAlliance() {

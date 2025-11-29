@@ -36,7 +36,6 @@ public class SensorLoopTime extends LinearOpMode {
     public static boolean USE_PINPOINT = true;
 
     private BulkReader bulkReader;
-    private ColorSensor intakeColor, feederColor;
     private DigitalChannel pin0Left, pin0Right;
     private AutoAim autoAim;
 
@@ -95,9 +94,6 @@ public class SensorLoopTime extends LinearOpMode {
         );
 
         bulkReader = new BulkReader(hardwareMap);
-
-        intakeColor = new ColorSensor(hardwareMap, NAME_INTAKE_DISTANCE_SENSOR, Intake.GAIN);
-        feederColor = new ColorSensor(hardwareMap, NAME_FEEDER_COLOR_SENSOR, Feeder.GAIN);
 
         pin0Left  = hardwareMap.digitalChannel.get(NAME_FEEDER_LEFT_PIN0);
         pin0Right = hardwareMap.digitalChannel.get(NAME_FEEDER_RIGHT_PIN0);

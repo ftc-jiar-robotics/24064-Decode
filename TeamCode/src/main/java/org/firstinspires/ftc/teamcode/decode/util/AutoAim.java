@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -16,29 +18,23 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
+@Config
+@Configurable
 public class AutoAim {
     private final VisionPortal visionPortal;
     private final AprilTagProcessor processor;
 
+    public static int DESIRED_THREADS = 5;
+
     private int activeTargetId;
     private final double FX = 540.7083, FY = 543.8710, CX = 312.9142, CY = 269.4617;
 
-    // distance where we're near/far from the tag
-    private static double NEAR_DIST_IN = 24.0;
-    private static double FAR_DIST_IN  = 96.0;
-    // allowed decimation range
-    private static float  MIN_DECIM    = 1.0f;
-    private static float  MAX_DECIM    = 3.0f;
     //decimation we want when near/far
-    private static float  NEAR_DECIM   = 3.0f;
-    private static float  FAR_DECIM    = 1.2f;
     private static int    X_BUFFER_SIZE = 3;
     private static int    Y_BUFFER_SIZE = 3;
 
     private MovingAverageFilter xFilter = new MovingAverageFilter(new MovingAverageGains(X_BUFFER_SIZE));
     private MovingAverageFilter yFilter = new MovingAverageFilter(new MovingAverageGains(Y_BUFFER_SIZE));
-
-
 
 
     private AprilTagDetection cached = null;
@@ -51,10 +47,11 @@ public class AutoAim {
         setAlliance();
 
         AprilTagProcessor.Builder procB = new AprilTagProcessor.Builder()
-                .setDrawTagID(true)
-                .setDrawTagOutline(true)
+                .setDrawTagID(false)
+                .setDrawTagOutline(false)
                 .setDrawAxes(false)
                 .setLensIntrinsics(FX, FY, CX, CY)
+                .setNumThreads(DESIRED_THREADS)
                 .setCameraPose(new Position(DistanceUnit.INCH, Common.CAM_OFFSET_X, Common.CAM_OFFSET_Y, Common.CAM_HEIGHT, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, Common.CAM_PITCH - 90, 180, 0 ))
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .setDrawCubeProjection(false);
@@ -64,7 +61,7 @@ public class AutoAim {
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hw.get(WebcamName.class, webcamName))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .enableLiveView(true)
+                .enableLiveView(false)
                 .addProcessor(processor)
                 .build();
     }
