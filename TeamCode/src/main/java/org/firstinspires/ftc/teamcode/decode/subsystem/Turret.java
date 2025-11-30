@@ -71,12 +71,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_SWITCH_ANGLE = 15,
             VARIANCE_TOLERANCE = 0.04,
             HEADING_VARIANCE_TOLERANCE = 0.04,
+            TOLERANCE_COUNTER = 10,
             VISION_SAMPLE_SIZE = 5,
             PID_TOLERANCE = 3,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -30.5;
 
     public static int
+            ZERO_TURRET_LOOPS = (1 << 11) - 1,
             CHECK_UNDETECTED_LOOPS = (1 << 4) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
 
@@ -87,6 +89,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double
             currentAngle = 0.0,
             targetAngle = 0.0,
+            toleranceCounter = 0,
             encoderOffset = 0.0,
             robotHeadingTurretDomain = 0.0,
             rawPower = 0.0,
@@ -250,9 +253,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     new State(currentAngle, 0, 0, 0), 0.2
             );
 
-            if(pidInTolerance) output = 0;
-            turret.set(output);
+            if (pidInTolerance) {
+                toleranceCounter++;
+                output = 0;
+            } else toleranceCounter = 0;
 
+            if (((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0) && toleranceCounter >= TOLERANCE_COUNTER)
+                applyOffset();
+
+            turret.set(output);
         }
 
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) controller.reset();
