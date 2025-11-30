@@ -249,7 +249,6 @@ public class Paths {
                         )
                 )
                 .setConstantHeadingInterpolation(gateAngle)
-                .setReversed()
                 .build();
 
         firstShoot = f.pathBuilder()
@@ -257,7 +256,7 @@ public class Paths {
                         // Path 0
                         new BezierLine(gate, shoot)
                 )
-                .setConstantHeadingInterpolation(gateAngle)
+                .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
 
@@ -272,15 +271,12 @@ public class Paths {
                         new BezierLine(startIntake2, endIntake2)
                 )
                 .setLinearHeadingInterpolation(startIntakeAngle, endIntakeAngle)
-                .addPath( // Gate
+                .addPath(
                         // Path 2
-                        new BezierCurve(
-                                endIntake2,
-                                gateControl15,
-                                gate
-                        )
+                        new BezierLine(endIntake2, shoot)
                 )
-                .setConstantHeadingInterpolation(gateAngle)
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         thirdShoot = f.pathBuilder()
