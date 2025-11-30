@@ -75,11 +75,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             VISION_SAMPLE_SIZE = 5,
             PID_TOLERANCE = 3,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -30.5;
+            ABSOLUTE_ENCODER_OFFSET = -30;
 
     public static int
-            ZERO_TURRET_LOOPS = (1 << 11) - 1,
-            CHECK_UNDETECTED_LOOPS = (1 << 4) - 1, // checking every X loops to switch to VISION_TRACKING state
+            ZERO_TURRET_LOOPS = (1 << 5) - 1,
+            CHECK_UNDETECTED_LOOPS = (1 << 5) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
 
     private Pose goal = Common.BLUE_GOAL;
