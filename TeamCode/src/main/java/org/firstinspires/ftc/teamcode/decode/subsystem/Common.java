@@ -73,7 +73,8 @@ public final class Common {
             RED_BIG_TRIANGLE = new Pose(113.5, 135.5, Math.toRadians(270)),
             RED_SMALL_TRIANGLE = new Pose(88.5, 7.25, Math.toRadians(90)),
             BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror().setHeading((3.0 * Math.PI) / 2.0),
-            BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.PI / 2.0);
+            BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.PI / 2.0),
+            BLUE_GOAL = new Pose(1.5,142.5);
 
 
     public static double
