@@ -80,7 +80,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
             CHECK_UNDETECTED_LOOPS = (1 << 5) - 1, // checking every X loops to switch to VISION_TRACKING state
-            CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
+            CHECK_DETECTED_LOOPS = (1 << 0) - 1,// checking every X loop when in VISION_TRACKING state
+            ABSOLUTE_ENCODER_SAMPLES = 5;          // how many samples to average
+
 
     private Pose goal = Common.BLUE_GOAL;
     private Pose turretPos = new Pose(0, 0);
@@ -135,8 +137,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
 
     public void applyOffset() {
-        encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - normalizeToTurretRange((360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360)) % 360);
+        double absAngle = getAbsoluteEncoderAngle();
+        encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - absAngle;
     }
+
 
     private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
@@ -179,6 +183,21 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     // Inputs only from 0 - 360 degrees
     public static double normalizeToTurretRange(double angle) {
         return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle;
+    }
+
+    private double getAveragedAbsVoltage() {
+        double sum = 0.0;
+        for (int i = 0; i < ABSOLUTE_ENCODER_SAMPLES; i++) {
+            sum += absoluteEncoder.getVoltage();
+        }
+        return sum / ABSOLUTE_ENCODER_SAMPLES;
+    }
+
+    public double getAbsoluteEncoderAngle() {
+        double voltage = getAveragedAbsVoltage();
+        double rawDegrees = (voltage / 3.2 * 360.0 + ABSOLUTE_ENCODER_OFFSET) % 360.0;
+        double turretDomain = (360.0 - rawDegrees + 3600.0) % 360.0;
+        return normalizeToTurretRange(turretDomain);
     }
 
     public void setManual(double power) {
