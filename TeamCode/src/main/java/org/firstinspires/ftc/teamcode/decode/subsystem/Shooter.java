@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_SHOOTING_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -72,8 +71,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.queuedShots = i;
     }
 
-    public Robot.ArtifactColor getColor() {
-        return feeder.getColor();
+    public boolean isBallPresent() {
+        return feeder.isBallPresent();
+    }
+
+    public void closeAutoAim() {
+        turret.closeAutoAim();
     }
 
     public void clearQueueShots() {
@@ -81,7 +84,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         targetState = ShooterStates.IDLE;
         turret.set(Turret.TurretStates.IDLE);
         flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-        feeder.set(Feeder.FeederStates.IDLE, true);
+        feeder.set(Feeder.FeederStates.RUNNING, true);
     }
 
     public void setGoalAlliance() {
@@ -89,7 +92,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public void setFeederIdle(boolean isIdle) {
-        if (isIdle) feeder.set(Feeder.FeederStates.IDLE, false);
+        if (isIdle) feeder.set(Feeder.FeederStates.RUNNING, false);
     }
 
 
@@ -117,16 +120,14 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public void run() {
         didCurrentDrop = feeder.didShotOccur();
         if (targetState == ShooterStates.RUNNING && didCurrentDrop) {
-            queuedShots--;
+            queuedShots = 0;
         }
 
         switch (targetState) {
             case IDLE:
-                if (feeder.get() != Feeder.FeederStates.IDLE) {
-                    feeder.set(Feeder.FeederStates.OFF, true);
-                }
+                feeder.set(Feeder.FeederStates.BLOCKING, true);
 
-                hood.set(Hood.MIN);
+                if (!isHoodManual) hood.set(Hood.MIN);
 
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
@@ -154,7 +155,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                         targetState = ShooterStates.IDLE;
                         turret.set(Turret.TurretStates.IDLE);
                         flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-                        feeder.set(Feeder.FeederStates.IDLE, true);
+                        feeder.set(Feeder.FeederStates.BLOCKING, true);
                     }
                     else {
                         targetState = ShooterStates.RUNNING;

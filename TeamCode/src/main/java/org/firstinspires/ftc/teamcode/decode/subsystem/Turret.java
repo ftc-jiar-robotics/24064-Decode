@@ -71,22 +71,25 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_SWITCH_ANGLE = 15,
             VARIANCE_TOLERANCE = 0.04,
             HEADING_VARIANCE_TOLERANCE = 0.04,
+            TOLERANCE_COUNTER = 10,
             VISION_SAMPLE_SIZE = 5,
             PID_TOLERANCE = 3,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -34.0;
+            ABSOLUTE_ENCODER_OFFSET = -30;
 
     public static int
-            CHECK_UNDETECTED_LOOPS = (1 << 3) - 1, // checking every X loops to switch to VISION_TRACKING state
+            ZERO_TURRET_LOOPS = (1 << 5) - 1,
+            CHECK_UNDETECTED_LOOPS = (1 << 5) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
 
-    private Pose goal = new Pose(0, 144);
+    private Pose goal = Common.BLUE_GOAL;
     private Pose turretPos = new Pose(0, 0);
     private Pose robotPoseFromVision = new Pose(0, 0);
 
     private double
             currentAngle = 0.0,
             targetAngle = 0.0,
+            toleranceCounter = 0,
             encoderOffset = 0.0,
             robotHeadingTurretDomain = 0.0,
             rawPower = 0.0,
@@ -105,8 +108,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         derivFilter.setGains(filterGains);
     }
 
+    public void closeAutoAim() {
+        autoAim.close();
+    }
+
     public void setGoalAlliance() {
-        goal = Common.isRed ? new Pose(0, 141).mirror() : new Pose(0, 141);
+        goal = Common.isRed ? Common.BLUE_GOAL.mirror() : Common.BLUE_GOAL;
         autoAim.setAlliance();
     }
 
@@ -207,7 +214,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     setTracking();
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
-                        boolean seesTag = autoAim.isTargetDetected();
+                        boolean seesTag = autoAim.detectTarget();
 //                        autoAim.updateDecimation();
                         if (seesTag) currentState = TurretStates.VISION_TRACKING;
                         else break;
@@ -217,7 +224,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
-                        if (!autoAim.isTargetDetected()) {
+                        if (!autoAim.detectTarget()) {
                             currentState = TurretStates.ODOM_TRACKING;
                             break;
                         }
@@ -246,9 +253,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     new State(currentAngle, 0, 0, 0), 0.2
             );
 
-            if(pidInTolerance) output = 0;
-            turret.set(output);
+            if (pidInTolerance) {
+                toleranceCounter++;
+                output = 0;
+            } else toleranceCounter = 0;
 
+            if (((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0) && toleranceCounter >= TOLERANCE_COUNTER)
+                applyOffset();
+
+            turret.set(output);
         }
 
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) controller.reset();

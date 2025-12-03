@@ -26,20 +26,15 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManua
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
-import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
-import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
-import org.firstinspires.ftc.teamcode.decode.subsystem.Feeder;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
-import org.firstinspires.ftc.teamcode.decode.util.Drawing;
-import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
 @TeleOp(name = "Main TeleOp", group = "24064")
 public class MainTeleOp extends LinearOpMode {
@@ -113,7 +108,6 @@ public class MainTeleOp extends LinearOpMode {
             isSlowMode = robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING;
 
             robot.intake.set(trigger1, false);
-            robot.shooter.setFeederIdle(Math.abs(trigger1) > 0);
 
             if (isHoodManual) {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
@@ -142,9 +136,9 @@ public class MainTeleOp extends LinearOpMode {
             // if Intake see's one queue 3 shots,
             // However if feeder see's smthn but intake doesn't then queue 1 shot
             if (Common.inTriangle) {
-                Robot.ArtifactColor feederColor = robot.shooter.getColor();
-                if (feederColor != Robot.ArtifactColor.NONE) {
-                    int shots = (robot.intake.getColor() != Robot.ArtifactColor.NONE) && robot.shooter.getQueuedShots() <= 1 ? 3 : 1;
+                boolean isBallPresent = robot.shooter.isBallPresent();
+                if (isBallPresent) {
+                    int shots = 3;
                     if (robot.shooter.getQueuedShots() == 0) {
                         robot.shooter.setQueuedShots(storedShots == 0 ? shots : storedShots);
                         storedShots = 0;
@@ -163,5 +157,6 @@ public class MainTeleOp extends LinearOpMode {
         }
 
         AUTO_END_POSE = null;
+        robot.shooter.closeAutoAim();
     }
 }

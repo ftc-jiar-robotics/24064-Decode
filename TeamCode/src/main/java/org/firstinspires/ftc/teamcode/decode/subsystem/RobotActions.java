@@ -31,7 +31,7 @@ public class RobotActions {
     public static Action  shootArtifacts(int artifacts, double seconds) {
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
-                new InstantAction(() -> robot.intake.set(0.85)),
+                new InstantAction(() -> robot.intake.set(1.0)),
                 new InstantAction(() -> {
                     robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
                     isSlowMode = true;
