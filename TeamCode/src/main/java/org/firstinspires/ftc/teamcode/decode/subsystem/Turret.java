@@ -375,7 +375,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("current vision (RADIANS): ", autoAim.getTargetYawDegrees());
         dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
         dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
-        dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
+        dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
 
         dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
