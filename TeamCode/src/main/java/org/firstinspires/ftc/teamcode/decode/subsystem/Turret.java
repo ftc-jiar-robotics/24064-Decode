@@ -81,7 +81,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
             CHECK_UNDETECTED_LOOPS = (1 << 5) - 1, // checking every X loops to switch to VISION_TRACKING state
             CHECK_DETECTED_LOOPS = (1 << 0) - 1,// checking every X loop when in VISION_TRACKING state
-            ABSOLUTE_ENCODER_SAMPLES = 5;          // how many samples to average
+            OFFSET_CALIBRATION_SAMPLES = 5;           // how many samples to average
 
 
     private Pose goal = Common.BLUE_GOAL;
@@ -96,6 +96,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             robotHeadingTurretDomain = 0.0,
             rawPower = 0.0,
             manualPower = 0.0;
+    private boolean isOffsetCalibrating = false;
+    private int offsetSamplesTaken = 0;
+    private double offsetAngleSum = 0.0;
 
     public Turret(HardwareMap hw) {
         this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150, ROUNDING_POINT);
@@ -136,10 +139,17 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
 
+    // Default: use a single abs encoder reading
     public void applyOffset() {
-        double absAngle = getAbsoluteEncoderAngle();
-        encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - absAngle;
+        applyOffset(getAbsoluteEncoderAngle());
     }
+
+    // New: use a provided absolute angle (e.g. averaged over N samples)
+    private void applyOffset(double absAngleDegrees) {
+        encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - absAngleDegrees;
+    }
+
+
 
 
     private void setTracking() {
@@ -184,21 +194,22 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static double normalizeToTurretRange(double angle) {
         return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle;
     }
+    /**
+     * One-shot absolute encoder angle in DEGREES.
+     * Same math you used before, just factored out.
+     */
+    private double getAbsoluteEncoderAngle() {
+        double voltage = absoluteEncoder.getVoltage();
 
-    private double getAveragedAbsVoltage() {
-        double sum = 0.0;
-        for (int i = 0; i < ABSOLUTE_ENCODER_SAMPLES; i++) {
-            sum += absoluteEncoder.getVoltage();
-        }
-        return sum / ABSOLUTE_ENCODER_SAMPLES;
-    }
-
-    public double getAbsoluteEncoderAngle() {
-        double voltage = getAveragedAbsVoltage();
         double rawDegrees = (voltage / 3.2 * 360.0 + ABSOLUTE_ENCODER_OFFSET) % 360.0;
-        double turretDomain = (360.0 - rawDegrees + 3600.0) % 360.0;
+        double turretDomain = (360.0 - rawDegrees) % 360.0;
+
         return normalizeToTurretRange(turretDomain);
     }
+
+
+
+
 
     public void setManual(double power) {
         manualPower = power * MANUAL_POWER_MULTIPLIER;
@@ -277,8 +288,27 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 output = 0;
             } else toleranceCounter = 0;
 
-            if (((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0) && toleranceCounter >= TOLERANCE_COUNTER)
-                applyOffset();
+            // start offset calibration when conditions are met
+            if (!isOffsetCalibrating
+                    && ((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0)
+                    && toleranceCounter >= TOLERANCE_COUNTER) {
+
+                isOffsetCalibrating = true;
+                offsetSamplesTaken = 0;
+                offsetAngleSum = 0.0;
+            }
+
+// if calibrating, collect N samples and then apply averaged offset once
+            if (isOffsetCalibrating) {
+                double absAngle = getAbsoluteEncoderAngle();
+                offsetAngleSum += absAngle;
+
+                if (++offsetSamplesTaken >= OFFSET_CALIBRATION_SAMPLES) {
+                    double averagedAngle = offsetAngleSum / OFFSET_CALIBRATION_SAMPLES;
+                    applyOffset(averagedAngle);
+                    isOffsetCalibrating = false;
+                }
+            }
 
             turret.set(output);
         }
