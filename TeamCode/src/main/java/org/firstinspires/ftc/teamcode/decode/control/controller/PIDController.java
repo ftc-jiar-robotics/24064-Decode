@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.decode.control.controller;
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.PIDGains;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.Differentiator;
 import org.firstinspires.ftc.teamcode.decode.control.motion.Integrator;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
@@ -16,8 +18,11 @@ public class PIDController implements FeedbackController {
     private State target = new State();
 
     private final Filter derivFilter;
-    private final Differentiator differentiator = new Differentiator();
+    private final Differentiator errorDifferentiator = new Differentiator();
+    private final Differentiator measurementDifferentiator = new Differentiator();
     private final Integrator integrator = new Integrator();
+
+    private MovingAverageFilter movingAverageFilter = new MovingAverageFilter(new MovingAverageGains(3));
 
     private State error = new State();
     private double errorIntegral, filteredErrorDerivative, rawErrorDerivative;
@@ -43,7 +48,7 @@ public class PIDController implements FeedbackController {
 
         if (signum(error.x) != signum(lastError.x)) reset();
         errorIntegral = integrator.getIntegral(error.x);
-        rawErrorDerivative = differentiator.getDerivative(error.x);
+        rawErrorDerivative = errorDifferentiator.getDerivative(error.x);
         filteredErrorDerivative = derivFilter.calculate(rawErrorDerivative);
 
         double output = (gains.kP * error.x) + (gains.kI * errorIntegral) + (gains.kD * filteredErrorDerivative);
@@ -53,8 +58,18 @@ public class PIDController implements FeedbackController {
         return output;
     }
 
-    public boolean isPositionInTolerance(State measurement, double tolerance) {
-        return Math.abs(measurement.subtract(target).x) <= tolerance;
+    public boolean isInTolerance(State measurement, double tolerance, double derivTolerance) {
+        double deriv = movingAverageFilter.calculate(measurementDifferentiator.getDerivative(measurement.x));
+
+        boolean isDerivativeInTolerance = Math.abs(deriv) <= derivTolerance;
+        boolean isMeasurementInTolerance = Math.abs(target.x - measurement.x) <= tolerance;
+
+        // if current has spiked and we're in tolerance and we're not in a timer(start time + time period > curr time
+        return isDerivativeInTolerance && isMeasurementInTolerance;
+    }
+
+    public boolean isInTolerance(State measurement, double tolerance) {
+        return Math.abs(target.x - measurement.x) <= tolerance;
     }
 
     public void setTarget(State target) {

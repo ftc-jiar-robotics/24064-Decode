@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Hood;
 
 @Configurable
 @TeleOp(name = "hood resetting opmode", group = "24064")
-public class HoodResetttingOpMode extends LinearOpMode {
+public class HoodResettingOpMode extends LinearOpMode {
     public Hood hood;
     public GamepadEx gamepadEx1;
 

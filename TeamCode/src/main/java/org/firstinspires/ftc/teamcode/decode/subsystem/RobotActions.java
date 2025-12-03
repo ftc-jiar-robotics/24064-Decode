@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.acmerobotics.roadrunner.Action;
@@ -7,55 +9,49 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 // TODO tune timings
 
 public class RobotActions {
-    private static double unstuckTimer = 0;
-    private static double unstuckRecoveryTimer = 0;
-    private static boolean inUnstuckTimer = true;
-
-    public static double
-            unstuckTime = 1.25,
-            unstuckRecoveryTime = 0.1;
+    private static final ElapsedTime shotTimer = new ElapsedTime();
 
     public static Action setIntake(double power, double sleepSeconds) {
         return new ParallelAction(
                 new InstantAction(() -> robot.intake.set(power, true)),
                 new SleepAction(sleepSeconds),
-                new InstantAction(() -> robot.shooter.setFeederIdle())
+                new InstantAction(() -> robot.shooter.setFeederIdle(Math.abs(power) > 0))
         );
+    }
+
+    public static Action shootArtifacts(int artifacts) {
+        return shootArtifacts(artifacts, Double.POSITIVE_INFINITY);
+    }
+
+    public static Action  shootArtifacts(int artifacts, double seconds) {
+        return new SequentialAction(
+                new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
+                new InstantAction(() -> robot.intake.set(1.0)),
+                new InstantAction(() -> {
+                    robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
+                    isSlowMode = true;
+                }),
+                new InstantAction(shotTimer::reset),
+                telemetryPacket -> robot.shooter.getQueuedShots() > 0 && shotTimer.seconds() <= seconds,
+                new InstantAction(() -> robot.shooter.clearQueueShots()),
+                setIntake(0, 0),
+                new InstantAction(() -> {
+                    robot.drivetrain.setMaxPowerScaling(1);
+                    isSlowMode = false;
+                })
+            );
     }
 
     public static Action armFlywheel() {
         return new InstantAction(() -> robot.shooter.setFlywheelManual(Flywheel.FlyWheelStates.ARMING));
     }
 
-    public static Action shootArtifacts(int artifacts) {
-        return new SequentialAction(
-                new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
-                new InstantAction(() -> robot.intake.set(0.85)),
-                new InstantAction(() -> unstuckTimer = System.nanoTime() / 1E9),
-                telemetryPacket -> {
-//                    if (robot.shooter.get() == Shooter.ShooterStates.RUNNING) {
-//                        if (unstuckTimer + unstuckTime < System.nanoTime() / 1E9 && inUnstuckTimer) {
-//                            robot.shooter.feeder.set(Feeder.FeederStates.OUTTAKING);
-//                            inUnstuckTimer = false;
-//                            unstuckRecoveryTimer = System.nanoTime() / 1E9;
-//                        }
-//
-//                        if (!inUnstuckTimer && unstuckRecoveryTimer + unstuckRecoveryTime < System.nanoTime() / 1E9) {
-//                            robot.shooter.feeder.set(Feeder.FeederStates.RUNNING);
-//                            robot.intake.set(0.85);
-//                            inUnstuckTimer = true;
-//                            unstuckTimer = System.nanoTime() / 1E9;
-//                        }
-//                    }
-
-                    return robot.shooter.getQueuedShots() != 0;
-
-                },
-                setIntake(0, 0)
-            );
+    public static Action armTurret() {
+        return new InstantAction(() -> robot.shooter.setTurretManual(Turret.TurretStates.ODOM_TRACKING));
     }
 }

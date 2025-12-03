@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.decode.control.gainmatrices;
+package org.firstinspires.ftc.teamcode.decode.control.gainmatrix;
 
 public class FeedforwardGains {
     public double kV;

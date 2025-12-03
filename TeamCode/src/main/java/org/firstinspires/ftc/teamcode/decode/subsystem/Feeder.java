@@ -1,45 +1,45 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.BACKWARD;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_GATE_SERVO;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
+import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
+import org.firstinspires.ftc.teamcode.decode.util.SimpleServoPivot;
 
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
+    private final SimpleServoPivot feederGate;
 
-    private final CRServo feederFront;
-    private final CRServo feederBack;
+    private final DigitalChannel pin0Left, pin0Right;
 
-    private final ColorSensor colorSensor;
+    private FeederStates currentState = FeederStates.BLOCKING;
 
-    private FeederStates currentState = FeederStates.OFF;
+    public static float GAIN = 1.0f;
 
-    private float gain = 0; //TODO: change gain
+    private int
+            lastPinState = 0,
+            currentPinState = 0;
 
     public enum FeederStates {
-        OFF, OUTTAKING, MANUAL, IDLE, RUNNING
+        BLOCKING, RUNNING
     }
+
+    public static double
+        BLOCKING_ANGLE = 240,
+        RUNNING_ANGLE = 310,
+        MAX_PIN_STATE = 7; // default
 
     public Feeder(HardwareMap hw) {
-        feederFront = hw.get(CRServo.class, Common.CFG_NAME_FEEDERFRONT);
-        feederBack = hw.get(CRServo.class, Common.CFG_NAME_FEEDERBACK);
-        this.colorSensor = new ColorSensor(hw, Common.CFG_NAME_FEEDER_COLORSENSOR, gain);
-
-        feederFront.setDirection(DcMotorSimple.Direction.REVERSE);
-    }
-
-    public void set(double powerFront, double powerBack) {
-        if (!isLocked() && powerFront != 0 && powerBack != 0) {
-            currentState = FeederStates.MANUAL;
-            feederFront.setPower(powerFront);
-            feederBack.setPower(powerBack);
-        }
+        feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
+        pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
+        pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);
     }
 
     @Override
@@ -47,35 +47,45 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         currentState = state;
     }
 
+    public boolean isBallPresent() {
+        return currentPinState != 0;
+    }
+
     @Override
     public FeederStates get() {
         return currentState;
     }
 
+    public boolean didShotOccur() {
+        currentPinState += pin0Left.getState() || pin0Right.getState() ? 5:-1;
+        currentPinState = (int)Range.clip(currentPinState,0,MAX_PIN_STATE);
+
+        if (lastPinState>0 && currentPinState==0) {
+            lastPinState = 0;
+            return true;
+        }
+
+        lastPinState = currentPinState;
+        return false;
+    }
+
     @Override
     public void run() {
-            switch (currentState) {
-                case OFF:
-                    feederFront.setPower(0);
-                    feederBack.setPower(0);
-                    break;
-                case OUTTAKING:
-                    feederFront.setPower(-1);
-                    feederBack.setPower(-1);
-                    break;
-                case IDLE:
-                    feederFront.setPower(0.7);
-                    feederBack.setPower(-1);
-                    break;
-                case RUNNING:
-                    feederFront.setPower(1);
-                    feederBack.setPower(1);
-                    break;
-            }
+        feederGate.setActivated(currentState == FeederStates.RUNNING);
+        feederGate.run();
     }
 
     public void printTelemetry() {
+        feederGate.updateAngles(BLOCKING_ANGLE, RUNNING_ANGLE);
+
         telemetry.addLine("FEEDER");
-        telemetry.addData("current state: ", currentState);
+        telemetry.addData("current state (ENUM): ", currentState);
+        telemetry.addData("is feeder gate activated? (BOOLEAN: ", feederGate.isActivated());
+        telemetry.addData("feeder left in range (BOOLEAN): ", pin0Left.getState());
+        telemetry.addData("feeder right in range (BOOLEAN): ", pin0Right.getState());
+        telemetry.addData("is ball present? (BOOLEAN): ", isBallPresent());
+
+        dashTelemetry.addData("current pin state (INT): ", currentPinState);
+        dashTelemetry.addData("last pin state (INT): ", lastPinState);
     }
 }

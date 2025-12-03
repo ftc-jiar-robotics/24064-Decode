@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.decode.sensor;
+package org.firstinspires.ftc.teamcode.decode.util;
 
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 

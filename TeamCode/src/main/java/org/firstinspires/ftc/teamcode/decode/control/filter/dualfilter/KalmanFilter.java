@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.control.filter.dualfilter;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.KalmanGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.KalmanGains;
 
 public final class KalmanFilter implements DualFilter {
     private KalmanGains gains;

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.MovingAverageGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 
 import java.util.ArrayList;
 

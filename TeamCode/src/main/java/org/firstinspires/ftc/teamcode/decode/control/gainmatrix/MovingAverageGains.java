@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.decode.control.gainmatrices;
+package org.firstinspires.ftc.teamcode.decode.control.gainmatrix;
 
 public class MovingAverageGains {
     public int count;

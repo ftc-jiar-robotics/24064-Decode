@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.decode.control.gainmatrices;
+package org.firstinspires.ftc.teamcode.decode.control.gainmatrix;
 
 public class HSV {
     public double hue;
@@ -21,5 +21,13 @@ public class HSV {
         boolean valueInRange = (min.value <= value) && (value <= max.value);
 
         return hueInRange && saturationInRange && valueInRange;
+    }
+
+    public String toString(String title) {
+        return String.format(title + ": \nHue: %.3f\nSaturation: %.3f\nValue: %.3f", hue, saturation, value);
+    }
+
+    public String toString() {
+        return String.format("%.3f, %.3f, %.3f", hue, saturation, value);
     }
 }

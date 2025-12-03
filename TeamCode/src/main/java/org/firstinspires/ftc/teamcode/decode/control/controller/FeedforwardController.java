@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.control.controller;
 
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrices.FeedforwardGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.FeedforwardGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 
 public class FeedforwardController implements Controller {
