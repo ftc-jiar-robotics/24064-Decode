@@ -231,6 +231,28 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
 
+        if (!isOffsetCalibrating
+                && ((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0)
+                && toleranceCounter >= TOLERANCE_COUNTER) {
+
+            isOffsetCalibrating = true;
+            offsetSamplesTaken = 0;
+            offsetAngleSum = 0.0;
+        }
+
+// if calibrating, collect N samples and then apply averaged offset once
+        if (isOffsetCalibrating) {
+            double absAngle = getAbsoluteEncoderAngle();
+            offsetAngleSum += absAngle;
+
+            if (++offsetSamplesTaken >= OFFSET_CALIBRATION_SAMPLES) {
+                double averagedAngle = offsetAngleSum / OFFSET_CALIBRATION_SAMPLES;
+                applyOffset(averagedAngle);
+                isOffsetCalibrating = false;
+            }
+            turret.set(0);
+            return;
+        }
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
 
         else {
@@ -288,29 +310,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 output = 0;
             } else toleranceCounter = 0;
 
-            // start offset calibration when conditions are met
-            if (!isOffsetCalibrating
-                    && ((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0)
-                    && toleranceCounter >= TOLERANCE_COUNTER) {
-
-                isOffsetCalibrating = true;
-                offsetSamplesTaken = 0;
-                offsetAngleSum = 0.0;
-            }
-
-// if calibrating, collect N samples and then apply averaged offset once
-            if (isOffsetCalibrating) {
-                double absAngle = getAbsoluteEncoderAngle();
-                offsetAngleSum += absAngle;
-
-                if (++offsetSamplesTaken >= OFFSET_CALIBRATION_SAMPLES) {
-                    double averagedAngle = offsetAngleSum / OFFSET_CALIBRATION_SAMPLES;
-                    applyOffset(averagedAngle);
-                    isOffsetCalibrating = false;
-                }
-                turret.set(0);
-                return;
-            }
 
             turret.set(output);
         }
