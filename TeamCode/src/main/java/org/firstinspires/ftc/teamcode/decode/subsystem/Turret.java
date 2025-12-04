@@ -308,6 +308,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     applyOffset(averagedAngle);
                     isOffsetCalibrating = false;
                 }
+                turret.set(0);
+                return;
             }
 
             turret.set(output);
