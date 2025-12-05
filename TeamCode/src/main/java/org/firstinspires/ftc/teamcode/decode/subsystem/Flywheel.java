@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_MASTER_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_SLAVE_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFlywheelManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -16,6 +18,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.Filter;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
@@ -46,8 +49,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static MovingAverageGains rpmDerivAverageFilterGains = new MovingAverageGains(
             3
     );
+    public static MovingAverageGains targetRPMAverageFilterGains = new MovingAverageGains(
+            5
+    );
 
-    private final MovingAverageFilter rpmDerivAverageFilter = new MovingAverageFilter(rpmDerivAverageFilterGains);
+    private final Filter targetRPMAverageFilter = new MovingAverageFilter(targetRPMAverageFilterGains);
+    private final Filter rpmDerivAverageFilter = new MovingAverageFilter(rpmDerivAverageFilterGains);
 
     public static LowPassGains rpmFilterGains = new LowPassGains(
             0.5,
@@ -61,13 +68,15 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static double
             RPM_DERIVATIVE_DROP = -1500, // deacceleration
             TIME_DROP_PERIOD = 0.5,
-            RPM_TOLERANCE = 100,
+            RPM_TOLERANCE = 30,
+            RPM_TOLERANCE_WHILE_MOVING = 70,
             SMOOTH_RPM_GAIN = 0.8,
             SUPER_SMOOTH_RPM_GAIN = 0.85,
             DERIV_TOLERANCE = 200,
             MOTOR_RPM_SETTLE_TIME_SHOOT = 0.95,
             MOTOR_RPM_SETTLE_TIME_IDLE = 1.25 ,
             IDLE_RPM = 1200,
+            ARMING_RPM = 2500,
             MAX_RPM = 4800,
             VOLTAGE_SCALER = 0.99;
 
@@ -124,7 +133,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return (velocityController.isInTolerance(new State(currentRPMSmooth, 0, 0, 0), RPM_TOLERANCE, DERIV_TOLERANCE));
+        return (velocityController.isInTolerance(new State(currentRPMSmooth, 0, 0, 0), robot.shooter.isRobotMoving() ? RPM_TOLERANCE_WHILE_MOVING : RPM_TOLERANCE, DERIV_TOLERANCE));
     }
 
     public boolean didRPMSpike() {
@@ -158,7 +167,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         switch (targetState) {
             case IDLE:
-                if (!isFlywheelManual) shootingRPM = IDLE_RPM;
+                if (!isFlywheelManual) shootingRPM = robot.shooter.isBallPresent() ? ARMING_RPM : IDLE_RPM;
                 velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
                 settleTime = MOTOR_RPM_SETTLE_TIME_IDLE;
@@ -201,7 +210,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //        }
         if (!isFlywheelManual) {
             shootingRPM = 1657.1038201234544*(1) + 11.613561597353288*(distance);
-                    velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+            shootingRPM = targetRPMAverageFilter.calculate(shootingRPM);
+            velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
         }
     }
 

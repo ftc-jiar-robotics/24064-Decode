@@ -19,7 +19,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.Filter;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
@@ -55,6 +58,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private TurretStates currentState = ODOM_TRACKING;
 
+    public static MovingAverageGains targetAngleAverageGains = new MovingAverageGains(
+            6
+    );
+
+    private final Filter targetAngleAverageFilter = new MovingAverageFilter(targetAngleAverageGains);
+
     private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
     private final PIDController controller = new PIDController(derivFilter);
 
@@ -74,6 +83,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             TOLERANCE_COUNTER = 10,
             VISION_SAMPLE_SIZE = 5,
             PID_TOLERANCE = 3,
+            DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -30;
 
@@ -141,12 +151,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
+        targetAngle = normalizeToTurretRange(alpha);
+        targetAngle = targetAngleAverageFilter.calculate(targetAngle);
 
-        controller.setTarget(new State(targetAngle = normalizeToTurretRange(alpha), 0, 0, 0));
+        controller.setTarget(new State(targetAngle, 0, 0, 0));
     }
 
     public boolean isPIDInTolerance() {
-        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE);
+        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE, DERIV_TOLERANCE);
     }
 
 
@@ -216,7 +228,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         boolean seesTag = autoAim.detectTarget();
 //                        autoAim.updateDecimation();
-                        if (seesTag) currentState = TurretStates.VISION_TRACKING;
+                        if (seesTag && !robot.shooter.isRobotMoving()) currentState = TurretStates.VISION_TRACKING;
                         else break;
                     } else {
                         break;
@@ -224,7 +236,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
-                        if (!autoAim.detectTarget()) {
+                        if (!autoAim.detectTarget() || robot.shooter.isRobotMoving()) {
                             currentState = TurretStates.ODOM_TRACKING;
                             break;
                         }

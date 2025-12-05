@@ -36,6 +36,8 @@ public final class Common {
             isFuturePoseOn = false,
             isSlowMode = false,
             isTelemetryOn = false,
+            isForwardPower = false,
+            isStrafePower = false,
             isRed = false,
             isBigTriangle = false,
             isHoodManual = false,
@@ -78,9 +80,17 @@ public final class Common {
 
 
     public static double
-            TIME_TO_SHOOT = 0.5,
+            TIME_TO_SHOOT = 0.6467,
             ANG_VELOCITY_MULTIPLER = 0.4,
-            SLOW_MODE = 0.4;
+            SLOW_MODE = 0.55;
+
+    public static double
+            MIN_POWER_INPUT = 0.3,
+            MAX_VELOCITY_MAGNITUDE = 0.2,
+            MIN_LOCALIZATION_X = 134,
+            MAX_LOCALIZATION_X = 136,
+            MIN_LOCALIZATION_Y = 6,
+            MAX_LOCALIZATION_Y = 8;
 
     public static final int
             BLUE_GOAL_ID = 20,
@@ -88,9 +98,8 @@ public final class Common {
             MIN_DISTANCE_FEEDER = 0, // TODO mm
             MAX_DISTANCE_FEEDER = 90, // TODO mm
             MIN_SHOOTING_DISTANCE = 40,
+            RELOCALIZE_UPDATE_LOOPS = (1 << 3) - 1,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
-
-
 
     public static HSV
             GREEN_MIN_REV = new HSV(145, 0.5, 0.0),
