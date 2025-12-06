@@ -76,7 +76,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             MOTOR_RPM_SETTLE_TIME_SHOOT = 0.95,
             MOTOR_RPM_SETTLE_TIME_IDLE = 1.25 ,
             IDLE_RPM = 1200,
-            ARMING_RPM = 2500,
+            FAR_ARMING_RPM = 3250,
+            CLOSE_ARMING_RPM = 2500,
             MAX_RPM = 4800,
             VOLTAGE_SCALER = 0.99;
 
@@ -87,7 +88,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     public static int TOLERANCE_SAMPLE_COUNT = 10;
 
-    private boolean inCurrentRPMSpike = false;
+    private boolean
+            inCurrentRPMSpike = false,
+            isDirectionForward = false;
     private double
             currentRPM = 0.0,
             currentRPMSmooth = 0.0,
@@ -167,7 +170,14 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         switch (targetState) {
             case IDLE:
-                if (!isFlywheelManual) shootingRPM = robot.shooter.isBallPresent() ? ARMING_RPM : IDLE_RPM;
+                boolean isRobotCloseToFar = robot.drivetrain.getPose().getY() < 40;
+                boolean isMagnitudeInPositiveTolerance = robot.drivetrain.getVelocity().getYComponent() > 0.3;
+                boolean isMagnitudeInNegativeTolerance = robot.drivetrain.getVelocity().getYComponent() < -0.3;
+
+                if (isMagnitudeInPositiveTolerance) isDirectionForward = true;
+                else if (isMagnitudeInNegativeTolerance) isDirectionForward = false;
+
+                if (!isFlywheelManual) shootingRPM = robot.shooter.isBallPresent() ? (isRobotCloseToFar && !isDirectionForward ? FAR_ARMING_RPM : CLOSE_ARMING_RPM) : IDLE_RPM;
                 velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
                 settleTime = MOTOR_RPM_SETTLE_TIME_IDLE;
