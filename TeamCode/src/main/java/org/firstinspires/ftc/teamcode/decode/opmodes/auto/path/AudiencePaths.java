@@ -92,18 +92,21 @@ public class AudiencePaths {
                         // Path 0
                         new BezierLine(startIntakeHP1, midIntakeHP1)
                 )
-                .setTangentHeadingInterpolation().setReversed()
-                .addPath(
-                        // Path 1
-                        new BezierLine(midIntakeHP1, endIntakeHP1)
-                )
-                .setTangentHeadingInterpolation().build();
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
         humanPlayerShoot1 = f.pathBuilder()
                 .addPath(
                         // Path 0
+                        new BezierLine(midIntakeHP1, endIntakeHP1)
+                )
+                .setTangentHeadingInterpolation()
+                .addPath(
+                        // Path 1
                         new BezierLine(endIntakeHP1, shoot)
                 )
-                .setTangentHeadingInterpolation().setReversed()
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
         humanPlayerIntake2 = f.pathBuilder()
                 .addPath(
@@ -119,15 +122,15 @@ public class AudiencePaths {
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP2)
                 .setReversed()
-                .addPath(
-                        // Path 1
-                        new BezierLine(midIntakeHP2, endIntakeHP2)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP2)
                 .build();
         humanPlayerShoot2 = f.pathBuilder()
                 .addPath(
                         // Path 0
+                        new BezierLine(midIntakeHP2, endIntakeHP2)
+                )
+                .setConstantHeadingInterpolation(startIntakeAngleHP2)
+                .addPath(
+                        // Path 1
                         new BezierLine(endIntakeHP2, shoot)
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP2)

@@ -50,88 +50,99 @@ public class AutoAudience12 extends AbstractAuto{
     protected void onRun() {
         shootPreload();
         shootFirst();
-//        shootSecond();
-//        shootThird();
-//        shootFourth();
+        shootHPFirst();
+        shootHPSecond();
+        shootHPThird();
     }
 
 
-    private void shootFourth() { //not work, jumbled jank monkeybutt
-        path.humanPlayerIntake2.getPath(2).setTValueConstraint(0.88);
-        path.humanPlayerIntake2.getPath(1).setTValueConstraint(0.88);
-        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.88);
+    private void shootHPThird() {
+        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.88);
+        path.humanPlayerShoot2.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_THIRD")),
+                        new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_THIRD")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake2, .01, 0, f, "speed_up_3"), // speed up to dash to third set of balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake2, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.humanPlayerIntake2, 0.8, 0, f, "slow_down_3"), // slow down to intake balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake2, .01, 2, f, "speed_up_3_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                        path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_3"), // slow down to intake balls
+                                new FollowPathAction(f, path.humanPlayerIntake2, true)
+                        ),
+                        new SleepAction(0.3),
+                        new FollowPathAction(f, path.humanPlayerIntake3, true),
+                        new SleepAction(0.3),
+                        new ParallelAction(
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.humanPlayerIntake2, 0.01, 2, f, "arm_flywheel_and_turret_3"
+                                        path.humanPlayerShoot2, 0.01, 1, f, "arm_flywheel_and_turret_hp_3"
                                 ),
-                                new FollowPathAction(f, path.humanPlayerIntake2, true)
+                                new FollowPathAction(f, path.humanPlayerShoot2, true)
                         ),
 
                         RobotActions.shootArtifacts(3, 2.5),
-                        new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
+                        new FollowPathAction(f, path.goalLeave),
+                        new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_HP_THIRD"))
                 )
         );
 
         robot.actionScheduler.runBlocking();
     }
 
-    private void shootHPFirst() { //not work, jumbled jank monkeybutt
-        path.humanPlayerIntake2.getPath(2).setTValueConstraint(0.88);
-        path.humanPlayerIntake2.getPath(1).setTValueConstraint(0.88);
-        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.88);
+    private void shootHPSecond() {
+        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.88);
+        path.humanPlayerShoot2.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_THIRD")),
+                        new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_SECOND")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake2, .01, 0, f, "speed_up_3"), // speed up to dash to third set of balls
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake2, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.humanPlayerIntake2, 0.8, 0, f, "slow_down_3"), // slow down to intake balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake2, .01, 2, f, "speed_up_3_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                        path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_2"), // slow down to intake balls
+                                new FollowPathAction(f, path.humanPlayerIntake2, true)
+                        ),
+                        new SleepAction(0.3),
+                        new FollowPathAction(f, path.humanPlayerIntake3, true),
+                        new SleepAction(0.3),
+                        new ParallelAction(
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.humanPlayerIntake2, 0.01, 2, f, "arm_flywheel_and_turret_3"
+                                        path.humanPlayerShoot2, 0.01, 1, f, "arm_flywheel_and_turret_hp_2"
                                 ),
-                                new FollowPathAction(f, path.humanPlayerIntake2, true)
+                                new FollowPathAction(f, path.humanPlayerShoot2, true)
                         ),
 
                         RobotActions.shootArtifacts(3, 2.5),
-                        new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
+                        new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_SECOND"))
                 )
         );
 
         robot.actionScheduler.runBlocking();
     }
 
-    private void shootSecond() { //not work, jumbled jank monkeybutt
+    private void shootHPFirst() {
         path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.88);
         path.humanPlayerShoot1.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
-                        new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_SECOND")),
+                        new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_FIRST")),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake0, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
                                 new Actions.CallbackAction(
@@ -139,11 +150,11 @@ public class AutoAudience12 extends AbstractAuto{
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.humanPlayerIntake0, 0.8, 0, f, "slow_down_second"), // slow down to intake balls
+                                        path.humanPlayerIntake0, 0.8, 0, f, "slow_down_hp_1"), // slow down to intake balls
                                 new FollowPathAction(f, path.humanPlayerIntake0, true)
                         ),
                         new SleepAction(0.3),
-                        new FollowPathAction(f, path.humanPlayerIntake0, true),
+                        new FollowPathAction(f, path.humanPlayerIntake1, true),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot1, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
@@ -153,14 +164,13 @@ public class AutoAudience12 extends AbstractAuto{
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.humanPlayerShoot1, 0.01, 1, f, "arm_flywheel_and_turret_hp"
+                                        path.humanPlayerShoot1, 0.01, 1, f, "arm_flywheel_and_turret_hp_1"
                                 ),
                                 new FollowPathAction(f, path.humanPlayerShoot1, true)
                         ),
 
                         RobotActions.shootArtifacts(3, 2.5),
-                        new FollowPathAction(f, path.goalLeave),
-                        new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_SECOND"))
+                        new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_HP_FIRST"))
                 )
         );
 
@@ -181,7 +191,7 @@ public class AutoAudience12 extends AbstractAuto{
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.firstShoot, 0.3, 0, f, "slow_down_1"), // slow down to intake balls
+                                        path.firstShoot, 0.3, 0, f, "slow_down_first"), // slow down to intake balls
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.firstShoot, 0.01, 2, f, "speed_up_1_post_intake"), // speed up after intake
                                 new Actions.CallbackAction(
                                         new ParallelAction(
