@@ -17,14 +17,17 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_POWER_INPUT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFlywheelManual;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isForwardPower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isStrafePower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.pedropathing.geometry.Pose;
@@ -91,17 +94,20 @@ public class MainTeleOp extends LinearOpMode {
                 robot.drivetrain.setTeleOpDrive(
                         gamepadEx1.getLeftY(),
                         -gamepadEx1.getLeftX(),
-                        -gamepadEx1.getRightX(),
+                        -gamepadEx1.getRightX() * (isSlowMode ? 0.7 : 1),
                         false
                 );
             } else {
                 robot.drivetrain.setTeleOpDrive(
                         -gamepadEx1.getLeftY(),
                         gamepadEx1.getLeftX(),
-                        -gamepadEx1.getRightX(),
+                        -gamepadEx1.getRightX() * (isSlowMode ? 0.7 : 1),
                         false
                 );
             }
+
+            isForwardPower = Math.abs(gamepadEx1.getLeftY()) >= MIN_POWER_INPUT;
+            isStrafePower = Math.abs(gamepadEx1.getLeftX()) >= MIN_POWER_INPUT;
 
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
