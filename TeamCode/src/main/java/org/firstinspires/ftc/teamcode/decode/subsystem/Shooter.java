@@ -20,8 +20,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     private boolean didCurrentDrop;
 
-
     private int queuedShots = 0;
+    public static double MIN_MOVEMENT_SPEED = 0.5;
 
     public enum ShooterStates {
         IDLE, PREPPING, RUNNING
@@ -176,6 +176,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.run();
     }
 
+    private boolean isRobotMoving = false;
+
+    public boolean isRobotMoving() {
+        return isRobotMoving;
+    }
+
     private double vx, vy, omega, ax, ay, alpha;
     private Pose currentPose, predictedPose;
     public Pose getPredictedPose() {
@@ -184,6 +190,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         double timeToShoot = Common.TIME_TO_SHOOT;
          vx = robot.drivetrain.getVelocity().getXComponent();
          vy = robot.drivetrain.getVelocity().getYComponent();
+
+         isRobotMoving = vx + vy > MIN_MOVEMENT_SPEED;
 
         omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
         ax = robot.drivetrain.getAcceleration().getXComponent();                                  // ax (no accel)
