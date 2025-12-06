@@ -19,7 +19,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.Filter;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
@@ -55,6 +58,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private TurretStates currentState = ODOM_TRACKING;
 
+    public static MovingAverageGains targetAngleAverageGains = new MovingAverageGains(
+            6
+    );
+
+    private final Filter targetAngleAverageFilter = new MovingAverageFilter(targetAngleAverageGains);
+
     private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
     private final PIDController controller = new PIDController(derivFilter);
 
@@ -73,14 +82,17 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             HEADING_VARIANCE_TOLERANCE = 0.04,
             TOLERANCE_COUNTER = 10,
             VISION_SAMPLE_SIZE = 5,
-            PID_TOLERANCE = 3,
+            PID_TOLERANCE = 1,
+            DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -30;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
             CHECK_UNDETECTED_LOOPS = (1 << 5) - 1, // checking every X loops to switch to VISION_TRACKING state
-            CHECK_DETECTED_LOOPS = (1 << 0) - 1; // checking every X loop when in VISION_TRACKING state
+            CHECK_DETECTED_LOOPS = (1 << 0) - 1,// checking every X loop when in VISION_TRACKING state
+            OFFSET_CALIBRATION_SAMPLES = 5;           // how many samples to average
+
 
     private Pose goal = Common.BLUE_GOAL;
     private Pose turretPos = new Pose(0, 0);
@@ -94,6 +106,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             robotHeadingTurretDomain = 0.0,
             rawPower = 0.0,
             manualPower = 0.0;
+    private boolean isOffsetCalibrating = false;
+    private int offsetSamplesTaken = 0;
+    private double offsetAngleSum = 0.0;
 
     public Turret(HardwareMap hw) {
         this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150, ROUNDING_POINT);
@@ -134,19 +149,30 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
 
+    // Default: use a single abs encoder reading
     public void applyOffset() {
-        encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - normalizeToTurretRange((360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360)) % 360);
+        applyOffset(getAbsoluteEncoderAngle());
     }
+
+    // New: use a provided absolute angle (e.g. averaged over N samples)
+    private void applyOffset(double absAngleDegrees) {
+        encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - absAngleDegrees;
+    }
+
+
+
 
     private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
+        targetAngle = normalizeToTurretRange(alpha);
+        targetAngle = targetAngleAverageFilter.calculate(targetAngle);
 
-        controller.setTarget(new State(targetAngle = normalizeToTurretRange(alpha), 0, 0, 0));
+        controller.setTarget(new State(targetAngle, 0, 0, 0));
     }
 
     public boolean isPIDInTolerance() {
-        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE);
+        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE, DERIV_TOLERANCE);
     }
 
 
@@ -180,6 +206,22 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static double normalizeToTurretRange(double angle) {
         return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle;
     }
+    /**
+     * One-shot absolute encoder angle in DEGREES.
+     * Same math you used before, just factored out.
+     */
+    private double getAbsoluteEncoderAngle() {
+        double voltage = absoluteEncoder.getVoltage();
+
+        double rawDegrees = (voltage / 3.2 * 360.0 + ABSOLUTE_ENCODER_OFFSET) % 360.0;
+        double turretDomain = (360.0 - rawDegrees) % 360.0;
+
+        return normalizeToTurretRange(turretDomain);
+    }
+
+
+
+
 
     public void setManual(double power) {
         manualPower = power * MANUAL_POWER_MULTIPLIER;
@@ -201,6 +243,28 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
 
+        if (!isOffsetCalibrating
+                && ((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0)
+                && toleranceCounter >= TOLERANCE_COUNTER) {
+
+            isOffsetCalibrating = true;
+            offsetSamplesTaken = 0;
+            offsetAngleSum = 0.0;
+        }
+
+// if calibrating, collect N samples and then apply averaged offset once
+        if (isOffsetCalibrating) {
+            double absAngle = getAbsoluteEncoderAngle();
+            offsetAngleSum += absAngle;
+
+            if (++offsetSamplesTaken >= OFFSET_CALIBRATION_SAMPLES) {
+                double averagedAngle = offsetAngleSum / OFFSET_CALIBRATION_SAMPLES;
+                applyOffset(averagedAngle);
+                isOffsetCalibrating = false;
+            }
+            turret.set(0);
+            return;
+        }
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
 
         else {
@@ -216,7 +280,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         boolean seesTag = autoAim.detectTarget();
 //                        autoAim.updateDecimation();
-                        if (seesTag) currentState = TurretStates.VISION_TRACKING;
+                        if (seesTag && !robot.shooter.isRobotMoving()) currentState = TurretStates.VISION_TRACKING;
                         else break;
                     } else {
                         break;
@@ -224,7 +288,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
-                        if (!autoAim.detectTarget()) {
+                        if (!autoAim.detectTarget() || robot.shooter.isRobotMoving()) {
                             currentState = TurretStates.ODOM_TRACKING;
                             break;
                         }
@@ -255,11 +319,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             if (pidInTolerance) {
                 toleranceCounter++;
-                output = 0;
             } else toleranceCounter = 0;
 
-            if (((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0) && toleranceCounter >= TOLERANCE_COUNTER)
-                applyOffset();
 
             turret.set(output);
         }
@@ -326,7 +387,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("current vision (RADIANS): ", autoAim.getTargetYawDegrees());
         dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
         dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
-        dashTelemetry.addData("absolute encoder (ANGLE): ", normalizeToTurretRange(360 - ((absoluteEncoder.getVoltage() / 3.2 * 360 + ABSOLUTE_ENCODER_OFFSET) % 360) % 360));
+        dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
 
         dashTelemetry.addLine("TURRET POSE (VISION/ODO)");

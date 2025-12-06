@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACK_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_GATE_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
@@ -16,6 +19,7 @@ import org.firstinspires.ftc.teamcode.decode.util.SimpleServoPivot;
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
     private final SimpleServoPivot feederGate;
+    private final CRServo backFeeder;
 
     private final DigitalChannel pin0Left, pin0Right;
 
@@ -38,6 +42,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
+        backFeeder = hw.get(CRServo.class, NAME_FEEDER_BACK_SERVO);
+        backFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
         pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
         pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);
     }
@@ -72,6 +78,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     @Override
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
+        backFeeder.setPower(currentState == FeederStates.RUNNING ? 1 : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
+
         feederGate.run();
     }
 
