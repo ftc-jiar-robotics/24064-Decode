@@ -1,11 +1,27 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MAX_CR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MIN_CR;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VELOCITY_MAGNITUDE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isForwardPower;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isStrafePower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
+import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.round;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.Style;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -28,6 +44,7 @@ public final class Robot {
     public final Intake intake;
     public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
+    public final LEDController ledController;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -55,6 +72,8 @@ public final class Robot {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
+        ledController = new LEDController(hardwareMap);
+
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         Drawing.init();
@@ -69,6 +88,11 @@ public final class Robot {
     // Reads all the necessary sensors (including battery volt.) in one bulk read
     public void readSensors() {
         bulkReader.bulkRead();
+    }
+
+
+    public static boolean isArtifactFound(ColorSensor colorSensor) {
+        return !colorSensor.hsv.inRange(INTAKE_NONE_MIN_CR, INTAKE_NONE_MAX_CR);
     }
 
     public static Robot.ArtifactColor getColor(ColorSensor colorSensor, boolean isRev) {
@@ -93,7 +117,41 @@ public final class Robot {
         drivetrain.update();
         LoopUtil.updateLoopCount();
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
+        Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
+
+        if ((LoopUtil.getLoops() & Common.RELOCALIZE_UPDATE_LOOPS) == 0) relocalizeWithWall();
+
+        int ballCount = 0;
+
+        if (!inTriangle && shooter.getQueuedShots() <= 0) {
+            if (robot.shooter.isBallPresent()) ballCount = 3;
+            else ballCount = 0;
+
+            ledController.update(ballCount);
+        } else ledController.showShooterTolerance();
+
+
         readSensors();
+    }
+
+    private void relocalizeWithWall() {
+        double currentX = robot.drivetrain.getPose().getX();
+        double currentY = robot.drivetrain.getPose().getY();
+
+        if (currentX > 72) {
+            LOCALIZATION_X = 134;
+            LOCALIZATION_Y = 7.5;
+        } else {
+            LOCALIZATION_X = 10;
+            LOCALIZATION_Y = 7.5;
+        }
+
+        boolean isXInRange = Math.abs(LOCALIZATION_X - currentX) < LOCALIZATION_TOLERANCE;
+        boolean isYInRange = Math.abs(LOCALIZATION_Y - currentY) < LOCALIZATION_TOLERANCE;
+
+        if ((isXInRange && isYInRange) && robot.drivetrain.getVelocity().getMagnitude() <= MAX_VELOCITY_MAGNITUDE && (isForwardPower || isStrafePower)) {
+            robot.drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, isRed ? 180 : 0));
+        }
     }
 
     // Prints data on the driver hub for debugging and other uses

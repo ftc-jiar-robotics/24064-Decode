@@ -11,9 +11,13 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 @Config
 public final class Common {
     public static final String
-            NAME_FEEDER_FRONT_SERVO = "feederFront" ,
             NAME_FEEDER_BACK_SERVO = "feederBack",
+            NAME_FEEDER_GATE_SERVO = "feederGate",
             NAME_FEEDER_COLOR_SENSOR = "colorSensorFeeder",
+            NAME_FEEDER_LEFT_DISTANCE_SENSOR = "leftDistanceSensorFeeder",
+            NAME_FEEDER_RIGHT_DISTANCE_SENSOR = "rightDistanceSensorFeeder",
+            NAME_FEEDER_LEFT_PIN0 = "leftDistancePin0",
+            NAME_FEEDER_RIGHT_PIN0 = "rightDistancePin0",
 
             NAME_FLYWHEEL_MASTER_MOTOR = "shooterMaster",
             NAME_FLYWHEEL_SLAVE_MOTOR = "shooterSlave",
@@ -21,7 +25,7 @@ public final class Common {
             NAME_HOOD_SERVO = "hood",
 
             NAME_INTAKE_MOTOR = "intake",
-            NAME_INTAKE_COLOR_SENSOR = "colorSensorIntake",
+            NAME_INTAKE_DISTANCE_SENSOR = "distanceSensorIntake",
 
             NAME_TURRET_MOTOR = "turret",
             NAME_TURRET_ENCODER = "turretEncoder",
@@ -30,11 +34,16 @@ public final class Common {
     public static Pose AUTO_END_POSE = null;
 
     public static boolean
+            isFuturePoseOn = false,
             isSlowMode = false,
             isTelemetryOn = false,
+            isForwardPower = false,
+            isStrafePower = false,
             isRed = false,
             isBigTriangle = false,
-            isHoodManual = false;
+            isHoodManual = false,
+            isFlywheelManual = false,
+            inTriangle = false;
 
     public static final double
             LEFT = Math.toRadians(180),
@@ -53,30 +62,44 @@ public final class Common {
             STRAFE_POD_X = -83.5,
 
             // Camera Stuff
-            CAM_HEIGHT = 11.5,
-            CAM_PITCH = 10.0,
+            CAM_HEIGHT = 14.25,
+            CAM_PITCH = 20.0,
 
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
-            CAM_OFFSET_X = -2.2,
-            CAM_OFFSET_Y = 6,
+            CAM_OFFSET_X = -1.254,
+            CAM_OFFSET_Y = -3.281,
             TURRET_OFFSET_Y = -2.559,
 
             MAX_VOLTAGE = 13;
 
+    public static final Pose
+            RED_BIG_TRIANGLE = new Pose(113.5, 135.5, Math.toRadians(270)),
+            RED_SMALL_TRIANGLE = new Pose(88.5, 7.25, Math.toRadians(90)),
+            BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror().setHeading((3.0 * Math.PI) / 2.0),
+            BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.PI / 2.0),
+            BLUE_GOAL = new Pose(1.5,142.5);
+
+
     public static double
-            LAUNCH_DELAY = 0.07,    // seconds (feeder > ball leaves flywheel)
-            AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
-            AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
-            MIN_AIRTIME  = 0.02; //safety
-    public static double getAirtimeForDistance(double distanceInches) {
-        double t = AIRTIME_A * distanceInches + AIRTIME_B;
-        return Math.max(MIN_AIRTIME, t);
-    }
+            TIME_TO_SHOOT = 0.6467,
+            ANG_VELOCITY_MULTIPLER = 0.4,
+            SLOW_MODE = 0.55;
+
+    public static double
+            MIN_POWER_INPUT = 0.3,
+            MAX_VELOCITY_MAGNITUDE = 0.2,
+            LOCALIZATION_X = 10,
+            LOCALIZATION_TOLERANCE = 4.67,
+            LOCALIZATION_Y = 7.5;
+
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
+            MIN_DISTANCE_FEEDER = 0, // TODO mm
+            MAX_DISTANCE_FEEDER = 90, // TODO mm
+            MIN_SHOOTING_DISTANCE = 40,
+            RELOCALIZE_UPDATE_LOOPS = (1 << 3) - 1,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
-
 
     public static HSV
             GREEN_MIN_REV = new HSV(145, 0.5, 0.0),
@@ -84,13 +107,13 @@ public final class Common {
             PURPLE_MIN_REV = new HSV(180, 0.3, 0.0),
             PURPLE_MAX_REV = new HSV(230, 0.45, 2.0);
 
-
-
     public static HSV
             GREEN_MIN_CR = new HSV(55, 0.5, 0.0),
             GREEN_MAX_CR = new HSV(90, 0.77, 2.0),
             PURPLE_MIN_CR = new HSV(44.3, 0.45, 0.0),
-            PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0);
+            PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0),
+            INTAKE_NONE_MIN_CR = new HSV(98, 0.275, 0),
+            INTAKE_NONE_MAX_CR = new HSV(102, 0.415, 2);
 
 
 

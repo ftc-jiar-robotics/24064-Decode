@@ -10,26 +10,37 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class CachedMotor extends MotorEx {
     private double currentOutput;
     
-    public static double
-            ROUNDING_POINT = 1000,
-            SLEW_RATE = 0.2;
+    private double roundingPoint;
+    public static double SLEW_RATE = 0.2;
 
     public CachedMotor(@NonNull HardwareMap hardwareMap, String id, @NonNull GoBILDA gobildaType) {
         super(hardwareMap, id, gobildaType);
+
+        roundingPoint = 1000;
+    }
+
+    public CachedMotor(@NonNull HardwareMap hardwareMap, String id, @NonNull GoBILDA gobildaType, double roundingPoint) {
+        super(hardwareMap, id, gobildaType);
+
+        this.roundingPoint = roundingPoint;
+    }
+
+    public void setRoundingPoint(double roundingPoint) {
+        this.roundingPoint = roundingPoint;
     }
 
     @Override
     public void set(double output) {
         if (output > 0) {
-            output = Math.floor(output * ROUNDING_POINT) / ROUNDING_POINT;
+            output = Math.floor(output * roundingPoint) / roundingPoint;
         } else if (output < 0) {
-            output = Math.ceil(output * ROUNDING_POINT) / ROUNDING_POINT;
+            output = Math.ceil(output * roundingPoint) / roundingPoint;
         } else {
             output = 0;
         }
 
         if (currentOutput != output || (currentOutput != 0 && output == 0)) {
-            SLEW_RATE = 0.2;
+
             double desiredChange = output - currentOutput;
             double limitedChange = Math.max(-SLEW_RATE, Math.min(desiredChange, SLEW_RATE));
             super.set(currentOutput += limitedChange);

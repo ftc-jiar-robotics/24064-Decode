@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.prototypes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -15,6 +17,7 @@ public class FeederTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         gamepadEx1 = new GamepadEx(gamepad1);
 
         feeder = new Feeder(hardwareMap);
@@ -26,13 +29,7 @@ public class FeederTest extends LinearOpMode {
                 feeder.set(Feeder.FeederStates.RUNNING, false);
             }
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.Y)) {
-                feeder.set(Feeder.FeederStates.IDLE, false);
-            }
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) {
-                feeder.set(Feeder.FeederStates.OUTTAKING, false);
-            }
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) {
-                feeder.set(Feeder.FeederStates.OFF, false);
+                feeder.set(Feeder.FeederStates.BLOCKING, false);
             }
 
             feeder.run();

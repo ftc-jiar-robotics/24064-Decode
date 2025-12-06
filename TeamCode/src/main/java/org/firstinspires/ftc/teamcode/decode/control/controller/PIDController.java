@@ -22,7 +22,7 @@ public class PIDController implements FeedbackController {
     private final Differentiator measurementDifferentiator = new Differentiator();
     private final Integrator integrator = new Integrator();
 
-    private MovingAverageFilter movingAverageFilter = new MovingAverageFilter(new MovingAverageGains(10));
+    private MovingAverageFilter movingAverageFilter = new MovingAverageFilter(new MovingAverageGains(3));
 
     private State error = new State();
     private double errorIntegral, filteredErrorDerivative, rawErrorDerivative;
