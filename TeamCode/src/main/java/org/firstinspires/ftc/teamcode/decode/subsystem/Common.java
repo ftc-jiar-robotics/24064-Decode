@@ -81,9 +81,18 @@ public final class Common {
 
 
     public static double
-            TIME_TO_SHOOT = 0.6467,
             ANG_VELOCITY_MULTIPLER = 0.4,
             SLOW_MODE = 0.55;
+    public static double
+            LAUNCH_DELAY = 0.3,    // seconds (feeder > ball leaves flywheel)
+            AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
+            AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
+            MIN_AIRTIME  = 0.02; //safety
+
+    public static double getAirtimeForDistance(double distanceInches) {
+        double t = AIRTIME_A * distanceInches + AIRTIME_B;
+        return Math.max(MIN_AIRTIME, t);
+    }
 
     public static double
             MIN_POWER_INPUT = 0.3,

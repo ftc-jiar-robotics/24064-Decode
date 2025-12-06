@@ -182,20 +182,26 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return isRobotMoving;
     }
 
-    private double vx, vy, omega, ax, ay, alpha;
+    private double vx;
+    private double vy;
+    private double omega;
+    private double ax;
+    private double ay;
+    private double alpha;
+
     private Pose currentPose, predictedPose;
     public Pose getPredictedPose() {
         currentPose = robot.drivetrain.getPose();
+        double distanceInches = turret.getDistance();
+        double airtime = Common.getAirtimeForDistance(distanceInches);
+        double timeToShoot = Common.LAUNCH_DELAY + airtime;
+        vx = robot.drivetrain.getVelocity().getXComponent();
+        vy = robot.drivetrain.getVelocity().getYComponent();
 
-        double timeToShoot = Common.TIME_TO_SHOOT;
-         vx = robot.drivetrain.getVelocity().getXComponent();
-         vy = robot.drivetrain.getVelocity().getYComponent();
-
-         isRobotMoving = vx + vy > MIN_MOVEMENT_SPEED;
-
-        omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
-        ax = robot.drivetrain.getAcceleration().getXComponent();                                  // ax (no accel)
-        ay = robot.drivetrain.getAcceleration().getYComponent();                                        // ay (no accel)
+        omega = robot.drivetrain.getAngularVelocity();
+        ax = robot.drivetrain.getAcceleration().getXComponent();
+        ay = robot.drivetrain.getAcceleration().getYComponent();
+        // ay (no accel)
         alpha = 0;
 
         double
