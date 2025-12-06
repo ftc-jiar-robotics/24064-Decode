@@ -57,7 +57,8 @@ public class AutoAudience12 extends AbstractAuto{
 
 
     private void shootHPThird() {
-        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.88);
+        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.88);
+        path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.80);
         path.humanPlayerShoot2.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
@@ -98,7 +99,8 @@ public class AutoAudience12 extends AbstractAuto{
     }
 
     private void shootHPSecond() {
-        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.88);
+        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.88);
+        path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.80);
         path.humanPlayerShoot2.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
@@ -139,6 +141,7 @@ public class AutoAudience12 extends AbstractAuto{
 
     private void shootHPFirst() {
         path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.88);
+        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.80);
         path.humanPlayerShoot1.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
@@ -218,7 +221,7 @@ public class AutoAudience12 extends AbstractAuto{
     private void shootPreload() {
         robot.actionScheduler.addAction(
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
-                        RobotActions.shootArtifacts(3, 2.5),
+                        RobotActions.shootArtifacts(3, 3.5),
                         new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_PRELOAD"))
                 )
         );

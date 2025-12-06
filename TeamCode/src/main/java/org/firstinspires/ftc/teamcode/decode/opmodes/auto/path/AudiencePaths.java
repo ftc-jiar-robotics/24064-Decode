@@ -12,22 +12,22 @@ public class AudiencePaths {
     }
     public static Pose
             start = new Pose(55.5, 7.25, Math.toRadians(90)),
-            shoot = new Pose(55.5, 7.3),
+            shoot = new Pose(55.5, 9.3),
             leave = new Pose(49.600, 16.200),
-            startIntake1 = new Pose(36.1, 28.4),
-            endIntake1 = new Pose(10.500, 32.400),
+            startIntake1 = new Pose(36.1, 26.4),
+            endIntake1 = new Pose(13.500, 30.400),
             startIntakeHP1 = new Pose(8.000, 8.500),
             midIntakeHP1 = new Pose(14.300, 8.500),
-            endIntakeHP1 = new Pose(7.600, 8.500),
+            endIntakeHP1 = new Pose(10.300, 7.500),
             startIntakeHP2 = new Pose(8.000, 12.200),
             midIntakeHP2 = new Pose(14.700, 12.100),
-            endIntakeHP2 = new Pose(7.800, 12.100);
+            endIntakeHP2 = new Pose(10.300, 12.100);
 
     public static double
             leaveAngle = Math.toRadians(132),
             startAngle = Math.toRadians(90),
             shootAngle = Math.toRadians(-127),
-            startIntakeAngle = Math.toRadians(128),
+            startIntakeAngle = Math.toRadians(153),
             endIntakeAngle = Math.toRadians(153),
             startIntakeAngleHP1 = Math.toRadians(180),
             startIntakeAngleHP2 = Math.toRadians(175);
@@ -121,7 +121,6 @@ public class AudiencePaths {
                         new BezierLine(startIntakeHP2, midIntakeHP2)
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP2)
-                .setReversed()
                 .build();
         humanPlayerShoot2 = f.pathBuilder()
                 .addPath(
@@ -134,7 +133,6 @@ public class AudiencePaths {
                         new BezierLine(endIntakeHP2, shoot)
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP2)
-                .setReversed()
                 .build();
         goalLeave = f.pathBuilder()
                 .addPath(
