@@ -197,8 +197,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         double timeToShoot = Common.LAUNCH_DELAY + airtime;
         vx = robot.drivetrain.getVelocity().getXComponent();
         vy = robot.drivetrain.getVelocity().getYComponent();
-
-        omega = robot.drivetrain.getAngularVelocity();
+        isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
+        omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
         ax = robot.drivetrain.getAcceleration().getXComponent();
         ay = robot.drivetrain.getAcceleration().getYComponent();
         // ay (no accel)
