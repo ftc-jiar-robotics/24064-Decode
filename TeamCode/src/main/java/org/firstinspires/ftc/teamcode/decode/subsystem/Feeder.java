@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
@@ -42,6 +43,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
         backFeeder = hw.get(CRServo.class, NAME_FEEDER_BACK_SERVO);
+        backFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
         pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
         pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);
     }
