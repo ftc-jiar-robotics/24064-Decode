@@ -91,7 +91,7 @@ public class AutoAudience12 extends AbstractAuto{
         robot.actionScheduler.runBlocking();
     }
 
-    private void shootThird() { //not work, jumbled jank monkeybutt
+    private void shootHPFirst() { //not work, jumbled jank monkeybutt
         path.humanPlayerIntake2.getPath(2).setTValueConstraint(0.88);
         path.humanPlayerIntake2.getPath(1).setTValueConstraint(0.88);
         path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.88);
