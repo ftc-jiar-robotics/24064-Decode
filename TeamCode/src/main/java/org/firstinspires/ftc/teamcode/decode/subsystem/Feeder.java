@@ -78,7 +78,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     @Override
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
-        backFeeder.setPower(currentState == FeederStates.RUNNING ? 1 : -1);
+        backFeeder.setPower(currentState == FeederStates.RUNNING ? 1 : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
 
         feederGate.run();
     }
