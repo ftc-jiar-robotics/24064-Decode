@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 @Config
 public final class Common {
     public static final String
+            NAME_FEEDER_BACK_SERVO = "feederBack",
             NAME_FEEDER_GATE_SERVO = "feederGate",
             NAME_FEEDER_COLOR_SENSOR = "colorSensorFeeder",
             NAME_FEEDER_LEFT_DISTANCE_SENSOR = "leftDistanceSensorFeeder",
