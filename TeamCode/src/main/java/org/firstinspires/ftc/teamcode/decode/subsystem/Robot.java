@@ -2,14 +2,13 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MAX_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MIN_CR;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_LOCALIZATION_X;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_LOCALIZATION_Y;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VELOCITY_MAGNITUDE;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_LOCALIZATION_X;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_LOCALIZATION_Y;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_COLOR_SENSOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isForwardPower;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isStrafePower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
@@ -139,17 +138,19 @@ public final class Robot {
         double currentX = robot.drivetrain.getPose().getX();
         double currentY = robot.drivetrain.getPose().getY();
 
-        if (currentX < 72) {
-            MIN_LOCALIZATION_X = 144 - MIN_LOCALIZATION_X;
-            MAX_LOCALIZATION_X = 144 - MAX_LOCALIZATION_X;
+        if (currentX > 72) {
+            LOCALIZATION_X = 134;
+            LOCALIZATION_Y = 7.5;
+        } else {
+            LOCALIZATION_X = 10;
+            LOCALIZATION_Y = 7.5;
         }
 
-        boolean isRobotInRange = ((currentX >= MIN_LOCALIZATION_X && currentX <= MAX_LOCALIZATION_X) && (currentY >= MIN_LOCALIZATION_Y && currentY <= MAX_LOCALIZATION_Y));
+        boolean isXInRange = Math.abs(LOCALIZATION_X - currentX) < LOCALIZATION_TOLERANCE;
+        boolean isYInRange = Math.abs(LOCALIZATION_Y - currentY) < LOCALIZATION_TOLERANCE;
 
-        if (isRobotInRange && robot.drivetrain.getVelocity().getMagnitude() <= MAX_VELOCITY_MAGNITUDE && (isForwardPower || isStrafePower)) {
-            double relocalizedHeading = round(Math.toDegrees(robot.drivetrain.getHeading()) / 90) * 90;
-
-            robot.drivetrain.setPose(new Pose(MAX_LOCALIZATION_X, MAX_LOCALIZATION_Y, relocalizedHeading));
+        if ((isXInRange && isYInRange) && robot.drivetrain.getVelocity().getMagnitude() <= MAX_VELOCITY_MAGNITUDE && (isForwardPower || isStrafePower)) {
+            robot.drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, isRed ? 180 : 0));
         }
     }
 

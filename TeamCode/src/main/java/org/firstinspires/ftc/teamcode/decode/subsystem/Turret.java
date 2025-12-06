@@ -267,7 +267,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             if (pidInTolerance) {
                 toleranceCounter++;
-                output = 0;
             } else toleranceCounter = 0;
 
             if (((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0) && toleranceCounter >= TOLERANCE_COUNTER)
