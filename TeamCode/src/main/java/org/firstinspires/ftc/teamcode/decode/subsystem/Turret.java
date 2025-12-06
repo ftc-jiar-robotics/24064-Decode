@@ -210,7 +210,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
      * One-shot absolute encoder angle in DEGREES.
      * Same math you used before, just factored out.
      */
-    private double getAbsoluteEncoderAngle() {
+    public double getAbsoluteEncoderAngle() {
         double voltage = absoluteEncoder.getVoltage();
 
         double rawDegrees = (voltage / 3.2 * 360.0 + ABSOLUTE_ENCODER_OFFSET) % 360.0;
