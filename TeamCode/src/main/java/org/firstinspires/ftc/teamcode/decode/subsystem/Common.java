@@ -98,7 +98,7 @@ public final class Common {
             MIN_POWER_INPUT = 0.3,
             MAX_VELOCITY_MAGNITUDE = 0.2,
             LOCALIZATION_X = 10,
-            LOCALIZATION_TOLERANCE = 4.67,
+            LOCALIZATION_TOLERANCE = 10.67,
             LOCALIZATION_Y = 7.5;
 
     public static final int
