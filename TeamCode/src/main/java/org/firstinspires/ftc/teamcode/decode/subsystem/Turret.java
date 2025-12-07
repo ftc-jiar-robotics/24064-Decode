@@ -85,7 +85,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_TOLERANCE = 1,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -30;
+            ABSOLUTE_ENCODER_OFFSET = -31.3875;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
@@ -210,7 +210,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
      * One-shot absolute encoder angle in DEGREES.
      * Same math you used before, just factored out.
      */
-    private double getAbsoluteEncoderAngle() {
+    public double getAbsoluteEncoderAngle() {
         double voltage = absoluteEncoder.getVoltage();
 
         double rawDegrees = (voltage / 3.2 * 360.0 + ABSOLUTE_ENCODER_OFFSET) % 360.0;
@@ -272,6 +272,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case IDLE:
                     targetAngle = 0;
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
+                    if (robot.shooter.isBallPresent()) currentState = ODOM_TRACKING;
                     break;
                 case ODOM_TRACKING:
                     turretPos = calculateTurretPosition(isFuturePoseOn ? robot.shooter.getPredictedPose() : robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
@@ -319,6 +320,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             if (pidInTolerance) {
                 toleranceCounter++;
+                output = 0;
             } else toleranceCounter = 0;
 
 
