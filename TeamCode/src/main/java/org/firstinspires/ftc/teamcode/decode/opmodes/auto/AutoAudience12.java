@@ -57,8 +57,8 @@ public class AutoAudience12 extends AbstractAuto{
 
 
     private void shootHPThird() {
-        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.88);
-        path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.80);
+        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.8);
+        path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.775);
         path.humanPlayerShoot2.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
@@ -99,8 +99,8 @@ public class AutoAudience12 extends AbstractAuto{
     }
 
     private void shootHPSecond() {
-        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.88);
-        path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.80);
+        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.8);
+        path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.775);
         path.humanPlayerShoot2.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
@@ -140,8 +140,8 @@ public class AutoAudience12 extends AbstractAuto{
     }
 
     private void shootHPFirst() {
-        path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.88);
-        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.80);
+        path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.8);
+        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.775);
         path.humanPlayerShoot1.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(

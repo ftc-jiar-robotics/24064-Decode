@@ -56,7 +56,7 @@ public class AutoGoal15 extends AbstractAuto{
 
 
 private void shootHP() { //shoot hp? :whatwasyourauton:
-    path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.88);
+    path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.8);
     path.humanPlayerShoot.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
