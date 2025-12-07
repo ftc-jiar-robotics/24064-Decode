@@ -303,6 +303,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
 //                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
 //                            robot.drivetrain.setPose(robotPoseFromVision);
+                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
+                            robot.drivetrain.setPose(robotPoseFromVision);
 
                         setTracking();
                         output += controller.calculate(new State(currentAngle, 0, 0, 0));
@@ -319,6 +321,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             if (pidInTolerance) {
                 toleranceCounter++;
+//                output = 0;
             } else toleranceCounter = 0;
 
 
