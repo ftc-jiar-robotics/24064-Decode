@@ -150,7 +150,9 @@ public final class Robot {
         boolean isYInRange = Math.abs(LOCALIZATION_Y - currentY) < LOCALIZATION_TOLERANCE;
 
         if ((isXInRange && isYInRange) && robot.drivetrain.getVelocity().getMagnitude() <= MAX_VELOCITY_MAGNITUDE && (isForwardPower || isStrafePower)) {
-            robot.drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, isRed ? 180 : 0));
+            robot.drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toRadians(
+                    Math.round(Math.toDegrees(robot.drivetrain.getPose().getHeading()) / 90.0) * 90.0
+            )));
         }
     }
 
