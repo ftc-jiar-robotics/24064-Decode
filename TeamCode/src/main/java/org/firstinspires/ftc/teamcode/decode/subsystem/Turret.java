@@ -301,8 +301,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
                         visionVariances = getVariance(visionSamplePoses);
 
-//                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
-//                            robot.drivetrain.setPose(robotPoseFromVision);
                         if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
                             robot.drivetrain.setPose(robotPoseFromVision);
 
@@ -321,7 +319,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             if (pidInTolerance) {
                 toleranceCounter++;
+<<<<<<< Updated upstream
+=======
 //                output = 0;
+>>>>>>> Stashed changes
             } else toleranceCounter = 0;
 
 
