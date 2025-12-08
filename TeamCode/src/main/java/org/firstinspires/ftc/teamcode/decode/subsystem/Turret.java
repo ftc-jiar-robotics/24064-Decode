@@ -76,7 +76,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double[] visionVariances = new double[3];
 
     public static double
-            kS = -0.1167,
+            kS = -0.15,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,
@@ -88,7 +88,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_TOLERANCE = 1,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -31.3875,
+            ABSOLUTE_ENCODER_OFFSET = -31.95;
             READY_TO_SHOOT_LOOPS = 3;
 
     public static int

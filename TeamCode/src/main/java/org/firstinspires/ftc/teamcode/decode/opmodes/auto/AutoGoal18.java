@@ -14,7 +14,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.Paths;
+import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.GoalPaths;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
@@ -24,23 +24,23 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 @Autonomous(name = "AutoClose18")
 public class AutoGoal18 extends AbstractAuto {
     private Follower f;
-    private Paths path;
+    private GoalPaths path;
     public static int CYCLES = 2;
 
     @Override
     protected Pose getStartPose() {
-        return Paths.start;
+        return GoalPaths.start;
     }
     @Override
     protected void onInit() {
 
         f = robot.drivetrain;
-        path = new Paths(f);
+        path = new GoalPaths(f);
 
         isFuturePoseOn = false;
 
-        if (Common.isRed != Paths.isPathRed) {
-            Paths.isPathRed = !Paths.isPathRed;
+        if (Common.isRed != GoalPaths.isPathRed) {
+            GoalPaths.isPathRed = !GoalPaths.isPathRed;
             path.mirrorAll();
         }
         Common.robot.shooter.setGoalAlliance();

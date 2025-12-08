@@ -8,9 +8,9 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
 @Configurable
-public class Paths {
+public class GoalPaths {
     private final Follower f;
-    public Paths(Follower follower) {
+    public GoalPaths(Follower follower) {
         f = follower;
     }
 
