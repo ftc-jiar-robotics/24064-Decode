@@ -91,7 +91,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             ABSOLUTE_ENCODER_OFFSET = -31.3875,
             READY_TO_SHOOT_LOOPS = 3,
             STATIC_READY_TOLERANCE = 0.2,
-            MOVING_READY_TOLERANCE = 1.5;
+            MOVING_READY_TOLERANCE = 1.5,
+            ENCODER_MISMATCH_TOLERANCE_DEG = 3.0;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
@@ -113,6 +114,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             rawPower = 0.0,
             manualPower = 0.0,
             quadratureTurretAngle = 0.0;
+    private boolean encoderMismatch = false;
     private boolean isOffsetCalibrating = false;
     private int offsetSamplesTaken = 0;
     private double offsetAngleSum = 0.0;
@@ -245,10 +247,16 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
 
         // Use quadrature to detect wraparound region
-        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < -WRAP_AROUND_ANGLE;
+        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE
+                || quadratureTurretAngle < -WRAP_AROUND_ANGLE;
 
         // In wrap -> trust quadrature; elsewhere -> trust filtered abs encoder
         currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
+
+// ENCODER MISMATCH CHECK
+        double encoderDiff = quadratureTurretAngle - getAbsoluteEncoderAngle();
+        encoderMismatch = Math.abs(encoderDiff) > ENCODER_MISMATCH_TOLERANCE_DEG && !inWraparoundZone;
+
 
         double error = currentAngle - targetAngle;
 
@@ -418,6 +426,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
         dashTelemetry.addData("quadrature turret angle (ANGLE): ", quadratureTurretAngle);
+
 
 
         dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
