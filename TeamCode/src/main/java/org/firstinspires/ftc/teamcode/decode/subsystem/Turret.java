@@ -73,7 +73,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double[] visionVariances = new double[3];
 
     public static double
-            kS = -0.1167,
+            kS = -0.15,
             TICKS_TO_DEGREES = 90.0 / 148.0,
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,

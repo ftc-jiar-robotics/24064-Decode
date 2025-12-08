@@ -118,9 +118,6 @@ public final class Robot {
         LoopUtil.updateLoopCount();
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
-
-        if ((LoopUtil.getLoops() & Common.RELOCALIZE_UPDATE_LOOPS) == 0) relocalizeWithWall();
-
         int ballCount = 0;
 
         if (!inTriangle && shooter.getQueuedShots() <= 0) {
@@ -134,10 +131,8 @@ public final class Robot {
         readSensors();
     }
 
-    private void relocalizeWithWall() {
+    public void relocalizeWithWall() {
         double currentX = robot.drivetrain.getPose().getX();
-        double currentY = robot.drivetrain.getPose().getY();
-
         if (currentX > 72) {
             LOCALIZATION_X = 134;
             LOCALIZATION_Y = 7.5;
@@ -146,14 +141,9 @@ public final class Robot {
             LOCALIZATION_Y = 7.5;
         }
 
-        boolean isXInRange = Math.abs(LOCALIZATION_X - currentX) < LOCALIZATION_TOLERANCE;
-        boolean isYInRange = Math.abs(LOCALIZATION_Y - currentY) < LOCALIZATION_TOLERANCE;
-
-        if ((isXInRange && isYInRange) && robot.drivetrain.getVelocity().getMagnitude() <= MAX_VELOCITY_MAGNITUDE && (isForwardPower || isStrafePower)) {
-            robot.drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toRadians(
+        robot.drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toRadians(
                     Math.round(Math.toDegrees(robot.drivetrain.getPose().getHeading()) / 90.0) * 90.0
             )));
-        }
     }
 
     // Prints data on the driver hub for debugging and other uses
