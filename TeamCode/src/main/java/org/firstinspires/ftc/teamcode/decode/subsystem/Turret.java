@@ -88,8 +88,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_TOLERANCE = 1,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -31.95;
-            READY_TO_SHOOT_LOOPS = 3;
+            ABSOLUTE_ENCODER_OFFSET = -31.95,
+            READY_TO_SHOOT_LOOPS = 3,
+            ENCODER_MISMATCH_TOLERANCE_DEG = 3.0,
+            ENCODER_MISMATCH_LOOPS = 5;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
@@ -111,6 +113,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             rawPower = 0.0,
             manualPower = 0.0,
             quadratureTurretAngle = 0.0;
+
+    private int encoderMismatchCounter = 0;
+    private boolean encoderMismatch = false;
     private boolean isOffsetCalibrating = false;
     private int offsetSamplesTaken = 0;
     private double offsetAngleSum = 0.0;
@@ -241,12 +246,27 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     @Override
     public void run() {
         quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
-
         // Use quadrature to detect wraparound region
-        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < -WRAP_AROUND_ANGLE;
+        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE
+                || quadratureTurretAngle < -WRAP_AROUND_ANGLE;
 
         // In wrap -> trust quadrature; elsewhere -> trust filtered abs encoder
         currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
+
+        // ENCODER MISMATCH CHECK (only when not in wraparound)
+        if (!inWraparoundZone) {
+            double encoderDiff = quadratureTurretAngle - getAbsoluteEncoderAngle();
+            if (Math.abs(encoderDiff) > ENCODER_MISMATCH_TOLERANCE_DEG) {
+                encoderMismatchCounter++;
+            } else {
+                encoderMismatchCounter = 0;
+            }
+            encoderMismatch = encoderMismatchCounter >= ENCODER_MISMATCH_LOOPS;
+        } else {
+            // In wrap zone we do not trust abs as much, so do not count mismatch
+            encoderMismatchCounter = 0;
+            encoderMismatch = false;
+        }
 
         double error = currentAngle - targetAngle;
 
