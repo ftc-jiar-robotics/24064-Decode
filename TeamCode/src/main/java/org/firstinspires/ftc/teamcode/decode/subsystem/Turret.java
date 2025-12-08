@@ -61,12 +61,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static MovingAverageGains targetAngleAverageGains = new MovingAverageGains(
             6
     );
+    public static MovingAverageGains absAngleAverageGains = new MovingAverageGains(
+            10
+    );
 
     private final Filter targetAngleAverageFilter = new MovingAverageFilter(targetAngleAverageGains);
 
     private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
     private final PIDController controller = new PIDController(derivFilter);
-
+    private final Filter absAngleFilter = new MovingAverageFilter(absAngleAverageGains);
     public static LowPassGains filterGains = new LowPassGains(0, 2);
 
     private Queue<Pose> visionSamplePoses = new LinkedList<>();
@@ -86,6 +89,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -31.95;
+            READY_TO_SHOOT_LOOPS = 3;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
@@ -105,7 +109,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             encoderOffset = 0.0,
             robotHeadingTurretDomain = 0.0,
             rawPower = 0.0,
-            manualPower = 0.0;
+            manualPower = 0.0,
+            quadratureTurretAngle = 0.0;
     private boolean isOffsetCalibrating = false;
     private int offsetSamplesTaken = 0;
     private double offsetAngleSum = 0.0;
@@ -210,7 +215,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
      * One-shot absolute encoder angle in DEGREES.
      * Same math you used before, just factored out.
      */
-    public double getAbsoluteEncoderAngle() {
+// RAW abs encoder math
+    private double getRawAbsoluteEncoderAngle() {
         double voltage = absoluteEncoder.getVoltage();
 
         double rawDegrees = (voltage / 3.2 * 360.0 + ABSOLUTE_ENCODER_OFFSET) % 360.0;
@@ -219,6 +225,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return normalizeToTurretRange(turretDomain);
     }
 
+    // FILTERED abs encoder angle
+    public double getAbsoluteEncoderAngle() {
+        double rawAngle = getRawAbsoluteEncoderAngle();
+        return absAngleFilter.calculate(rawAngle);
+    }
 
 
 
@@ -229,7 +240,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     @Override
     public void run() {
-        currentAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
+        quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
+
+        // Use quadrature to detect wraparound region
+        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < -WRAP_AROUND_ANGLE;
+
+        // In wrap -> trust quadrature; elsewhere -> trust filtered abs encoder
+        currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
+
         double error = currentAngle - targetAngle;
 
         PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
@@ -302,8 +320,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
                         visionVariances = getVariance(visionSamplePoses);
 
-//                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
-//                            robot.drivetrain.setPose(robotPoseFromVision);
+                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
+                            robot.drivetrain.setPose(robotPoseFromVision);
 
                         setTracking();
                         output += controller.calculate(new State(currentAngle, 0, 0, 0));
@@ -375,6 +393,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         return new double[]{xVariance, yVariance, headingVariance};
     }
+    public boolean isReadyToShoot() {
+        // We already increment toleranceCounter only when we're in a very tight tolerance
+        // So this is basically: "have we been super in-tolerance for a few loops in a row?"
+        return toleranceCounter >= READY_TO_SHOOT_LOOPS;
+    }
 
     public void printTelemetry() {
         turret.setRoundingPoint(ROUNDING_POINT);
@@ -391,6 +414,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
+        dashTelemetry.addData("quadrature turret angle (ANGLE): ", quadratureTurretAngle);
+
 
         dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
         dashTelemetry.addData("TURRET X (INCHES)", "%.4f", turretPos.getX());
