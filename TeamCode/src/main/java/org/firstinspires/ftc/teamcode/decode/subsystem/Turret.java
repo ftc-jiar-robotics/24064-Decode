@@ -88,7 +88,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_TOLERANCE = 1,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -31.3875;
+            ABSOLUTE_ENCODER_OFFSET = -31.3875,
+            READY_TO_SHOOT_LOOPS = 3;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
@@ -391,6 +392,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         headingVariance /= size - 1;
 
         return new double[]{xVariance, yVariance, headingVariance};
+    }
+    public boolean isReadyToShoot() {
+        // We already increment toleranceCounter only when we're in a very tight tolerance
+        // So this is basically: "have we been super in-tolerance for a few loops in a row?"
+        return toleranceCounter >= READY_TO_SHOOT_LOOPS;
     }
 
     public void printTelemetry() {
