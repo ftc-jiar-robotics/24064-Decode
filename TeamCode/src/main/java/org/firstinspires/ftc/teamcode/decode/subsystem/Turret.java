@@ -105,7 +105,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             encoderOffset = 0.0,
             robotHeadingTurretDomain = 0.0,
             rawPower = 0.0,
-            manualPower = 0.0;
+            manualPower = 0.0,
+            quadratureTurretAngle = 0.0;
     private boolean isOffsetCalibrating = false;
     private int offsetSamplesTaken = 0;
     private double offsetAngleSum = 0.0;
@@ -229,7 +230,17 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     @Override
     public void run() {
-        currentAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
+        quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
+
+        // Use quadrature only to detect wraparound
+        boolean inWraparoundZone =
+                quadratureTurretAngle > WRAP_AROUND_ANGLE ||
+                        quadratureTurretAngle < -WRAP_AROUND_ANGLE;
+
+        // If we're in wraparound, don't even read the absolute encoder
+        currentAngle = inWraparoundZone
+                ? quadratureTurretAngle
+                : getAbsoluteEncoderAngle();
         double error = currentAngle - targetAngle;
 
         PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
@@ -302,8 +313,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
                         visionVariances = getVariance(visionSamplePoses);
 
-//                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
-//                            robot.drivetrain.setPose(robotPoseFromVision);
+                        if (visionVariances[0] < VARIANCE_TOLERANCE && visionVariances[1] < VARIANCE_TOLERANCE && visionVariances[2] < Math.toRadians(HEADING_VARIANCE_TOLERANCE))
+                            robot.drivetrain.setPose(robotPoseFromVision);
 
                         setTracking();
                         output += controller.calculate(new State(currentAngle, 0, 0, 0));
@@ -390,11 +401,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
         dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
-        double motorAngleContinuous = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
-        double motorLocal = normalizeContinuousToTurretRange(motorAngleContinuous);
-        dashTelemetry.addData("motor angle local (ANGLE): ", motorLocal);
-        dashTelemetry.addData("fused turret angle (ANGLE): ", currentAngle);
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
+        dashTelemetry.addData("quadrature turret angle (ANGLE): ", quadratureTurretAngle);
+
 
         dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
         dashTelemetry.addData("TURRET X (INCHES)", "%.4f", turretPos.getX());
