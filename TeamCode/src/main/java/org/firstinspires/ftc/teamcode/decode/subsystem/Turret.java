@@ -85,9 +85,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_TOLERANCE = 1,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -31.3875,
-            WRAP_MARGIN = 10.0,                // how close to +/-150 counts as wraparound zone
-            ENCODER_DISAGREE_THRESHOLD = 45.0; // degrees. if abs vs motor differ more than this, trust motor
+            ABSOLUTE_ENCODER_OFFSET = -31.3875;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
@@ -220,34 +218,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         return normalizeToTurretRange(turretDomain);
     }
-    private static double normalizeContinuousToTurretRange(double angle) {
-        double mod = ((angle % 360.0) + 360.0) % 360.0; // 0..360
-        return normalizeToTurretRange(mod);             // -> (-210..150]
-    }
-
-    /**
-     * Decide what angle to actually use for the turret:
-     * - Normally use absolute encoder (so you can power cycle, get bumped, etc.).
-     * - If the motor says we're near the wrap limit, or the two disagree a lot,
-     *   fall back to the motor so we don't try to "spin through" wraparound.
-     */
-    private double fuseEncoders(double motorAngleContinuous, double absAngle) {
-        double motorLocal = normalizeContinuousToTurretRange(motorAngleContinuous);
-        // If they disagree hugely, something is off – trust motor to avoid wild motion
-        if (Math.abs(motorLocal - absAngle) > ENCODER_DISAGREE_THRESHOLD) {
-            return motorLocal;
-        }
-
-        // Motor-based detection of being near either physical wrap end
-        double lowerLimit = WRAP_AROUND_ANGLE - 360.0; // e.g. 150 - 360 = -210
-        boolean nearUpperWrap = Math.abs(motorLocal - WRAP_AROUND_ANGLE) < WRAP_MARGIN;
-        boolean nearLowerWrap = Math.abs(motorLocal - lowerLimit) < WRAP_MARGIN;
-        boolean nearWrap = nearUpperWrap || nearLowerWrap;
-
-        // If we're in the wrap zone, favor the motor so we don't flip sides.
-        // Otherwise, use the absolute encoder as the main ting.
-        return nearWrap ? motorLocal : absAngle;
-    }
 
 
 
@@ -259,14 +229,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     @Override
     public void run() {
-        // 1) Raw motor-based angle
-        double motorAngleContinuous = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
-
-        // 2) Absolute encoder angle in turret domain (-210..150]
-        double absAngle = getAbsoluteEncoderAngle();
-
-        // 3) Fused angle: normally abs, but motor if we're in wrap or things looking lehoofy
-        currentAngle = fuseEncoders(motorAngleContinuous, absAngle);
+        currentAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
         double error = currentAngle - targetAngle;
 
         PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
@@ -276,7 +239,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         controller.setGains(gains);
         derivFilter.setGains(filterGains);
-
         // turning robot heading to turret heading
         double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
@@ -292,6 +254,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
 // if calibrating, collect N samples and then apply averaged offset once
         if (isOffsetCalibrating) {
+            double absAngle = getAbsoluteEncoderAngle();
             offsetAngleSum += absAngle;
 
             if (++offsetSamplesTaken >= OFFSET_CALIBRATION_SAMPLES) {
