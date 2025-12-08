@@ -61,12 +61,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static MovingAverageGains targetAngleAverageGains = new MovingAverageGains(
             6
     );
+    public static MovingAverageGains absAngleAverageGains = new MovingAverageGains(
+            10
+    );
 
     private final Filter targetAngleAverageFilter = new MovingAverageFilter(targetAngleAverageGains);
 
     private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
     private final PIDController controller = new PIDController(derivFilter);
-
+    private final Filter absAngleFilter = new MovingAverageFilter(absAngleAverageGains);
     public static LowPassGains filterGains = new LowPassGains(0, 2);
 
     private Queue<Pose> visionSamplePoses = new LinkedList<>();
@@ -211,7 +214,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
      * One-shot absolute encoder angle in DEGREES.
      * Same math you used before, just factored out.
      */
-    public double getAbsoluteEncoderAngle() {
+// RAW abs encoder math
+    private double getRawAbsoluteEncoderAngle() {
         double voltage = absoluteEncoder.getVoltage();
 
         double rawDegrees = (voltage / 3.2 * 360.0 + ABSOLUTE_ENCODER_OFFSET) % 360.0;
@@ -220,6 +224,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return normalizeToTurretRange(turretDomain);
     }
 
+    // FILTERED abs encoder angle
+    public double getAbsoluteEncoderAngle() {
+        double rawAngle = getRawAbsoluteEncoderAngle();
+        return absAngleFilter.calculate(rawAngle);
+    }
 
 
 
@@ -232,15 +241,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public void run() {
         quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
 
-        // Use quadrature only to detect wraparound
-        boolean inWraparoundZone =
-                quadratureTurretAngle > WRAP_AROUND_ANGLE ||
-                        quadratureTurretAngle < -WRAP_AROUND_ANGLE;
+        // Use quadrature to detect wraparound region
+        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < -WRAP_AROUND_ANGLE;
 
-        // If we're in wraparound, don't even read the absolute encoder
-        currentAngle = inWraparoundZone
-                ? quadratureTurretAngle
-                : getAbsoluteEncoderAngle();
+        // In wrap -> trust quadrature; elsewhere -> trust filtered abs encoder
+        currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
+
         double error = currentAngle - targetAngle;
 
         PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
