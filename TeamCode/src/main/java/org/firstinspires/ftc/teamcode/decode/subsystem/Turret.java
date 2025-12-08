@@ -89,7 +89,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -31.3875,
-            READY_TO_SHOOT_LOOPS = 3;
+            READY_TO_SHOOT_LOOPS = 3,
+            STATIC_READY_TOLERANCE = 0.2,
+            MOVING_READY_TOLERANCE = 1.5;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
@@ -333,7 +335,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             rawPower = output;
 
             boolean pidInTolerance = controller.isInTolerance(
-                    new State(currentAngle, 0, 0, 0), 0.2
+                    new State(currentAngle, 0, 0, 0),
+                    robot.shooter.isRobotMoving() ? MOVING_READY_TOLERANCE : STATIC_READY_TOLERANCE
             );
 
             if (pidInTolerance) {
