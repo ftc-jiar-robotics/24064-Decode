@@ -85,7 +85,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_TOLERANCE = 1,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -31.3875;
+            ABSOLUTE_ENCODER_OFFSET = -31.95;
 
     public static int
             ZERO_TURRET_LOOPS = (1 << 5) - 1,
