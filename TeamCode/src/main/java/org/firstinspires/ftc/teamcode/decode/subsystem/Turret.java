@@ -62,7 +62,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             6
     );
     public static MovingAverageGains absAngleAverageGains = new MovingAverageGains(
-            10
+            6
     );
 
     private final Filter targetAngleAverageFilter = new MovingAverageFilter(targetAngleAverageGains);
@@ -76,8 +76,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double[] visionVariances = new double[3];
 
     public static double
-            kS = -0.15,
-            TICKS_TO_DEGREES = 90.0 / 148.0,
+            kS = -0.1167,
+            TICKS_TO_DEGREES = 0.63,
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
@@ -88,7 +88,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_TOLERANCE = 1,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -31.95;
+            ABSOLUTE_ENCODER_OFFSET = -298.575,
             READY_TO_SHOOT_LOOPS = 3;
 
     public static int
@@ -231,9 +231,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return absAngleFilter.calculate(rawAngle);
     }
 
-
-
-
     public void setManual(double power) {
         manualPower = power * MANUAL_POWER_MULTIPLIER;
     }
@@ -241,12 +238,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     @Override
     public void run() {
         quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
-
+        currentAngle = quadratureTurretAngle;
         // Use quadrature to detect wraparound region
-        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < -WRAP_AROUND_ANGLE;
+//        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < WRAP_AROUND_ANGLE - 360;
 
         // In wrap -> trust quadrature; elsewhere -> trust filtered abs encoder
-        currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
+//        currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
 
         double error = currentAngle - targetAngle;
 
@@ -261,28 +258,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
 
-        if (!isOffsetCalibrating
-                && ((LoopUtil.getLoops() & ZERO_TURRET_LOOPS) == 0)
-                && toleranceCounter >= TOLERANCE_COUNTER) {
-
-            isOffsetCalibrating = true;
-            offsetSamplesTaken = 0;
-            offsetAngleSum = 0.0;
-        }
-
-// if calibrating, collect N samples and then apply averaged offset once
-        if (isOffsetCalibrating) {
-            double absAngle = getAbsoluteEncoderAngle();
-            offsetAngleSum += absAngle;
-
-            if (++offsetSamplesTaken >= OFFSET_CALIBRATION_SAMPLES) {
-                double averagedAngle = offsetAngleSum / OFFSET_CALIBRATION_SAMPLES;
-                applyOffset(averagedAngle);
-                isOffsetCalibrating = false;
-            }
-            turret.set(0);
-            return;
-        }
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
 
         else {

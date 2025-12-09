@@ -21,7 +21,7 @@ public final class MovingAverageFilter implements Filter {
         buffer.add(newValue);
         if (buffer.size() > gains.count) {
             buffer.remove(0);
-        }
+        } else return newValue;
         double sum = 0;
         for (double value : buffer) {
             sum += value;
