@@ -136,7 +136,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return (velocityController.isInTolerance(new State(currentRPMSmooth, 0, 0, 0), robot.shooter.isRobotMoving() ? RPM_TOLERANCE_WHILE_MOVING : RPM_TOLERANCE, DERIV_TOLERANCE));
+        return (velocityController.isInTolerance(new State(currentRPMSmooth, 0, 0, 0), robot.isRobotMoving() ? RPM_TOLERANCE_WHILE_MOVING : RPM_TOLERANCE, DERIV_TOLERANCE));
     }
 
     public boolean didRPMSpike() {

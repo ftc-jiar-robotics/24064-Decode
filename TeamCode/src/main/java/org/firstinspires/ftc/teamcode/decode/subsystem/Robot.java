@@ -12,6 +12,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isStrafePower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Shooter.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
@@ -22,6 +23,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.Style;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -30,6 +32,7 @@ import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
+import org.firstinspires.ftc.teamcode.decode.util.LimelightEx;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 import org.firstinspires.ftc.teamcode.decode.util.ZoneChecker;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -45,13 +48,13 @@ public final class Robot {
     public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
     public final LEDController ledController;
+    public final LimelightEx limelight;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
     }
 
-
-
+    private boolean isRobotMoving = false;
 
     /**
      * Constructor used in teleOp classes that makes the current pose2d, 0
@@ -66,6 +69,8 @@ public final class Robot {
      * @param hardwareMap: A constant map that holds all the parts for config in code
      */
     public Robot(HardwareMap hardwareMap, boolean isAuto) {
+        Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+
         drivetrain = Constants.createFollower(hardwareMap);
         bulkReader = new BulkReader(hardwareMap);
         actionScheduler = new ActionScheduler();
@@ -73,6 +78,7 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
         ledController = new LEDController(hardwareMap);
+        limelight = new LimelightEx(limelight3A);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -83,6 +89,10 @@ public final class Robot {
         } catch (InterruptedException ignored) {}
 
         shooter.applyOffsets();
+    }
+
+    public boolean isRobotMoving() {
+        return isRobotMoving;
     }
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read
@@ -114,6 +124,10 @@ public final class Robot {
     }
 
     public void update() {
+        double vx = robot.drivetrain.getVelocity().getXComponent();
+        double vy = robot.drivetrain.getVelocity().getYComponent();
+
+        isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
         drivetrain.update();
         LoopUtil.updateLoopCount();
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
@@ -127,6 +141,7 @@ public final class Robot {
             ledController.update(ballCount);
         } else ledController.showShooterTolerance();
 
+        if (!isRobotMoving) robot.drivetrain.setPose(limelight.getPoseEstimate());
 
         readSensors();
     }

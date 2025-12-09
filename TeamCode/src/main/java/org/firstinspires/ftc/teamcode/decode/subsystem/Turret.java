@@ -274,7 +274,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
                         boolean seesTag = autoAim.detectTarget();
 //                        autoAim.updateDecimation();
-                        if (seesTag && !robot.shooter.isRobotMoving()) currentState = TurretStates.VISION_TRACKING;
+                        if (seesTag && !robot.isRobotMoving()) currentState = TurretStates.VISION_TRACKING;
                         else break;
                     } else {
                         break;
@@ -282,7 +282,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case VISION_TRACKING:
                     if ((LoopUtil.getLoops() & CHECK_DETECTED_LOOPS) == 0) {
-                        if (!autoAim.detectTarget() || robot.shooter.isRobotMoving()) {
+                        if (!autoAim.detectTarget() || robot.isRobotMoving()) {
                             currentState = TurretStates.ODOM_TRACKING;
                             break;
                         }
