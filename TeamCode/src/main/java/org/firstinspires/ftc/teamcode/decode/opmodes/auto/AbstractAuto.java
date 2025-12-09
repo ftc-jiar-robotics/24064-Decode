@@ -45,6 +45,7 @@ public abstract class AbstractAuto extends LinearOpMode {
 
         onRun();
         Common.AUTO_END_POSE = robot.drivetrain.getPose();
+        Common.TURRET_ENC_OFFSET = robot.shooter.getTurretAngle();
     }
 
     protected void onInit() {

@@ -154,10 +154,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
+    double getCurrentAngle() {
+        return currentAngle;
+    }
+
+
     void applyOffset() {
         if (Common.TURRET_ENC_OFFSET == Double.POSITIVE_INFINITY)
-            Common.TURRET_ENC_OFFSET = encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - getAbsoluteEncoderAngle();
-        else encoderOffset = Common.TURRET_ENC_OFFSET;
+            encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - getAbsoluteEncoderAngle();
+        else encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - Common.TURRET_ENC_OFFSET;
     }
 
 

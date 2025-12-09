@@ -59,6 +59,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return queuedShots;
     }
 
+    public double getTurretAngle() {
+        return turret.getCurrentAngle();
+    }
+
     public void armFlywheel() {
         flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
     }
