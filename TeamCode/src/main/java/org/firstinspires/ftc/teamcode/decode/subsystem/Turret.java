@@ -156,7 +156,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     void applyOffset() {
         if (Common.TURRET_ENC_OFFSET == Double.POSITIVE_INFINITY)
-            encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - getAbsoluteEncoderAngle();
+            Common.TURRET_ENC_OFFSET = encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - getAbsoluteEncoderAngle();
         else encoderOffset = Common.TURRET_ENC_OFFSET;
     }
 
