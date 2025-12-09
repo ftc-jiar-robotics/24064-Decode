@@ -85,6 +85,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             HEADING_VARIANCE_TOLERANCE = 0.04,
             TOLERANCE_COUNTER = 10,
             VISION_SAMPLE_SIZE = 5,
+            VISION_TOLERANCE = 40,
             PID_TOLERANCE = 1,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
@@ -310,6 +311,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             boolean pidInTolerance = controller.isInTolerance(
                     new State(currentAngle, 0, 0, 0), 0.2
             );
+
+            if (!controller.isInTolerance(new State(currentAngle, 0, 0, 0), VISION_TOLERANCE)) {
+                robot.limelight.getLimelight().pause();
+                robot.isLimelightRunning = false;
+            } else if (!robot.isLimelightRunning) {
+                robot.limelight.getLimelight().start();
+                robot.isLimelightRunning = true;
+            }
 
             if (pidInTolerance) {
                 toleranceCounter++;

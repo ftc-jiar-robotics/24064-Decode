@@ -50,6 +50,8 @@ public final class Robot {
     public final LEDController ledController;
     public final LimelightEx limelight;
 
+    public boolean isLimelightRunning = false;
+
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
     }
@@ -120,6 +122,7 @@ public final class Robot {
         actionScheduler.run();
         shooter.run();
         intake.run();
+        if (isLimelightRunning) limelight.update();
         update();
     }
 
@@ -150,11 +153,10 @@ public final class Robot {
         double currentX = robot.drivetrain.getPose().getX();
         if (currentX > 72) {
             LOCALIZATION_X = 134;
-            LOCALIZATION_Y = 7.5;
         } else {
             LOCALIZATION_X = 10;
-            LOCALIZATION_Y = 7.5;
         }
+        LOCALIZATION_Y = 7.5;
 
         robot.drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toRadians(
                     Math.round(Math.toDegrees(robot.drivetrain.getPose().getHeading()) / 90.0) * 90.0
