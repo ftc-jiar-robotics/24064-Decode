@@ -96,6 +96,7 @@ public final class Common {
             LOCALIZATION_X = 10,
             LOCALIZATION_TOLERANCE = 20.67,
             LOCALIZATION_Y = 7.5,
+            STALENESS_VISION_TOLERANCE = 20, // in ms
             TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
 
     public static final int

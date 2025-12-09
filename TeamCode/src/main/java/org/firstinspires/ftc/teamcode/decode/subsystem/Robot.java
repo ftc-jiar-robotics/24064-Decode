@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATIO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VELOCITY_MAGNITUDE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.STALENESS_VISION_TOLERANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isForwardPower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
@@ -28,6 +29,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
+import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
@@ -50,7 +52,7 @@ public final class Robot {
     public final LEDController ledController;
     public final LimelightEx limelight;
 
-    public boolean isLimelightRunning = false;
+    private boolean isLimelightRunning = false;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -130,12 +132,21 @@ public final class Robot {
         double vx = robot.drivetrain.getVelocity().getXComponent();
         double vy = robot.drivetrain.getVelocity().getYComponent();
 
+        limelight.getLimelight().updateRobotOrientation(drivetrain.getPose().getHeading());
         isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
         drivetrain.update();
         LoopUtil.updateLoopCount();
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
         int ballCount = 0;
+
+        if (robot.drivetrain.getPose().getHeading() >= Math.toRadians(180)) {
+            robot.limelight.getLimelight().pause();
+            robot.isLimelightRunning = false;
+        } else if (!robot.isLimelightRunning) {
+            robot.limelight.getLimelight().start();
+            robot.isLimelightRunning = true;
+        }
 
         if (!inTriangle && shooter.getQueuedShots() <= 0) {
             if (robot.shooter.isBallPresent()) ballCount = 3;
@@ -144,7 +155,7 @@ public final class Robot {
             ledController.update(ballCount);
         } else ledController.showShooterTolerance();
 
-        if (!isRobotMoving) robot.drivetrain.setPose(limelight.getPoseEstimate());
+        if (!isRobotMoving && limelight.update().getStaleness() < STALENESS_VISION_TOLERANCE) robot.drivetrain.setPose(limelight.getPoseEstimate(robot.drivetrain.getHeading()));
 
         readSensors();
     }

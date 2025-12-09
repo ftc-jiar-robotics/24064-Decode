@@ -35,12 +35,15 @@ public class LimelightEx {
         return null;
     }
 
-    public Pose getPoseEstimate() {
+    public Pose getPoseEstimate(double robotHeading) {
         Pose pose = null;
         if (result != null && result.isValid()) {
             Pose3D pose3D = result.getBotpose_MT2();
             if (pose3D != null) {
-                pose = new Pose(pose3D.getPosition().x, pose3D.getPosition().y, 0);
+                double x = pose3D.getPosition().y + 72;
+                double y = 72 - pose3D.getPosition().x;
+
+                pose = new Pose(x, y, robotHeading);
             }
         }
         return pose;
