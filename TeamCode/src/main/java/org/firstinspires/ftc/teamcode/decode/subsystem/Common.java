@@ -79,27 +79,24 @@ public final class Common {
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.PI / 2.0),
             BLUE_GOAL = new Pose(1.5,142.5);
 
-
-    public static double
-            ANG_VELOCITY_MULTIPLER = 0.4,
-            SLOW_MODE = 0.55;
-    public static double
-            LAUNCH_DELAY = 0.3,    // seconds (feeder > ball leaves flywheel)
-            AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
-            AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
-            MIN_AIRTIME  = 0.02; //safety
-
     public static double getAirtimeForDistance(double distanceInches) {
         double t = AIRTIME_A * distanceInches + AIRTIME_B;
         return Math.max(MIN_AIRTIME, t);
     }
 
     public static double
+            ANG_VELOCITY_MULTIPLER = 0.4,
+            SLOW_MODE = 0.55,
+            LAUNCH_DELAY = 0.3,    // seconds (feeder > ball leaves flywheel)
+            AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
+            AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
+            MIN_AIRTIME  = 0.02, //safety
             MIN_POWER_INPUT = 0.3,
             MAX_VELOCITY_MAGNITUDE = 0.2,
             LOCALIZATION_X = 10,
             LOCALIZATION_TOLERANCE = 20.67,
-            LOCALIZATION_Y = 7.5;
+            LOCALIZATION_Y = 7.5,
+            TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
 
     public static final int
             BLUE_GOAL_ID = 20,

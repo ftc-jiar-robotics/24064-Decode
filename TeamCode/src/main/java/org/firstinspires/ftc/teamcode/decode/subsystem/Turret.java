@@ -154,18 +154,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-
-    // Default: use a single abs encoder reading
-    public void applyOffset() {
-        applyOffset(getAbsoluteEncoderAngle());
+    void applyOffset() {
+        if (Common.TURRET_ENC_OFFSET != Double.POSITIVE_INFINITY)
+            encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - getAbsoluteEncoderAngle();
+        else encoderOffset = Common.TURRET_ENC_OFFSET;
     }
-
-    // New: use a provided absolute angle (e.g. averaged over N samples)
-    private void applyOffset(double absAngleDegrees) {
-        encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - absAngleDegrees;
-    }
-
-
 
 
     private void setTracking() {
