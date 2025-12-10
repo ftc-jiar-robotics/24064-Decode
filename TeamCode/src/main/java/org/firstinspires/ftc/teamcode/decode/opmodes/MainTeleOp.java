@@ -159,6 +159,6 @@ public class MainTeleOp extends LinearOpMode {
         }
 
         AUTO_END_POSE = null;
-        robot.shooter.closeAutoAim();
+//        robot.shooter.closeAutoAim();
     }
 }

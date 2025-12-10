@@ -79,9 +79,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return feeder.isBallPresent();
     }
 
-    public void closeAutoAim() {
-        turret.closeAutoAim();
-    }
+//    public void closeAutoAim() {
+//        turret.closeAutoAim();
+//    }
 
     public void clearQueueShots() {
         queuedShots = 0;

@@ -124,29 +124,34 @@ public final class Robot {
         actionScheduler.run();
         shooter.run();
         intake.run();
-        if (isLimelightRunning) limelight.update();
         update();
     }
 
     public void update() {
+        drivetrain.update();
+
         double vx = robot.drivetrain.getVelocity().getXComponent();
         double vy = robot.drivetrain.getVelocity().getYComponent();
-
-        limelight.getLimelight().updateRobotOrientation(drivetrain.getPose().getHeading());
         isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
-        drivetrain.update();
-        LoopUtil.updateLoopCount();
-        zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
-        Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
-        int ballCount = 0;
 
-        if (robot.drivetrain.getPose().getHeading() >= Math.toRadians(180)) {
+        if (isLimelightRunning) limelight.update();
+        limelight.getLimelight().updateRobotOrientation(drivetrain.getPose().getHeading());
+
+        double normalizedRobotHeading = (robot.drivetrain.getPose().getHeading() % (2*Math.PI) + (2*Math.PI)) % (2*Math.PI);
+        if (normalizedRobotHeading >= Math.toRadians(200) && normalizedRobotHeading <= Math.toRadians(340)) {
             robot.limelight.getLimelight().pause();
             robot.isLimelightRunning = false;
         } else if (!robot.isLimelightRunning) {
             robot.limelight.getLimelight().start();
             robot.isLimelightRunning = true;
         }
+
+        if (limelight.update().getStaleness() < STALENESS_VISION_TOLERANCE) robot.drivetrain.setPose(limelight.getPoseEstimate(robot.drivetrain.getHeading()));
+
+        zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
+        Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
+        int ballCount = 0;
+
 
         if (!inTriangle && shooter.getQueuedShots() <= 0) {
             if (robot.shooter.isBallPresent()) ballCount = 3;
@@ -155,9 +160,9 @@ public final class Robot {
             ledController.update(ballCount);
         } else ledController.showShooterTolerance();
 
-        if (!isRobotMoving && limelight.update().getStaleness() < STALENESS_VISION_TOLERANCE) robot.drivetrain.setPose(limelight.getPoseEstimate(robot.drivetrain.getHeading()));
 
         readSensors();
+        LoopUtil.updateLoopCount();
     }
 
     public void relocalizeWithWall() {
