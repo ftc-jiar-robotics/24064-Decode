@@ -46,6 +46,7 @@ public final class Common {
             inTriangle = false;
 
     public static final double
+            INCHES_PER_METER = 39.3701,
             LEFT = Math.toRadians(180),
             FORWARD = Math.toRadians(90),
             RIGHT = Math.toRadians(0),
