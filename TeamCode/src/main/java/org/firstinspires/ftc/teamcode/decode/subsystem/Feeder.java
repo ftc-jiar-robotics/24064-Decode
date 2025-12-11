@@ -63,7 +63,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     }
 
     public boolean didShotOccur() {
-        currentPinState += pin0Left.getState() || pin0Right.getState() ? 5:-1;
+        currentPinState += /*pin0Left.getState() ||*/ pin0Right.getState() ? 5:-1;
         currentPinState = (int)Range.clip(currentPinState,0,MAX_PIN_STATE);
 
         if (lastPinState>0 && currentPinState==0) {

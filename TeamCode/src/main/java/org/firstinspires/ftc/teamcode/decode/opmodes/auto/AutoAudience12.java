@@ -71,10 +71,10 @@ public class AutoAudience12 extends AbstractAuto{
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_3"), // slow down to intake balls
-                                new FollowPathAction(f, path.humanPlayerIntake2, true)
+                                new FollowPathAction(f, path.humanPlayerIntake2, false)
                         ),
                         new SleepAction(0.3),
-                        new FollowPathAction(f, path.humanPlayerIntake3, true),
+                        new FollowPathAction(f, path.humanPlayerIntake3, false),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
@@ -86,7 +86,7 @@ public class AutoAudience12 extends AbstractAuto{
                                         ),
                                         path.humanPlayerShoot2, 0.01, 1, f, "arm_flywheel_and_turret_hp_3"
                                 ),
-                                new FollowPathAction(f, path.humanPlayerShoot2, true)
+                                new FollowPathAction(f, path.humanPlayerShoot2, false)
                         ),
 
                         RobotActions.shootArtifacts(3, 2.5),
@@ -113,10 +113,10 @@ public class AutoAudience12 extends AbstractAuto{
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_2"), // slow down to intake balls
-                                new FollowPathAction(f, path.humanPlayerIntake2, true)
+                                new FollowPathAction(f, path.humanPlayerIntake2, false)
                         ),
                         new SleepAction(0.3),
-                        new FollowPathAction(f, path.humanPlayerIntake3, true),
+                        new FollowPathAction(f, path.humanPlayerIntake3, false),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
@@ -128,7 +128,7 @@ public class AutoAudience12 extends AbstractAuto{
                                         ),
                                         path.humanPlayerShoot2, 0.01, 1, f, "arm_flywheel_and_turret_hp_2"
                                 ),
-                                new FollowPathAction(f, path.humanPlayerShoot2, true)
+                                new FollowPathAction(f, path.humanPlayerShoot2, false)
                         ),
 
                         RobotActions.shootArtifacts(3, 2.5),
@@ -154,10 +154,10 @@ public class AutoAudience12 extends AbstractAuto{
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake0, 0.8, 0, f, "slow_down_hp_1"), // slow down to intake balls
-                                new FollowPathAction(f, path.humanPlayerIntake0, true)
+                                new FollowPathAction(f, path.humanPlayerIntake0, false)
                         ),
                         new SleepAction(0.3),
-                        new FollowPathAction(f, path.humanPlayerIntake1, true),
+                        new FollowPathAction(f, path.humanPlayerIntake1, false),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot1, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
@@ -169,7 +169,7 @@ public class AutoAudience12 extends AbstractAuto{
                                         ),
                                         path.humanPlayerShoot1, 0.01, 1, f, "arm_flywheel_and_turret_hp_1"
                                 ),
-                                new FollowPathAction(f, path.humanPlayerShoot1, true)
+                                new FollowPathAction(f, path.humanPlayerShoot1, false)
                         ),
 
                         RobotActions.shootArtifacts(3, 2.5),
@@ -204,7 +204,7 @@ public class AutoAudience12 extends AbstractAuto{
                                         ),
                                         path.firstShoot, 0.01, 2, f, "arm_flywheel_and_turret_1"
                                 ),
-                                new FollowPathAction(f, path.firstShoot, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path
+                                new FollowPathAction(f, path.firstShoot, false) // dashes to first 3 balls, starts intake and slows down near halfway points of path
                         ),
 
                         //shoots first 3 balls
@@ -221,7 +221,7 @@ public class AutoAudience12 extends AbstractAuto{
     private void shootPreload() {
         robot.actionScheduler.addAction(
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
-                        RobotActions.shootArtifacts(3, 3.5),
+                        RobotActions.shootArtifacts(3, 4),
                         new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_PRELOAD"))
                 )
         );
