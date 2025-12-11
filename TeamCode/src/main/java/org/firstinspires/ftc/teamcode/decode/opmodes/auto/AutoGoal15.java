@@ -21,7 +21,8 @@ import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
-@Autonomous(name = "AutoGoal15")
+@Autonomous(name = "AutoGoal15", preselectTeleOp = "Main TeleOp")
+
 public class AutoGoal15 extends AbstractAuto{
     private Follower f;
     private GoalPaths path;
@@ -87,7 +88,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                 new FollowPathAction(f, path.humanPlayerShoot, true)
                         ),
 
-                        RobotActions.shootArtifacts(3, 2.5),
+                        RobotActions.shootArtifacts(3, 1.5),
                         new FollowPathAction(f, path.goalLeave),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_HP"))
                 )
@@ -123,7 +124,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                 new FollowPathAction(f, path.thirdShoot, true)
                         ),
 
-                        RobotActions.shootArtifacts(3, 2.5),
+                        RobotActions.shootArtifacts(3, 1.5),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )
         );
@@ -164,7 +165,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                         ),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 2.5),
+                        RobotActions.shootArtifacts(3, 1.5),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_SECOND"))
                 )
@@ -201,7 +202,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                         ),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 2.5),
+                        RobotActions.shootArtifacts(3, 1.5),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_FIRST"))
                 ));
@@ -228,7 +229,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                 ),
                                 new FollowPathAction(f, path.shootPreload, true)
                         ),
-                        RobotActions.shootArtifacts(3, 2.5),
+                        RobotActions.shootArtifacts(3, 1.5),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_PRELOAD"))
                 )
         );

@@ -6,6 +6,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
@@ -130,7 +131,7 @@ public class MainTeleOp extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
             if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
             if (gamepadEx1.isDown(RIGHT_STICK_BUTTON) && gamepadEx1.isDown(LEFT_STICK_BUTTON)) robot.drivetrain.setPose(AUTO_END_POSE);
-            if (gamepadEx1.wasJustPressed(RIGHT_BUMPER)) {
+            if (gamepadEx1.wasJustPressed(RIGHT_BUMPER) && gamepadEx1.wasJustPressed(LEFT_BUMPER)) {
                 robot.relocalizeWithWall();
             }
 
@@ -159,6 +160,7 @@ public class MainTeleOp extends LinearOpMode {
         }
 
         AUTO_END_POSE = null;
+        Common.TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
 //        robot.shooter.closeAutoAim();
     }
 }

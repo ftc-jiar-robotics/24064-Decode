@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 // TODO add priming for shooting
 @Configurable
-@Autonomous(name = "AutoGoal12")
+@Autonomous(name = "AutoGoal12", preselectTeleOp = "Main TeleOp")
 public class AutoGoal12 extends AbstractAuto{
     private Follower f;
     private GoalPaths path;

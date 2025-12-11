@@ -86,7 +86,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             TOLERANCE_COUNTER = 10,
             VISION_SAMPLE_SIZE = 5,
             VISION_TOLERANCE = 40,
-            PID_TOLERANCE = 1,
+            PID_TOLERANCE = 3,
             DERIV_TOLERANCE = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -298.575,
@@ -306,11 +306,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             rawPower = output;
 
-            boolean pidInTolerance = controller.isInTolerance(
-                    new State(currentAngle, 0, 0, 0), 0.2
-            );
-
-            if (pidInTolerance) {
+            if (isPIDInTolerance()) {
                 toleranceCounter++;
                 output = 0;
             } else toleranceCounter = 0;

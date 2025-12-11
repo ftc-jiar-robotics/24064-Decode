@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
-@Autonomous(name = "AutoClose18")
+@Autonomous(name = "AutoClose18", preselectTeleOp = "Main TeleOp")
 public class AutoGoal18 extends AbstractAuto {
     private Follower f;
     private GoalPaths path;

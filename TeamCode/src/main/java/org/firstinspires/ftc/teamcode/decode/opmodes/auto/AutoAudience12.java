@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
-@Autonomous(name = "AutoAudience12")
+@Autonomous(name = "AutoAudience12", preselectTeleOp = "Main TeleOp")
 public class AutoAudience12 extends AbstractAuto{
     private Follower f;
     private AudiencePaths path;

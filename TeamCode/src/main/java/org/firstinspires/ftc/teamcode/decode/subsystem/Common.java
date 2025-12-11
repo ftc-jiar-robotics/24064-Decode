@@ -46,6 +46,7 @@ public final class Common {
             inTriangle = false;
 
     public static final double
+            INCHES_PER_METER = 39.3701,
             LEFT = Math.toRadians(180),
             FORWARD = Math.toRadians(90),
             RIGHT = Math.toRadians(0),
@@ -86,17 +87,16 @@ public final class Common {
 
     public static double
             ANG_VELOCITY_MULTIPLER = 0.4,
+            IMU_YAW_SCALAR = 1.0011,
             SLOW_MODE = 0.55,
-            LAUNCH_DELAY = 0.3,    // seconds (feeder > ball leaves flywheel)
+            LAUNCH_DELAY = 0.5,    // seconds (feeder > ball leaves flywheel)
             AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
             AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
             MIN_AIRTIME  = 0.02, //safety
             MIN_POWER_INPUT = 0.3,
             MAX_VELOCITY_MAGNITUDE = 0.2,
             LOCALIZATION_X = 10,
-            LOCALIZATION_TOLERANCE = 20.67,
             LOCALIZATION_Y = 7.5,
-            STALENESS_VISION_TOLERANCE = 100, // in ms
             TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
 
     public static final int
