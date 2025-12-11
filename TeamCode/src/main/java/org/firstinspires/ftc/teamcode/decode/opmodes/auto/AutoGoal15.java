@@ -14,6 +14,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.AudiencePaths;
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.GoalPaths;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
@@ -70,10 +71,10 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake0, 0.8, 0, f, "slow_down_hp"), // slow down to intake balls
-                                new FollowPathAction(f, path.humanPlayerIntake0, true)
+                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, true), AudiencePaths.MAX_HP_TIME)
                         ),
                         new SleepAction(0.3),
-                        new FollowPathAction(f, path.humanPlayerIntake1, true),
+                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, true), AudiencePaths.MAX_HP_TIME),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
@@ -87,8 +88,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                 ),
                                 new FollowPathAction(f, path.humanPlayerShoot, true)
                         ),
-
-                        RobotActions.shootArtifacts(3, 1.5),
+                        new Actions.UntilConditionAction(() -> getRuntime() > 29, RobotActions.shootArtifacts(3, 1.5)),
                         new FollowPathAction(f, path.goalLeave),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_HP"))
                 )

@@ -10,6 +10,9 @@ public class AudiencePaths {
     public AudiencePaths(Follower follower) {
         f = follower;
     }
+
+    public static double MAX_HP_TIME = 1.25;
+
     public static Pose
             start = new Pose(55.5, 7.25, Math.toRadians(90)),
             shoot = new Pose(55.5, 9.3),
