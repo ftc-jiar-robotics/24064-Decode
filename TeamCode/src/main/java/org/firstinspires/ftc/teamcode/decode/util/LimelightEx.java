@@ -40,8 +40,12 @@ public class LimelightEx {
     }
 
     public List<LLResultTypes.ColorResult> getColorResult() {
-        return result.getColorResults();
+        if (result != null && result.isValid()) {return result.getColorResults();
+        }
+        return java.util.Collections.emptyList();
     }
+
+
 
     public List<LLResultTypes.DetectorResult> getDetectorResult() {
         if (result != null) return result.getDetectorResults();
