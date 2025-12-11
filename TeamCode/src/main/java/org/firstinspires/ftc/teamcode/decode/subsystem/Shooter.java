@@ -140,7 +140,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
-                if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+                if (!isHoodManual) {
+                    hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                }
 
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && turret.getDistance() > Common.MIN_SHOOTING_DISTANCE && turret.isReadyToShoot()) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
@@ -149,7 +151,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case RUNNING:
-                if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+                if (!isHoodManual) {
+                    hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                }
 
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
                 feeder.set(Feeder.FeederStates.RUNNING, true);
