@@ -6,10 +6,12 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.paths.callbacks.ParametricCallback;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.concurrent.Callable;
 
@@ -49,6 +51,53 @@ public final class Actions {
                     return action.run(packet);
                 }
                 return false;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public static class UntilConditionAction implements Action {
+        private final Callable<Boolean> check;
+        private final Action action;
+
+        public UntilConditionAction(Callable<Boolean> check, Action action) {
+            this.check = check;
+            this.action = action;
+        }
+
+        @Override
+        public boolean run(TelemetryPacket packet) {
+            try {
+                if (!check.call()) {
+                    return action.run(packet);
+                }
+                return false;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public static class TimedAction implements Action {
+        private final UntilConditionAction untilConditionAction;
+
+        private final ElapsedTime timer = new ElapsedTime();
+        private boolean isFirst = true;
+
+        public TimedAction(Action action, double maxTime) {
+            untilConditionAction = new UntilConditionAction(() -> timer.seconds() > maxTime, action);
+        }
+
+        @Override
+        public boolean run(TelemetryPacket packet) {
+            try {
+                if (isFirst) {
+                    isFirst = false;
+                    timer.reset();
+                }
+
+                return untilConditionAction.run(packet);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
