@@ -2,26 +2,19 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MAX_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MIN_CR;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_TOLERANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MAX_VELOCITY_MAGNITUDE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isForwardPower;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isStrafePower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Shooter.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
-
-import static java.lang.Math.PI;
-import static java.lang.Math.round;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.Style;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -30,6 +23,7 @@ import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
+import org.firstinspires.ftc.teamcode.decode.util.LimelightEx;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 import org.firstinspires.ftc.teamcode.decode.util.ZoneChecker;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -45,13 +39,15 @@ public final class Robot {
     public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
     public final LEDController ledController;
+    public final LimelightEx limelight;
+
+    private boolean isLimelightRunning = true;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
     }
 
-
-
+    private boolean isRobotMoving = false;
 
     /**
      * Constructor used in teleOp classes that makes the current pose2d, 0
@@ -66,6 +62,8 @@ public final class Robot {
      * @param hardwareMap: A constant map that holds all the parts for config in code
      */
     public Robot(HardwareMap hardwareMap, boolean isAuto) {
+        Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+
         drivetrain = Constants.createFollower(hardwareMap);
         bulkReader = new BulkReader(hardwareMap);
         actionScheduler = new ActionScheduler();
@@ -73,6 +71,7 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
         ledController = new LEDController(hardwareMap);
+        limelight = new LimelightEx(limelight3A);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -83,6 +82,10 @@ public final class Robot {
         } catch (InterruptedException ignored) {}
 
         shooter.applyOffsets();
+    }
+
+    public boolean isRobotMoving() {
+        return isRobotMoving;
     }
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read
@@ -119,12 +122,33 @@ public final class Robot {
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
-        if ((LoopUtil.getLoops() & Common.RELOCALIZE_UPDATE_LOOPS) == 0) relocalizeWithWall();
+        double vx = drivetrain.getVelocity().getXComponent();
+        double vy = drivetrain.getVelocity().getYComponent();
+        isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
 
+        if (isLimelightRunning) limelight.update();
+
+        double normalizedRobotHeading = (drivetrain.getPose().getHeading() % (2*Math.PI) + (2*Math.PI)) % (2*Math.PI);
+        if (normalizedRobotHeading >= Math.toRadians(200) && normalizedRobotHeading <= Math.toRadians(340)) {
+            limelight.getLimelight().pause();
+            isLimelightRunning = false;
+        } else if (!isLimelightRunning) {
+            limelight.getLimelight().start();
+            isLimelightRunning = true;
+        }
+
+        Pose llRobotPose = limelight.getPoseEstimate(drivetrain.getHeading());
+        if (llRobotPose != null) {
+            drivetrain.setPose(llRobotPose);
+        }
+
+        zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
+        Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
         int ballCount = 0;
 
+
         if (!inTriangle && shooter.getQueuedShots() <= 0) {
-            if (robot.shooter.isBallPresent()) ballCount = 3;
+            if (shooter.isBallPresent()) ballCount = 3;
             else ballCount = 0;
 
             ledController.update(ballCount);
@@ -132,26 +156,19 @@ public final class Robot {
 
 
         readSensors();
+        LoopUtil.updateLoopCount();
     }
 
-    private void relocalizeWithWall() {
-        double currentX = robot.drivetrain.getPose().getX();
-        double currentY = robot.drivetrain.getPose().getY();
-
+    public void relocalizeWithWall() {
+        double currentX = drivetrain.getPose().getX();
         if (currentX > 72) {
             LOCALIZATION_X = 134;
-            LOCALIZATION_Y = 7.5;
         } else {
             LOCALIZATION_X = 10;
-            LOCALIZATION_Y = 7.5;
         }
+        LOCALIZATION_Y = 7.5;
 
-        boolean isXInRange = Math.abs(LOCALIZATION_X - currentX) < LOCALIZATION_TOLERANCE;
-        boolean isYInRange = Math.abs(LOCALIZATION_Y - currentY) < LOCALIZATION_TOLERANCE;
-
-        if ((isXInRange && isYInRange) && robot.drivetrain.getVelocity().getMagnitude() <= MAX_VELOCITY_MAGNITUDE && (isForwardPower || isStrafePower)) {
-            robot.drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, isRed ? 180 : 0));
-        }
+        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, drivetrain.getPose().getHeading()));
     }
 
     // Prints data on the driver hub for debugging and other uses
@@ -159,14 +176,15 @@ public final class Robot {
         if (isTelemetryOn) {
             shooter.printTelemetry();
             intake.printTelemetry();
+            limelight.printTelemetry();
         }
         Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
         Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
         Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
-        Common.telemetry.addData("robot max power: ", robot.drivetrain.getMaxPowerScaling());
+        Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
         Common.telemetry.addData("loop time (LOOPS): ", LoopUtil.getLoopTimeInHertz());
 
-        Drawing.drawRobot(robot.shooter.getPredictedPose(), new Style("", "#FF0000", 2.0));
+        Drawing.drawRobot(shooter.getPredictedPose(), new Style("", "#FF0000", 2.0));
         Drawing.drawDebug(drivetrain);
 
         Common.telemetry.update();
