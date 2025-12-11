@@ -90,8 +90,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -31.3875,
             READY_TO_SHOOT_LOOPS = 3,
-            STATIC_READY_TOLERANCE = 0.2,
-            MOVING_READY_TOLERANCE = 1.5,
+            STATIC_READY_TOLERANCE = 1.5,
+            MOVING_READY_TOLERANCE = 3,
             ENCODER_MISMATCH_TOLERANCE_DEG = 3.0;
 
     public static int
@@ -248,7 +248,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         // Use quadrature to detect wraparound region
         boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE
-                || quadratureTurretAngle < -WRAP_AROUND_ANGLE;
+                || quadratureTurretAngle < WRAP_AROUND_ANGLE - 360;
 
         // In wrap -> trust quadrature; elsewhere -> trust filtered abs encoder
         currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
@@ -426,6 +426,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
         dashTelemetry.addData("quadrature turret angle (ANGLE): ", quadratureTurretAngle);
+        double encoderDiff = quadratureTurretAngle - getAbsoluteEncoderAngle();
+        dashTelemetry.addData("encoder diff (DEGREES): ", encoderDiff);
+        dashTelemetry.addData("encoder mismatch (BOOLEAN): ", encoderMismatch);
+
 
 
 
