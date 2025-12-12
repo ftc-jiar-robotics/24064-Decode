@@ -39,6 +39,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             Double.POSITIVE_INFINITY
     );
 
+    public static PIDGains badgeRetractorGains = new PIDGains(
+            0.01925,
+            0,
+            0.00025,
+            Double.POSITIVE_INFINITY
+    );
+
     public static PIDGains farGains = new PIDGains(
             0.0067,
             0,
@@ -219,7 +226,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double error = currentAngle - targetAngle;
 
-        PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
+        PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? badgeRetractorGains : farGains;
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
         double kStatic = currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? BADGE_RETRACTOR_kS : kS;
