@@ -28,9 +28,9 @@ public abstract class AbstractAuto extends LinearOpMode {
 
     @Override
     public final void runOpMode() {
-        robot = new Robot(hardwareMap);
-
         Common.TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
+
+        robot = new Robot(hardwareMap);
 
         robot.actionScheduler.setUpdate(this::update);
 
