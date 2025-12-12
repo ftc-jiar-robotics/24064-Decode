@@ -23,6 +23,10 @@ public class FollowPathAction implements Action {
         this.holdEnd = holdEnd;
     }
 
+    public FollowPathAction(Follower follower) {
+        this.m_follower = follower;
+    }
+
     public FollowPathAction(Follower follower, Path path) {
         this.m_follower = follower;
         this.m_path = path;
@@ -54,5 +58,9 @@ public class FollowPathAction implements Action {
 //        Drawing.drawRobot(m_follower);
 
         return m_follower.isBusy();
+    }
+
+    public void breakFollowing() {
+        m_follower.breakFollowing();
     }
 }

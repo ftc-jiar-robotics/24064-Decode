@@ -72,6 +72,7 @@ public final class Actions {
                 if (!check.call()) {
                     return action.run(packet);
                 }
+                if (action instanceof FollowPathAction) ((FollowPathAction) action).breakFollowing();
                 return false;
             } catch (Exception e) {
                 throw new RuntimeException(e);
