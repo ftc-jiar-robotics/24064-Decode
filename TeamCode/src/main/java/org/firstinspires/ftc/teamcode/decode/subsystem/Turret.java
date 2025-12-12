@@ -73,14 +73,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static double
             kS = -0.1167,
-            BADGE_RETRACTOR_kS = -0.3,
+            BADGE_RETRACTOR_kS = -0.26,
             BADGE_RETRACTOR_SWITCH_ANGLE = 10,
             TICKS_TO_DEGREES = 0.63,
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
-            PID_TOLERANCE = 3,
-            DERIV_TOLERANCE = 4,
+            PID_TOLERANCE_CLOSE = 3,
+            PID_TOLERANCE_FAR = 1,
+            DERIV_TOLERANCE = 6,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -298.575,
             READY_TO_SHOOT_LOOPS = 3;
@@ -165,7 +166,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), PID_TOLERANCE, DERIV_TOLERANCE);
+        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), getDistance() > 120 ? PID_TOLERANCE_FAR : PID_TOLERANCE_CLOSE);
     }
 
     /**
@@ -230,7 +231,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
         double kStatic = currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? BADGE_RETRACTOR_kS : kS;
-        double output = error > PID_TOLERANCE ? kS * scalar : (error < -PID_TOLERANCE ? -kStatic * scalar : 0);
+        double output = error > PID_TOLERANCE_CLOSE ? kS * scalar : (error < -PID_TOLERANCE_CLOSE ? -kStatic * scalar : 0);
 
         controller.setGains(gains);
         derivFilter.setGains(filterGains);
