@@ -15,7 +15,9 @@ public class GoalPaths {
     }
 
     public static boolean isPathRed = false;
-    public static long MAX_HP_TIME_MS = 1250;
+    public static long MAX_HP_TIME_MS = 670;
+    public static double LEAVE_TIME = 29.5;
+
     // TODO put all poses/heading in respective named list & mirror thru list
 
     //TODO all HP angles + positions need to be tuned
@@ -186,20 +188,22 @@ public class GoalPaths {
         humanPlayerIntake1 = f.pathBuilder()
                 .addPath(
                         // Path 0
-                        new BezierLine(endIntakeHP, midIntakeHP)
+                        new BezierLine(f::getPose, midIntakeHP)
+                )
+                .setConstantHeadingInterpolation(startIntakeAngleHP)
+                .build();
+        humanPlayerIntake1_5 = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(f::getPose, endIntakeHP)
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP)
                 .build();
 
         humanPlayerShoot = f.pathBuilder()
                 .addPath(
-                        // Path 0
-                        new BezierLine(midIntakeHP, endIntakeHP)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP)
-                .addPath(
                         // Path 1
-                        new BezierLine(endIntakeHP, shoot)
+                        new BezierLine(f::getPose, shoot)
                 )
                 .setConstantHeadingInterpolation(shootHPAngle)
                 .build();
@@ -417,6 +421,7 @@ public class GoalPaths {
     public PathChain thirdShoot;
     public PathChain humanPlayerIntake0;
     public PathChain humanPlayerIntake1;
+    public PathChain humanPlayerIntake1_5;
     public PathChain humanPlayerShoot;
     public PathChain goalLeave;
     public PathChain intakeGate;

@@ -33,16 +33,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final Motor.Encoder motorEncoder;
 //    private final AutoAim autoAim;
     public static PIDGains closeGains = new PIDGains(
-            0.01925,
-            0,
-            0.00025,
-            Double.POSITIVE_INFINITY
-    );
-
-    public static PIDGains badgeRetractorGains = new PIDGains(
-            0.027,
-            0.0009,
-            0.000095,
+            0.0196,
+            0.0001,
+            0.0002,
             Double.POSITIVE_INFINITY
     );
 
@@ -72,18 +65,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double[] visionVariances = new double[3];
 
     public static double
-            kS = -0.1167,
-            BADGE_RETRACTOR_kS = -0.22,
-            BADGE_RETRACTOR_SWITCH_ANGLE = 40,
-            TICKS_TO_DEGREES = 0.63,
+            kS = -0.15,
+            TICKS_TO_DEGREES = 0.24,
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
-            PID_TOLERANCE_CLOSE = 3,
-            PID_TOLERANCE_BADGE_RETRACTOR = 5,
-            PID_TOLERANCE_FAR = 1.5,
+            PID_TOLERANCE_CLOSE = 5,
+            PID_TOLERANCE_FAR = 4,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -298.575,
+            ABSOLUTE_ENCODER_OFFSET = -228,
             READY_TO_SHOOT_LOOPS = 3;
 
 
@@ -106,8 +96,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double offsetAngleSum = 0.0;
 
     public Turret(HardwareMap hw) {
-        this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_1150, ROUNDING_POINT);
-        MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_1150);
+        this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_435, ROUNDING_POINT);
+        MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_435);
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
         this.turret.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 //        autoAim = new AutoAim(hw, NAME_TURRET_CAMERA);
@@ -166,7 +156,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? PID_TOLERANCE_BADGE_RETRACTOR : (getDistance() > 120 ? PID_TOLERANCE_FAR : PID_TOLERANCE_CLOSE));
+        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), getDistance() > 120 ? PID_TOLERANCE_FAR : PID_TOLERANCE_CLOSE);
     }
 
     /**
@@ -227,11 +217,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double error = currentAngle - targetAngle;
 
-        PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? (currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? badgeRetractorGains : closeGains) : farGains;
+        PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
-        double kStatic = currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? BADGE_RETRACTOR_kS : kS;
-        double output = error > PID_TOLERANCE_CLOSE ? kStatic * scalar : (error < -PID_TOLERANCE_CLOSE ? -kStatic * scalar : 0);
+        double output = error > PID_TOLERANCE_CLOSE ? kS * scalar : (error < -PID_TOLERANCE_CLOSE ? -kS * scalar : 0);
 
         controller.setGains(gains);
         derivFilter.setGains(filterGains);

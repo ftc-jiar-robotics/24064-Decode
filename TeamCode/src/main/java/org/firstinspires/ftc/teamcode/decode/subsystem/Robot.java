@@ -41,7 +41,7 @@ public final class Robot {
     public final LEDController ledController;
     public final LimelightEx limelight;
 
-    private boolean isLimelightRunning = true;
+    private boolean isLimelightRunning = false;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -131,7 +131,7 @@ public final class Robot {
             isLimelightRunning = false;
         } else if (!isLimelightRunning) {
             limelight.getLimelight().start();
-            isLimelightRunning = true;
+//            isLimelightRunning = true;
         }
 
         Pose llRobotPose = limelight.getPoseEstimate(drivetrain.getHeading());

@@ -61,6 +61,6 @@ public class FollowPathAction implements Action {
     }
 
     public void breakFollowing() {
-        m_follower.breakFollowing();
+//        m_follower.breakFollowing();
     }
 }

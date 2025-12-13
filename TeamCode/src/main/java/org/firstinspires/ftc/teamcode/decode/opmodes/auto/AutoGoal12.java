@@ -72,7 +72,7 @@ public class AutoGoal12 extends AbstractAuto{
                                 new FollowPathAction(f, path.thirdShoot, true)
                         ),
 
-                        new Actions.UntilConditionAction(() -> getRuntime() > 29, RobotActions.shootArtifacts(3, 3)),
+                        new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, RobotActions.shootArtifacts(3, 3)),
                         new FollowPathAction(f, path.goalLeave),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )

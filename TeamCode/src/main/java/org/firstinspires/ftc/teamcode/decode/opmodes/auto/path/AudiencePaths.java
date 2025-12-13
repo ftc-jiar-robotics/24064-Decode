@@ -11,7 +11,8 @@ public class AudiencePaths {
         f = follower;
     }
 
-    public static long MAX_HP_TIME_MS = 1250;
+    public static long MAX_HP_TIME_MS = 567;
+    public static double LEAVE_TIME = 29.5;
 
     public static Pose
             start = new Pose(55.5, 7.25, Math.toRadians(90)),
@@ -103,23 +104,24 @@ public class AudiencePaths {
         humanPlayerIntake1 = f.pathBuilder()
                 .addPath(
                         // Path 0
-                        new BezierLine(startIntakeHP1, midIntakeHP1)
+                        new BezierLine(f::getPose, midIntakeHP1)
                 )
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .setConstantHeadingInterpolation(startIntakeAngleHP1)
                 .build();
+        humanPlayerIntake1_5 = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(f::getPose, endIntakeHP1)
+                )
+                .setConstantHeadingInterpolation(startIntakeAngleHP1)
+                .build();
+
         humanPlayerShoot1 = f.pathBuilder()
                 .addPath(
                         // Path 0
-                        new BezierLine(midIntakeHP1, endIntakeHP1)
+                        new BezierLine(f::getPose, shoot)
                 )
-                .setTangentHeadingInterpolation()
-                .addPath(
-                        // Path 1
-                        new BezierLine(endIntakeHP1, shoot)
-                )
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .setConstantHeadingInterpolation(startIntakeAngleHP1)
                 .build();
         humanPlayerIntake2 = f.pathBuilder()
                 .addPath(
@@ -131,19 +133,21 @@ public class AudiencePaths {
         humanPlayerIntake3 = f.pathBuilder()
                 .addPath(
                         // Path 0
-                        new BezierLine(startIntakeHP2, midIntakeHP2)
+                        new BezierLine(f::getPose, midIntakeHP2)
+                )
+                .setConstantHeadingInterpolation(startIntakeAngleHP2)
+                .build();
+        humanPlayerIntake3_5 = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(f::getPose, endIntakeHP2)
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP2)
                 .build();
         humanPlayerShoot2 = f.pathBuilder()
                 .addPath(
-                        // Path 0
-                        new BezierLine(midIntakeHP2, endIntakeHP2)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP2)
-                .addPath(
                         // Path 1
-                        new BezierLine(endIntakeHP2, shoot)
+                        new BezierLine(f::getPose, shoot)
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP2)
                 .build();
@@ -159,9 +163,11 @@ public class AudiencePaths {
     public PathChain firstShoot;
     public PathChain humanPlayerIntake0;
     public PathChain humanPlayerIntake1;
+    public PathChain humanPlayerIntake1_5;
     public PathChain humanPlayerShoot1;
     public PathChain humanPlayerIntake2;
     public PathChain humanPlayerIntake3;
+    public PathChain humanPlayerIntake3_5;
     public PathChain humanPlayerShoot2;
     public PathChain goalLeave;
 
