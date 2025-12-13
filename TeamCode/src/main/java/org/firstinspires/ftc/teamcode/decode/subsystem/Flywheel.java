@@ -130,6 +130,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public FlyWheelStates get() {
         return targetState;
     }
+    public double getCurrentRPMSmooth() {
+        return currentRPMSmooth;
+    }
+
 
     public void setManualPower(double power) {
         manualPower = power;
