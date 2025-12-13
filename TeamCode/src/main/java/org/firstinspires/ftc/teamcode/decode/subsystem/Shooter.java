@@ -21,8 +21,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private boolean didCurrentDrop;
 
     private int queuedShots = 0;
-    public static double MIN_MOVEMENT_SPEED = 0.5;
-
     public enum ShooterStates {
         IDLE, PREPPING, RUNNING
     }
@@ -140,9 +138,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
-                if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(turret.getDistance()), true);
+                double distance = turret.getDistance();
+                if (!isHoodManual) hood.set(hood.getHoodAngleWithDistance(distance), true);
 
-                if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && turret.getDistance() > Common.MIN_SHOOTING_DISTANCE && turret.isReadyToShoot()) {
+                if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && distance > Common.MIN_SHOOTING_DISTANCE && (distance <= 120 || turret.isReadyToShoot())) {
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);

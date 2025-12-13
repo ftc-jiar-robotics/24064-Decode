@@ -40,9 +40,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     );
 
     public static PIDGains badgeRetractorGains = new PIDGains(
-            0.01925,
-            0,
-            0.00025,
+            0.027,
+            0.0009,
+            0.000095,
             Double.POSITIVE_INFINITY
     );
 
@@ -73,15 +73,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static double
             kS = -0.1167,
-            BADGE_RETRACTOR_kS = -0.26,
-            BADGE_RETRACTOR_SWITCH_ANGLE = 10,
+            BADGE_RETRACTOR_kS = -0.22,
+            BADGE_RETRACTOR_SWITCH_ANGLE = 40,
             TICKS_TO_DEGREES = 0.63,
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
             PID_TOLERANCE_CLOSE = 3,
-            PID_TOLERANCE_FAR = 1,
-            DERIV_TOLERANCE = 6,
+            PID_TOLERANCE_BADGE_RETRACTOR = 5,
+            PID_TOLERANCE_FAR = 1.5,
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -298.575,
             READY_TO_SHOOT_LOOPS = 3;
@@ -166,7 +166,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), getDistance() > 120 ? PID_TOLERANCE_FAR : PID_TOLERANCE_CLOSE);
+        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? PID_TOLERANCE_BADGE_RETRACTOR : (getDistance() > 120 ? PID_TOLERANCE_FAR : PID_TOLERANCE_CLOSE));
     }
 
     /**
@@ -227,11 +227,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double error = currentAngle - targetAngle;
 
-        PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? badgeRetractorGains : farGains;
+        PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? (currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? badgeRetractorGains : closeGains) : farGains;
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
         double kStatic = currentAngle > BADGE_RETRACTOR_SWITCH_ANGLE ? BADGE_RETRACTOR_kS : kS;
-        double output = error > PID_TOLERANCE_CLOSE ? kS * scalar : (error < -PID_TOLERANCE_CLOSE ? -kStatic * scalar : 0);
+        double output = error > PID_TOLERANCE_CLOSE ? kStatic * scalar : (error < -PID_TOLERANCE_CLOSE ? -kStatic * scalar : 0);
 
         controller.setGains(gains);
         derivFilter.setGains(filterGains);

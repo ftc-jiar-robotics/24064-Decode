@@ -4,9 +4,9 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MIN_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Shooter.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 

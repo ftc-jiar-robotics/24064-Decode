@@ -25,7 +25,6 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 @Autonomous(name = "AutoGoal15", preselectTeleOp = "Main TeleOp")
 
 public class AutoGoal15 extends AbstractAuto{
-    private Follower f;
     private GoalPaths path;
 
     @Override
@@ -71,10 +70,10 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake0, 0.8, 0, f, "slow_down_hp"), // slow down to intake balls
-                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, true), AudiencePaths.MAX_HP_TIME)
+                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, true), AudiencePaths.MAX_HP_TIME_MS, "firstHPGoal")
                         ),
                         new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, true), AudiencePaths.MAX_HP_TIME),
+                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, true), GoalPaths.MAX_HP_TIME_MS, "secondHPGoal"),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure

@@ -23,7 +23,6 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 @Configurable
 @Autonomous(name = "AutoGoal12", preselectTeleOp = "Main TeleOp")
 public class AutoGoal12 extends AbstractAuto{
-    private Follower f;
     private GoalPaths path;
 
     @Override

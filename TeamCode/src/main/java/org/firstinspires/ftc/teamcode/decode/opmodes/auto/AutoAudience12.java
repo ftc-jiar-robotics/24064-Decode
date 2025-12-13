@@ -24,7 +24,6 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 @Configurable
 @Autonomous(name = "AutoAudience12", preselectTeleOp = "Main TeleOp")
 public class AutoAudience12 extends AbstractAuto{
-    private Follower f;
     private AudiencePaths path;
 
     @Override
@@ -39,8 +38,8 @@ public class AutoAudience12 extends AbstractAuto{
 
         isFuturePoseOn = false;
 
-        if (Common.isRed != GoalPaths.isPathRed) {
-            GoalPaths.isPathRed = !GoalPaths.isPathRed;
+        if (Common.isRed != AudiencePaths.isPathRed) {
+            AudiencePaths.isPathRed = !AudiencePaths.isPathRed;
             path.mirrorAll();
         }
         Common.robot.shooter.setGoalAlliance();
@@ -71,10 +70,10 @@ public class AutoAudience12 extends AbstractAuto{
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_3"), // slow down to intake balls
-                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake2, false), AudiencePaths.MAX_HP_TIME)
+                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake2, false), AudiencePaths.MAX_HP_TIME_MS, "firstHPAudience")
                         ),
                         new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME),
+                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "secondHPAudience"),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
@@ -113,10 +112,12 @@ public class AutoAudience12 extends AbstractAuto{
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_2"), // slow down to intake balls
-                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake2, false), AudiencePaths.MAX_HP_TIME)
+                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake2, false), AudiencePaths.MAX_HP_TIME_MS, "thirdHPAudience")
                         ),
+                        new InstantAction(() -> Log.d("thirdHPAudienceDEBUG", "Timed action has FINISHED")),
                         new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME),
+                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fourthHPAudience"),
+                        new InstantAction(() -> Log.d("fourthHPAudienceDEBUG", "Timed action has FINISHED")),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
@@ -155,10 +156,12 @@ public class AutoAudience12 extends AbstractAuto{
                                         ),
                                         path.humanPlayerIntake0, 0.8, 0, f, "slow_down_hp_1"), // slow down to intake balls
 
-                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, false), AudiencePaths.MAX_HP_TIME)
+                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, false), AudiencePaths.MAX_HP_TIME_MS, "firstHpAudience")
                         ),
+                        new InstantAction(() -> Log.d("firstHPAudienceDEBUG", "Timed action has FINISHED")),
                         new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, false), AudiencePaths.MAX_HP_TIME),
+                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, false), AudiencePaths.MAX_HP_TIME_MS, "secondHPAudience"),
+                        new InstantAction(() -> Log.d("secondHPAudienceDEBUG", "Timed action has FINISHED")),
                         new SleepAction(0.3),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot1, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
@@ -222,6 +225,7 @@ public class AutoAudience12 extends AbstractAuto{
     private void shootPreload() {
         robot.actionScheduler.addAction(
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
+                        new FollowPathAction(f, path.preload),
                         RobotActions.shootArtifacts(3, 4),
                         new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_PRELOAD"))
                 )

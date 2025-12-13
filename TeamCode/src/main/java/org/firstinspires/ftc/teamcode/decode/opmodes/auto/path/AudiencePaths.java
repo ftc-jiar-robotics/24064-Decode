@@ -11,10 +11,11 @@ public class AudiencePaths {
         f = follower;
     }
 
-    public static double MAX_HP_TIME = 1.25;
+    public static long MAX_HP_TIME_MS = 1250;
 
     public static Pose
             start = new Pose(55.5, 7.25, Math.toRadians(90)),
+            shootPreload = new Pose(55.5, 9.25),
             shoot = new Pose(55.5, 9.3),
             leave = new Pose(49.600, 16.200),
             startIntake1 = new Pose(36.1, 26.4),
@@ -36,6 +37,7 @@ public class AudiencePaths {
             startIntakeAngleHP2 = Math.toRadians(175);
 
     public void mirrorAll() {
+        shootPreload = shootPreload.mirror();
         start = start.mirror();
         shoot = shoot.mirror();
         leave = leave.mirror();
@@ -64,10 +66,18 @@ public class AudiencePaths {
     }
     public static boolean isPathRed = false;
     public void audience12Build() {
+        preload = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(start, shootPreload)
+                )
+                .setConstantHeadingInterpolation(startAngle)
+                .build();
+
         firstShoot = f.pathBuilder()
                 .addPath(
                         // Path 0
-                        new BezierLine(start, startIntake1)
+                        new BezierLine(shootPreload, startIntake1)
                 )
                 .setLinearHeadingInterpolation(startAngle, startIntakeAngle)
                 .addPath(
@@ -145,6 +155,7 @@ public class AudiencePaths {
                 .setConstantHeadingInterpolation(leaveAngle)
                 .build();
     }
+    public PathChain preload;
     public PathChain firstShoot;
     public PathChain humanPlayerIntake0;
     public PathChain humanPlayerIntake1;

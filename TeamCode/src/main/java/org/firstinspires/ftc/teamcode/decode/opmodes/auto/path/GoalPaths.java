@@ -15,7 +15,7 @@ public class GoalPaths {
     }
 
     public static boolean isPathRed = false;
-    public static double MAX_HP_TIME = 1.25;
+    public static long MAX_HP_TIME_MS = 1250;
     // TODO put all poses/heading in respective named list & mirror thru list
 
     //TODO all HP angles + positions need to be tuned

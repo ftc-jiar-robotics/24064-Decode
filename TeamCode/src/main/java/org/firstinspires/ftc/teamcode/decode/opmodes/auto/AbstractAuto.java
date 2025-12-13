@@ -8,6 +8,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -18,6 +19,8 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 
 @Disabled
 public abstract class AbstractAuto extends LinearOpMode {
+    protected Follower f;
+
     protected final void update() {
         robot.readSensors();
         robot.update();
