@@ -118,10 +118,6 @@ public final class Robot {
 
     public void update() {
         drivetrain.update();
-        LoopUtil.updateLoopCount();
-        zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
-        Common.inTriangle = robot.zoneChecker.checkRectangleTriangleIntersection(farTriangle) || robot.zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
-
         double vx = drivetrain.getVelocity().getXComponent();
         double vy = drivetrain.getVelocity().getYComponent();
         isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
