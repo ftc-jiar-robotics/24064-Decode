@@ -16,7 +16,7 @@ public class GoalPaths {
 
     public static boolean isPathRed = false;
     public static long MAX_HP_TIME_MS = 670;
-    public static double LEAVE_TIME = 29.5;
+    public static double LEAVE_TIME = 29;
 
     // TODO put all poses/heading in respective named list & mirror thru list
 
@@ -202,7 +202,7 @@ public class GoalPaths {
 
         humanPlayerShoot = f.pathBuilder()
                 .addPath(
-                        // Path 1
+                        // Path 0
                         new BezierLine(f::getPose, shoot)
                 )
                 .setConstantHeadingInterpolation(shootHPAngle)

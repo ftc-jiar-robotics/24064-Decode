@@ -90,7 +90,7 @@ public class AutoAudience12 extends AbstractAuto{
                                 new FollowPathAction(f, path.humanPlayerShoot2, false)
                         ),
 
-                        new Actions.UntilConditionAction(() -> getRuntime() > AudiencePaths.LEAVE_TIME, RobotActions.shootArtifacts(3, 2.5)),
+                        new Actions.UntilConditionAction(() -> getRuntime() > AudiencePaths.LEAVE_TIME, RobotActions.shootArtifacts(3)),
                         new FollowPathAction(f, path.goalLeave),
                         new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_HP_THIRD"))
                 )

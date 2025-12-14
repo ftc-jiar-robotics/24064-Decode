@@ -77,19 +77,19 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                         new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, true), AudiencePaths.MAX_HP_TIME_MS, "firstHPGoal"),
                         new SleepAction(0.3),
                         new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1_5, false), GoalPaths.MAX_HP_TIME_MS, "secondHPGoal"),
-                        new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 1, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                        new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, new ParallelAction(
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.humanPlayerShoot, 0.01, 1, f, "arm_flywheel_and_turret_hp"
+                                        path.humanPlayerShoot, 0.01, 0, f, "arm_flywheel_and_turret_hp"
                                 ),
                                 new FollowPathAction(f, path.humanPlayerShoot, true)
-                        ),
-                        new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, RobotActions.shootArtifacts(3, 1.5)),
+                        )),
+                        new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, RobotActions.shootArtifacts(3)),
                         new FollowPathAction(f, path.goalLeave),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_HP"))
                 )

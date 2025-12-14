@@ -70,11 +70,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
-            PID_TOLERANCE_CLOSE = 5,
-            PID_TOLERANCE_FAR = 4,
+            PID_TOLERANCE_CLOSE = 4.367,
+            PID_TOLERANCE_FAR = 1.5,
             MANUAL_POWER_MULTIPLIER = 0.7,
-            ABSOLUTE_ENCODER_OFFSET = -228,
-            READY_TO_SHOOT_LOOPS = 3;
+            ABSOLUTE_ENCODER_OFFSET = -227.4125,
+            READY_TO_SHOOT_LOOPS = 2;
 
 
 
@@ -235,7 +235,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case IDLE:
                     targetAngle = 0;
                     controller.setTarget(new State(targetAngle, 0, 0, 0));
-                    if (isReadyToShoot()) applyOffset(true);
+                    if (isPIDInTolerance()) applyOffset(true);
                     if (robot.shooter.isBallPresent()) currentState = ODOM_TRACKING;
                     break;
                 case ODOM_TRACKING:
