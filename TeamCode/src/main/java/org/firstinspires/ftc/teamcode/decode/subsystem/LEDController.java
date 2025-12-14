@@ -1,16 +1,38 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+import static org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver.LayerHeight;
 
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.Prism.Color;
+import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
+import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
 
 public class LEDController {
 
-    private final RevBlinkinLedDriver blinkin;
+    public enum Pattern {
+        HOT_PINK,
+        BLUE,
+        WHITE,
+        GREEN,
+        YELLOW,
+        ORANGE,
+        RED,
+        OFF
+    }
+
+    private static final int STRIP_LENGTH = 32; // set to your real LED count
+    private static final int BRIGHTNESS = 100;
+
+    private final GoBildaPrismDriver prism;
+
+    private final PrismAnimations.Solid solid = new PrismAnimations.Solid();
 
     public LEDController(HardwareMap hardwareMap) {
-        blinkin = hardwareMap.get(RevBlinkinLedDriver.class, "blinkin");
+
+        prism = hardwareMap.get(GoBildaPrismDriver.class, "blinkin");
+        prism.setStripLength(STRIP_LENGTH);
     }
 
     /**
@@ -22,39 +44,56 @@ public class LEDController {
 
         switch (ballCount) {
             case 3:
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.HOT_PINK);
+                setPattern(Pattern.HOT_PINK);
                 break;
             case 2:
             case 1:
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                setPattern(Pattern.BLUE);
                 break;
             default:
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+                setPattern(Pattern.WHITE);
                 break;
         }
-
     }
 
     public void showShooterTolerance() {
         switch (robot.shooter.get()) {
             case RUNNING:
-                blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                setPattern(Pattern.GREEN);
                 break;
             case IDLE:
             case PREPPING:
             default:
                 if (!robot.shooter.flywheel.isPIDInTolerance()) {
                     if (!robot.shooter.turret.isPIDInTolerance())
-                        blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+                        setPattern(Pattern.RED);
                     else
-                        blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+                        setPattern(Pattern.ORANGE);
                 } else
-                    blinkin.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+                    setPattern(Pattern.YELLOW);
                 break;
         }
     }
 
-    public void setPattern(RevBlinkinLedDriver.BlinkinPattern color) {
-        blinkin.setPattern(color);
+    public void setPattern(Pattern pattern) {
+        Color c;
+        switch (pattern) {
+            case HOT_PINK: c = new Color(255, 105, 180); break;
+            case BLUE:     c = new Color(0,   0,   255); break;
+            case WHITE:    c = new Color(255, 255, 255); break;
+            case GREEN:    c = new Color(0,   255, 0); break;
+            case YELLOW:   c = new Color(255, 255, 0); break;
+            case ORANGE:   c = new Color(255, 165, 0); break;
+            case RED:      c = new Color(255, 0,   0); break;
+            case OFF:
+            default:       c = new Color(0,   0,   0); break;
+        }
+
+        solid.setPrimaryColor(c);
+        solid.setStartIndex(0);
+        solid.setStopIndex(STRIP_LENGTH - 1);
+        solid.setBrightness(BRIGHTNESS);
+
+        prism.insertAndUpdateAnimation(LayerHeight.LAYER_0, solid);
     }
 }
