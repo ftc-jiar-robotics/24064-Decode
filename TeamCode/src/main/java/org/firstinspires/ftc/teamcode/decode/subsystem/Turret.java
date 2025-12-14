@@ -225,10 +225,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
         currentAngle = quadratureTurretAngle;
         // Use quadrature to detect wraparound region
-        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < WRAP_AROUND_ANGLE - 360;
+//        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < WRAP_AROUND_ANGLE - 360;
 
         // In wrap -> trust quadrature; elsewhere -> trust filtered abs encoder
-        currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
+//        currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
 
         double error = currentAngle - targetAngle;
 
