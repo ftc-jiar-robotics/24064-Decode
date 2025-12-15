@@ -90,7 +90,10 @@ public final class Common {
             ANG_VELOCITY_MULTIPLER = 0.4,
             IMU_YAW_SCALAR = 1.0011,
             SLOW_MODE = 0.55,
-            LAUNCH_DELAY = 0.3,    // seconds (feeder > ball leaves flywheel) NOTE: 1 second at 11v, .7 at 12.3
+            LAUNCH_V_LOW = 11.0,
+            LAUNCH_V_HIGH = 12.3,
+            LAUNCH_DELAY_AT_LOW = 1.0,
+            LAUNCH_DELAY_AT_HIGH = 0.7,
             AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
             AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
             MIN_AIRTIME  = 0.02, //safety
@@ -100,6 +103,12 @@ public final class Common {
             LOCALIZATION_Y = 7.5,
             TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
 
+    public static double getLaunchDelaySeconds(double volts) {
+        double dv = (LAUNCH_V_HIGH - LAUNCH_V_LOW);
+        if (dv == 0) return LAUNCH_DELAY_AT_LOW; // safety
+        double t = (volts - LAUNCH_V_LOW) / dv;
+        return LAUNCH_DELAY_AT_LOW + t * (LAUNCH_DELAY_AT_HIGH - LAUNCH_DELAY_AT_LOW);
+    }
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
