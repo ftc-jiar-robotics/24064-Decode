@@ -72,6 +72,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             PID_SWITCH_ANGLE = 15,
             PID_TOLERANCE_CLOSE = 4.367,
             PID_TOLERANCE_FAR = 1.5,
+            STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
+            MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -227.4125,
             READY_TO_SHOOT_LOOPS = 2;
@@ -140,6 +142,17 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     double getCurrentAngle() {
         return currentAngle;
     }
+    private double getPositionTolerance() {
+        // Distance-based base tolerance
+        double baseTol = getDistance() > 120 ? PID_TOLERANCE_FAR : PID_TOLERANCE_CLOSE;
+
+        // Scale based on if the robot is moving
+        boolean moving = robot.isRobotMoving();
+        double scale = moving ? MOVING_TOLERANCE_SCALE : STATIC_TOLERANCE_SCALE;
+
+        return baseTol * scale;
+    }
+
 
     void applyOffset() {
         applyOffset(false);
@@ -160,8 +173,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     public boolean isPIDInTolerance() {
-        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), getDistance() > 120 ? PID_TOLERANCE_FAR : PID_TOLERANCE_CLOSE);
+        double posTol = getPositionTolerance();
+        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), posTol);
     }
+
 
     /**
      * Calculate the turret position (xt, yt).
@@ -224,7 +239,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
-        double output = error > PID_TOLERANCE_CLOSE ? kS * scalar : (error < -PID_TOLERANCE_CLOSE ? -kS * scalar : 0);
+        double positionTolerance = getPositionTolerance();
+        double output = error > positionTolerance ? kS * scalar : (error < -positionTolerance ? -kS * scalar : 0);
 
         controller.setGains(gains);
         derivFilter.setGains(filterGains);
