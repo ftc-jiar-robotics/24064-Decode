@@ -65,7 +65,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double[] visionVariances = new double[3];
 
     public static double
-            kS = -0.15,
+            kS = -0.19,
             TICKS_TO_DEGREES = 0.24,
             WRAP_AROUND_ANGLE = 150,
             ROUNDING_POINT = 100000,
@@ -111,6 +111,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 //    public void closeAutoAim() {
 //        autoAim.close();
 //    }
+
+    public double getError() {
+        return controller.getError();
+    }
 
     public void setGoalAlliance() {
         goal = Common.isRed ? Common.BLUE_GOAL.mirror() : Common.BLUE_GOAL;
@@ -249,7 +253,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             if (isPIDInTolerance()) {
                 toleranceCounter++;
-                output = 0;
             } else toleranceCounter = 0;
 
 

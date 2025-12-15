@@ -94,10 +94,6 @@ public final class Actions {
         }
 
         private boolean isDone() {
-//            Log.d("DEBUG_TIMED", "is done is called " + name);
-//            Log.d("DEBUG_TIMED", "start time (in ms) " + name + ": " + startTime);
-//            Log.d("DEBUG_TIMED", "current time (in ms) " + name + ": "+ System.currentTimeMillis());
-//            Log.d("DEBUG_TIMED", "max time (in ms) " + name + ": " + maxTimeMs);
             return System.currentTimeMillis() - startTime > maxTimeMs;
         }
 
@@ -119,45 +115,6 @@ public final class Actions {
             }
         }
     }
-
-//    public static class TimedAction implements Action {
-//        private long startTime = Long.MAX_VALUE;
-//        private final String name;
-//        private final long maxTimeMs;
-//        private final Action action;
-//        private boolean isFirst = true;
-//
-//        public TimedAction(Action action, long maxTimeMs, String name) {
-//            this.name = name;
-//            this.action = action;
-//            this.maxTimeMs = maxTimeMs;
-//        }
-//
-//        private boolean isDone() {
-//            Log.d("DEBUG_TIMED", "is done is called " + name);
-//            Log.d("DEBUG_TIMED", "start time (in ms) " + name + ": " + startTime);
-//            Log.d("DEBUG_TIMED", "current time (in ms) " + name + ": "+ System.currentTimeMillis());
-//            Log.d("DEBUG_TIMED", "max time (in ms) " + name + ": " + maxTimeMs);
-//            return System.currentTimeMillis() - startTime > maxTimeMs;
-//        }
-//
-//        @Override
-//        public boolean run(TelemetryPacket packet) {
-//
-//                if (isFirst) {
-//                    isFirst = false;
-//                    startTime = System.currentTimeMillis();
-//                }
-//
-//                if (isDone()) {
-//                    startTime = 0;
-//                    isFirst = false;
-//                    if (action instanceof FollowPathAction) ((FollowPathAction) action).breakFollowing();
-//                    return false;
-//                } else return action.run(packet);
-//
-//        }
-//    }
 
     public static class CallbackAction implements Action {
         private final Action action;

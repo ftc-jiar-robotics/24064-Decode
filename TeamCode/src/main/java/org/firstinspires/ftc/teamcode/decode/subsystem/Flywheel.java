@@ -39,9 +39,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.0005,
+            0.004,
             0.0,
-            0.00025,
+            0.003,
             Double.POSITIVE_INFINITY
     );
 
@@ -70,7 +70,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             TIME_DROP_PERIOD = 0.5,
             RPM_TOLERANCE = 30,
             RPM_TOLERANCE_WHILE_MOVING = 70,
-            SMOOTH_RPM_GAIN = 0.8,
+            SMOOTH_RPM_GAIN = 0.85,
             SUPER_SMOOTH_RPM_GAIN = 0.85,
             DERIV_TOLERANCE = 200,
             MOTOR_RPM_SETTLE_TIME_SHOOT = 0.95,
@@ -134,6 +134,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         return currentRPMSmooth;
     }
 
+    public double getError() {
+        return velocityController.getError();
+    }
 
     public void setManualPower(double power) {
         manualPower = power;

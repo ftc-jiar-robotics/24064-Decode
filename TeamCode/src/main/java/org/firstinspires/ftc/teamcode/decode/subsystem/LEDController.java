@@ -1,187 +1,121 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver.LayerHeight;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.Prism.Color;
-import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
-import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
+import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
+import org.firstinspires.ftc.teamcode.decode.util.prism.Color;
+import org.firstinspires.ftc.teamcode.decode.util.prism.GoBildaPrismDriver;
+import org.firstinspires.ftc.teamcode.decode.util.prism.PrismAnimations;
 
 public class LEDController {
 
-    // ---- Prism config ----
-    private static final int STRIP_LENGTH = 32;
+    private static final int STRIP_LENGTH = 12;
+    private static final int SINGLE_STRIP_LENGTH = 6;
     private static final int BRIGHTNESS = 50;
-
-    /**
-     * "Improvements" version:
-     * Layer 0 shows ballCount across the whole strip.
-     * Layer 1 shows shooter tolerance on a small segment so it doesn't hide ballCount.
-     *
-     * If you want shooter to override the whole strip, set this to STRIP_LENGTH.
-     */
-    private static final int SHOOTER_SEGMENT_LENGTH = 4;
+    private static final int TARGET_FPS = 60;
 
     private final GoBildaPrismDriver prism;
 
-    private final PrismAnimations.Solid ballSolid = new PrismAnimations.Solid();
-    private final PrismAnimations.Solid shooterSolid = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid rpmStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid turretStrip = new PrismAnimations.Solid();
 
-    private boolean inserted = false;
-    private Pattern lastBallPattern = null;
-    private Pattern lastShooterPattern = null;
+    private boolean initialized = false;
+
+    private Pattern lastRpmPattern = null;
+    private Pattern lastTurretPattern = null;
+
+    public static int LOOP_COUNTER = (1 << 5) - 1;
 
     public LEDController(HardwareMap hardwareMap) {
-        // NOTE: update your Robot Config name to "prism" (instead of "blinkin")
         prism = hardwareMap.get(GoBildaPrismDriver.class, "prism");
     }
 
-    /**
-     * Update LEDs based on ball count (layer 0) and shooter tolerance (layer 1).
-     * Uses caching so we only send I2C updates when the pattern actually changes.
-     *
-     * @param ballCount number of balls queued
-     */
-    public void update(int ballCount) {
-        ensureInserted();
+    public void update() {
+        if ((LoopUtil.getLoops() & LOOP_COUNTER) == 0) {
+            ensureInitialized();
 
-        // Layer 0: ball count (same mapping as REV code)
-        Pattern ballPattern;
-        switch (ballCount) {
-            case 3:
-                ballPattern = Pattern.HOT_PINK;
-                break;
-            case 2:
-            case 1:
-                ballPattern = Pattern.BLUE;
-                break;
-            default:
-                ballPattern = Pattern.WHITE;
-                break;
-        }
+            Pattern rpmPattern = computeRpmPattern();
+            Pattern turretPattern = computeTurretPattern();
 
-        // Layer 1: shooter tolerance (same mapping as REV code)
-        Pattern shooterPattern = computeShooterPattern();
+            if (rpmPattern != lastRpmPattern) {
+                rpmStrip.setPrimaryColor(toColor(rpmPattern));
+                prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_0);
+                lastRpmPattern = rpmPattern;
+            }
 
-        // Only push updates when something changed
-        if (ballPattern != lastBallPattern) {
-            ballSolid.setPrimaryColor(toPrismColor(ballPattern));
-            prism.updateAnimationFromIndex(LayerHeight.LAYER_0);
-            lastBallPattern = ballPattern;
-        }
-
-        if (shooterPattern != lastShooterPattern) {
-            shooterSolid.setPrimaryColor(toPrismColor(shooterPattern));
-            prism.updateAnimationFromIndex(LayerHeight.LAYER_1);
-            lastShooterPattern = shooterPattern;
+            if (turretPattern != lastTurretPattern) {
+                turretStrip.setPrimaryColor(toColor(turretPattern));
+                prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_1);
+                lastTurretPattern = turretPattern;
+            }
         }
     }
 
-    /**
-     * Kept for compatibility with old call sites.
-     * This updates ONLY the shooter segment (layer 1).
-     */
-    public void showShooterTolerance() {
-        ensureInserted();
-        Pattern shooterPattern = computeShooterPattern();
-
-        if (shooterPattern != lastShooterPattern) {
-            shooterSolid.setPrimaryColor(toPrismColor(shooterPattern));
-            prism.updateAnimationFromIndex(LayerHeight.LAYER_1);
-            lastShooterPattern = shooterPattern;
-        }
-    }
-
-    /**
-     * Manual override helper (similar  to old setPattern).
-     * This sets the whole strip ball layer to the pattern.
-     */
-    public void setPattern(Pattern pattern) {
-        ensureInserted();
-        ballSolid.setPrimaryColor(toPrismColor(pattern));
-        prism.updateAnimationFromIndex(LayerHeight.LAYER_0);
-        lastBallPattern = pattern;
-    }
-
-
-    private void ensureInserted() {
-        if (inserted) return;
+    public void ensureInitialized() {
+        if (initialized) return;
 
         prism.setStripLength(STRIP_LENGTH);
+        prism.setTargetFPS(TARGET_FPS);
+        prism.clearAllAnimations();
 
-        // Layer 0 (ball count): full strip
-        ballSolid.setBrightness(BRIGHTNESS);
-        ballSolid.setStartIndex(0);
-        ballSolid.setStopIndex(STRIP_LENGTH - 1);
-        ballSolid.setPrimaryColor(toPrismColor(Pattern.WHITE));
+        // ---- RPM strip (LEDs 0–5) ----
+        rpmStrip.setBrightness(BRIGHTNESS);
+        rpmStrip.setStartIndex(0);
+        rpmStrip.setStopIndex(SINGLE_STRIP_LENGTH - 1);
+        rpmStrip.setPrimaryColor(toColor(Pattern.OFF));
 
-        // Layer 1 (shooter tolerance): small segment by default (doesn't hide layer 0)
-        shooterSolid.setBrightness(BRIGHTNESS);
-        shooterSolid.setStartIndex(0);
-        shooterSolid.setStopIndex(Math.max(0, Math.min(STRIP_LENGTH - 1, SHOOTER_SEGMENT_LENGTH - 1)));
-        shooterSolid.setPrimaryColor(toPrismColor(Pattern.OFF));
+        // ---- Turret strip (LEDs 6–11) ----
+        turretStrip.setBrightness(BRIGHTNESS);
+        turretStrip.setStartIndex(SINGLE_STRIP_LENGTH);
+        turretStrip.setStopIndex((2 * SINGLE_STRIP_LENGTH) - 1);
+        turretStrip.setPrimaryColor(toColor(Pattern.OFF));
 
-        // Insert both once; after that we only call updateAnimationFromIndex(...)
-        prism.insertAndUpdateAnimation(LayerHeight.LAYER_0, ballSolid);
-        prism.insertAndUpdateAnimation(LayerHeight.LAYER_1, shooterSolid);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_0, rpmStrip);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_1, turretStrip);
 
-        inserted = true;
-        lastBallPattern = Pattern.WHITE;
-        lastShooterPattern = Pattern.OFF;
+        lastRpmPattern = Pattern.OFF;
+        lastTurretPattern = Pattern.OFF;
+        initialized = true;
     }
 
-    private Pattern computeShooterPattern() {
-        switch (robot.shooter.get()) {
-            case RUNNING:
-                return Pattern.GREEN;
+    // -------------------------
+    // Pattern logic
+    // -------------------------
 
-            case IDLE:
-            case PREPPING:
-            default:
-                if (!robot.shooter.flywheel.isPIDInTolerance()) {
-                    if (!robot.shooter.turret.isPIDInTolerance()) {
-                        return Pattern.RED;
-                    } else {
-                        return Pattern.ORANGE;
-                    }
-                } else {
-                    return Pattern.YELLOW;
-                }
+    private Pattern computeRpmPattern() {
+        if (!robot.shooter.flywheel.isPIDInTolerance()) {
+            return Pattern.RED;
         }
+        return Pattern.GREEN;
     }
+
+    private Pattern computeTurretPattern() {
+        if (!robot.shooter.turret.isPIDInTolerance() || !robot.shooter.turret.isReadyToShoot()) {
+            return Pattern.RED;
+        }
+        return Pattern.GREEN;
+    }
+
+    // -------------------------
+    // Utilities
+    // -------------------------
 
     public enum Pattern {
-        HOT_PINK,
-        BLUE,
-        WHITE,
         GREEN,
-        YELLOW,
-        ORANGE,
         RED,
-        OFF,
+        ORANGE,
+        OFF
     }
 
-    private static Color toPrismColor(Pattern pattern) {
-        switch (pattern) {
-            case HOT_PINK:
-                return new Color(255, 105, 180);
-            case BLUE:
-                return new Color(0, 0, 255);
-            case WHITE:
-                return new Color(255, 255, 255);
-            case GREEN:
-                return new Color(0, 255, 0);
-            case YELLOW:
-                return new Color(255, 255, 0);
-            case ORANGE:
-                return new Color(255, 165, 0);
-            case RED:
-                return new Color(255, 0, 0);
+    private static Color toColor(Pattern p) {
+        switch (p) {
+            case GREEN:  return new Color(0, 255, 0);
+            case RED:    return new Color(255, 0, 0);
+            case ORANGE: return new Color(255, 165, 0);
             case OFF:
-            default:
-                return new Color(0, 0, 0);
+            default:     return new Color(0, 0, 0);
         }
     }
 }

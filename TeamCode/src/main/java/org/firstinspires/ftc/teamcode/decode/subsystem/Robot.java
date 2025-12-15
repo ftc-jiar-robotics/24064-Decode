@@ -5,7 +5,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.inTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
@@ -72,6 +71,8 @@ public final class Robot {
         zoneChecker = new ZoneChecker();
         ledController = new LEDController(hardwareMap);
         limelight = new LimelightEx(limelight3A);
+
+        ledController.ensureInitialized();
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -143,14 +144,7 @@ public final class Robot {
         Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
         int ballCount = 0;
 
-
-        if (!inTriangle && shooter.getQueuedShots() <= 0) {
-            if (shooter.isBallPresent()) ballCount = 3;
-            else ballCount = 0;
-
-            ledController.update(ballCount);
-        } else ledController.showShooterTolerance();
-
+        ledController.update();
 
         readSensors();
         LoopUtil.updateLoopCount();
