@@ -41,7 +41,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static PIDGains shootingVelocityGains = new PIDGains(
             0.004,
             0.0,
-            0.003,
+            0.002,
             Double.POSITIVE_INFINITY
     );
 
