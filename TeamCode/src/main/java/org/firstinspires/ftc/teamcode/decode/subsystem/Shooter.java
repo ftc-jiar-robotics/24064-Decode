@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -54,6 +52,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         turret.setLocked(isLocked);
         hood.setLocked(isLocked);
     }
+
+    public double HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE = 120;
+
 
     public int getQueuedShots() {
         return queuedShots;
@@ -142,7 +143,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case PREPPING:
                 if (!isHoodManual) {
                     double distance = turret.getDistance();
-                    if (120> HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
+                    if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
                         hood.set(hood.getHoodAngleWithDistance(distance), true);
                     } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
@@ -158,7 +159,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case RUNNING:
                 if (!isHoodManual) {
                     double distance = turret.getDistance();
-                    if (120 > HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
+                    if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
                         hood.set(hood.getHoodAngleWithDistance(distance), true);
                     } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);

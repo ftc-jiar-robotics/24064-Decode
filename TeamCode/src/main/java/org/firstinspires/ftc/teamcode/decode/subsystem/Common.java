@@ -98,9 +98,7 @@ public final class Common {
             MAX_VELOCITY_MAGNITUDE = 0.2,
             LOCALIZATION_X = 10,
             LOCALIZATION_Y = 7.5,
-            TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY,
-            HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE = 120;
-
+            TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
     public static final int
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
