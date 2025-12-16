@@ -53,7 +53,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.setLocked(isLocked);
     }
 
-    public double HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE = 120;
+    public static double HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE = 120;
 
 
     public int getQueuedShots() {
@@ -141,8 +141,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
+                double distance = turret.getDistance();
                 if (!isHoodManual) {
-                    double distance = turret.getDistance();
                     if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
                         hood.set(hood.getHoodAngleWithDistance(distance), true);
                     } else {
