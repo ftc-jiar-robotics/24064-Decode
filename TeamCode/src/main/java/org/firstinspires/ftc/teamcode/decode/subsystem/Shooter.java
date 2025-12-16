@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -138,9 +139,13 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
-                double distance = turret.getDistance();
                 if (!isHoodManual) {
-                    hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                    double distance = turret.getDistance();
+                    if (!isBigTriangle) {
+                        hood.set(hood.getHoodAngleWithDistance(distance), true);
+                    } else {
+                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                    }
                 }
 
                 if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && distance > Common.MIN_SHOOTING_DISTANCE && (distance <= 120 || turret.isReadyToShoot())) {
@@ -151,7 +156,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case RUNNING:
                 if (!isHoodManual) {
-                    hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                    double distance = turret.getDistance();
+                    if (!isBigTriangle) {
+                        hood.set(hood.getHoodAngleWithDistance(distance), true);
+                    } else {
+                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                    }
                 }
 
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
