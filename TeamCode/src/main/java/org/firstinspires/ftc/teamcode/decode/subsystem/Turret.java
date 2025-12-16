@@ -239,7 +239,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
-        double positionTolerance = getPositionTolerance();
+        double positionTolerance = 0;
         double output = error > positionTolerance ? kS * scalar : (error < -positionTolerance ? -kS * scalar : 0);
 
         controller.setGains(gains);
