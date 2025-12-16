@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
@@ -139,10 +140,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
-                if (!isHoodManual) {
-                    double distance = turret.getDistance();
+                if (HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE > 120) {
+                    double hoodDistance = turret.getDistance();
                     if (!isBigTriangle) {
-                        hood.set(hood.getHoodAngleWithDistance(distance), true);
+                        hood.set(hood.getHoodAngleWithDistance(hoodDistance), true);
                     } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
                     }
@@ -156,9 +157,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case RUNNING:
                 if (!isHoodManual) {
-                    double distance = turret.getDistance();
-                    if (!isBigTriangle) {
-                        hood.set(hood.getHoodAngleWithDistance(distance), true);
+                    double hoodDistance = turret.getDistance();
+                    if (HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE > 120) {
+                        hood.set(hood.getHoodAngleWithDistance(hoodDistance), true);
                     } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
                     }
