@@ -141,9 +141,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case PREPPING:
                 if (120 > HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                    double hoodDistance = turret.getDistance();
+                    double distance = turret.getDistance();
                     if (!isBigTriangle) {
-                        hood.set(hood.getHoodAngleWithDistance(hoodDistance), true);
+                        hood.set(hood.getHoodAngleWithDistance(distance), true);
                     } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
                     }
@@ -157,9 +157,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case RUNNING:
                 if (!isHoodManual) {
-                    double hoodDistance = turret.getDistance();
+                    double distance = turret.getDistance();
                     if (120> HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(hoodDistance), true);
+                        hood.set(hood.getHoodAngleWithDistance(distance), true);
                     } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
                     }
