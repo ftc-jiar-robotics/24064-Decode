@@ -158,9 +158,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case RUNNING:
                 if (!isHoodManual) {
-                    double distance = turret.getDistance();
-                    if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distance), true);
+                    double distanceR = turret.getDistance();
+                    if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
+                        hood.set(hood.getHoodAngleWithDistance(distanceR), true);
                     } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
                     }
