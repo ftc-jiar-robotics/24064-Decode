@@ -42,7 +42,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
 
 @TeleOp(name = "Main TeleOp", group = "24064")
 public class MainTeleOp extends LinearOpMode {
-    GamepadEx gamepadEx1, gamepadEx2;
+    GamepadEx gamepadEx1;
 
     boolean lastInTriangle = false;
 
@@ -51,7 +51,6 @@ public class MainTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
         gamepadEx1 = new GamepadEx(gamepad1);
-        gamepadEx2 = new GamepadEx(gamepad2);
 
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -86,7 +85,6 @@ public class MainTeleOp extends LinearOpMode {
         while (opModeIsActive()) {
             robot.run();
             gamepadEx1.readButtons();
-            gamepadEx2.readButtons();
 
             if (isSlowMode) robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
             else robot.drivetrain.setMaxPowerScaling(1);
