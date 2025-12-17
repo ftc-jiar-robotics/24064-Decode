@@ -76,7 +76,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -227.4125,
-            READY_TO_SHOOT_LOOPS = 2;
+            READY_TO_SHOOT_LOOPS = 2,
+            kV_TURRET = 0.0,   // start at 0, tune up slowly
+            LOS_EPS = 1e-6;    // divide by zero guard
+
 
 
 
@@ -153,6 +156,27 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return baseTol * scale;
     }
 
+    private double getDesiredTurretOmegaRadPerSec() {
+        // Vector from turret to goal (field)
+        double dx = goal.getX() - turretPos.getX();
+        double dy = goal.getY() - turretPos.getY();
+
+        double denom = dx * dx + dy * dy;
+        if (denom < LOS_EPS) return 0.0;
+
+        double vx = robot.drivetrain.getVelocity().getXComponent();
+        double vy = robot.drivetrain.getVelocity().getYComponent();
+
+        // Robot angular velocity (rad/s)
+        double omega = robot.drivetrain.getAngularVelocity();
+
+        // LOS rate for atan2(dy, dx) in rad/s
+        double phiDot = (dy * vx - dx * vy) / denom;
+
+        // angle domain flips sign (360 - angle), and heading domain also flips,
+        // so the relative turret domain rate becomes: alphaDot = omega - phiDot
+        return omega - phiDot;
+    }
 
     void applyOffset() {
         applyOffset(false);
@@ -265,6 +289,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             }
 
             output += controller.calculate(new State(currentAngle, 0, 0 ,0));
+            // LOS angular-rate feedforward (rad/s -> motor power
+            double alphaDot = getDesiredTurretOmegaRadPerSec();
+            output += (kV_TURRET * alphaDot) * scalar;
             rawPower = output;
 
             if (isPIDInTolerance()) {
