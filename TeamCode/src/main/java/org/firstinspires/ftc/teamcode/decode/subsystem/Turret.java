@@ -189,6 +189,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
+// (later add airtime)
+        double timeToShoot = Common.LAUNCH_DELAY;
+        double leadDeg = getLeadAngleDeg(timeToShoot);
+
+// Aim ahead
+        theta += leadDeg;
+
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         targetAngle = normalizeToTurretRange(alpha);
         targetAngle = targetAngleAverageFilter.calculate(targetAngle);
@@ -217,6 +224,32 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         return new Pose(xt, yt);
     }
+    private double getLeadAngleDeg(double timeToShootSec) {
+        // Vector turret -> goal (field)
+        double dx = goal.getX() - turretPos.getX();
+        double dy = goal.getY() - turretPos.getY();
+
+        double r = Math.hypot(dx, dy);
+        if (r < 1e-6) return 0.0;
+
+        // Robot velocity (MUST be field-centric for this to be correct)
+        double vx = robot.drivetrain.getVelocity().getXComponent();
+        double vy = robot.drivetrain.getVelocity().getYComponent();
+
+        // Decompose velocity into radial/tangential relative to goal direction
+        double radialVel = (dx * vx + dy * vy) / r;      // in/s
+        double tangVel   = (dy * vx - dx * vy) / r;      // in/s (sideways around goal)
+
+        // Effective "shot speed" in in/s (using timeToShoot as your effective flight time)
+        double shotSpeed = (r / timeToShootSec) - radialVel;
+        if (shotSpeed < 1e-6) shotSpeed = 1e-6;
+
+        // Lead angle (radians)
+        double leadRad = Math.atan2(-tangVel, shotSpeed);
+
+        return Math.toDegrees(leadRad);
+    }
+
 
     /**
      * Calculate θ, the raw angle from turret to goal.
