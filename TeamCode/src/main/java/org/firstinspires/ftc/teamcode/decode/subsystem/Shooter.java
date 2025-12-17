@@ -18,7 +18,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     final Turret turret;
     final Feeder feeder;
 
-    private boolean didCurrentDrop;
+    private boolean
+            didCurrentDrop,
+            inEmergency;
 
     private int queuedShots = 0;
     public enum ShooterStates {
@@ -100,8 +102,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         if (isIdle) feeder.set(Feeder.FeederStates.RUNNING, false);
     }
 
-    public void runShooter() {
-        targetState = ShooterStates.RUNNING;
+    public void turnOnEmergency() {
+        inEmergency = true;
     }
 
     public void setTurretManual(Turret.TurretStates t) {
@@ -153,7 +155,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     }
                 }
 
-                if (queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && distance > Common.MIN_SHOOTING_DISTANCE && (distance <= 120 || turret.isReadyToShoot())) {
+                if ((queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && distance > Common.MIN_SHOOTING_DISTANCE && (distance <= 120 || turret.isReadyToShoot())) || inEmergency) {
+                    inEmergency = false;
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);

@@ -65,7 +65,7 @@ public class MainTeleOp extends LinearOpMode {
                 dashTelemetry.addData("IS RED: ", isRed);
                 if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) Common.isRed = !isRed;
                 dashTelemetry.addData("IS BIG TRIANGLE: ", isBigTriangle);
-                if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) isBigTriangle = !isBigTriangle;
+                if (gamepadEx1.wasJustPressed(B)) isBigTriangle = !isBigTriangle;
                 dashTelemetry.update();
             }
             AUTO_END_POSE = isRed ? (isBigTriangle ? Common.RED_BIG_TRIANGLE : Common.RED_SMALL_TRIANGLE) : (isBigTriangle ? Common.BLUE_BIG_TRIANGLE : Common.BLUE_SMALL_TRIANGLE);
@@ -127,13 +127,13 @@ public class MainTeleOp extends LinearOpMode {
 
             }
 
-            if (gamepadEx1.wasJustPressed(A)) robot.shooter.runShooter();
+            if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.emergencyShootArtifacts());
+            if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
             if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
             if (gamepadEx1.isDown(RIGHT_STICK_BUTTON) && gamepadEx1.isDown(LEFT_STICK_BUTTON)) robot.drivetrain.setPose(AUTO_END_POSE);
             if (gamepadEx1.wasJustPressed(RIGHT_BUMPER) && gamepadEx1.wasJustPressed(LEFT_BUMPER)) {
                 robot.relocalizeWithWall();
             }
-
 
             // if Intake see's one queue 3 shots,
             // However if feeder see's smthn but intake doesn't then queue 1 shot
