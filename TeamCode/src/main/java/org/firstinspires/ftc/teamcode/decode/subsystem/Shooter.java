@@ -100,6 +100,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         if (isIdle) feeder.set(Feeder.FeederStates.RUNNING, false);
     }
 
+    public void runShooter() {
+        targetState = ShooterStates.RUNNING;
+    }
 
     public void setTurretManual(Turret.TurretStates t) {
         turret.set(t, true);
