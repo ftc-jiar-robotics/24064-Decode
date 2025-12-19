@@ -39,9 +39,11 @@ public class ConfigAuto extends AbstractAuto {
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         int screenNumber = 0;
+        String combination = "";
 
         while (opModeInInit() && !(gamepadEx1.isDown(LEFT_BUMPER) && gamepadEx1.isDown(RIGHT_BUMPER))) {
             gamepadEx1.readButtons();
+            dashTelemetry.update();
 
             switch (screenNumber) {
                 case 0:
@@ -55,8 +57,15 @@ public class ConfigAuto extends AbstractAuto {
                     break;
             }
 
-            if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) screenNumber++;
-            if (gamepadEx1.wasJustPressed(DPAD_LEFT)) screenNumber--;
+            if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) {
+                screenNumber++;
+                dashTelemetry.clear();
+            }
+
+            if (gamepadEx1.wasJustPressed(DPAD_LEFT)) {
+                screenNumber--;
+                dashTelemetry.clear();
+            }
         }
 
         autoConfig.reduceRequireList(screenNumber);

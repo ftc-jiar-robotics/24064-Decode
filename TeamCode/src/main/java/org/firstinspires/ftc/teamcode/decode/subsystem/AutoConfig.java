@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -22,6 +24,7 @@ public class AutoConfig {
     private final ArrayList<Config> requirementList = new ArrayList<>();
 
     private int pointer = -1;
+    private String combination = "";
 
     public final String[] allianceChoices = {"RED", "BLUE"};
     public final String[] sideChoices = {null, null, "AUDIENCE", "GOAL"};
@@ -47,6 +50,9 @@ public class AutoConfig {
         if (requirementList.size() > screenNumber) {
             requirementList.set(screenNumber, Config.values()[pointer]);
         } else requirementList.add(Config.values()[pointer]);
+
+        dashTelemetry.addLine("\n==============================================\n");
+        dashTelemetry.addLine("Path Combination: " + String.join(" ", requirementList.toString()));
     }
 
     public void reduceRequireList(int screenNumber) {
