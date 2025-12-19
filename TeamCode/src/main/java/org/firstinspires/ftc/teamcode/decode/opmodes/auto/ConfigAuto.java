@@ -39,7 +39,6 @@ public class ConfigAuto extends AbstractAuto {
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         int screenNumber = 0;
-        String combination = "";
 
         while (opModeInInit() && !(gamepadEx1.isDown(LEFT_BUMPER) && gamepadEx1.isDown(RIGHT_BUMPER))) {
             gamepadEx1.readButtons();
