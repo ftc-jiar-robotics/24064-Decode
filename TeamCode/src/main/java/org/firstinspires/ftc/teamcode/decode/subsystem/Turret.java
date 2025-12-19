@@ -18,10 +18,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
-import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.Filter;
-import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.IIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
@@ -52,17 +50,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private TurretStates currentState = ODOM_TRACKING;
 
-    public static MovingAverageGains targetAngleAverageGains = new MovingAverageGains(
-            6
-    );
+    public static LowPassGains targetAngleGains = new LowPassGains(0.10);
+    private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
+    private final FIRLowPassFilter errorDerivFilter = new FIRLowPassFilter(errorDerivGains);
+    private final PIDController controller = new PIDController(errorDerivFilter);
+    public static LowPassGains errorDerivGains = new LowPassGains(0, 2);
 
-    private final Filter targetAngleAverageFilter = new MovingAverageFilter(targetAngleAverageGains);
-
-    private final FIRLowPassFilter derivFilter = new FIRLowPassFilter(filterGains);
-    private final PIDController controller = new PIDController(derivFilter);
-    public static LowPassGains filterGains = new LowPassGains(0, 2);
-
-    private double[] visionVariances = new double[3];
 
     public static double
             kS = -0.07,
@@ -77,7 +70,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             MANUAL_POWER_MULTIPLIER = 0.7,
             ABSOLUTE_ENCODER_OFFSET = -227.4125,
             READY_TO_SHOOT_LOOPS = 2,
-            kV_TURRET = 0.0,   // start at 0, tune up slowly
+            kV_TURRET = 0.07,   // start at 0, tune up slowly
             LOS_EPS = 1e-6;    // divide by zero guard
 
 
@@ -85,7 +78,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private Pose goal = Common.BLUE_GOAL;
     private Pose turretPos = new Pose(0, 0);
-    private Pose robotPoseFromVision = new Pose(0, 0);
 
     private double
             currentAngle = 0.0,
@@ -93,12 +85,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             toleranceCounter = 0,
             encoderOffset = 0.0,
             robotHeadingTurretDomain = 0.0,
-            rawPower = 0.0,
             manualPower = 0.0,
             quadratureTurretAngle = 0.0;
-    private boolean isOffsetCalibrating = false;
-    private int offsetSamplesTaken = 0;
-    private double offsetAngleSum = 0.0;
 
     public Turret(HardwareMap hw) {
         this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_435, ROUNDING_POINT);
@@ -110,7 +98,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         motorEncoder.reset();
         controller.setGains(closeGains);
-        derivFilter.setGains(filterGains);
+        errorDerivFilter.setGains(errorDerivGains);
     }
 
 //    public void closeAutoAim() {
@@ -121,7 +109,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return controller.getError();
     }
 
-    public void setGoalAlliance() {
+    public void setAlliance() {
         goal = Common.isRed ? Common.BLUE_GOAL.mirror() : Common.BLUE_GOAL;
 //        autoAim.setAlliance();
     }
@@ -191,7 +179,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         targetAngle = normalizeToTurretRange(alpha);
-        targetAngle = targetAngleAverageFilter.calculate(targetAngle);
+        targetAngle = targetAngleFilter.calculate(targetAngle);
 
         controller.setTarget(new State(targetAngle, 0, 0, 0));
     }
@@ -267,7 +255,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double output = error > positionTolerance ? kS * scalar : (error < -positionTolerance ? -kS * scalar : 0);
 
         controller.setGains(gains);
-        derivFilter.setGains(filterGains);
+        errorDerivFilter.setGains(errorDerivGains);
+        targetAngleFilter.setGains(targetAngleGains);
         // turning robot heading to turret heading
         double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
@@ -292,7 +281,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             // LOS angular-rate feedforward (rad/s -> motor power
             double alphaDot = getDesiredTurretOmegaRadPerSec();
             output += (kV_TURRET * alphaDot) * scalar;
-            rawPower = output;
 
             if (isPIDInTolerance()) {
                 toleranceCounter++;
