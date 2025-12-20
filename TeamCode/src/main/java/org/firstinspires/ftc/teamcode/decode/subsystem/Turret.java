@@ -181,8 +181,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
-        double targetAngleRaw = targetAngle;
         targetAngle = normalizeToTurretRange(alpha);
+        double targetAngleRaw = targetAngle;
         targetAngle = targetAngleFilter.calculate(targetAngle);
 
         controller.setTarget(new State(Math.abs(targetAngleRaw - WRAP_AROUND_ANGLE) < WRAP_AROUND_THRESHOLD ? WRAP_AROUND_ANGLE : targetAngle, 0, 0, 0));

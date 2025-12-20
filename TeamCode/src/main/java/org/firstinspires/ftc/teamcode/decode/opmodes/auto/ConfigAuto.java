@@ -45,15 +45,18 @@ public class ConfigAuto extends AbstractAuto {
             gamepadEx1.readButtons();
             dashTelemetry.update();
 
+            boolean isCursorUp = gamepadEx1.wasJustPressed(DPAD_UP);
+            boolean isCursorDown = gamepadEx1.wasJustPressed(DPAD_DOWN);
+
             switch (screenNumber) {
                 case 0:
-                    autoConfig.doConfig(autoConfig.allianceChoices, gamepadEx1.wasJustPressed(DPAD_UP), gamepadEx1.wasJustPressed(DPAD_DOWN), screenNumber);
+                    autoConfig.doConfig(autoConfig.allianceChoices, isCursorUp, isCursorDown, screenNumber);
                     break;
                 case 1:
-                    autoConfig.doConfig(autoConfig.sideChoices, gamepadEx1.wasJustPressed(DPAD_UP), gamepadEx1.wasJustPressed(DPAD_DOWN), screenNumber);
+                    autoConfig.doConfig(autoConfig.sideChoices, isCursorUp, isCursorDown, screenNumber);
                     break;
                 default:
-                    autoConfig.doConfig(autoConfig.pathChoices, gamepadEx1.wasJustPressed(DPAD_UP), gamepadEx1.wasJustPressed(DPAD_DOWN), screenNumber);
+                    autoConfig.doConfig(autoConfig.pathChoices, isCursorUp, isCursorDown, screenNumber);
                     break;
             }
 
@@ -63,7 +66,7 @@ public class ConfigAuto extends AbstractAuto {
             }
 
             if (gamepadEx1.wasJustPressed(DPAD_LEFT)) {
-                screenNumber--;
+                if (screenNumber > 0) screenNumber--;
                 dashTelemetry.clear();
             }
         }
