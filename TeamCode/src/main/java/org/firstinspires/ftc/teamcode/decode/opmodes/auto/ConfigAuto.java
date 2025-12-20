@@ -41,36 +41,46 @@ public class ConfigAuto extends AbstractAuto {
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         int screenNumber = 0;
 
-        while (opModeInInit() && !(gamepadEx1.isDown(LEFT_BUMPER) && gamepadEx1.isDown(RIGHT_BUMPER))) {
+        boolean isFinished = false;
+
+        while (opModeInInit()) {
             gamepadEx1.readButtons();
             dashTelemetry.update();
 
-            boolean isCursorDown = gamepadEx1.wasJustPressed(DPAD_UP);
-            boolean isCursorUp = gamepadEx1.wasJustPressed(DPAD_DOWN);
-            dashTelemetry.clear();
-            switch (screenNumber) {
-                case 0:
-                    autoConfig.doConfig(autoConfig.allianceChoices, isCursorUp, isCursorDown, screenNumber);
-                    break;
-                case 1:
-                    autoConfig.doConfig(autoConfig.sideChoices, isCursorUp, isCursorDown, screenNumber);
-                    break;
-                default:
-                    autoConfig.doConfig(autoConfig.pathChoices, isCursorUp, isCursorDown, screenNumber);
-                    break;
-            }
+            if (!isFinished) {
+                isFinished = gamepadEx1.isDown(LEFT_BUMPER) && gamepadEx1.isDown(RIGHT_BUMPER);
 
-            if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) {
-                screenNumber++;
+                boolean isCursorDown = gamepadEx1.wasJustPressed(DPAD_UP);
+                boolean isCursorUp = gamepadEx1.wasJustPressed(DPAD_DOWN);
                 dashTelemetry.clear();
-            }
+                switch (screenNumber) {
+                    case 0:
+                        autoConfig.doConfig(autoConfig.allianceChoices, isCursorUp, isCursorDown, screenNumber);
+                        break;
+                    case 1:
+                        autoConfig.doConfig(autoConfig.sideChoices, isCursorUp, isCursorDown, screenNumber);
+                        break;
+                    default:
+                        autoConfig.doConfig(autoConfig.pathChoices, isCursorUp, isCursorDown, screenNumber);
+                        break;
+                }
 
-            if (gamepadEx1.wasJustPressed(DPAD_LEFT)) {
-                if (screenNumber > 0) screenNumber--;
-                dashTelemetry.clear();
-            }
-            autoConfig.reduceRequireList(screenNumber);
+                if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) {
+                    screenNumber++;
+                    dashTelemetry.clear();
+                }
 
+                if (gamepadEx1.wasJustPressed(DPAD_LEFT)) {
+                    if (screenNumber > 0) screenNumber--;
+                    dashTelemetry.clear();
+                }
+                autoConfig.reduceRequireList(screenNumber);
+            } else {
+                dashTelemetry.addLine("SHOW TO DRIVER COACHES");
+                dashTelemetry.addLine("Path Combination: " + String.join(" ", autoConfig.getRequirementList().toString()));
+
+                if (gamepadEx1.wasJustPressed(DPAD_LEFT)) isFinished = false;
+            }
         }
 
     }
