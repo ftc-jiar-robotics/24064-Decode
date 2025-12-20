@@ -4,6 +4,9 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+
+import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 public class AudiencePaths {
     private final Follower f;
@@ -11,7 +14,9 @@ public class AudiencePaths {
         f = follower;
     }
 
-    public static long MAX_HP_TIME_MS = 567;
+    public static long
+            MAX_HP_TIME_MS = 567,
+            MAX_HP_GOING_MS = 6000;
     public static double LEAVE_TIME = 29.5;
 
     public static Pose
@@ -61,7 +66,28 @@ public class AudiencePaths {
         startIntakeAngleHP2 = mirrorAngleRad(startIntakeAngleHP2);
 
     }
+    public FollowPathAction moveToBigBalls(LLResultTypes.ColorResult result, Pose robotPose) {
 
+        double tx = result.getTargetXDegrees();
+        double wallX;
+
+        wallX = isPathRed ? 141.5 : 2.5;
+
+        double wallDist = robotPose.getX() - wallX;
+        double ballDist = Math.tan(Math.toRadians(tx)) * wallDist;
+
+        wallX += isPathRed ? -6 : 6;
+
+        Pose bigBallPose = new Pose(wallX, robotPose.getY() + ballDist);
+        PathChain path = f.pathBuilder()
+                .addPath(
+                        new BezierLine(f::getPose,bigBallPose)
+                )
+                .setConstantHeadingInterpolation(startIntakeAngleHP1)
+                .build();
+
+        return new FollowPathAction(f, path);
+    }
     public double mirrorAngleRad(double angle) {
         return Math.PI - angle;
     }

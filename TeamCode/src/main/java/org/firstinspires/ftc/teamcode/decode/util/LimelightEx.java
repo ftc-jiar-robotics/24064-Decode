@@ -27,7 +27,7 @@ public class LimelightEx {
 
     public LimelightEx(Limelight3A limelight) {
         this.limelight = limelight;
-//        limelight.start();
+        limelight.start();
     }
 
     public LLResult update() {

@@ -71,12 +71,12 @@ public class AutoAudience12 extends AbstractAuto{
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_3"), // slow down to intake balls
-                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake2, false), AudiencePaths.MAX_HP_TIME_MS, "firstHPAudience")
+                                new Actions.TimedAction(path.moveToBigBalls(robot.limelight.getColorResult().get(0), f.getPose()), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
                         ),
                         new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
-                        new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "secondHPAudience"),
+//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
+//                        new SleepAction(0.3),
+//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "secondHPAudience"),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
@@ -115,12 +115,12 @@ public class AutoAudience12 extends AbstractAuto{
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_2"), // slow down to intake balls
-                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake2, false), AudiencePaths.MAX_HP_TIME_MS, "fourthHPAudience")
+                                new Actions.TimedAction(path.moveToBigBalls(robot.limelight.getColorResult().get(0), f.getPose()), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
                         ),
                         new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
-                        new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
+//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
+//                        new SleepAction(0.3),
+//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
