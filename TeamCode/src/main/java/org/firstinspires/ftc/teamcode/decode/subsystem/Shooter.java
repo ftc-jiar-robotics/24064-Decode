@@ -103,7 +103,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public void turnOnEmergency() {
-        inEmergency = true;
+        if (robot.shooter.get() == ShooterStates.PREPPING) inEmergency = true;
     }
 
     public void setTurretManual(Turret.TurretStates t) {
