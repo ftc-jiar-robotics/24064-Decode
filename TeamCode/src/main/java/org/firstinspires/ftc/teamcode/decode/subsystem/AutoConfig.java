@@ -31,9 +31,10 @@ public class AutoConfig {
     public final String[] pathChoices = {null, null, null, null, "PRELOAD", "INTAKE HP", "INTAKE FIRST", "INTAKE SECOND", "INTAKE THIRD", "INTAKE GATE", "OPEN GATE", "SHOOT"};
 
     public void doConfig(String[] config, boolean moveCursorUp, boolean moveCursorDown, int screenNumber) {
-        if (pointer == -1 || config[pointer] == null) while (config[++pointer] == null);
-
         if (requirementList.size() > screenNumber) pointer = requirementList.get(screenNumber).ordinal();
+        else pointer = -1;
+
+        if (pointer == -1 || config[pointer] == null) while (config[++pointer] == null);
 
         if (moveCursorUp && pointer + 1 < config.length && config[pointer + 1] == null) {
             pointer++;
@@ -56,6 +57,6 @@ public class AutoConfig {
     }
 
     public void reduceRequireList(int screenNumber) {
-        for (int i = requirementList.size() - 1; i >= screenNumber; i--) requirementList.remove(i);
+        for (int i = requirementList.size(); i >= screenNumber; i--) requirementList.remove(i);
     }
 }

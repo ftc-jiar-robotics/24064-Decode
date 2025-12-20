@@ -59,6 +59,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static double
             kS = -0.07,
+            WRAP_AROUND_THRESHOLD = 5,
             TICKS_TO_DEGREES = 0.24,
             WRAP_AROUND_ANGLE = 180,
             ROUNDING_POINT = 100000,
@@ -68,6 +69,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             MANUAL_POWER_MULTIPLIER = 0.7,
+            BADGE_RETRACTOR_ANGLE = 10,
+            BADGE_RETRACTOR_KS = -0.1,
             ABSOLUTE_ENCODER_OFFSET = -227.4125,
             READY_TO_SHOOT_LOOPS = 2,
             kV_TURRET = 0.07,   // start at 0, tune up slowly
@@ -178,15 +181,16 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
+        double targetAngleRaw = targetAngle;
         targetAngle = normalizeToTurretRange(alpha);
         targetAngle = targetAngleFilter.calculate(targetAngle);
 
-        controller.setTarget(new State(targetAngle, 0, 0, 0));
+        controller.setTarget(new State(Math.abs(targetAngleRaw - WRAP_AROUND_ANGLE) < WRAP_AROUND_THRESHOLD ? WRAP_AROUND_ANGLE : targetAngle, 0, 0, 0));
     }
 
     public boolean isPIDInTolerance() {
         double posTol = getPositionTolerance();
-        return controller.isInTolerance(new State(currentAngle, 0, 0, 0), posTol);
+        return Math.abs(currentAngle - targetAngle) < posTol;//controller.isInTolerance(new State(currentAngle, 0, 0, 0), posTol);
     }
 
 
@@ -251,8 +255,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         PIDGains gains = Math.abs(error) < PID_SWITCH_ANGLE ? closeGains : farGains;
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
-        double positionTolerance = 0;
-        double output = error > positionTolerance ? kS * scalar : (error < -positionTolerance ? -kS * scalar : 0);
+        double kS = currentAngle > BADGE_RETRACTOR_ANGLE ? BADGE_RETRACTOR_KS : Turret.kS;
+        double output = error > 0 ? kS * scalar : (error < -0 ? -kS * scalar : 0);
 
         controller.setGains(gains);
         errorDerivFilter.setGains(errorDerivGains);
@@ -274,13 +278,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case ODOM_TRACKING:
                     turretPos = calculateTurretPosition(isFuturePoseOn ? robot.shooter.getPredictedPose() : robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
                     setTracking();
+
+                    double alphaDot = getDesiredTurretOmegaRadPerSec();
+                    output += (kV_TURRET * alphaDot) * scalar;
+
                     break;
             }
 
             output += controller.calculate(new State(currentAngle, 0, 0 ,0));
             // LOS angular-rate feedforward (rad/s -> motor power
-            double alphaDot = getDesiredTurretOmegaRadPerSec();
-            output += (kV_TURRET * alphaDot) * scalar;
 
             if (isPIDInTolerance()) {
                 toleranceCounter++;
@@ -289,6 +295,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             turret.set(output);
         }
+
 
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) controller.reset();
     }

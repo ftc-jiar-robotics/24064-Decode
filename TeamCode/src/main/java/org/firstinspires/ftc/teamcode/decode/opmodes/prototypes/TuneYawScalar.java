@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Config
 @TeleOp(group = "prototypes")
 public class TuneYawScalar extends LinearOpMode {
-    public static double YAW_SCALAR = 1.00125;
+    public static double YAW_SCALAR = 1.00086;
 
     @Override
     public void runOpMode() throws InterruptedException {
