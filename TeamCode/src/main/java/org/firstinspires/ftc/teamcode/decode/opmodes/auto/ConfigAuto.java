@@ -45,9 +45,9 @@ public class ConfigAuto extends AbstractAuto {
             gamepadEx1.readButtons();
             dashTelemetry.update();
 
-            boolean isCursorUp = gamepadEx1.wasJustPressed(DPAD_UP);
-            boolean isCursorDown = gamepadEx1.wasJustPressed(DPAD_DOWN);
-
+            boolean isCursorDown = gamepadEx1.wasJustPressed(DPAD_UP);
+            boolean isCursorUp = gamepadEx1.wasJustPressed(DPAD_DOWN);
+            dashTelemetry.clear();
             switch (screenNumber) {
                 case 0:
                     autoConfig.doConfig(autoConfig.allianceChoices, isCursorUp, isCursorDown, screenNumber);
@@ -69,9 +69,10 @@ public class ConfigAuto extends AbstractAuto {
                 if (screenNumber > 0) screenNumber--;
                 dashTelemetry.clear();
             }
+            autoConfig.reduceRequireList(screenNumber);
+
         }
 
-        autoConfig.reduceRequireList(screenNumber);
     }
 
     @Override

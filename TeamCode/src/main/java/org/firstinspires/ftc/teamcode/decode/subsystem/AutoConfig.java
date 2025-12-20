@@ -2,9 +2,10 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 
+import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
-
 public class AutoConfig {
     public enum Config {
         RED,
@@ -24,11 +25,14 @@ public class AutoConfig {
     private final ArrayList<Config> requirementList = new ArrayList<>();
 
     private int pointer = -1;
-    private String combination = "";
 
     public final String[] allianceChoices = {"RED", "BLUE"};
-    public final String[] sideChoices = {null, null, "AUDIENCE", "GOAL"};
+    public final String[] sideChoices = {null, null, "GOAL", "AUDIENCE"};
     public final String[] pathChoices = {null, null, null, null, "PRELOAD", "INTAKE HP", "INTAKE FIRST", "INTAKE SECOND", "INTAKE THIRD", "INTAKE GATE", "OPEN GATE", "SHOOT"};
+
+    public ArrayList<Config> getRequirementList() {
+        return requirementList;
+    }
 
     public void doConfig(String[] config, boolean moveCursorUp, boolean moveCursorDown, int screenNumber) {
         if (requirementList.size() > screenNumber) pointer = requirementList.get(screenNumber).ordinal();
@@ -36,27 +40,28 @@ public class AutoConfig {
 
         if (pointer == -1 || config[pointer] == null) while (config[++pointer] == null);
 
-        if (moveCursorUp && pointer + 1 < config.length && config[pointer + 1] == null) {
+
+        if (moveCursorUp && pointer + 1 < config.length && config[pointer + 1] != null) {
             pointer++;
         }
 
-        if (moveCursorDown && pointer - 1 >= 0 && config[pointer - 1] == null ) {
+        if (moveCursorDown && pointer - 1 >= 0 && config[pointer - 1] != null) {
             pointer--;
         }
 
         for (int i = 0; i < config.length; i++) {
-            if (config[i] != null) Common.dashTelemetry.addLine(i == pointer ? ">> " + config[i] : config[i]);
+            if (config[i] != null) dashTelemetry.addLine(i == pointer ? ">> " + config[i] : config[i]);
         }
 
         if (requirementList.size() > screenNumber) {
             requirementList.set(screenNumber, Config.values()[pointer]);
         } else requirementList.add(Config.values()[pointer]);
 
-        dashTelemetry.addLine("\n==============================================\n");
+        dashTelemetry.addLine("\n==========================================\n");
         dashTelemetry.addLine("Path Combination: " + String.join(" ", requirementList.toString()));
     }
 
     public void reduceRequireList(int screenNumber) {
-        for (int i = requirementList.size(); i >= screenNumber; i--) requirementList.remove(i);
+        for (int i = requirementList.size() - 1; i > screenNumber; i--) requirementList.remove(i);
     }
 }
