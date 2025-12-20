@@ -70,7 +70,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.humanPlayerIntake0, 0.8, 0, f, "slow_down_hp"), // slow down to intake balls
+                                        path.humanPlayerIntake0, 0.3, 0, f, "slow_down_hp"), // slow down to intake balls
                                 new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, true), AudiencePaths.MAX_HP_TIME_MS, "firstHPGoal")
                         ),
                         new SleepAction(0.3),
@@ -83,7 +83,8 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
-                                                RobotActions.armFlywheel()
+                                                RobotActions.armFlywheel(),
+                                                RobotActions.setIntake(0.25, 0)
                                         ),
                                         path.humanPlayerShoot, 0.01, 0, f, "arm_flywheel_and_turret_hp"
                                 ),
@@ -112,13 +113,14 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.thirdShoot, 0.8, 0, f, "slow_down_3"), // slow down to intake balls
+                                        path.thirdShoot, 0.3, 0, f, "slow_down_3"), // slow down to intake balls
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 2, f, "speed_up_3_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
-                                                RobotActions.armFlywheel()
+                                                RobotActions.armFlywheel(),
+                                                RobotActions.setIntake(0.25, 0)
                                         ),
                                         path.thirdShoot, 0.01, 2, f, "arm_flywheel_and_turret_3"
                                 ),
@@ -148,7 +150,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.secondIntake, 0.8, 0, f, "slow_down_2"), // slow down to intake balls
+                                        path.secondIntake, 0.3, 0, f, "slow_down_2"), // slow down to intake balls
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 2, f, "speed_up_2_post_intake"), // lets go fast after intake balls, back to triangle to shoot
                                 new FollowPathAction(f, path.secondIntake)//dashes to second 3 balls, slows down and starts intake at halfway point in path
                         ),
@@ -158,7 +160,8 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
-                                                RobotActions.armFlywheel()
+                                                RobotActions.armFlywheel(),
+                                                RobotActions.setIntake(0.25, 0)
                                         ),
                                         path.secondShoot, 0.01, 0, f, "arm_flywheel_and_turret_2"
                                 ),
@@ -195,7 +198,8 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
-                                                RobotActions.armFlywheel()
+                                                RobotActions.armFlywheel(),
+                                                RobotActions.setIntake(0.25, 0)
                                         ),
                                         path.firstIntake, 0.01, 2, f, "arm_flywheel_and_turret_1"
                                 ),

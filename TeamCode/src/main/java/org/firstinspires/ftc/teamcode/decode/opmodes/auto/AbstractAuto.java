@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
@@ -49,6 +50,8 @@ public abstract class AbstractAuto extends LinearOpMode {
         robot.drivetrain.setPose(getStartPose());
 
         onRun();
+        robot.actionScheduler.addAction(new SleepAction(2));
+        robot.actionScheduler.runBlocking();
         Common.AUTO_END_POSE = robot.drivetrain.getPose();
         Common.TURRET_ENC_OFFSET = robot.shooter.getTurretAngle();
     }

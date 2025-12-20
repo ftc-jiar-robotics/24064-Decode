@@ -20,10 +20,11 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.AutoConfig;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
-
+@Autonomous(name = "ConfigAuto")
 public class ConfigAuto extends AbstractAuto {
     protected AutoConfig autoConfig;
 
