@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATIO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
@@ -39,8 +40,9 @@ public final class Robot {
     public final VoltageSensor batteryVoltageSensor;
     public final LEDController ledController;
     public final LimelightEx limelight;
+    private Pose llRobotPose;
 
-    private boolean isLimelightRunning = false;
+    private boolean isLimelightRunning = true;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -126,19 +128,16 @@ public final class Robot {
 
         if (isLimelightRunning) limelight.update();
 
-        double normalizedRobotHeading = (drivetrain.getPose().getHeading() % (2*Math.PI) + (2*Math.PI)) % (2*Math.PI);
-        if (normalizedRobotHeading >= Math.toRadians(200) && normalizedRobotHeading <= Math.toRadians(340)) {
-            limelight.getLimelight().pause();
-            isLimelightRunning = false;
-        } else if (!isLimelightRunning) {
-            limelight.getLimelight().start();
+//        double normalizedRobotHeading = (drivetrain.getPose().getHeading() % (2*Math.PI) + (2*Math.PI)) % (2*Math.PI);
+//        if (normalizedRobotHeading >= Math.toRadians(200) && normalizedRobotHeading <= Math.toRadians(340)) {
+//            limelight.getLimelight().pause();
+//            isLimelightRunning = false;
+//        } else if (!isLimelightRunning) {
+//            limelight.getLimelight().start();
 //            isLimelightRunning = true;
-        }
+//        }
 
-        Pose llRobotPose = limelight.getPoseEstimate(drivetrain.getHeading());
-        if (llRobotPose != null) {
-            drivetrain.setPose(llRobotPose);
-        }
+
 
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
@@ -161,7 +160,16 @@ public final class Robot {
 
         drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, drivetrain.getPose().getHeading()));
     }
+    public void relocalizeWithLime() {
+        llRobotPose = robot.limelight.getPoseEstimate(robot.drivetrain.getHeading());
+        if (llRobotPose != null) {
+            robot.drivetrain.setPose(llRobotPose);
+        }
+    }
 
+    public Pose getLlRobotPose(){
+        return llRobotPose;
+    }
     // Prints data on the driver hub for debugging and other uses
     public void printTelemetry() {
         if (isTelemetryOn) {

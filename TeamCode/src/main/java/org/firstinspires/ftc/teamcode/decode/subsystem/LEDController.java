@@ -23,7 +23,7 @@ public class LEDController {
 
     private boolean initialized = false;
 
-    private Pattern lastRpmPattern = null;
+    private Pattern lastLLPattern = null;
     private Pattern lastTurretPattern = null;
 
     public static int LOOP_COUNTER = (1 << 5) - 1;
@@ -36,13 +36,13 @@ public class LEDController {
         if ((LoopUtil.getLoops() & LOOP_COUNTER) == 0) {
             ensureInitialized();
 
-            Pattern rpmPattern = computeRpmPattern();
+            Pattern llPattern = computeLLPattern();
             Pattern turretPattern = computeTurretPattern();
 
-            if (rpmPattern != lastRpmPattern) {
-                rpmStrip.setPrimaryColor(toColor(rpmPattern));
+            if (llPattern != lastLLPattern) {
+                rpmStrip.setPrimaryColor(toColor(llPattern));
                 prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_0);
-                lastRpmPattern = rpmPattern;
+                lastLLPattern = llPattern;
             }
 
             if (turretPattern != lastTurretPattern) {
@@ -75,7 +75,7 @@ public class LEDController {
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_0, rpmStrip);
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_1, turretStrip);
 
-        lastRpmPattern = Pattern.OFF;
+        lastLLPattern = Pattern.OFF;
         lastTurretPattern = Pattern.OFF;
         initialized = true;
     }
@@ -84,8 +84,8 @@ public class LEDController {
     // Pattern logic
     // -------------------------
 
-    private Pattern computeRpmPattern() {
-        if (!robot.shooter.flywheel.isPIDInTolerance()) {
+    private Pattern computeLLPattern() {
+        if (robot.getLlRobotPose() == null) {
             return Pattern.RED;
         }
         return Pattern.GREEN;
