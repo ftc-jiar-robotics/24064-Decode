@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.GoalPaths;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
+import org.firstinspires.ftc.teamcode.decode.util.DrivePoseLoggingAction;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
@@ -34,6 +35,7 @@ public class AutoAudience12 extends AbstractAuto{
     protected void onInit() {
 
         f = robot.drivetrain;
+        robot.limelight.getLimelight().pipelineSwitch(2);
         path = new AudiencePaths(f);
 
         isFuturePoseOn = false;
@@ -56,23 +58,14 @@ public class AutoAudience12 extends AbstractAuto{
 
 
     private void shootHPThird() {
-        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.8);
         path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.775);
         path.humanPlayerIntake3_5.getPath(0).setTValueConstraint(0.725);
         path.humanPlayerShoot2.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_THIRD")),
-                        new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake2, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
-                                new Actions.CallbackAction(
-                                        new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(1)),
-                                                RobotActions.setIntake(1, 0)
-                                        ),
-                                        path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_3"), // slow down to intake balls
-                                new Actions.TimedAction(path.moveToBigBalls(robot.limelight.getColorResult().get(0), f.getPose()), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
-                        ),
+                        path.moveToBigBalls(robot.limelight.getColorResult(), f.getPose()),
+                        new DrivePoseLoggingAction(f,"FINITO"),
                         new SleepAction(0.3),
 //                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
 //                        new SleepAction(0.3),
@@ -100,23 +93,14 @@ public class AutoAudience12 extends AbstractAuto{
     }
 
     private void shootHPSecond() {
-        path.humanPlayerIntake2.getPath(0).setTValueConstraint(0.8);
         path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.775);
         path.humanPlayerIntake3_5.getPath(0).setTValueConstraint(0.725);
         path.humanPlayerShoot2.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_SECOND")),
-                        new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake2, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
-                                new Actions.CallbackAction(
-                                        new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(1)),
-                                                RobotActions.setIntake(1, 0)
-                                        ),
-                                        path.humanPlayerIntake2, 0.8, 0, f, "slow_down_hp_2"), // slow down to intake balls
-                                new Actions.TimedAction(path.moveToBigBalls(robot.limelight.getColorResult().get(0), f.getPose()), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
-                        ),
+                        path.moveToBigBalls(robot.limelight.getColorResult(), f.getPose()),
+
                         new SleepAction(0.3),
 //                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
 //                        new SleepAction(0.3),

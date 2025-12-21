@@ -11,14 +11,15 @@ import org.firstinspires.ftc.teamcode.decode.util.prism.PrismAnimations;
 
 public class LEDController {
 
-    private static final int STRIP_LENGTH = 12;
-    private static final int SINGLE_STRIP_LENGTH = 6;
+    private static final int STRIP_LENGTH = 36;
+    private static final int SMALL_STRIP_LENGTH = 6;
+    private static final int BIG_STRIP_LENGTH = 12;
     private static final int BRIGHTNESS = 50;
     private static final int TARGET_FPS = 60;
 
     private final GoBildaPrismDriver prism;
 
-    private final PrismAnimations.Solid rpmStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid llStrip = new PrismAnimations.Solid();
     private final PrismAnimations.Solid turretStrip = new PrismAnimations.Solid();
 
     private boolean initialized = false;
@@ -40,7 +41,7 @@ public class LEDController {
             Pattern turretPattern = computeTurretPattern();
 
             if (llPattern != lastLLPattern) {
-                rpmStrip.setPrimaryColor(toColor(llPattern));
+                llStrip.setPrimaryColor(toColor(llPattern));
                 prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_0);
                 lastLLPattern = llPattern;
             }
@@ -61,18 +62,18 @@ public class LEDController {
         prism.clearAllAnimations();
 
         // ---- RPM strip (LEDs 0–5) ----
-        rpmStrip.setBrightness(BRIGHTNESS);
-        rpmStrip.setStartIndex(0);
-        rpmStrip.setStopIndex(SINGLE_STRIP_LENGTH - 1);
-        rpmStrip.setPrimaryColor(toColor(Pattern.OFF));
-
-        // ---- Turret strip (LEDs 6–11) ----
         turretStrip.setBrightness(BRIGHTNESS);
-        turretStrip.setStartIndex(SINGLE_STRIP_LENGTH);
-        turretStrip.setStopIndex((2 * SINGLE_STRIP_LENGTH) - 1);
+        turretStrip.setStartIndex(2*BIG_STRIP_LENGTH);
+        turretStrip.setStopIndex(2*BIG_STRIP_LENGTH+SMALL_STRIP_LENGTH - 1);
         turretStrip.setPrimaryColor(toColor(Pattern.OFF));
 
-        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_0, rpmStrip);
+        // ---- Turret strip (LEDs 6–11) ----
+        llStrip.setBrightness(BRIGHTNESS);
+        llStrip.setStartIndex(2*BIG_STRIP_LENGTH+SMALL_STRIP_LENGTH);
+        llStrip.setStopIndex(2*BIG_STRIP_LENGTH+(2 * SMALL_STRIP_LENGTH) - 1);
+        llStrip.setPrimaryColor(toColor(Pattern.OFF));
+
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_0, llStrip);
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_1, turretStrip);
 
         lastLLPattern = Pattern.OFF;
@@ -85,7 +86,7 @@ public class LEDController {
     // -------------------------
 
     private Pattern computeLLPattern() {
-        if (robot.getLlRobotPose() == null) {
+        if (robot.limelight.getPoseEstimate(robot.drivetrain.getHeading()) == null) {
             return Pattern.RED;
         }
         return Pattern.GREEN;

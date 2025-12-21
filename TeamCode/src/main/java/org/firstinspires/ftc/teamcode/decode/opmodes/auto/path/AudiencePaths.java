@@ -1,11 +1,21 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto.path;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+
+import android.util.Log;
+
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import java.util.List;
 
+import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
+import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 public class AudiencePaths {
@@ -22,7 +32,7 @@ public class AudiencePaths {
     public static Pose
             start = new Pose(55.5, 7.25, Math.toRadians(90)),
             shootPreload = new Pose(55.5, 9.25),
-            shoot = new Pose(55.5, 9.3),
+            shoot = new Pose(72.2, 26.5),
             leave = new Pose(49.600, 16.200),
             startIntake1 = new Pose(36.1, 26.4),
             endIntake1 = new Pose(13.500, 30.400),
@@ -66,27 +76,45 @@ public class AudiencePaths {
         startIntakeAngleHP2 = mirrorAngleRad(startIntakeAngleHP2);
 
     }
-    public FollowPathAction moveToBigBalls(LLResultTypes.ColorResult result, Pose robotPose) {
+    public Action moveToBigBalls(List<LLResultTypes.ColorResult> result, Pose robotPose) {
+        PathChain path = humanPlayerIntake2;
+        if (result.size() > 0) {
+            double tx = result.get(0).getTargetXDegrees();
+            double wallX;
 
-        double tx = result.getTargetXDegrees();
-        double wallX;
+            wallX = isPathRed ? 141.5 : 2.5;
 
-        wallX = isPathRed ? 141.5 : 2.5;
+            double wallDist = Math.abs(robotPose.getX() - wallX);
+            double ballDist = Math.tan(Math.toRadians(tx)) * wallDist;
 
-        double wallDist = robotPose.getX() - wallX;
-        double ballDist = Math.tan(Math.toRadians(tx)) * wallDist;
+            ballDist = isPathRed ? -ballDist : ballDist;
+            wallX += isPathRed ? -10 : 10;
 
-        wallX += isPathRed ? -6 : 6;
+            Pose bigBallPose = new Pose(wallX, robotPose.getY() + ballDist);
+            path = f.pathBuilder()
+                    .addPath(
+                            new BezierLine(f::getPose, bigBallPose)
+                    )
+                    .setConstantHeadingInterpolation(startIntakeAngleHP1)
+                    .build();
+            robot.limelight.getLimelight().captureSnapshot("MOVE_TO_BALLS");
+            Log.d("MOVE_TO_BALLS_wallX", "" + wallX);
+            Log.d("MOVE_TO_BALLS_ballDist", "" + ballDist);
+            Log.d("MOVE_TO_BALLS_tx", "" + tx);
+            Log.d("MOVE_TO_BALLS_y", "" + (robotPose.getY() + ballDist));
 
-        Pose bigBallPose = new Pose(wallX, robotPose.getY() + ballDist);
-        PathChain path = f.pathBuilder()
-                .addPath(
-                        new BezierLine(f::getPose,bigBallPose)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP1)
-                .build();
-
-        return new FollowPathAction(f, path);
+        }
+        path.getPath(0).setTValueConstraint(0.8);
+        return new ParallelAction(
+                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
+                new Actions.CallbackAction(
+                        new ParallelAction(
+                                new InstantAction(() -> f.setMaxPower(1)),
+                                RobotActions.setIntake(1, 0)
+                        ),
+                        path, 0.8, 0, f, "slow_down_hp_2"), // slow down to intake balls
+                new Actions.TimedAction(new FollowPathAction(f, path), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
+        );
     }
     public double mirrorAngleRad(double angle) {
         return Math.PI - angle;
