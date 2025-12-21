@@ -79,7 +79,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public boolean isBallPresent() {
-        return feeder.isBallPresent();
+        return feeder.isBallPresent() || robot.intake.getFrontState() || robot.intake.getBackState();
     }
 
 //    public void closeAutoAim() {

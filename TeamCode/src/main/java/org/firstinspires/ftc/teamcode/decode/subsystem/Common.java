@@ -18,6 +18,8 @@ public final class Common {
             NAME_FEEDER_RIGHT_DISTANCE_SENSOR = "rightDistanceSensorFeeder",
             NAME_FEEDER_LEFT_PIN0 = "leftDistancePin0",
             NAME_FEEDER_RIGHT_PIN0 = "rightDistancePin0",
+            NAME_INTAKE_FRONT_PIN0 = "intakeSensorFront",
+            NAME_INTAKE_BACK_PIN0 = "intakeSensorBack",
 
             NAME_FLYWHEEL_MASTER_MOTOR = "shooterMaster",
             NAME_FLYWHEEL_SLAVE_MOTOR = "shooterSlave",
