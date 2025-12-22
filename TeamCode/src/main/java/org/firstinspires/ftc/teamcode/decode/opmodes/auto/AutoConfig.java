@@ -23,6 +23,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.ConfigPaths;
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.Configuration;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+import org.firstinspires.ftc.teamcode.decode.util.Actions;
+import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Autonomous(name = "ConfigAuto")
 public class AutoConfig extends AbstractAuto {
@@ -37,7 +39,7 @@ public class AutoConfig extends AbstractAuto {
     @Override
     protected void configure() {
         paths = new ConfigPaths(robot.drivetrain);
-        autoConfig = new Configuration(paths, () -> getRuntime() < ConfigPaths.LEAVE_TIME);
+        autoConfig = new Configuration(paths);
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -115,11 +117,13 @@ public class AutoConfig extends AbstractAuto {
         for (Configuration.Option o : autoConfig.getRequirementList()) {
             try {
                 Log.d("AutoConfig", o.name());
-                robot.actionScheduler.addAction(o.getAction().call());
+                robot.actionScheduler.addAction(new Actions.UntilConditionAction(() -> getRuntime() > ConfigPaths.LEAVE_TIME, o.getAction().call()));
                 robot.actionScheduler.runBlocking();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
+        robot.actionScheduler.addAction(new FollowPathAction(robot.drivetrain, paths.leave, true));
+        robot.actionScheduler.runBlocking();
     }
 }

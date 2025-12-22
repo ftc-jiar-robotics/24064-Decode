@@ -22,9 +22,6 @@ public class ConfigPaths {
     public static Pose
             controlPreload = new Pose(47.6, 113.1),
             controlIntakeHP = new Pose(32.5, 10),
-            controlIntakeFirst = new Pose(65.0, 83.0),
-            controlIntakeSecond = new Pose(65.0, 60.5),
-            controlIntakeThird = new Pose(65.0, 36.0),
             controlGate = new Pose(34.5, 63);
 
     public static Pose
@@ -34,12 +31,12 @@ public class ConfigPaths {
             shootFar = new Pose(55.5, 11.3),
             intakeHPEnd = new Pose(3.5, 8.15),
             intakeHPMid = new Pose(6.5, 8.15),
-            intakeFirstStart = new Pose(34.8, 84.5),
-            intakeFirstEnd = new Pose(11.8, 84.5),
-            intakeSecondStart = new Pose(34.8, 60.0),
-            intakeSecondEnd = new Pose(11.8, 60.0),
-            intakeThirdStart = new Pose(34.8, 35.5),
-            intakeThirdEnd = new Pose(11.8, 35.5),
+            intakeFirstStart = new Pose(38.2, 84.5),
+            intakeFirstEnd = new Pose(17.1, 84.5),
+            intakeSecondStart = new Pose(38.2, 60.0),
+            intakeSecondEnd = new Pose(17.1, 60.0),
+            intakeThirdStart = new Pose(38.2, 35.5),
+            intakeThirdEnd = new Pose(17.1, 35.5),
             gateOpen = new Pose(12.0, 67.0),
             gateIntake = new Pose(9.0, 59.5),
             leaveClose = new Pose(37.5,90.1),
@@ -78,9 +75,6 @@ public class ConfigPaths {
 
         controlPreload = controlPreload.mirror();
         controlIntakeHP = controlIntakeHP.mirror();
-        controlIntakeFirst = controlIntakeFirst.mirror();
-        controlIntakeSecond = controlIntakeSecond.mirror();
-        controlIntakeThird = controlIntakeThird.mirror();
         controlGate = controlGate.mirror();
 
         startAngleClose = mirrorAngleRad(startAngleClose);
@@ -137,11 +131,7 @@ public class ConfigPaths {
 
         intakeFirst = f.pathBuilder()
                 .addPath(
-                        new BezierCurve(
-                                f::getPose,
-                                controlIntakeFirst,
-                                intakeFirstStart
-                        )
+                        new BezierCurve(f::getPose, intakeFirstStart)
                 )
                 .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .addPath(
@@ -152,11 +142,7 @@ public class ConfigPaths {
 
         intakeSecond = f.pathBuilder()
                 .addPath(
-                        new BezierCurve(
-                                f::getPose,
-                                controlIntakeSecond,
-                                intakeSecondStart
-                        )
+                        new BezierLine(f::getPose, intakeSecondStart)
                 )
                 .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .addPath(
@@ -167,11 +153,7 @@ public class ConfigPaths {
 
         intakeThird = f.pathBuilder()
                 .addPath(
-                        new BezierCurve(
-                                f::getPose,
-                                controlIntakeThird,
-                                intakeThirdStart
-                        )
+                        new BezierCurve(f::getPose, intakeThirdStart)
                 )
                 .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .addPath(

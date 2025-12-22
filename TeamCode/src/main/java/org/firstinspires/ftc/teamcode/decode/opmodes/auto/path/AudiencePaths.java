@@ -7,6 +7,7 @@ import android.util.Log;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -34,11 +35,11 @@ public class AudiencePaths {
 
     public static Pose
 
-            start = Common.BLUE_BIG_TRIANGLE,
+            start = Common.BLUE_SMALL_TRIANGLE,
             shootPreload = new Pose(55.5, 11.25),
             shoot = new Pose(63.9, 19.4),
             leave = new Pose(49.600, 16.200),
-            startIntake1 = new Pose(36.1, 26.4),
+            startIntake1 = new Pose(36.1, 28.4),
             endIntake1 = new Pose(13.500, 30.400),
             startIntakeHP1 = new Pose(8.000, 8.500),
             midIntakeHP1 = new Pose(14.300, 8.500),
@@ -83,7 +84,8 @@ public class AudiencePaths {
             isArtifactFound = !result.isEmpty();
         }
 
-        PathChain path = humanPlayerIntake1;
+        PathChain path = humanPlayerIntake0;
+        PathChain pathBack = humanPlayerIntake1;
         robot.limelight.getLimelight().captureSnapshot("MOVE_TO_BALLS");
         if (isArtifactFound) {
             double tx = result.get(0).getTargetXDegrees();
@@ -99,12 +101,27 @@ public class AudiencePaths {
             wallX += isPathRed ? -10 : 10;
 
             Pose bigBallPose = new Pose(wallX, Math.max(endIntakeHP1.getY(),robotPose.getY() + ballDist));
+
             path = f.pathBuilder()
                     .addPath(
                             new BezierLine(f::getPose, bigBallPose)
                     )
                     .setConstantHeadingInterpolation(startIntakeAngleHP1)
                     .build();
+
+            pathBack = f.pathBuilder()
+                    .addPath(
+                            // Path 0
+                            new BezierLine(f::getPose, new Pose(bigBallPose.getX(), bigBallPose.getY() + (isPathRed ? 4 : -4)))
+                    )
+                    .setConstantHeadingInterpolation(startIntakeAngleHP1)
+                    .addPath(
+                            // Path 0
+                            new BezierLine(f::getPose, bigBallPose)
+                    )
+                    .setConstantHeadingInterpolation(startIntakeAngleHP1)
+                    .build();
+
             Log.d("MOVE_TO_BALLS_wallX", "" + wallX);
             Log.d("MOVE_TO_BALLS_ballDist", "" + ballDist);
             Log.d("MOVE_TO_BALLS_tx", "" + tx);
@@ -116,12 +133,13 @@ public class AudiencePaths {
         return new ParallelAction(
                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
                 new Actions.CallbackAction(
-                        new ParallelAction(
-                                new InstantAction(() -> f.setMaxPower(1)),
-                                RobotActions.setIntake(1, 0)
-                        ),
-                        path, 0.8, 0, f, "slow_down_hp_2"), // slow down to intake balls
-                new Actions.TimedAction(new FollowPathAction(f, path), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
+                        RobotActions.setIntake(1, 0),
+                        path, 0.5, 0, f, "slow_down_hp_2"), // slow down to intake balls
+                new Actions.TimedAction(new FollowPathAction(f, path), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience"),
+                new SleepAction(0.1),
+                new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(0)), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
+                new SleepAction(0.1),
+                new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(1)), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience")
         );
     }
     public double mirrorAngleRad(double angle) {
@@ -169,8 +187,6 @@ public class AudiencePaths {
                         new BezierLine(f::getPose, midIntakeHP1)
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP1)
-                .build();
-        humanPlayerIntake1_5 = f.pathBuilder()
                 .addPath(
                         // Path 0
                         new BezierLine(f::getPose, endIntakeHP1)
@@ -197,7 +213,6 @@ public class AudiencePaths {
     public PathChain firstShoot;
     public PathChain humanPlayerIntake0;
     public PathChain humanPlayerIntake1;
-    public PathChain humanPlayerIntake1_5;
     public PathChain humanPlayerShoot1;
     public PathChain audienceLeave;
 

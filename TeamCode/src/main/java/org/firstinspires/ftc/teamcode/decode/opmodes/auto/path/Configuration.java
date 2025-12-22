@@ -28,11 +28,8 @@ public class Configuration {
 
     private static ConfigPaths paths;
 
-    private static Callable<Boolean> isLeaveTime;
-
-    public Configuration(ConfigPaths paths, Callable<Boolean> isLeaveTime) {
+    public Configuration(ConfigPaths paths) {
         Configuration.paths = paths;
-        Configuration.isLeaveTime = isLeaveTime;
     }
 
     public enum Option {
@@ -62,9 +59,9 @@ public class Configuration {
         private static Action preload() {
             paths.preload.getPath(0).setTValueConstraint(0.88);
             return new SequentialAction(
-                    new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
+                    new InstantAction(() -> robot.drivetrain.setMaxPower(0.8)),
                     new ParallelAction(
-                            new FollowPathAction(robot.drivetrain, paths.preload),
+                            new FollowPathAction(robot.drivetrain, paths.preload, true),
                             RobotActions.shootArtifacts(3, 4, false)
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "PRELOAD_FINISH"))
@@ -181,29 +178,21 @@ public class Configuration {
         }
 
         private static Action shoot() {
-            paths.shoot.getPath(0).setTValueConstraint(0.93);
-
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_START")),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
-                    new Actions.UntilConditionAction(
-                            isLeaveTime,
-                            new SequentialAction(
+                    new ParallelAction(
+                            new Actions.CallbackAction(
                                     new ParallelAction(
-                                            new Actions.CallbackAction(
-                                                    new ParallelAction(
-                                                            RobotActions.armTurret(),
-                                                            RobotActions.armFlywheel(),
-                                                            RobotActions.setIntake(0.25, 0)
-                                                    ),
-                                                    paths.shoot, 0.01, 0, robot.drivetrain, "SHOOT_ARM_FLYWHEEL_AND_TURRET"
-                                            ),
-                                            RobotActions.shootArtifacts(3, 4, false),
-                                            new FollowPathAction(robot.drivetrain, paths.shoot, true)
-                                    )
-                            )
+                                            RobotActions.armTurret(),
+                                            RobotActions.armFlywheel(),
+                                            RobotActions.setIntake(0.25, 0)
+                                    ),
+                                    paths.shoot, 0.01, 0, robot.drivetrain, "SHOOT_ARM_FLYWHEEL_AND_TURRET"
+                            ),
+                            new FollowPathAction(robot.drivetrain, paths.shoot, true)
                     ),
-                    new FollowPathAction(robot.drivetrain, paths.leave),
+                    RobotActions.shootArtifacts(3, 4),
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_END"))
             );
         }
