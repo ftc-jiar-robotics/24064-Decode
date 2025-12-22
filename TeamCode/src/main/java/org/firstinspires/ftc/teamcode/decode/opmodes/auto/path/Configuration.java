@@ -106,7 +106,7 @@ public class Configuration {
                                             RobotActions.setIntake(1, 0)
                                     ),
                                     paths.intakeFirst, 0.3, 0, robot.drivetrain, "INTAKE_FIRST_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeFirst, true)
+                            new FollowPathAction(robot.drivetrain, paths.intakeFirst, false)
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_FIRST_END"))
             );
@@ -125,7 +125,7 @@ public class Configuration {
                                             RobotActions.setIntake(1, 0)
                                     ),
                                     paths.intakeSecond, 0.3, 0, robot.drivetrain, "INTAKE_SECOND_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeSecond, true)
+                            new FollowPathAction(robot.drivetrain, paths.intakeSecond, false)
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_SECOND_END"))
             );
@@ -144,7 +144,7 @@ public class Configuration {
                                             RobotActions.setIntake(1, 0)
                                     ),
                                     paths.intakeThird, 0.3, 0, robot.drivetrain, "INTAKE_THIRD_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeThird, true)
+                            new FollowPathAction(robot.drivetrain, paths.intakeThird, false)
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_THIRD_END"))
             );
@@ -160,7 +160,7 @@ public class Configuration {
                     new ParallelAction(
                             new Actions.CallbackAction(new InstantAction(() -> robot.drivetrain.setMaxPower(0.3)), paths.intakeGate, 0.8, 0, robot.drivetrain, "GATE_INTAKE_SLOW_DOWN"),
                             new Actions.CallbackAction(RobotActions.setIntake(1, 0), paths.intakeGate, 0.01, 1, robot.drivetrain, "GATE_INTAKE_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeGate)
+                            new FollowPathAction(robot.drivetrain, paths.intakeGate, false)
                     ),
                     new SleepAction(1.5),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
@@ -181,7 +181,7 @@ public class Configuration {
         }
 
         private static Action shoot() {
-            paths.shoot.getPath(0).setTValueConstraint(0.88);
+            paths.shoot.getPath(0).setTValueConstraint(0.93);
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_START")),

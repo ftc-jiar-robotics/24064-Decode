@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import java.util.List;
 
+import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
@@ -32,8 +33,9 @@ public class AudiencePaths {
     public static double LEAVE_TIME = 29.5;
 
     public static Pose
-            start = new Pose(55.5, 7.25, Math.toRadians(90)),
-            shootPreload = new Pose(55.5, 9.25),
+
+            start = Common.BLUE_BIG_TRIANGLE,
+            shootPreload = new Pose(55.5, 11.25),
             shoot = new Pose(63.9, 19.4),
             leave = new Pose(49.600, 16.200),
             startIntake1 = new Pose(36.1, 26.4),
@@ -73,11 +75,19 @@ public class AudiencePaths {
 
     }
     public Action moveToBigBalls(List<LLResultTypes.ColorResult> result, Pose robotPose) {
+        boolean isArtifactFound = !result.isEmpty();
+        if (!isArtifactFound) {
+            robot.limelight.getLimelight().pipelineSwitch(1);
+            robot.limelight.update();
+            result = robot.limelight.getColorResult();
+            isArtifactFound = !result.isEmpty();
+        }
+
         PathChain path = humanPlayerIntake1;
         robot.limelight.getLimelight().captureSnapshot("MOVE_TO_BALLS");
-        if (result.size() > 0) {
+        if (isArtifactFound) {
             double tx = result.get(0).getTargetXDegrees();
-            tx = (isPathRed ? tx : tx - 180  ) - robotPose.getHeading();
+            tx = (isPathRed ? tx : tx - 180) - Math.toDegrees(robotPose.getHeading());
             double wallX;
 
             wallX = isPathRed ? 141.5 : 2.5;

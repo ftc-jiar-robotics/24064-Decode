@@ -6,6 +6,8 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
+import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+
 public class ConfigPaths {
     private final Follower f;
     public ConfigPaths(Follower follower) {
@@ -20,16 +22,16 @@ public class ConfigPaths {
     public static Pose
             controlPreload = new Pose(47.6, 113.1),
             controlIntakeHP = new Pose(32.5, 10),
-            controlIntakeFirst = new Pose(65.0, 85.0),
+            controlIntakeFirst = new Pose(65.0, 83.0),
             controlIntakeSecond = new Pose(65.0, 60.5),
             controlIntakeThird = new Pose(65.0, 36.0),
             controlGate = new Pose(34.5, 63);
 
     public static Pose
-            startFar = new Pose(55.5, 7.25, Math.toRadians(90)),
-            startClose = new Pose(30.5, 135.5, Math.toRadians(270)),
+            startFar = Common.BLUE_SMALL_TRIANGLE,
+            startClose = Common.BLUE_BIG_TRIANGLE,
             shootClose = new Pose(51.0, 101.0),
-            shootFar = new Pose(55.5, 9.3),
+            shootFar = new Pose(55.5, 11.3),
             intakeHPEnd = new Pose(3.5, 8.15),
             intakeHPMid = new Pose(6.5, 8.15),
             intakeFirstStart = new Pose(34.8, 84.5),
@@ -73,6 +75,13 @@ public class ConfigPaths {
         gateIntake = gateIntake.mirror();
         leaveClose = leaveClose.mirror();
         leaveFar = leaveFar.mirror();
+
+        controlPreload = controlPreload.mirror();
+        controlIntakeHP = controlIntakeHP.mirror();
+        controlIntakeFirst = controlIntakeFirst.mirror();
+        controlIntakeSecond = controlIntakeSecond.mirror();
+        controlIntakeThird = controlIntakeThird.mirror();
+        controlGate = controlGate.mirror();
 
         startAngleClose = mirrorAngleRad(startAngleClose);
         startAngleFar = mirrorAngleRad(startAngleFar);
