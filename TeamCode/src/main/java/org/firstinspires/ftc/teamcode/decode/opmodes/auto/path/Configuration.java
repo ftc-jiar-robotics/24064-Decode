@@ -65,7 +65,7 @@ public class Configuration {
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
                     new ParallelAction(
                             new FollowPathAction(robot.drivetrain, paths.preload),
-                            RobotActions.shootArtifacts(3, 4)
+                            RobotActions.shootArtifacts(3, 4, false)
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "PRELOAD_FINISH"))
             );
@@ -198,9 +198,9 @@ public class Configuration {
                                                     ),
                                                     paths.shoot, 0.01, 0, robot.drivetrain, "SHOOT_ARM_FLYWHEEL_AND_TURRET"
                                             ),
+                                            RobotActions.shootArtifacts(3, 4, false),
                                             new FollowPathAction(robot.drivetrain, paths.shoot, true)
-                                    ),
-                                    RobotActions.shootArtifacts(3, Double.POSITIVE_INFINITY, false)
+                                    )
                             )
                     ),
                     new FollowPathAction(robot.drivetrain, paths.leave),

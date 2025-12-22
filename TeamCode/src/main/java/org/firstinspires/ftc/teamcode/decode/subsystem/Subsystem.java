@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
-import com.bylazar.configurables.annotations.Configurable;
 
 public abstract class Subsystem<T> {
     private boolean isLocked;

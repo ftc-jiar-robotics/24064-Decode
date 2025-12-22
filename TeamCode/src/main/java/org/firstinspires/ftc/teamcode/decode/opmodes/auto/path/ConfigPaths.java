@@ -47,7 +47,8 @@ public class ConfigPaths {
     public static double
             startAngleClose = Math.toRadians(270),
             startAngleFar = Math.toRadians(90),
-            shootAngle = Math.toRadians(-127),
+            shootAngleFar = Math.toRadians(167),
+            shootAngleClose = Math.toRadians(-127),
             intakeAngle = Math.toRadians(180),
             gateIntakeAngle = Math.toRadians(165);
 
@@ -75,7 +76,8 @@ public class ConfigPaths {
 
         startAngleClose = mirrorAngleRad(startAngleClose);
         startAngleFar = mirrorAngleRad(startAngleFar);
-        shootAngle = mirrorAngleRad(shootAngle);
+        shootAngleFar = mirrorAngleRad(shootAngleFar);
+        shootAngleClose = mirrorAngleRad(shootAngleClose);
         intakeAngle = mirrorAngleRad(intakeAngle);
         gateIntakeAngle = mirrorAngleRad(gateIntakeAngle);
     }
@@ -91,7 +93,7 @@ public class ConfigPaths {
                                     shootClose
                             )
                     )
-                    .setLinearHeadingInterpolation(startAngleClose, shootAngle)
+                    .setLinearHeadingInterpolation(startAngleClose, shootAngleClose)
                     .build();
         } else {
             preload = f.pathBuilder()
@@ -99,7 +101,7 @@ public class ConfigPaths {
                             // Path 0
                             new BezierLine(startFar, shootFar)
                     )
-                    .setConstantHeadingInterpolation(startAngleFar)
+                    .setLinearHeadingInterpolation(startAngleFar, shootAngleFar)
                     .build();
         }
 
@@ -132,7 +134,7 @@ public class ConfigPaths {
                                 intakeFirstStart
                         )
                 )
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .addPath(
                         new BezierLine(intakeFirstStart, intakeFirstEnd)
                 )
@@ -147,7 +149,7 @@ public class ConfigPaths {
                                 intakeSecondStart
                         )
                 )
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .addPath(
                         new BezierLine(intakeSecondStart, intakeSecondEnd)
                 )
@@ -162,7 +164,7 @@ public class ConfigPaths {
                                 intakeThirdStart
                         )
                 )
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .addPath(
                         new BezierLine(intakeThirdStart, intakeThirdEnd)
                 )
@@ -193,19 +195,20 @@ public class ConfigPaths {
                 .setTangentHeadingInterpolation()
                 .build();
 
-         shoot = f.pathBuilder()
+        shoot = f.pathBuilder()
                 .addPath(
                         new BezierLine(f::getPose, isBigTriangle ? shootClose : shootFar)
                 )
                 .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
-         leave = f.pathBuilder()
-                 .addPath(
-                         new BezierLine(f::getPose, isBigTriangle ? leaveClose : leaveFar)
-                 )
-                 .setTangentHeadingInterpolation()
-                 .build();
+        leave = f.pathBuilder()
+                .addPath(
+                        new BezierLine(f::getPose, isBigTriangle ? leaveClose : leaveFar)
+                )
+                .setConstantHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar)
+                .build();
     }
 
     public PathChain preload;
