@@ -71,10 +71,10 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.humanPlayerIntake0, 0.3, 0, f, "slow_down_hp"), // slow down to intake balls
-                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, true), AudiencePaths.MAX_HP_TIME_MS, "firstHPGoal")
+                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, true), GoalPaths.MAX_HP_GOING_MS, "firstHPGoal")
                         ),
                         new SleepAction(0.3),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, true), AudiencePaths.MAX_HP_TIME_MS, "firstHPGoal"),
+                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, true), GoalPaths.MAX_HP_TIME_MS, "firstHPGoal"),
                         new SleepAction(0.3),
                         new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1_5, false), GoalPaths.MAX_HP_TIME_MS, "secondHPGoal"),
                         new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, new ParallelAction(
@@ -233,8 +233,9 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                         path.shootPreload, 0.01, 0, f, "arm_flywheel_and_turret_0"
                                 ),
                                 new FollowPathAction(f, path.shootPreload, true)
+
                         ),
-                        RobotActions.shootArtifacts(3, 1.5),
+                        RobotActions.shootArtifacts(3, 4),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_PRELOAD"))
                 )
         );

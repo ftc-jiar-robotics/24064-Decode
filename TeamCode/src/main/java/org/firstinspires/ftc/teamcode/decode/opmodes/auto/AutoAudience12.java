@@ -10,7 +10,6 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -19,7 +18,6 @@ import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.GoalPaths;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
-import org.firstinspires.ftc.teamcode.decode.util.DrivePoseLoggingAction;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
@@ -51,53 +49,24 @@ public class AutoAudience12 extends AbstractAuto{
     protected void onRun() {
         shootPreload();
         shootFirst();
-        shootHPFirst();
-        shootHPSecond();
-        shootHPThird();
+        shootHP();
+        shootHPBigBall1();
+        shootHPBigBall2();
+        shootHPBigBall3();
+        audienceLeave();
     }
 
-
-    private void shootHPThird() {
-        path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.775);
-        path.humanPlayerIntake3_5.getPath(0).setTValueConstraint(0.725);
-        path.humanPlayerShoot2.getPath(0).setTValueConstraint(0.88);
+    private void audienceLeave() {
+        path.audienceLeave.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
-                new SequentialAction(
-                        new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_THIRD")),
-                        path.moveToBigBalls(robot.limelight.getColorResult(), f.getPose()),
-                        new DrivePoseLoggingAction(f,"FINITO"),
-                        new SleepAction(0.3),
-//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
-//                        new SleepAction(0.3),
-//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "secondHPAudience"),
-                        new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
-                                new Actions.CallbackAction(
-                                        new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(1)),
-                                                RobotActions.armTurret(),
-                                                RobotActions.armFlywheel()
-                                        ),
-                                        path.humanPlayerShoot2, 0.01, 0, f, "arm_flywheel_and_turret_hp_3"
-                                ),
-                                new FollowPathAction(f, path.humanPlayerShoot2, false)
-                        ),
-
-                        new Actions.UntilConditionAction(() -> getRuntime() > AudiencePaths.LEAVE_TIME, RobotActions.shootArtifacts(3)),
-                        new FollowPathAction(f, path.goalLeave),
-                        new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_HP_THIRD"))
-                )
-        );
-
-        robot.actionScheduler.runBlocking();
+                new FollowPathAction(f, path.audienceLeave, true));
     }
-
-    private void shootHPSecond() {
-        path.humanPlayerIntake3.getPath(0).setTValueConstraint(0.775);
-        path.humanPlayerIntake3_5.getPath(0).setTValueConstraint(0.725);
-        path.humanPlayerShoot2.getPath(0).setTValueConstraint(0.88);
+    private void shootHPBigBall3() {
+        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.775);
+        path.humanPlayerIntake1_5.getPath(0).setTValueConstraint(0.725);
+        path.humanPlayerShoot1.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
-                new SequentialAction(
+                new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, new SequentialAction(
                         new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_SECOND")),
                         path.moveToBigBalls(robot.limelight.getColorResult(), f.getPose()),
 
@@ -106,27 +75,97 @@ public class AutoAudience12 extends AbstractAuto{
 //                        new SleepAction(0.3),
 //                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot2, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot1, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
-                                        path.humanPlayerShoot2, 0.01, 0, f, "arm_flywheel_and_turret_hp_2"
+                                        path.humanPlayerShoot1, 0.01, 0, f, "arm_flywheel_and_turret_hp_2"
                                 ),
-                                new FollowPathAction(f, path.humanPlayerShoot2, false)
+                                new FollowPathAction(f, path.humanPlayerShoot1, true)
                         ),
 
                         RobotActions.shootArtifacts(3, 2.5),
                         new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_SECOND"))
+                )
+                )
+        );
+
+        robot.actionScheduler.runBlocking();
+    }
+    private void shootHPBigBall2() {
+        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.775);
+        path.humanPlayerIntake1_5.getPath(0).setTValueConstraint(0.725);
+        path.humanPlayerShoot1.getPath(0).setTValueConstraint(0.88);
+        robot.actionScheduler.addAction(
+                new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, new SequentialAction(
+                        new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_SECOND")),
+                        path.moveToBigBalls(robot.limelight.getColorResult(), f.getPose()),
+
+                        new SleepAction(0.3),
+//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
+//                        new SleepAction(0.3),
+//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
+                        new ParallelAction(
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot1, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(1)),
+                                                RobotActions.armTurret(),
+                                                RobotActions.armFlywheel()
+                                        ),
+                                        path.humanPlayerShoot1, 0.01, 0, f, "arm_flywheel_and_turret_hp_2"
+                                ),
+                                new FollowPathAction(f, path.humanPlayerShoot1, true)
+                        ),
+
+                        RobotActions.shootArtifacts(3, 2.5),
+                        new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_SECOND"))
+                )
                 )
         );
 
         robot.actionScheduler.runBlocking();
     }
 
-    private void shootHPFirst() {
+    private void shootHPBigBall1() {
+        path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.775);
+        path.humanPlayerIntake1_5.getPath(0).setTValueConstraint(0.725);
+        path.humanPlayerShoot1.getPath(0).setTValueConstraint(0.88);
+        robot.actionScheduler.addAction(
+                new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, new SequentialAction(
+                        new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_SECOND")),
+                        path.moveToBigBalls(robot.limelight.getColorResult(), f.getPose()),
+
+                        new SleepAction(0.3),
+//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
+//                        new SleepAction(0.3),
+//                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
+                        new ParallelAction(
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot1, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                new InstantAction(() -> f.setMaxPower(1)),
+                                                RobotActions.armTurret(),
+                                                RobotActions.armFlywheel()
+                                        ),
+                                        path.humanPlayerShoot1, 0.01, 0, f, "arm_flywheel_and_turret_hp_2"
+                                ),
+                                new FollowPathAction(f, path.humanPlayerShoot1, true)
+                        ),
+
+                        RobotActions.shootArtifacts(3, 2.5),
+                        new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_SECOND"))
+                )
+                )
+        );
+
+        robot.actionScheduler.runBlocking();
+    }
+
+    private void shootHP() {
         path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.8);
         path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.775);
         path.humanPlayerIntake1_5.getPath(0).setTValueConstraint(0.0725);
@@ -211,8 +250,10 @@ public class AutoAudience12 extends AbstractAuto{
     private void shootPreload() {
         robot.actionScheduler.addAction(
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
-                        new FollowPathAction(f, path.preload),
-                        RobotActions.shootArtifacts(3, 4),
+                        new ParallelAction(
+                            new FollowPathAction(f, path.preload),
+                            RobotActions.shootArtifacts(3, 4)
+                        ),
                         new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_PRELOAD"))
                 )
         );

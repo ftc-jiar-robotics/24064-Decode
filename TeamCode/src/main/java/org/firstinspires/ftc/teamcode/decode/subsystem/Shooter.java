@@ -82,6 +82,16 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return feeder.isBallPresent() || robot.intake.getFrontState() || robot.intake.getBackState();
     }
 
+    public boolean isBallInFeeder() {
+        return feeder.isBallPresent();
+    }
+    public boolean isBallInIntakeFront() {
+        return robot.intake.getFrontState();
+    }
+    public boolean isBallInIntakeBack() {
+        return robot.intake.getBackState();
+    }
+
 //    public void closeAutoAim() {
 //        turret.closeAutoAim();
 //    }

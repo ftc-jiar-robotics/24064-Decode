@@ -21,13 +21,25 @@ public class LEDController {
 
     private final PrismAnimations.Solid llStrip = new PrismAnimations.Solid();
     private final PrismAnimations.Solid turretStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid intakeFrontRightStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid intakeFrontLeftStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid intakeBackRightStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid intakeBackLeftStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid feederRightStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid feederLeftStrip = new PrismAnimations.Solid();
+
+
+
 
     private boolean initialized = false;
 
     private Pattern lastLLPattern = null;
     private Pattern lastTurretPattern = null;
+    private Pattern lastFeederPattern = null;
+    private Pattern lastIntakeFrontPattern = null;
+    private Pattern lastIntakeBackPattern = null;
 
-    public static int LOOP_COUNTER = (1 << 5) - 1;
+    public static int LOOP_COUNTER = (1 << 3) - 1;
 
     public LEDController(HardwareMap hardwareMap) {
         prism = hardwareMap.get(GoBildaPrismDriver.class, "prism");
@@ -40,6 +52,10 @@ public class LEDController {
             Pattern llPattern = computeLLPattern();
             Pattern turretPattern = computeTurretPattern();
 
+            Pattern intakeFrontPattern = computeIntakeFrontPattern();
+            Pattern intakeBackPattern = computeIntakeBackPattern();
+            Pattern feederPattern = computeFeederPattern();
+
             if (llPattern != lastLLPattern) {
                 llStrip.setPrimaryColor(toColor(llPattern));
                 prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_0);
@@ -50,6 +66,30 @@ public class LEDController {
                 turretStrip.setPrimaryColor(toColor(turretPattern));
                 prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_1);
                 lastTurretPattern = turretPattern;
+            }
+
+            if (intakeFrontPattern != lastIntakeFrontPattern) {
+                intakeFrontRightStrip.setPrimaryColor(toColor(intakeFrontPattern));
+                intakeFrontLeftStrip.setPrimaryColor(toColor(intakeFrontPattern));
+                prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_2);
+                prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_3);
+                lastIntakeFrontPattern = intakeFrontPattern;
+            }
+
+            if (intakeBackPattern != lastIntakeBackPattern) {
+                intakeBackLeftStrip.setPrimaryColor(toColor(intakeBackPattern));
+                intakeBackRightStrip.setPrimaryColor(toColor(intakeBackPattern));
+                prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_4);
+                prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_5);
+                lastIntakeBackPattern = intakeBackPattern;
+            }
+
+            if (feederPattern != lastFeederPattern) {
+                feederRightStrip.setPrimaryColor(toColor(feederPattern));
+                feederLeftStrip.setPrimaryColor(toColor(feederPattern));
+                prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_6);
+                prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_7);
+                lastFeederPattern = feederPattern;
             }
         }
     }
@@ -73,11 +113,60 @@ public class LEDController {
         llStrip.setStopIndex(2*BIG_STRIP_LENGTH+(2 * SMALL_STRIP_LENGTH) - 1);
         llStrip.setPrimaryColor(toColor(Pattern.OFF));
 
+        // ---- intakeFrontRight Strip ----
+        intakeFrontRightStrip.setBrightness(BRIGHTNESS);
+        intakeFrontRightStrip.setStartIndex(20);
+        intakeFrontRightStrip.setStopIndex(23);
+        intakeFrontRightStrip.setPrimaryColor(toColor(Pattern.OFF));
+
+
+        // ---- intakeFrontLeft Strip ----
+        intakeFrontLeftStrip.setBrightness(BRIGHTNESS);
+        intakeFrontLeftStrip.setStartIndex(0);
+        intakeFrontLeftStrip.setStopIndex(3);
+        intakeFrontLeftStrip.setPrimaryColor(toColor(Pattern.OFF));
+
+        // ---- intakeBackRight Strip ----
+        intakeBackRightStrip.setBrightness(BRIGHTNESS);
+        intakeBackRightStrip.setStartIndex(16);
+        intakeBackRightStrip.setStopIndex(19);
+        intakeBackRightStrip.setPrimaryColor(toColor(Pattern.OFF));
+
+        // ---- intakeBackLeft Strip ----
+        intakeBackLeftStrip.setBrightness(BRIGHTNESS);
+        intakeBackLeftStrip.setStartIndex(4);
+        intakeBackLeftStrip.setStopIndex(7);
+        intakeBackLeftStrip.setPrimaryColor(toColor(Pattern.OFF));
+
+        // ---- feederRight Strip ----
+        feederRightStrip.setBrightness(BRIGHTNESS);
+        feederRightStrip.setStartIndex(12);
+        feederRightStrip.setStopIndex(15);
+        feederRightStrip.setPrimaryColor(toColor(Pattern.OFF));
+
+        // ---- feederLeft Strip ----
+        feederLeftStrip.setBrightness(BRIGHTNESS);
+        feederLeftStrip.setStartIndex(8);
+        feederLeftStrip.setStopIndex(11);
+        feederLeftStrip.setPrimaryColor(toColor(Pattern.OFF));
+
+
+
+
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_0, llStrip);
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_1, turretStrip);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_2, intakeFrontRightStrip);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_3, intakeFrontLeftStrip);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_4, intakeBackRightStrip);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_5, intakeBackLeftStrip);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_6, feederRightStrip);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_7, feederLeftStrip);
 
         lastLLPattern = Pattern.OFF;
         lastTurretPattern = Pattern.OFF;
+        lastFeederPattern = Pattern.OFF ;
+        lastIntakeFrontPattern = Pattern.OFF;
+        lastIntakeBackPattern = Pattern.OFF;
         initialized = true;
     }
 
@@ -99,6 +188,25 @@ public class LEDController {
         return Pattern.GREEN;
     }
 
+    private Pattern computeIntakeBackPattern() {
+        if (!robot.shooter.isBallInIntakeBack()) {
+            return Pattern.RED;
+        }
+        return Pattern.GREEN;
+    }
+
+    private Pattern computeIntakeFrontPattern() {
+        if (!robot.shooter.isBallInIntakeFront()) {
+            return Pattern.RED;
+        }
+        return Pattern.GREEN;
+    }
+    private Pattern computeFeederPattern() {
+        if (!robot.shooter.isBallInFeeder()) {
+            return Pattern.RED;
+        }
+        return Pattern.GREEN;
+    }
     // -------------------------
     // Utilities
     // -------------------------

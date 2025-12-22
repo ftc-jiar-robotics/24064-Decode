@@ -15,7 +15,9 @@ public class GoalPaths {
     }
 
     public static boolean isPathRed = false;
-    public static long MAX_HP_TIME_MS = 670;
+    public static long
+            MAX_HP_TIME_MS = 670,
+            MAX_HP_GOING_MS = 6000;
     public static double LEAVE_TIME = 29;
 
     // TODO put all poses/heading in respective named list & mirror thru list

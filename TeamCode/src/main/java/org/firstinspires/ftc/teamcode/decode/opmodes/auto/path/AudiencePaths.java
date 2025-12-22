@@ -12,6 +12,8 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.robotcore.util.Range;
+
 import java.util.List;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
@@ -32,21 +34,18 @@ public class AudiencePaths {
     public static Pose
             start = new Pose(55.5, 7.25, Math.toRadians(90)),
             shootPreload = new Pose(55.5, 9.25),
-            shoot = new Pose(72.2, 26.5),
+            shoot = new Pose(63.9, 19.4),
             leave = new Pose(49.600, 16.200),
             startIntake1 = new Pose(36.1, 26.4),
             endIntake1 = new Pose(13.500, 30.400),
             startIntakeHP1 = new Pose(8.000, 8.500),
             midIntakeHP1 = new Pose(14.300, 8.500),
-            endIntakeHP1 = new Pose(10.300, 7.500),
-            startIntakeHP2 = new Pose(8.000, 12.200),
-            midIntakeHP2 = new Pose(14.700, 12.100),
-            endIntakeHP2 = new Pose(10.300, 12.100);
+            endIntakeHP1 = new Pose(10.300, 8.500);
 
     public static double
             leaveAngle = Math.toRadians(132),
             startAngle = Math.toRadians(90),
-            shootAngle = Math.toRadians(-127),
+            shootAngle = Math.toRadians(167),
             startIntakeAngle = Math.toRadians(153),
             endIntakeAngle = Math.toRadians(153),
             startIntakeAngleHP1 = Math.toRadians(180),
@@ -62,9 +61,6 @@ public class AudiencePaths {
         startIntakeHP1 = startIntakeHP1.mirror();
         midIntakeHP1 = midIntakeHP1.mirror();
         endIntakeHP1 = endIntakeHP1.mirror();
-        startIntakeHP2 = startIntakeHP2.mirror();
-        midIntakeHP2 = midIntakeHP2.mirror();
-        endIntakeHP2 = endIntakeHP2.mirror();
 
 
         startAngle = mirrorAngleRad(startAngle);
@@ -77,9 +73,11 @@ public class AudiencePaths {
 
     }
     public Action moveToBigBalls(List<LLResultTypes.ColorResult> result, Pose robotPose) {
-        PathChain path = humanPlayerIntake2;
+        PathChain path = humanPlayerIntake1;
+        robot.limelight.getLimelight().captureSnapshot("MOVE_TO_BALLS");
         if (result.size() > 0) {
             double tx = result.get(0).getTargetXDegrees();
+            tx = (isPathRed ? tx : tx + 180  ) - robotPose.getHeading();
             double wallX;
 
             wallX = isPathRed ? 141.5 : 2.5;
@@ -90,18 +88,18 @@ public class AudiencePaths {
             ballDist = isPathRed ? -ballDist : ballDist;
             wallX += isPathRed ? -10 : 10;
 
-            Pose bigBallPose = new Pose(wallX, robotPose.getY() + ballDist);
+            Pose bigBallPose = new Pose(wallX, Math.max(endIntakeHP1.getY(),robotPose.getY() + ballDist));
             path = f.pathBuilder()
                     .addPath(
                             new BezierLine(f::getPose, bigBallPose)
                     )
                     .setConstantHeadingInterpolation(startIntakeAngleHP1)
                     .build();
-            robot.limelight.getLimelight().captureSnapshot("MOVE_TO_BALLS");
             Log.d("MOVE_TO_BALLS_wallX", "" + wallX);
             Log.d("MOVE_TO_BALLS_ballDist", "" + ballDist);
             Log.d("MOVE_TO_BALLS_tx", "" + tx);
             Log.d("MOVE_TO_BALLS_y", "" + (robotPose.getY() + ballDist));
+            Log.d("MOVE_TO_BALLS_robotHeading", "" + robotPose.getHeading());
 
         }
         path.getPath(0).setTValueConstraint(0.8);
@@ -175,37 +173,9 @@ public class AudiencePaths {
                         // Path 0
                         new BezierLine(f::getPose, shoot)
                 )
-                .setConstantHeadingInterpolation(startIntakeAngleHP1)
+                .setConstantHeadingInterpolation(shootAngle)
                 .build();
-        humanPlayerIntake2 = f.pathBuilder()
-                .addPath(
-                        // Path 0
-                        new BezierLine(shoot, startIntakeHP2)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP2)
-                .build();
-        humanPlayerIntake3 = f.pathBuilder()
-                .addPath(
-                        // Path 0
-                        new BezierLine(f::getPose, midIntakeHP2)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP2)
-                .build();
-        humanPlayerIntake3_5 = f.pathBuilder()
-                .addPath(
-                        // Path 0
-                        new BezierLine(f::getPose, endIntakeHP2)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP2)
-                .build();
-        humanPlayerShoot2 = f.pathBuilder()
-                .addPath(
-                        // Path 1
-                        new BezierLine(f::getPose, shoot)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP2)
-                .build();
-        goalLeave = f.pathBuilder()
+        audienceLeave = f.pathBuilder()
                 .addPath(
                         // Path 0
                         new BezierLine(shoot, leave)
@@ -219,10 +189,6 @@ public class AudiencePaths {
     public PathChain humanPlayerIntake1;
     public PathChain humanPlayerIntake1_5;
     public PathChain humanPlayerShoot1;
-    public PathChain humanPlayerIntake2;
-    public PathChain humanPlayerIntake3;
-    public PathChain humanPlayerIntake3_5;
-    public PathChain humanPlayerShoot2;
-    public PathChain goalLeave;
+    public PathChain audienceLeave;
 
 }
