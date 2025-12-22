@@ -77,7 +77,7 @@ public class AudiencePaths {
         robot.limelight.getLimelight().captureSnapshot("MOVE_TO_BALLS");
         if (result.size() > 0) {
             double tx = result.get(0).getTargetXDegrees();
-            tx = (isPathRed ? tx : tx + 180  ) - robotPose.getHeading();
+            tx = (isPathRed ? tx : tx - 180  ) - robotPose.getHeading();
             double wallX;
 
             wallX = isPathRed ? 141.5 : 2.5;

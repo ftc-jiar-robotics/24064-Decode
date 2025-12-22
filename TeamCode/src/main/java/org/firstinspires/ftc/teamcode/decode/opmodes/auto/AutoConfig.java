@@ -1,47 +1,50 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
+
+import android.util.Log;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.decode.subsystem.AutoConfig;
+import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.ConfigPaths;
+import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.Configuration;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+
 @Autonomous(name = "ConfigAuto")
-public class ConfigAuto extends AbstractAuto {
-    protected AutoConfig autoConfig;
+public class AutoConfig extends AbstractAuto {
+    protected Configuration autoConfig;
+    ConfigPaths paths;
 
     @Override
     protected Pose getStartPose() {
-        return null;
+        return isBigTriangle ? ConfigPaths.startClose : ConfigPaths.startFar;
     }
 
     @Override
     protected void configure() {
-        autoConfig = new AutoConfig();
+        paths = new ConfigPaths(robot.drivetrain);
+        autoConfig = new Configuration(paths, () -> getRuntime() < ConfigPaths.LEAVE_TIME);
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         int screenNumber = 0;
 
         boolean isFinished = false;
+        boolean isConfirmed = false;
 
         while (opModeInInit()) {
             gamepadEx1.readButtons();
@@ -75,11 +78,33 @@ public class ConfigAuto extends AbstractAuto {
                     dashTelemetry.clear();
                 }
                 autoConfig.reduceRequireList(screenNumber);
-            } else {
+            } else if (!isConfirmed) {
                 dashTelemetry.addLine("SHOW TO DRIVER COACHES");
                 dashTelemetry.addLine("Path Combination: " + String.join(" ", autoConfig.getRequirementList().toString()));
 
                 if (gamepadEx1.wasJustPressed(DPAD_LEFT)) isFinished = false;
+                if (gamepadEx1.wasJustPressed(A)) isConfirmed = true;
+            }
+
+            if (isConfirmed) {
+                dashTelemetry.clear();
+                dashTelemetry.addLine("CONFIRMED!");
+                dashTelemetry.addLine("Path Combination: " + String.join(" ", autoConfig.getRequirementList().toString()));
+                try {
+                    autoConfig.getRequirementList().get(0).getAction().call().run(new TelemetryPacket());
+                    autoConfig.getRequirementList().get(1).getAction().call().run(new TelemetryPacket());
+
+                    robot.actionScheduler.runBlocking();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                if (Common.isRed != ConfigPaths.isPathRed) {
+                    ConfigPaths.isPathRed = !ConfigPaths.isPathRed;
+                    paths.mirrorAll();
+                }
+                Common.robot.shooter.setGoalAlliance();
+                paths.configAutoBuild(isBigTriangle);
             }
         }
 
@@ -87,6 +112,14 @@ public class ConfigAuto extends AbstractAuto {
 
     @Override
     protected void onRun() {
-
+        for (Configuration.Option o : autoConfig.getRequirementList()) {
+            try {
+                Log.d("AutoConfig", o.name());
+                robot.actionScheduler.addAction(o.getAction().call());
+                robot.actionScheduler.runBlocking();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
