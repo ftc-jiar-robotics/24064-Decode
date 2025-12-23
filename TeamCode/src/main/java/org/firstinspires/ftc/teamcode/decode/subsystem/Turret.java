@@ -60,7 +60,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static double
             kS = -0.07,
             WRAP_AROUND_THRESHOLD = 5,
-            TICKS_TO_DEGREES = 0.24,
+            TICKS_TO_DEGREES = 0.232737218162581,
             WRAP_AROUND_ANGLE = 180,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
