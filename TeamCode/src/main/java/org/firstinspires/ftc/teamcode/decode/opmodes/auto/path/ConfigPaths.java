@@ -4,6 +4,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.PathChain;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
@@ -21,8 +22,8 @@ public class ConfigPaths {
 
     public static Pose
             controlShootClose = new Pose(47.6, 113.1),
-            controlIntakeHP = new Pose(32.5, 10),
-            controlGate = new Pose(34.5, 63);
+            controlIntakeHP = new Pose(57.3, 17.4),
+            controlGate = new Pose(27.1, 72.4);
 
     public static Pose
             startFar = Common.BLUE_SMALL_TRIANGLE,
@@ -95,14 +96,25 @@ public class ConfigPaths {
                                     shootClose
                             )
                     )
-                    .setLinearHeadingInterpolation(startAngleClose, shootAngleClose)
+                    .setHeadingInterpolation(HeadingInterpolator.piecewise(
+                            new HeadingInterpolator.PiecewiseNode(
+                                    0,
+                                    0.6,
+                                    HeadingInterpolator.linearFromPoint(f::getHeading, shootAngleClose, 0.6)
+                            ),
+                            new HeadingInterpolator.PiecewiseNode(
+                                    0.6,
+                                    1,
+                                    HeadingInterpolator.facingPoint(shootClose)
+                            )
+                    ))
                     .build();
         } else {
             preload = f.pathBuilder()
                     .addPath(
                             new BezierLine(startFar, shootFar)
                     )
-                    .setLinearHeadingInterpolation(startAngleFar, shootAngleFar)
+                    .setHeadingInterpolation(HeadingInterpolator.facingPoint(shootFar))
                     .build();
         }
 
@@ -114,7 +126,7 @@ public class ConfigPaths {
                                 intakeHPEnd
                         )
                 )
-                .setTangentHeadingInterpolation()
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, intakeAngle, 0.65))
                 .build();
 
         intakeHPBack = f.pathBuilder()
@@ -131,7 +143,7 @@ public class ConfigPaths {
                 .addPath(
                         new BezierCurve(f::getPose, intakeFirstStart)
                 )
-                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, intakeAngle, 0.8))
                 .addPath(
                         new BezierLine(intakeFirstStart, intakeFirstEnd)
                 )
@@ -142,7 +154,7 @@ public class ConfigPaths {
                 .addPath(
                         new BezierLine(f::getPose, intakeSecondStart)
                 )
-                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, intakeAngle, 0.8))
                 .addPath(
                         new BezierLine(intakeSecondStart, intakeSecondEnd)
                 )
@@ -157,7 +169,7 @@ public class ConfigPaths {
                 .addPath(
                         new BezierCurve(f::getPose, intakeThirdStart)
                 )
-                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, intakeAngle, 0.8))
                 .addPath(
                         new BezierLine(intakeThirdStart, intakeThirdEnd)
                 )
@@ -172,9 +184,19 @@ public class ConfigPaths {
                                 gateOpen
                         )
                 )
-                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .addPath(new BezierLine(gateOpen, gateIntake))
-                .setLinearHeadingInterpolation(intakeAngle, gateIntakeAngle)
+                .setGlobalHeadingInterpolation(HeadingInterpolator.piecewise(
+                        new HeadingInterpolator.PiecewiseNode(
+                                0,
+                                0.6,
+                                HeadingInterpolator.linearFromPoint(f::getHeading, intakeAngle, 0.7)
+                        ),
+                        new HeadingInterpolator.PiecewiseNode(
+                                0.6,
+                                1,
+                                HeadingInterpolator.facingPoint(gateOpen)
+                        )
+                ))
                 .build();
 
         intakeGateBack = f.pathBuilder()
@@ -190,7 +212,7 @@ public class ConfigPaths {
                                 gateOpen
                         )
                 )
-                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, intakeAngle, 0.8))
                 .build();
 
         if (isBigTriangle) {
@@ -202,14 +224,25 @@ public class ConfigPaths {
                                     shootClose
                             )
                     )
-                    .setLinearHeadingInterpolation(intakeAngle, shootAngleClose)
+                    .setHeadingInterpolation(HeadingInterpolator.piecewise(
+                            new HeadingInterpolator.PiecewiseNode(
+                                    0,
+                                    0.6,
+                                    HeadingInterpolator.linearFromPoint(f::getHeading, shootAngleClose, 0.6)
+                            ),
+                            new HeadingInterpolator.PiecewiseNode(
+                                    0.6,
+                                    1,
+                                    HeadingInterpolator.facingPoint(shootClose)
+                            )
+                    ))
                     .build();
         } else {
             shoot = f.pathBuilder()
                     .addPath(
                             new BezierLine(f::getPose, shootFar)
                     )
-                    .setLinearHeadingInterpolation(intakeAngle, shootAngleFar)
+                    .setHeadingInterpolation(HeadingInterpolator.facingPoint(shootFar))
                     .build();
         }
 
@@ -217,7 +250,7 @@ public class ConfigPaths {
                 .addPath(
                         new BezierLine(f::getPose, isBigTriangle ? leaveClose : leaveFar)
                 )
-                .setConstantHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar)
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, isBigTriangle ? startAngleClose : startAngleFar, 0.8))
                 .build();
     }
 
