@@ -20,7 +20,7 @@ public class ConfigPaths {
     public static double LEAVE_TIME = 29.5;
 
     public static Pose
-            controlPreload = new Pose(47.6, 113.1),
+            controlShootClose = new Pose(47.6, 113.1),
             controlIntakeHP = new Pose(32.5, 10),
             controlGate = new Pose(34.5, 63);
 
@@ -73,7 +73,7 @@ public class ConfigPaths {
         leaveClose = leaveClose.mirror();
         leaveFar = leaveFar.mirror();
 
-        controlPreload = controlPreload.mirror();
+        controlShootClose = controlShootClose.mirror();
         controlIntakeHP = controlIntakeHP.mirror();
         controlGate = controlGate.mirror();
 
@@ -92,7 +92,7 @@ public class ConfigPaths {
                             // Path 0
                             new BezierCurve(
                                     startClose,
-                                    controlPreload,
+                                    controlShootClose,
                                     shootClose
                             )
                     )
@@ -193,6 +193,28 @@ public class ConfigPaths {
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
+
+        if (isBigTriangle) {
+            shoot = f.pathBuilder()
+                    .addPath(
+                            // Path 0
+                            new BezierCurve(
+                                    f::getPose,
+                                    controlShootClose,
+                                    shootClose
+                            )
+                    )
+                    .setTangentHeadingInterpolation()
+                    .build();
+        } else {
+            shoot = f.pathBuilder()
+                    .addPath(
+                            new BezierLine(f::getPose, shootFar)
+                    )
+                    .setTangentHeadingInterpolation()
+                    .setReversed()
+                    .build();
+        }
 
         leave = f.pathBuilder()
                 .addPath(

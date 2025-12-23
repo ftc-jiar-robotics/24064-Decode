@@ -7,6 +7,7 @@ import android.util.Log;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -112,11 +113,11 @@ public class AudiencePaths {
             pathBack = f.pathBuilder()
                     .addPath(
                             // Path 0
-                            new BezierLine(f::getPose, new Pose(bigBallPose.getX(), bigBallPose.getY() + (isPathRed ? 4 : -4)))
+                            new BezierLine(f::getPose, new Pose(bigBallPose.getX() + (isPathRed ? -4 : 4), bigBallPose.getY()))
                     )
                     .setConstantHeadingInterpolation(startIntakeAngleHP1)
                     .addPath(
-                            // Path 0
+                            // Path 1
                             new BezierLine(f::getPose, bigBallPose)
                     )
                     .setConstantHeadingInterpolation(startIntakeAngleHP1)
@@ -130,12 +131,16 @@ public class AudiencePaths {
 
         }
         path.getPath(0).setTValueConstraint(0.8);
-        return new ParallelAction(
-                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
-                new Actions.CallbackAction(
-                        RobotActions.setIntake(1, 0),
-                        path, 0.5, 0, f, "slow_down_hp_2"), // slow down to intake balls
-                new Actions.TimedAction(new FollowPathAction(f, path), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience"),
+        pathBack.getPath(0).setTValueConstraint(0.75);
+        pathBack.getPath(1).setTValueConstraint(0.8);
+        return new SequentialAction(
+                new ParallelAction(
+                        new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
+                        new Actions.CallbackAction(
+                                RobotActions.setIntake(1, 0),
+                                path, 0.5, 0, f, "slow_down_hp_2"), // slow down to intake balls
+                        new Actions.TimedAction(new FollowPathAction(f, path), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
+                ),
                 new SleepAction(0.1),
                 new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(0)), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
                 new SleepAction(0.1),

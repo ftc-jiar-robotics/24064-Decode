@@ -147,7 +147,15 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
 
-                if (!isHoodManual) hood.set(Hood.MIN);
+                double distanceI = turret.getDistance();
+//                if (!isHoodManual) hood.set(Hood.MIN);
+                if (!isHoodManual) {
+                    if (distanceI <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
+                        hood.set(hood.getHoodAngleWithDistance(distanceI), true);
+                    } else {
+                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                    }
+                }
 
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
