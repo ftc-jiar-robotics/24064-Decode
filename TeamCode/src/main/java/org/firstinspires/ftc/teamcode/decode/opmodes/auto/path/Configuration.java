@@ -191,9 +191,9 @@ public class Configuration {
                                     ),
                                     paths.shoot, 0.01, 0, robot.drivetrain, "SHOOT_ARM_FLYWHEEL_AND_TURRET"
                             ),
-                            new FollowPathAction(robot.drivetrain, paths.shoot, false)
+                            new FollowPathAction(robot.drivetrain, paths.shoot, true)
                     ),
-                    RobotActions.shootArtifacts(3, 4),
+                    RobotActions.shootArtifacts(3, 2.5, false),
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_END"))
             );
         }

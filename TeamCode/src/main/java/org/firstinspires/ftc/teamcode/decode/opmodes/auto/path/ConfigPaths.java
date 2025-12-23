@@ -96,18 +96,7 @@ public class ConfigPaths {
                                     shootClose
                             )
                     )
-                    .setHeadingInterpolation(HeadingInterpolator.piecewise(
-                            new HeadingInterpolator.PiecewiseNode(
-                                    0,
-                                    0.6,
-                                    HeadingInterpolator.linearFromPoint(f::getHeading, shootAngleClose, 0.6)
-                            ),
-                            new HeadingInterpolator.PiecewiseNode(
-                                    0.6,
-                                    1,
-                                    HeadingInterpolator.facingPoint(shootClose)
-                            )
-                    ))
+                    .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, shootAngleClose, 0.45))
                     .build();
         } else {
             preload = f.pathBuilder()
@@ -157,10 +146,6 @@ public class ConfigPaths {
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, intakeAngle, 0.8))
                 .addPath(
                         new BezierLine(intakeSecondStart, intakeSecondEnd)
-                )
-                .setConstantHeadingInterpolation(intakeAngle)
-                .addPath(
-                        new BezierLine(intakeSecondEnd, intakeSecondStart)
                 )
                 .setConstantHeadingInterpolation(intakeAngle)
                 .build();
@@ -224,18 +209,7 @@ public class ConfigPaths {
                                     shootClose
                             )
                     )
-                    .setHeadingInterpolation(HeadingInterpolator.piecewise(
-                            new HeadingInterpolator.PiecewiseNode(
-                                    0,
-                                    0.6,
-                                    HeadingInterpolator.linearFromPoint(f::getHeading, shootAngleClose, 0.6)
-                            ),
-                            new HeadingInterpolator.PiecewiseNode(
-                                    0.6,
-                                    1,
-                                    HeadingInterpolator.facingPoint(shootClose)
-                            )
-                    ))
+                    .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, shootAngleClose, 0.45))
                     .build();
         } else {
             shoot = f.pathBuilder()
