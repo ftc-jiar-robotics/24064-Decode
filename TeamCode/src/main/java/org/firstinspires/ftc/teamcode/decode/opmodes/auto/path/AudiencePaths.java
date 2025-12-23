@@ -14,7 +14,6 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.robotcore.util.Range;
 
 import java.util.List;
 
@@ -76,7 +75,7 @@ public class AudiencePaths {
         startIntakeAngleHP2 = mirrorAngleRad(startIntakeAngleHP2);
 
     }
-    public Action moveToBigBalls(List<LLResultTypes.ColorResult> result, Pose robotPose) {
+    public Action retrieveBigBalls(List<LLResultTypes.ColorResult> result, Pose robotPose) {
         boolean isArtifactFound = !result.isEmpty();
         if (!isArtifactFound) {
             robot.limelight.getLimelight().pipelineSwitch(1);
@@ -87,6 +86,8 @@ public class AudiencePaths {
 
         PathChain path = humanPlayerIntake0;
         PathChain pathBack = humanPlayerIntake1;
+        PathChain pathShoot = humanPlayerShoot1;
+
         robot.limelight.getLimelight().captureSnapshot("MOVE_TO_BALLS");
         if (isArtifactFound) {
             double tx = result.get(0).getTargetXDegrees();
@@ -123,6 +124,14 @@ public class AudiencePaths {
                     .setConstantHeadingInterpolation(startIntakeAngleHP1)
                     .build();
 
+            pathShoot = f.pathBuilder()
+                    .addPath(
+                            // Path 0
+                            new BezierLine(bigBallPose, shoot)
+                    )
+                    .setConstantHeadingInterpolation(shootAngle)
+                    .build();
+
             Log.d("MOVE_TO_BALLS_wallX", "" + wallX);
             Log.d("MOVE_TO_BALLS_ballDist", "" + ballDist);
             Log.d("MOVE_TO_BALLS_tx", "" + tx);
@@ -144,7 +153,22 @@ public class AudiencePaths {
                 new SleepAction(0.1),
                 new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(0)), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
                 new SleepAction(0.1),
-                new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(1)), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience")
+                new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(1)), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
+                new ParallelAction(
+                        new Actions.CallbackAction(
+                                new ParallelAction(
+                                        new InstantAction(() -> f.setMaxPower(1)),
+                                        RobotActions.armTurret(),
+                                        RobotActions.armFlywheel()
+                                ),
+                                pathShoot, 0.01, 0, f, "arm_flywheel_and_turret_hp_2"
+                        ),
+                        new Actions.CallbackAction(
+                                RobotActions.setIntake(0, 0),
+                                pathShoot, 0.3, 0, f, "stop_intake"
+                        ),
+                        new FollowPathAction(f, pathShoot, true)
+                )
         );
     }
     public double mirrorAngleRad(double angle) {

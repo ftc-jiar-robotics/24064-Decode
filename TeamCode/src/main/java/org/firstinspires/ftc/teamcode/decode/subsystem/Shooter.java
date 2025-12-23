@@ -261,7 +261,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 currentPose.getX() + dx,
                 currentPose.getY() + dy,
                 currentPose.getHeading() + dh);
-        return predictedPose;
+        return robot.isRobotMoving() ? predictedPose : currentPose;
     }
 
 

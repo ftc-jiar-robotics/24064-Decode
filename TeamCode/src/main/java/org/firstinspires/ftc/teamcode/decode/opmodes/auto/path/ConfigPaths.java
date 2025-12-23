@@ -89,7 +89,6 @@ public class ConfigPaths {
         if (isBigTriangle) {
             preload = f.pathBuilder()
                     .addPath(
-                            // Path 0
                             new BezierCurve(
                                     startClose,
                                     controlShootClose,
@@ -101,7 +100,6 @@ public class ConfigPaths {
         } else {
             preload = f.pathBuilder()
                     .addPath(
-                            // Path 0
                             new BezierLine(startFar, shootFar)
                     )
                     .setLinearHeadingInterpolation(startAngleFar, shootAngleFar)
@@ -149,6 +147,10 @@ public class ConfigPaths {
                         new BezierLine(intakeSecondStart, intakeSecondEnd)
                 )
                 .setConstantHeadingInterpolation(intakeAngle)
+                .addPath(
+                        new BezierLine(intakeSecondEnd, intakeSecondStart)
+                )
+                .setConstantHeadingInterpolation(intakeAngle)
                 .build();
 
         intakeThird = f.pathBuilder()
@@ -170,9 +172,14 @@ public class ConfigPaths {
                                 gateOpen
                         )
                 )
-                .setTangentHeadingInterpolation()
+                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .addPath(new BezierLine(gateOpen, gateIntake))
                 .setLinearHeadingInterpolation(intakeAngle, gateIntakeAngle)
+                .build();
+
+        intakeGateBack = f.pathBuilder()
+                .addPath(new BezierLine(gateIntake, gateOpen))
+                .setLinearHeadingInterpolation(gateIntakeAngle, intakeAngle)
                 .build();
 
         openGate = f.pathBuilder()
@@ -183,36 +190,26 @@ public class ConfigPaths {
                                 gateOpen
                         )
                 )
-                .setTangentHeadingInterpolation()
-                .build();
-
-        shoot = f.pathBuilder()
-                .addPath(
-                        new BezierLine(f::getPose, isBigTriangle ? shootClose : shootFar)
-                )
-                .setTangentHeadingInterpolation()
-                .setReversed()
+                .setLinearHeadingInterpolation(isBigTriangle ? shootAngleClose : shootAngleFar, intakeAngle)
                 .build();
 
         if (isBigTriangle) {
             shoot = f.pathBuilder()
                     .addPath(
-                            // Path 0
                             new BezierCurve(
                                     f::getPose,
                                     controlShootClose,
                                     shootClose
                             )
                     )
-                    .setTangentHeadingInterpolation()
+                    .setLinearHeadingInterpolation(intakeAngle, shootAngleClose)
                     .build();
         } else {
             shoot = f.pathBuilder()
                     .addPath(
                             new BezierLine(f::getPose, shootFar)
                     )
-                    .setTangentHeadingInterpolation()
-                    .setReversed()
+                    .setLinearHeadingInterpolation(intakeAngle, shootAngleFar)
                     .build();
         }
 
@@ -232,6 +229,7 @@ public class ConfigPaths {
     public PathChain intakeSecond;
     public PathChain intakeThird;
     public PathChain intakeGate;
+    public PathChain intakeGateBack;
     public PathChain openGate;
     public PathChain shoot;
     public PathChain leave;

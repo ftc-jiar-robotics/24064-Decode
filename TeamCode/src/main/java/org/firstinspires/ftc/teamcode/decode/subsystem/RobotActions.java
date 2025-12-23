@@ -41,27 +41,30 @@ public class RobotActions {
     }
 
     public static Action shootArtifacts(int artifacts, double seconds, boolean setSlowMode) {
-        return new SequentialAction(
-                new InstantAction(() -> doSetSlowMode = setSlowMode),
-                new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
-                new InstantAction(() -> robot.intake.set(1.0)),
-                new Actions.SingleCheckAction(
-                        RobotActions::getDoSetSlowMode,
-                        new InstantAction(() -> {
-                            robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
-                            isSlowMode = true;
-                        })
-                ),
-                new InstantAction(shotTimer::reset),
-                telemetryPacket -> robot.shooter.getQueuedShots() > 0 && shotTimer.seconds() <= seconds,
-                new InstantAction(() -> robot.shooter.clearQueueShots()),
-                setIntake(0, 0),
-                new Actions.SingleCheckAction(
-                        RobotActions::getDoSetSlowMode,
-                        new InstantAction(() -> {
-                            robot.drivetrain.setMaxPowerScaling(1);
-                            isSlowMode = false;
-                        })
+        return new Actions.SingleCheckAction(
+                robot.shooter::isBallPresent,
+                new SequentialAction(
+                        new InstantAction(() -> doSetSlowMode = setSlowMode),
+                        new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
+                        new InstantAction(() -> robot.intake.set(1.0)),
+                        new Actions.SingleCheckAction(
+                                RobotActions::getDoSetSlowMode,
+                                new InstantAction(() -> {
+                                    robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
+                                    isSlowMode = true;
+                                })
+                        ),
+                        new InstantAction(shotTimer::reset),
+                        telemetryPacket -> robot.shooter.getQueuedShots() > 0 && shotTimer.seconds() <= seconds,
+                        new InstantAction(() -> robot.shooter.clearQueueShots()),
+                        setIntake(0, 0),
+                        new Actions.SingleCheckAction(
+                                RobotActions::getDoSetSlowMode,
+                                new InstantAction(() -> {
+                                    robot.drivetrain.setMaxPowerScaling(1);
+                                    isSlowMode = false;
+                                })
+                        )
                 )
         );
     }

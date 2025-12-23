@@ -10,7 +10,6 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -23,7 +22,7 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
 @Autonomous(name = "AutoAudience12", preselectTeleOp = "Main TeleOp")
-public class AutoAudience12 extends AbstractAuto{
+public class AutoAudience18 extends AbstractAuto{
     private AudiencePaths path;
 
     @Override
@@ -37,7 +36,7 @@ public class AutoAudience12 extends AbstractAuto{
         robot.limelight.getLimelight().pipelineSwitch(2);
         path = new AudiencePaths(f);
 
-        isFuturePoseOn = false;
+        isFuturePoseOn = true;
 
         if (Common.isRed != AudiencePaths.isPathRed) {
             AudiencePaths.isPathRed = !AudiencePaths.isPathRed;
@@ -68,32 +67,15 @@ public class AutoAudience12 extends AbstractAuto{
         robot.actionScheduler.addAction(
                 new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, new SequentialAction(
                         new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_SECOND")),
-                        path.moveToBigBalls(robot.limelight.getColorResult(), f.getPose()),
+                        path.retrieveBigBalls(robot.limelight.getColorResult(), f.getPose()),
 
 //                        new SleepAction(0.3),
 //                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
 //                        new SleepAction(0.3),
 //                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
-                        new ParallelAction(
-                                new Actions.CallbackAction(
-                                        new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(1)),
-                                                RobotActions.armTurret(),
-                                                RobotActions.armFlywheel()
-                                        ),
-                                        path.humanPlayerShoot1, 0.01, 0, f, "arm_flywheel_and_turret_hp_2"
-                                ),
-                                new Actions.CallbackAction(
-                                        RobotActions.setIntake(0, 0),
-                                        path.humanPlayerShoot1, 0.3, 0, f, "stop_intake"
-                                ),
-                                new FollowPathAction(f, path.humanPlayerShoot1, true)
-                        ),
-
                         RobotActions.shootArtifacts(3, 2.5),
                         new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_SECOND"))
-                )
-                )
+                ))
         );
 
         robot.actionScheduler.runBlocking();
