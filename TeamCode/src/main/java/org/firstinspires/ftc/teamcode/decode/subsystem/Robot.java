@@ -158,7 +158,7 @@ public final class Robot {
         }
         LOCALIZATION_Y = 7.5;
 
-        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, drivetrain.getPose().getHeading()));
+        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, currentX > 72 ? 0 : Math.PI ));
     }
     public void relocalizeWithLime() {
         llRobotPose = robot.limelight.getPoseEstimate(robot.drivetrain.getHeading());
