@@ -21,4 +21,8 @@ public final class Differentiator {
 
         return derivative;
     }
+
+    public void reset() {
+        lastValue = Double.NaN;
+    }
 }

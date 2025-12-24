@@ -21,7 +21,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_PO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_POWER_INPUT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFlywheelManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isForwardPower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
@@ -55,7 +54,7 @@ public class MainTeleOp extends LinearOpMode {
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         isFuturePoseOn = true;
-
+        boolean isBigTriangle = false;
         if (AUTO_END_POSE == null) {
             while (opModeInInit()) {
                 gamepadEx1.readButtons();

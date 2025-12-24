@@ -6,12 +6,10 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.paths.Path;
+import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.paths.callbacks.ParametricCallback;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.concurrent.Callable;
 
@@ -120,15 +118,11 @@ public final class Actions {
         private final Action action;
 
         private boolean isCalled = false;
-        private final Follower f;
-        private final String s;
 
         public CallbackAction(Action action, PathChain pathChain, double startCondition, int index, Follower f, String s) {
-            this.f = f;
             this.action = action;
-            this.s = s;
             pathChain.setCallbacks(new ParametricCallback(index, startCondition, f, () -> {
-                Log.d("DEBUG_CALLBACK","lehoofy was called " + s);
+                Log.d("DEBUG_CALLBACK", s);
                 isCalled = true;
             }));
         }
@@ -136,9 +130,6 @@ public final class Actions {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             if (!isCalled) return true;
-            Log.d("DEBUG_CALLBACK",s+"started");
-
-//            new DrivePoseLoggingAction(f, s, true).run(telemetryPacket);
             return action.run(telemetryPacket);
         }
     }

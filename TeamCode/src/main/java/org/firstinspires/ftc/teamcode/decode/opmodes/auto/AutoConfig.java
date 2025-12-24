@@ -8,7 +8,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import android.util.Log;
@@ -33,7 +32,7 @@ public class AutoConfig extends AbstractAuto {
 
     @Override
     protected Pose getStartPose() {
-        return isBigTriangle ? ConfigPaths.startClose : ConfigPaths.startFar;
+        return Configuration.isBigTriangle() ? ConfigPaths.startClose : ConfigPaths.startFar;
     }
 
     @Override
@@ -106,7 +105,7 @@ public class AutoConfig extends AbstractAuto {
                     paths.mirrorAll();
                 }
                 Common.robot.shooter.setGoalAlliance();
-                paths.configAutoBuild(isBigTriangle);
+                paths.configAutoBuild(Configuration.isBigTriangle());
             }
         }
 

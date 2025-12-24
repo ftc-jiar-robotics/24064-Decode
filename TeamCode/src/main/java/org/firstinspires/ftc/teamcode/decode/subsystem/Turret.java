@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.TurretStates.ODOM_TRACKING;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowP
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.IIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
+import org.firstinspires.ftc.teamcode.decode.control.motion.Differentiator;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 
@@ -50,16 +52,20 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private TurretStates currentState = ODOM_TRACKING;
 
+    private final Differentiator differentiator = new Differentiator();
     public static LowPassGains targetAngleGains = new LowPassGains(0.10);
     private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
     private final FIRLowPassFilter errorDerivFilter = new FIRLowPassFilter(errorDerivGains);
     private final PIDController controller = new PIDController(errorDerivFilter);
     public static LowPassGains errorDerivGains = new LowPassGains(0, 2);
 
-
     public static double
             kS = -0.07,
             WRAP_AROUND_THRESHOLD = 5,
+            SWITCH_Y_POSITION_BIG = 72,
+            SWITCH_Y_POSITION_SMALL = 48,
+            GOAL_ADDITION_X = 3,
+            GOAL_SUBTRACTION_Y = 3,
             TICKS_TO_DEGREES = 0.232737218162581,
             WRAP_AROUND_ANGLE = 180,
             ROUNDING_POINT = 100000,
@@ -71,13 +77,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             MANUAL_POWER_MULTIPLIER = 0.7,
             BADGE_RETRACTOR_ANGLE = 10,
             BADGE_RETRACTOR_KS = -0.1,
-            ABSOLUTE_ENCODER_OFFSET = -230.4,
+            ABSOLUTE_ENCODER_OFFSET = -225.7875,
             READY_TO_SHOOT_LOOPS = 2,
+            kA_TURRET = 0,
             kV_TURRET = 0.07,   // start at 0, tune up slowly
             LOS_EPS = 1e-6;    // divide by zero guard
-
-
-
 
     private Pose goal = Common.BLUE_GOAL;
     private Pose turretPos = new Pose(0, 0);
@@ -110,6 +114,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public double getError() {
         return controller.getError();
+    }
+
+    private Pose setGoal() {
+        Pose newGoal;
+
+        if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(1.5, 142.5 - GOAL_SUBTRACTION_Y);
+        else newGoal = new Pose(1.5 + GOAL_ADDITION_X, 142.5);
+
+        return isRed ? newGoal.mirror() : newGoal;
     }
 
     public void setAlliance() {
@@ -242,6 +255,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     @Override
     public void run() {
+        goal = setGoal();
+
         quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
         currentAngle = quadratureTurretAngle;
         // Use quadrature to detect wraparound region
@@ -272,6 +287,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 case IDLE:
                     targetAngle = 0;
                     controller.setTarget(new State(targetAngle, 0, 0, 0));
+                    differentiator.reset();
                     if (isPIDInTolerance()) applyOffset(true);
                     if (robot.shooter.isBallPresent()) currentState = ODOM_TRACKING;
                     break;
@@ -280,6 +296,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     setTracking();
 
                     double alphaDot = getDesiredTurretOmegaRadPerSec();
+                    output += (kA_TURRET * differentiator.getDerivative(alphaDot)) * scalar;
                     output += (kV_TURRET * alphaDot) * scalar;
 
                     break;

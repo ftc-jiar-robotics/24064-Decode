@@ -42,7 +42,6 @@ public final class Common {
             isForwardPower = false,
             isStrafePower = false,
             isRed = false,
-            isBigTriangle = false,
             isHoodManual = false,
             isFlywheelManual = false,
             inTriangle = false;

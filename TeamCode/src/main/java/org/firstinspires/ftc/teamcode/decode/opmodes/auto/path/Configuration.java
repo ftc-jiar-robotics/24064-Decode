@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto.path;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
-import android.service.quickaccesswallet.SelectWalletCardRequest;
 import android.util.Log;
 
 import com.acmerobotics.roadrunner.Action;
@@ -15,18 +13,18 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 
-import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public class Configuration {
 
     private static ConfigPaths paths;
+
+    private static boolean isBigTriangle;
 
     public Configuration(ConfigPaths paths) {
         Configuration.paths = paths;
@@ -57,9 +55,11 @@ public class Configuration {
         }
 
         private static Action preload() {
-            paths.preload.getPath(0).setTValueConstraint(0.88);
+            paths.preload.getPath(0).setTimeoutConstraint(0.15);
+            paths.shoot.getPath(0).setVelocityConstraint(0.225);
+            paths.preload.getPath(0).setHeadingConstraint(Math.PI / 2);
+
             return new SequentialAction(
-                    new InstantAction(() -> robot.drivetrain.setMaxPower(0.8)),
                     new ParallelAction(
                             new FollowPathAction(robot.drivetrain, paths.preload, true),
                             RobotActions.shootArtifacts(3, 4, false)
@@ -75,16 +75,16 @@ public class Configuration {
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_HP_START")),
-                    new Actions.TimedAction(
+                    new Actions.UntilConditionAction(
+                            () -> robot.drivetrain.isRobotStuck(),
                             new ParallelAction(
                                     new Actions.CallbackAction(new InstantAction(() -> robot.drivetrain.setMaxPower(1)), paths.intakeHP, .01, 0, robot.drivetrain, "INTAKE_HP_SPEED_UP"),
                                     new Actions.CallbackAction(RobotActions.setIntake(1, 0), paths.intakeHP, 0.3, 0, robot.drivetrain, "INTAKE_HP_OBTAIN_BALLS"),
                                     new FollowPathAction(robot.drivetrain, paths.intakeHP, false)
-                            ), ConfigPaths.MAX_HP_TIME_MS+3000, "INTAKE_HP_FIRST_TRY"
+                            )
                     ),
-                    new SleepAction(0.3),
                     new Actions.TimedAction(new FollowPathAction(robot.drivetrain, paths.intakeHPBack, false), ConfigPaths.MAX_HP_TIME_MS, "INTAKE_HP_SECOND_TRY_BACK"),
-                    new SleepAction(0.3),
+                    new SleepAction(0.15),
                     new Actions.TimedAction(new FollowPathAction(robot.drivetrain, paths.intakeHPRetry, false), ConfigPaths.MAX_HP_TIME_MS, "INTAKE_HP_SECOND_RETRY"),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_HP_END"))
             );
@@ -96,14 +96,17 @@ public class Configuration {
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_FIRST_START")),
-                    new ParallelAction(
-                            new Actions.CallbackAction(
-                                    new ParallelAction(
-                                            new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
-                                            RobotActions.setIntake(1, 0)
-                                    ),
-                                    paths.intakeFirst, 0.3, 0, robot.drivetrain, "INTAKE_FIRST_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeFirst, false)
+                    new Actions.UntilConditionAction(
+                            () -> robot.shooter.isBallInFeeder() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder(),
+                            new ParallelAction(
+                                    new Actions.CallbackAction(
+                                            new ParallelAction(
+                                                    new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
+                                                    RobotActions.setIntake(1, 0)
+                                            ),
+                                            paths.intakeFirst, 0.3, 0, robot.drivetrain, "INTAKE_FIRST_OBTAIN_BALLS"),
+                                    new FollowPathAction(robot.drivetrain, paths.intakeFirst, false)
+                            )
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_FIRST_END"))
             );
@@ -115,14 +118,17 @@ public class Configuration {
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_SECOND_START")),
-                    new ParallelAction(
-                            new Actions.CallbackAction(
-                                    new ParallelAction(
-                                            new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
-                                            RobotActions.setIntake(1, 0)
-                                    ),
-                                    paths.intakeSecond, 0.3, 0, robot.drivetrain, "INTAKE_SECOND_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeSecond, false)
+                    new Actions.UntilConditionAction(
+                            () -> robot.shooter.isBallInFeeder() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder(),
+                            new ParallelAction(
+                                    new Actions.CallbackAction(
+                                            new ParallelAction(
+                                                    new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
+                                                    RobotActions.setIntake(1, 0)
+                                            ),
+                                            paths.intakeSecond, 0.3, 0, robot.drivetrain, "INTAKE_SECOND_OBTAIN_BALLS"),
+                                    new FollowPathAction(robot.drivetrain, paths.intakeSecond, false)
+                            )
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_SECOND_END"))
             );
@@ -134,14 +140,17 @@ public class Configuration {
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_THIRD_START")),
-                    new ParallelAction(
-                            new Actions.CallbackAction(
-                                    new ParallelAction(
-                                            new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
-                                            RobotActions.setIntake(1, 0)
-                                    ),
-                                    paths.intakeThird, 0.3, 0, robot.drivetrain, "INTAKE_THIRD_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeThird, false)
+                    new Actions.UntilConditionAction(
+                            () -> robot.shooter.isBallInFeeder() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder(),
+                            new ParallelAction(
+                                    new Actions.CallbackAction(
+                                            new ParallelAction(
+                                                    new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
+                                                    RobotActions.setIntake(1, 0)
+                                            ),
+                                            paths.intakeThird, 0.3, 0, robot.drivetrain, "INTAKE_THIRD_OBTAIN_BALLS"),
+                                    new FollowPathAction(robot.drivetrain, paths.intakeThird, false)
+                            )
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_THIRD_END"))
             );
@@ -151,15 +160,16 @@ public class Configuration {
             paths.intakeGate.getPath(0).setTValueConstraint(0.9725);
             paths.intakeGate.getPath(1).setTValueConstraint(0.95);
 
+
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_GATE_START")),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
                     new ParallelAction(
-                            new Actions.CallbackAction(new InstantAction(() -> robot.drivetrain.setMaxPower(0.3)), paths.intakeGate, 0.8, 0, robot.drivetrain, "GATE_INTAKE_SLOW_DOWN"),
+                            new Actions.CallbackAction(new InstantAction(() -> robot.drivetrain.setMaxPower(0.3)), paths.intakeGate, 0.9125, 0, robot.drivetrain, "GATE_INTAKE_SLOW_DOWN"),
                             new Actions.CallbackAction(RobotActions.setIntake(1, 0), paths.intakeGate, 0.01, 1, robot.drivetrain, "GATE_INTAKE_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeGate, true)
+                            new FollowPathAction(robot.drivetrain, paths.intakeGate, false)
                     ),
-                    new SleepAction(1.5),
+                    new Actions.RunnableAction(() -> !(robot.shooter.isBallInFeeder() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder())),
                     new FollowPathAction(robot.drivetrain, paths.intakeGateBack, false),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_GATE_END"))
@@ -179,6 +189,10 @@ public class Configuration {
         }
 
         private static Action shoot() {
+            paths.shoot.getPath(0).setTimeoutConstraint(0.15);
+            paths.shoot.getPath(0).setHeadingConstraint(Math.PI / 4);
+            paths.shoot.getPath(0).setVelocityConstraint(0.225);
+
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_START")),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
@@ -193,12 +207,15 @@ public class Configuration {
                             ),
                             new FollowPathAction(robot.drivetrain, paths.shoot, true)
                     ),
-                    RobotActions.shootArtifacts(3, 2.5, false),
+                    RobotActions.shootArtifacts(3, 2.5),
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_END"))
             );
         }
     }
 
+    public static boolean isBigTriangle() {
+        return isBigTriangle;
+    }
 
     private final ArrayList<Option> requirementList = new ArrayList<>();
 

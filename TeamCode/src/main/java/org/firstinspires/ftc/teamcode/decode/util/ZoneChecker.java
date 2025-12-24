@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
-
 import com.pedropathing.geometry.Pose;
 
 public class ZoneChecker {
