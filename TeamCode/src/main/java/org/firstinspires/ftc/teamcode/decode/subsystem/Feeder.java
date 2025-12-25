@@ -38,7 +38,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public static double
         BLOCKING_ANGLE = 240,
         RUNNING_ANGLE = 310,
-        MAX_PIN_STATE = 7; // default
+        MAX_PIN_STATE = 20; // default
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
