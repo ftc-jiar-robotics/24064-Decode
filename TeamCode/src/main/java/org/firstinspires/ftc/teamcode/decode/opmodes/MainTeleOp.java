@@ -18,6 +18,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LEFT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_POWER_INPUT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
@@ -110,7 +111,8 @@ public class MainTeleOp extends LinearOpMode {
 
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
-            isSlowMode = robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING || gamepadEx1.isDown(LEFT_BUMPER);
+            isSlowMode = robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING; //true
+            isSlowMode = gamepadEx1.isDown(LEFT_BUMPER) != isSlowMode;
 
             robot.intake.set(trigger1, false);
 
@@ -133,7 +135,6 @@ public class MainTeleOp extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.emergencyShootArtifacts());
             if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
             if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
-            if (gamepadEx1.isDown(RIGHT_STICK_BUTTON) && gamepadEx1.isDown(LEFT_STICK_BUTTON)) robot.drivetrain.setPose(AUTO_END_POSE);
             if (gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER)) {
                 robot.relocalizeWithWall();
             }
