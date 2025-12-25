@@ -152,7 +152,8 @@ public class ConfigPaths {
                 .addPath(
                         new BezierLine(intakeFirstEnd, intakeFirstStart)
                 )
-                .setHeadingConstraint(HeadingInterpolator.linearFromPoint(intakeAngle, () -> ))
+                // FIXME kashif u goofy
+//                .setHeadingConstraint(HeadingInterpolator.linearFromPoint(intakeAngle, () -> ))
                 .setReversed()
                 .build();
 
