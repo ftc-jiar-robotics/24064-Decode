@@ -8,6 +8,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import android.util.Log;
@@ -39,6 +40,8 @@ public class AutoConfig extends AbstractAuto {
     protected void configure() {
         paths = new ConfigPaths(robot.drivetrain);
         autoConfig = new Configuration(paths);
+
+        isFuturePoseOn = true;
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());

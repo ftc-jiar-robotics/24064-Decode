@@ -8,10 +8,10 @@ import android.util.Log;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
-import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.pedropathing.paths.PathChain;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
@@ -31,32 +31,38 @@ public class Configuration {
     }
 
     public enum Option {
-        RED(() -> new InstantAction(() -> isRed = true)),
-        BLUE(() -> new InstantAction(() -> isRed = false)),
-        GOAL(() -> new InstantAction(() -> isBigTriangle = true)),
-        AUDIENCE(() -> new InstantAction(() -> isBigTriangle = false)),
-        PRELOAD(Option::preload),
-        INTAKE_HP(Option::intakeHP),
-        INTAKE_FIRST(Option::intakeFirst),
-        INTAKE_SECOND(Option::intakeSecond),
-        INTAKE_THIRD(Option::intakeThird),
-        INTAKE_GATE(Option::intakeGate),
-        OPEN_GATE(Option::openGate),
-        SHOOT(Option::shoot);
+        RED(() -> new InstantAction(() -> isRed = true), null),
+        BLUE(() -> new InstantAction(() -> isRed = false), null),
+        GOAL(() -> new InstantAction(() -> isBigTriangle = true), null),
+        AUDIENCE(() -> new InstantAction(() -> isBigTriangle = false), null),
+        PRELOAD(Option::preload, paths.preload),
+        INTAKE_HP(Option::intakeHP, paths.intakeHPRetry),
+        INTAKE_FIRST(Option::intakeFirst, paths.intakeFirst),
+        INTAKE_SECOND(Option::intakeSecond, paths.intakeSecond),
+        INTAKE_THIRD(Option::intakeThird, paths.intakeThird),
+        INTAKE_GATE(Option::intakeGate, paths.intakeGateBack),
+        OPEN_GATE(Option::openGate, paths.openGate),
+        SHOOT(Option::shoot, paths.shoot);
 
         private final Callable<Action> action;
+        private final PathChain endPathChain;
 
-        Option(Callable<Action> action) {
+        Option(Callable<Action> action, PathChain endPathChain) {
             this.action = action;
+            this.endPathChain = endPathChain;
         }
-        
+
         public Callable<Action> getAction() {
             return action;
         }
 
+        public PathChain getEndPathChain() {
+            return endPathChain;
+        }
+
         private static Action preload() {
             paths.preload.getPath(0).setTimeoutConstraint(0.15);
-            paths.shoot.getPath(0).setVelocityConstraint(0.225);
+            paths.preload.getPath(0).setVelocityConstraint(0.225);
             paths.preload.getPath(0).setHeadingConstraint(Math.PI / 2);
 
             return new SequentialAction(
@@ -91,8 +97,9 @@ public class Configuration {
         }
 
         private static Action intakeFirst() {
-            paths.intakeFirst.getPath(1).setTValueConstraint(0.88);
-            paths.intakeFirst.getPath(0).setTValueConstraint(0.88);
+            paths.intakeFirst.getPath(2).setTValueConstraint(0.8125);
+            paths.intakeFirst.getPath(1).setTValueConstraint(0.7);
+            paths.intakeFirst.getPath(0).setTValueConstraint(0.7);
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_FIRST_START")),
@@ -113,8 +120,9 @@ public class Configuration {
         }
 
         private static Action intakeSecond() {
-            paths.intakeSecond.getPath(1).setTValueConstraint(0.88);
-            paths.intakeSecond.getPath(0).setTValueConstraint(0.88);
+            paths.intakeSecond.getPath(2).setTValueConstraint(0.8125);
+            paths.intakeSecond.getPath(1).setTValueConstraint(0.7);
+            paths.intakeSecond.getPath(0).setTValueConstraint(0.7);
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_SECOND_START")),
@@ -135,8 +143,9 @@ public class Configuration {
         }
 
         private static Action intakeThird() {
-            paths.intakeThird.getPath(1).setTValueConstraint(0.88);
-            paths.intakeThird.getPath(0).setTValueConstraint(0.88);
+            paths.intakeThird.getPath(2).setTValueConstraint(0.8125);
+            paths.intakeThird.getPath(1).setTValueConstraint(0.7);
+            paths.intakeThird.getPath(0).setTValueConstraint(0.7);
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_THIRD_START")),
@@ -160,7 +169,6 @@ public class Configuration {
             paths.intakeGate.getPath(0).setTValueConstraint(0.9725);
             paths.intakeGate.getPath(1).setTValueConstraint(0.95);
 
-
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_GATE_START")),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
@@ -182,16 +190,17 @@ public class Configuration {
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "OPEN_GATE_START")),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
-                    new FollowPathAction(robot.drivetrain, paths.openGate, true),
-                    new SleepAction(0.75),
+                    new FollowPathAction(robot.drivetrain, paths.openGate, false),
+                    new SleepAction(0.3),
                     new InstantAction(() -> Log.d("ConfigAuto", "OPEN_GATE_END"))
             );
         }
 
         private static Action shoot() {
+            paths.shoot.getPath(0).setTValueConstraint(0.825);
             paths.shoot.getPath(0).setTimeoutConstraint(0.15);
             paths.shoot.getPath(0).setHeadingConstraint(Math.PI / 4);
-            paths.shoot.getPath(0).setVelocityConstraint(0.225);
+            paths.shoot.getPath(0).setVelocityConstraint(0.165);
 
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_START")),

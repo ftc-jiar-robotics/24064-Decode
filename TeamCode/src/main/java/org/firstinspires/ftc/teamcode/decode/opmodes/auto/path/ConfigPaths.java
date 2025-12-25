@@ -21,8 +21,8 @@ public class ConfigPaths {
     public static double LEAVE_TIME = 29.5;
 
     public static Pose
-            controlShootClose = new Pose(47.6, 113.1),
-            controlIntakeHP = new Pose(57.3, 17.4),
+            controlShootClose = new Pose(48.0, 69.2),
+            controlIntakeHP = new Pose(53.5, 28.8),
             controlGate = new Pose(27.1, 72.4);
 
     public static Pose
@@ -33,12 +33,12 @@ public class ConfigPaths {
             intakeHPEnd = new Pose(3.5, 8.15),
             intakeHPMid = new Pose(6.5, 8.15),
             intakeFirstStart = new Pose(41.2, 84.5),
-            intakeFirstEnd = new Pose(17.1, 84.5),
+            intakeFirstEnd = new Pose(19.1, 84.5),
             intakeSecondStart = new Pose(41.2, 60.0),
-            intakeSecondEnd = new Pose(17.1, 60.0),
+            intakeSecondEnd = new Pose(19.1, 60.0),
             intakeThirdStart = new Pose(41.2, 35.5),
-            intakeThirdEnd = new Pose(17.1, 35.5),
-            gateOpen = new Pose(15.5, 73.0),
+            intakeThirdEnd = new Pose(19.1, 35.5),
+            gateOpen = new Pose(17.5, 73.0),
             gateIntake = new Pose(11.0, 59.5),
             leaveClose = new Pose(37.5,90.1),
             leaveFar = new Pose(49.6, 16.2);
@@ -149,6 +149,11 @@ public class ConfigPaths {
                         new BezierLine(intakeFirstStart, intakeFirstEnd)
                 )
                 .setConstantHeadingInterpolation(intakeAngle)
+                .addPath(
+                        new BezierLine(intakeFirstEnd, intakeFirstStart)
+                )
+                .setHeadingConstraint(HeadingInterpolator.linearFromPoint(intakeAngle, () -> ))
+                .setReversed()
                 .build();
 
         intakeSecond = f.pathBuilder()
@@ -160,6 +165,10 @@ public class ConfigPaths {
                         new BezierLine(intakeSecondStart, intakeSecondEnd)
                 )
                 .setConstantHeadingInterpolation(intakeAngle)
+                .addPath(
+                        new BezierLine(intakeSecondEnd, intakeSecondStart)
+                )
+                .setConstantHeadingInterpolation(intakeAngle)
                 .build();
 
         intakeThird = f.pathBuilder()
@@ -169,6 +178,10 @@ public class ConfigPaths {
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, intakeAngle, 0.6))
                 .addPath(
                         new BezierLine(intakeThirdStart, intakeThirdEnd)
+                )
+                .setConstantHeadingInterpolation(intakeAngle)
+                .addPath(
+                        new BezierLine(intakeThirdEnd, intakeThirdStart)
                 )
                 .setConstantHeadingInterpolation(intakeAngle)
                 .build();
@@ -185,11 +198,11 @@ public class ConfigPaths {
                 .setGlobalHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                0.05,
-                                HeadingInterpolator.linearFromPoint(f::getHeading, () -> f.getClosestPointTangentVector().getTheta(), 0.2)
+                                0.04,
+                                HeadingInterpolator.linearFromPoint(f::getHeading, () -> f.getClosestPointTangentVector().getTheta(), 0.04)
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.05,
+                                0.04,
                                 0.4,
                                 HeadingInterpolator.tangent
                         ),
@@ -229,18 +242,18 @@ public class ConfigPaths {
                     .setHeadingInterpolation(HeadingInterpolator.piecewise(
                             new HeadingInterpolator.PiecewiseNode(
                                     0,
-                                    0.05,
-                                    HeadingInterpolator.linearFromPoint(f::getHeading, () -> f.getClosestPointTangentVector().getTheta(), 0.05)
+                                    0.1,
+                                    HeadingInterpolator.linearFromPoint(f::getHeading, () -> f.getClosestPointTangentVector().getTheta(), 0.04)
                             ),
                             new HeadingInterpolator.PiecewiseNode(
-                                    0.05,
-                                    0.75,
+                                    0.1,
+                                    0.675,
                                     HeadingInterpolator.tangent.reverse()
                             ),
                             new HeadingInterpolator.PiecewiseNode(
-                                    0.75,
+                                    0.675,
                                     1,
-                                    HeadingInterpolator.linearFromPoint(f::getHeading, shootAngleClose, 1)
+                                    HeadingInterpolator.linearFromPoint(f::getHeading, shootAngleClose, 0.825)
                             )
                     ))
                     .build();
