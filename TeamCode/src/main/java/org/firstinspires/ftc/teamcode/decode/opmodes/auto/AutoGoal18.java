@@ -20,9 +20,9 @@ import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
-@Autonomous(name = "AutoGoal21", preselectTeleOp = "Main TeleOp")
+@Autonomous(name = "AutoGoal18", preselectTeleOp = "Main TeleOp")
 
-public class AutoGoal21 extends AbstractAuto{
+public class AutoGoal18 extends AbstractAuto{
     private GoalPaths path;
 
     @Override
@@ -48,7 +48,6 @@ public class AutoGoal21 extends AbstractAuto{
     protected void onRun() {
         shootPreload();
         shootSecond();
-        shootGateCycle();
         shootGateCycle();
         shootGateCycle();
         shootFirst();
@@ -136,12 +135,12 @@ public class AutoGoal21 extends AbstractAuto{
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.gateCycleIntake21, 0.01, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
-                                                RobotActions.setIntake(1, 0),
+                                        RobotActions.setIntake(1, 0),
                                         path.gateCycleIntake21, 0.7, 0, f, "slow_down_2"),
-                                new FollowPathAction(f, path.gateCycleIntake21, true)
+                                new FollowPathAction(f, path.gateCycleIntake21)
                         ),
                         new Actions.UntilConditionAction(
-                                () -> robot.shooter.isRobotFullWithBalls(),
+                                () -> robot.shooter.isBallInIntakeBack() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder(),
                                 new SleepAction(2) // sleep to let balls roll out of classifier
                         ),
                         new ParallelAction(
@@ -215,24 +214,24 @@ public class AutoGoal21 extends AbstractAuto{
                         new ParallelAction(
                                 RobotActions.shootArtifacts(3, 4),
                                 new Actions.UntilConditionAction(() -> !robot.shooter.isBallPresent(),new ParallelAction(
-                                            new Actions.CallbackAction(
+                                        new Actions.CallbackAction(
                                                 RobotActions.emergencyShootArtifacts(),
                                                 path.shootPreload21, 0.4, 0, f, "arm_flywheel_and_turret_0"
 
-                                            ),
-                                            new Actions.CallbackAction(
+                                        ),
+                                        new Actions.CallbackAction(
                                                 new ParallelAction(
                                                         new InstantAction(() -> f.setMaxPower(1)),
                                                         RobotActions.armTurret(),
                                                         RobotActions.armFlywheel()
                                                 ),
                                                 path.shootPreload21, 0.01, 0, f, "arm_flywheel_and_turret_0"
-                                            ),
-//                                            new Actions.CallbackAction(
-//                                                new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.4, 0, f, "arm_flywheel_and_turret_0"
-//                                            ),
-                                            new FollowPathAction(f, path.shootPreload21, true)
-                                    )
+                                        ),
+                                        new Actions.CallbackAction(
+                                                new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.2, 0, f, "arm_flywheel_and_turret_0"
+                                        ),
+                                        new FollowPathAction(f, path.shootPreload21, true)
+                                )
                                 )
 
                         ),

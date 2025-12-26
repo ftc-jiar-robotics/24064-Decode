@@ -23,6 +23,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             inEmergency;
 
     private int queuedShots = 0;
+    private int ballConfidence = 0;
     public enum ShooterStates {
         IDLE, PREPPING, RUNNING
     }
@@ -56,6 +57,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public static double HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE = 120;
+    public static double ALL_BALL_CONFIDENCE_THRESHOLD = 2;
 
 
     public int getQueuedShots() {
@@ -90,6 +92,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
     public boolean isBallInIntakeBack() {
         return robot.intake.getBackState();
+    }
+
+    public boolean isRobotFullWithBalls() {
+        return ballConfidence > ALL_BALL_CONFIDENCE_THRESHOLD;
     }
 
 //    public void closeAutoAim() {
@@ -138,6 +144,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     @Override
     public void run() {
+        if (isBallInFeeder() && isBallInIntakeFront() && isBallInIntakeBack()) {
+            ballConfidence++;
+        }
+        else {
+            ballConfidence = 0;
+        }
         didCurrentDrop = feeder.didShotOccur();
         if (targetState == ShooterStates.RUNNING && didCurrentDrop) {
             queuedShots = 0;
