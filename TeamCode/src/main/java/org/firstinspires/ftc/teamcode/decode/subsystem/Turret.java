@@ -62,7 +62,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static double
             kS = -0.07,
             WRAP_AROUND_THRESHOLD = 5,
-            SWITCH_Y_POSITION_BIG = 72,
+            SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
             GOAL_ADDITION_X = 3,
             GOAL_SUBTRACTION_Y = 3,
@@ -77,7 +77,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             MANUAL_POWER_MULTIPLIER = 0.7,
             BADGE_RETRACTOR_ANGLE = 10,
             BADGE_RETRACTOR_KS = -0.1,
-            ABSOLUTE_ENCODER_OFFSET = -225.7875,
+            ABSOLUTE_ENCODER_OFFSET = -230.7375,
             READY_TO_SHOOT_LOOPS = 2,
             kA_TURRET = 0,
             kV_TURRET = 0.07,   // start at 0, tune up slowly
@@ -120,7 +120,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         Pose newGoal;
 
         if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(1.5, 142.5 - GOAL_SUBTRACTION_Y);
-        else newGoal = new Pose(1.5 + GOAL_ADDITION_X, 142.5);
+        else if(robot.drivetrain.getPose().getY()<SWITCH_Y_POSITION_SMALL) newGoal = new Pose(1.5 + GOAL_ADDITION_X, 142.5);
+        else newGoal = new Pose(1.5, 142.5);
+
 
         return isRed ? newGoal.mirror() : newGoal;
     }

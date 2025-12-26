@@ -106,7 +106,7 @@ public final class Common {
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
             MAX_DISTANCE_FEEDER = 90, // TODO mm
-            MIN_SHOOTING_DISTANCE = 40,
+            MIN_SHOOTING_DISTANCE = 0,
             RELOCALIZE_UPDATE_LOOPS = (1 << 3) - 1,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 
