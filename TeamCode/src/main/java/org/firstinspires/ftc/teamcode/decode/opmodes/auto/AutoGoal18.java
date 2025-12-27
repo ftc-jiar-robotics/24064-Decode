@@ -158,7 +158,7 @@ public class AutoGoal18 extends AbstractAuto{
                         ),
                         new Actions.UntilConditionAction(
                                 () -> robot.shooter.isRobotFullWithBalls(),
-                                new SleepAction(2) // sleep to let balls roll out of classifier
+                                new SleepAction(2.5) // sleep to let balls roll out of classifier
                         ),
                         new ParallelAction(
                                 new Actions.CallbackAction(
@@ -234,7 +234,7 @@ public class AutoGoal18 extends AbstractAuto{
                                 new Actions.UntilConditionAction(() -> !robot.shooter.isBallPresent(),new ParallelAction(
                                         new Actions.CallbackAction(
                                                 RobotActions.emergencyShootArtifacts(),
-                                                path.shootPreload21, 0.4, 0, f, "arm_flywheel_and_turret_0"
+                                                path.shootPreload21, 0.5, 0, f, "arm_flywheel_and_turret_0"
 
                                         ),
                                         new Actions.CallbackAction(
