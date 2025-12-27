@@ -172,7 +172,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.PREPPING;
-                    if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
+                    if (turret.get() != Turret.TurretStates.ODOM_TRACKING) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 }
                 break;
             case PREPPING:
@@ -189,7 +189,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     inEmergency = false;
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
-                    if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
+                    if (turret.get() != Turret.TurretStates.ODOM_TRACKING) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 }
                 break;
             case RUNNING:

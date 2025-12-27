@@ -167,7 +167,7 @@ public final class Robot {
         }
     }
 
-    public Pose getLlRobotPose(){
+    public Pose getLLRobotPose(){
         return llRobotPose;
     }
     // Prints data on the driver hub for debugging and other uses

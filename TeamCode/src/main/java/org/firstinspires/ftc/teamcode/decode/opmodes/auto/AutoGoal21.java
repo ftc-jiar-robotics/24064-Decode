@@ -43,6 +43,8 @@ public class AutoGoal21 extends AbstractAuto{
         }
         Common.robot.shooter.setGoalAlliance();
         path.goal21Build();
+        robot.limelight.getLimelight().stop();
+        robot.limelight.getLimelight().close();
     }
     @Override
     protected void onRun() {

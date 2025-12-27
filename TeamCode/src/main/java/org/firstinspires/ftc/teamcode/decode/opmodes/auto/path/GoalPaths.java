@@ -54,7 +54,8 @@ public class GoalPaths {
             endIntakeFirst21 = new Pose(20.0, 83.900),
             intakeThirdControl21 = new Pose(59.700, 35.900),
             startIntakeThird21 = new Pose(46.700, 35.900),
-            endIntakeThird21 = new Pose(14.400, 36.200);
+            endIntakeThird21 = new Pose(14.400, 36.200),
+            leave21 = new Pose(53.8, 74.7);
 
 
 
@@ -103,6 +104,7 @@ public class GoalPaths {
         intakeThirdControl21 = intakeThirdControl21.mirror();
         startIntakeThird21 = startIntakeThird21.mirror();
         endIntakeThird21 = endIntakeThird21.mirror();
+        leave21 = leave21.mirror();
 
         startAngle = mirrorAngleRad(startAngle);
         shootAngle = mirrorAngleRad(shootAngle);
@@ -221,7 +223,13 @@ public class GoalPaths {
                         new BezierLine(endIntakeThird21, shoot21)
                 )
                 .setConstantHeadingInterpolation(goHome21Angle).build();
-
+        goalLeave21 = f.pathBuilder()
+                .addPath(
+                        // Path 0
+                        new BezierLine(shoot21, leave21)
+                )
+                .setTangentHeadingInterpolation()
+                .build();
 
     }
 
@@ -448,19 +456,17 @@ public class GoalPaths {
     public PathChain firstShoot;
     public PathChain secondIntake;
     public PathChain secondShoot;
-    public PathChain thirdIntake;
     public PathChain thirdShoot;
     public PathChain humanPlayerIntake0;
     public PathChain humanPlayerIntake1;
     public PathChain humanPlayerIntake1_5;
     public PathChain humanPlayerShoot;
     public PathChain goalLeave;
-    public PathChain intakeGate;
-    public PathChain shootGate;
     public PathChain shootPreload21;
     public PathChain firstIntake21;
     public PathChain secondIntake21;
     public PathChain thirdIntake21;
     public PathChain gateCycleIntake21;
     public PathChain gateCycleShoot21;
+    public PathChain goalLeave21;
 }

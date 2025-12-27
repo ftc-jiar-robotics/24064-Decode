@@ -23,7 +23,6 @@ public abstract class AbstractAuto extends LinearOpMode {
     protected Follower f;
 
     protected final void update() {
-        robot.readSensors();
         robot.update();
         robot.shooter.run();
         robot.intake.run();
@@ -48,7 +47,6 @@ public abstract class AbstractAuto extends LinearOpMode {
 
         resetRuntime();
         robot.drivetrain.setPose(getStartPose());
-
         onRun();
         robot.actionScheduler.addAction(new SleepAction(2));
         robot.actionScheduler.runBlocking();

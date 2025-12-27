@@ -65,7 +65,7 @@ public class AutoAudience18 extends AbstractAuto{
     private void shootHPBigBall() {
         path.humanPlayerShoot1.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
-                new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, new SequentialAction(
+                new Actions.UntilConditionAction(() -> getRuntime() > AudiencePaths.LEAVE_TIME, new SequentialAction(
                         new InstantAction(() -> Log.d("AutoAudience", "START_SHOOT_HP_SECOND")),
                         path.retrieveBigBalls(robot.limelight.getColorResult(), f.getPose()),
 
