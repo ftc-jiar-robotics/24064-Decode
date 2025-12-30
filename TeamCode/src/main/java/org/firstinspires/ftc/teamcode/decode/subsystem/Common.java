@@ -64,12 +64,12 @@ public final class Common {
             STRAFE_POD_X = -83.5,
 
             // Camera Stuff
-            CAM_HEIGHT = 14.25,
-            CAM_PITCH = 20.0,
+            CAM_HEIGHT = 9.4375,
+            CAM_PITCH = 0,
 
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
-            CAM_OFFSET_X = -1.254,
-            CAM_OFFSET_Y = -3.281,
+            CAM_OFFSET_X = 0,
+            CAM_OFFSET_Y = 7.5,
             TURRET_OFFSET_Y = -2.559,
 
             MAX_VOLTAGE = 13;
@@ -79,7 +79,7 @@ public final class Common {
             RED_SMALL_TRIANGLE = new Pose(88.125, 7.5, Math.toRadians(90)),
             BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror().setHeading(Math.toRadians(270)),
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90)),
-            BLUE_GOAL = new Pose(1.5,142.5),
+            BLUE_GOAL = new Pose(0,144),
             RED_BLUE = BLUE_GOAL.mirror();
 
     public static double getAirtimeForDistance(double distanceInches) {

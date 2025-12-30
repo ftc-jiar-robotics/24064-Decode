@@ -24,7 +24,7 @@ public class TurretEncoderDebug extends LinearOpMode {
         while (opModeIsActive()) {
             bulkReader.bulkRead();
             telemetry.addData("turret motor enc (ticks)", motor.getPosition());
-            telemetry.addData("abs angle (raw deg)", abs.getVoltage() / 3.2 * 360.0);
+            telemetry.addData("abs angle (raw deg)", abs.getVoltage() / 3.24 * 360.0);
             telemetry.update();
         }
     }

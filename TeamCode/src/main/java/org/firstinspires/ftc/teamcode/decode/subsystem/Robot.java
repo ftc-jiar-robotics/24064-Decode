@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
+import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
 import org.firstinspires.ftc.teamcode.decode.util.LimelightEx;
@@ -33,6 +34,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public final class Robot {
     public final Follower drivetrain;
     public final BulkReader bulkReader;
+    public final AutoAim autoAim;
     public final ActionScheduler actionScheduler;
     public final Shooter shooter;
     public final Intake intake;
@@ -41,6 +43,7 @@ public final class Robot {
     public final LEDController ledController;
     public final LimelightEx limelight;
     private Pose llRobotPose;
+    private Pose arduRobotPose;
 
     private boolean isLimelightRunning = true;
 
@@ -73,6 +76,7 @@ public final class Robot {
         zoneChecker = new ZoneChecker();
         ledController = new LEDController(hardwareMap);
         limelight = new LimelightEx(limelight3A);
+        autoAim = new AutoAim(hardwareMap, "arducam");
 
         ledController.ensureInitialized();
 
@@ -137,7 +141,7 @@ public final class Robot {
 //            isLimelightRunning = true;
 //        }
 
-
+        autoAim.detectTarget();
 
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
@@ -167,6 +171,13 @@ public final class Robot {
         }
     }
 
+    public void relocalizeWithArdu() {
+        arduRobotPose = autoAim.getTurretPosePedro();
+        if (arduRobotPose != null) {
+            robot.drivetrain.setPose(arduRobotPose);
+        }
+    }
+
     public Pose getLLRobotPose(){
         return llRobotPose;
     }
@@ -176,6 +187,7 @@ public final class Robot {
             shooter.printTelemetry();
             intake.printTelemetry();
             limelight.printTelemetry();
+            autoAim.printTelemetry();
         }
         Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
         Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());

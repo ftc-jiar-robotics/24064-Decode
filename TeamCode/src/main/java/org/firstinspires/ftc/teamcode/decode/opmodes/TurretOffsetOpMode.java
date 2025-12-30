@@ -24,7 +24,7 @@ public class TurretOffsetOpMode extends LinearOpMode {
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         while (opModeIsActive()) {
-            dashTelemetry.addData("OFFSET (DEGREES): ", Turret.ABSOLUTE_ENCODER_OFFSET + currentAngle);
+            dashTelemetry.addData("OFFSET (DEGREES): ", Turret.ABSOLUTE_ENCODER_OFFSET - currentAngle);
             dashTelemetry.update();
         }
     }

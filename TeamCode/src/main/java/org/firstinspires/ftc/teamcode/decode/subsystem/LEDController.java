@@ -175,7 +175,7 @@ public class LEDController {
     // -------------------------
 
     private Pattern computeLLPattern() {
-        if (robot.limelight.getPoseEstimate(robot.drivetrain.getHeading()) == null) {
+        if (robot.autoAim.getTurretPosePedro() == null) {
             return Pattern.RED;
         }
         return Pattern.GREEN;

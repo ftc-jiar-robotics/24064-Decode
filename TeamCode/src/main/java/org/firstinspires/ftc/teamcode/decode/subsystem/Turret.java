@@ -64,8 +64,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_THRESHOLD = 5,
             SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
-            GOAL_ADDITION_X = 3,
-            GOAL_SUBTRACTION_Y = 3,
+            GOAL_ADDITION_X = 4.5,
+            GOAL_SUBTRACTION_Y = 4.5,
             TICKS_TO_DEGREES = 0.232737218162581,
             WRAP_AROUND_ANGLE = 180,
             ROUNDING_POINT = 100000,
@@ -77,9 +77,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             MANUAL_POWER_MULTIPLIER = 0.7,
             BADGE_RETRACTOR_ANGLE = 10,
             BADGE_RETRACTOR_KS = -0.1,
-            ABSOLUTE_ENCODER_OFFSET = -230.7,
+            ABSOLUTE_ENCODER_OFFSET = -179,
             READY_TO_SHOOT_LOOPS = 2,
-            kA_TURRET = 0.02,
+            kA_TURRET = -0.02,
             kV_TURRET = 0.07,   // start at 0, tune up slowly
             LOS_EPS = 1e-6;    // divide by zero guard
 
@@ -119,9 +119,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private Pose setGoal() {
         Pose newGoal;
 
-        if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(1.5, 142.5 - GOAL_SUBTRACTION_Y);
-        else if(robot.drivetrain.getPose().getY()<SWITCH_Y_POSITION_SMALL) newGoal = new Pose(1.5 + GOAL_ADDITION_X, 142.5);
-        else newGoal = new Pose(1.5, 142.5);
+        double x = Common.BLUE_GOAL.getX();
+        double y = Common.BLUE_GOAL.getY();
+        if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
+        else if(robot.drivetrain.getPose().getY()<SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + GOAL_ADDITION_X, y);
+        else newGoal = new Pose(x, y);
 
 
         return isRed ? newGoal.mirror() : newGoal;
@@ -185,7 +187,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     void applyOffset() {
-        applyOffset(false);
+        applyOffset(true);
     }
     void applyOffset(boolean useAbs) {
         if (Common.TURRET_ENC_OFFSET == Double.POSITIVE_INFINITY || useAbs)
@@ -245,7 +247,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public double getAbsoluteEncoderAngle() {
         double voltage = absoluteEncoder.getVoltage();
 
-        double rawDegrees = (voltage / 3.2 * 360.0 + ABSOLUTE_ENCODER_OFFSET) % 360.0;
+        double rawDegrees = (360 - (voltage / 3.24 * 360.0 + ABSOLUTE_ENCODER_OFFSET)) % 360.0;
         double turretDomain = (360.0 - rawDegrees) % 360.0;
 
         return normalizeToTurretRange(turretDomain);
@@ -339,6 +341,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
         dashTelemetry.addData("raw motor ticks (TICKS): ", motorEncoder.getPosition());
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
+        dashTelemetry.addData("absolute encoder (VOLTAGE): ", absoluteEncoder.getVoltage());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
         dashTelemetry.addData("quadrature turret angle (ANGLE): ", quadratureTurretAngle);
 

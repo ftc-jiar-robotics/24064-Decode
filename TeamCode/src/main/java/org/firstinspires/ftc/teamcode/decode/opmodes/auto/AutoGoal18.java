@@ -92,7 +92,7 @@ public class AutoGoal18 extends AbstractAuto{
                                                 RobotActions.armFlywheel(),
                                                 RobotActions.setIntake(0.25, 0)
                                         ),
-                                        path.thirdIntake21, 0.01, 2, f, "arm_flywheel_and_turret_1"
+                                        path.thirdIntake21, 0.1, 2, f, "arm_flywheel_and_turret_1"
                                 ),
                                 new FollowPathAction(f, path.thirdIntake21, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path
                         ),
@@ -129,7 +129,7 @@ public class AutoGoal18 extends AbstractAuto{
                                                 RobotActions.armFlywheel(),
                                                 RobotActions.setIntake(0.25, 0)
                                         ),
-                                        path.firstIntake21, 0.01, 1, f, "arm_flywheel_and_turret_3"
+                                        path.firstIntake21, 0.1, 1, f, "arm_flywheel_and_turret_3"
                                 ),
                                 new FollowPathAction(f, path.firstIntake21, true)
                         ),
@@ -158,12 +158,14 @@ public class AutoGoal18 extends AbstractAuto{
                         ),
                         new Actions.UntilConditionAction(
                                 () -> robot.shooter.isRobotFullWithBalls(),
-                                new SleepAction(2.5) // sleep to let balls roll out of classifier
+                                new SequentialAction(
+                                        new InstantAction(() -> f.setMaxPower(1)),
+                                        new SleepAction(2.5) // sleep to let balls roll out of classifier
+                                        )
                         ),
                         new ParallelAction(
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel(),
                                                 RobotActions.setIntake(1, 0)

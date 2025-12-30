@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
@@ -33,6 +35,8 @@ public class AutoAim {
     private static int    X_BUFFER_SIZE = 3;
     private static int    Y_BUFFER_SIZE = 3;
 
+    private Pose latestPose;
+
     private MovingAverageFilter xFilter = new MovingAverageFilter(new MovingAverageGains(X_BUFFER_SIZE));
     private MovingAverageFilter yFilter = new MovingAverageFilter(new MovingAverageGains(Y_BUFFER_SIZE));
 
@@ -47,21 +51,21 @@ public class AutoAim {
         setAlliance();
 
         AprilTagProcessor.Builder procB = new AprilTagProcessor.Builder()
-                .setDrawTagID(false)
-                .setDrawTagOutline(false)
-                .setDrawAxes(false)
+                .setDrawTagID(true)
+                .setDrawTagOutline(true)
+                .setDrawAxes(true)
                 .setLensIntrinsics(FX, FY, CX, CY)
                 .setNumThreads(DESIRED_THREADS)
                 .setCameraPose(new Position(DistanceUnit.INCH, Common.CAM_OFFSET_X, Common.CAM_OFFSET_Y, Common.CAM_HEIGHT, 0), new YawPitchRollAngles(AngleUnit.DEGREES, 0, Common.CAM_PITCH - 90, 180, 0 ))
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-                .setDrawCubeProjection(false);
+                .setDrawCubeProjection(true);
 
         processor = procB.build();
 
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hw.get(WebcamName.class, webcamName))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .enableLiveView(false)
+                .enableLiveView(true)
                 .addProcessor(processor)
                 .build();
     }
@@ -88,10 +92,13 @@ public class AutoAim {
     }
 
     public Pose getTurretPosePedro() {
-        double x = cached.robotPose.getPosition().y + 72;
-        double y = 72 - cached.robotPose.getPosition().x;
-        double headingDeg = cached.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
-        return new Pose(xFilter.calculate(x), yFilter.calculate(y), headingDeg);
+        if (cached != null) {
+            double x = cached.robotPose.getPosition().y + 72;
+            double y = 72 - cached.robotPose.getPosition().x;
+            double headingDeg = cached.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
+            return latestPose = new Pose(xFilter.calculate(x), yFilter.calculate(y), headingDeg);
+        }
+        return null;
     }
 
 
@@ -108,4 +115,14 @@ public class AutoAim {
     public void close() {
         if (visionPortal != null) visionPortal.close();
     }
-}
+
+    public void printTelemetry() {
+        telemetry.addLine("ARDUCAM");
+        if (latestPose != null) {
+            telemetry.addData("arducam robot pose x (INCHES): ", latestPose.getX());
+            telemetry.addData("arducam robot pose y (INCHES): ", latestPose.getY());
+            telemetry.addData("arducam robot pose heading (DEGREES): ", latestPose.getHeading());
+        }
+    }
+
+    }
