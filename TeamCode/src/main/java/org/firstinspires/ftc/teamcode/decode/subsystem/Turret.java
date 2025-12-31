@@ -60,12 +60,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static LowPassGains errorDerivGains = new LowPassGains(0, 2);
 
     public static double
-            kS = -0.07,
+            kS = -0.09,
             WRAP_AROUND_THRESHOLD = 5,
-            SWITCH_Y_POSITION_BIG = 100,
+            SWITCH_Y_POSITION_BIG = 120,
             SWITCH_Y_POSITION_SMALL = 48,
-            GOAL_ADDITION_X = 12,
-            GOAL_SUBTRACTION_Y = 6,
+            GOAL_ADDITION_X = 9.5,
+            GOAL_SUBTRACTION_Y = 2,
             TICKS_TO_DEGREES = 0.232737218162581,
             WRAP_AROUND_ANGLE = 180,
             ROUNDING_POINT = 100000,
@@ -79,7 +79,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             BADGE_RETRACTOR_KS = -0.1,
             ABSOLUTE_ENCODER_OFFSET = -179,
             READY_TO_SHOOT_LOOPS = 2,
-            kA_TURRET = -0.02,
+            kA_TURRET = -0.00,
             kV_TURRET = 0.07,   // start at 0, tune up slowly
             LOS_EPS = 1e-6;    // divide by zero guard
 
@@ -275,7 +275,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double scalar = MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage();
         double kS = currentAngle > BADGE_RETRACTOR_ANGLE ? BADGE_RETRACTOR_KS : Turret.kS;
-        double output = error > 0 ? kS * scalar : (error < -0 ? -kS * scalar : 0);
+        double errorThreshold = robot.isRobotMoving() ? 0 : .1;
+        double output = error > errorThreshold ? kS * scalar : (error < -errorThreshold ? -kS * scalar : 0);
 
         controller.setGains(gains);
         errorDerivFilter.setGains(errorDerivGains);
