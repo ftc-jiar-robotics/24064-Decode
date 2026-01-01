@@ -173,8 +173,9 @@ public final class Robot {
 
     public void relocalizeWithArdu() {
         arduRobotPose = autoAim.getTurretPosePedro();
+
         if (arduRobotPose != null) {
-            robot.drivetrain.setPose(arduRobotPose);
+            robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
         }
     }
 
