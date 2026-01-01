@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 public abstract class AbstractAuto extends LinearOpMode {
     protected Follower f;
 
-    protected final void update() {
+    protected void update() {
         robot.update();
         robot.shooter.run();
         robot.intake.run();
@@ -33,7 +33,7 @@ public abstract class AbstractAuto extends LinearOpMode {
     public final void runOpMode() {
         Common.TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
 
-        robot = new Robot(hardwareMap);
+        robot = new Robot(hardwareMap, true);
 
         robot.actionScheduler.setUpdate(this::update);
 

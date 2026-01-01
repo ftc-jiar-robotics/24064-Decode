@@ -74,7 +74,6 @@ public class MainTeleOp extends LinearOpMode {
 
         robot = new Robot(hardwareMap);
         robot.shooter.setGoalAlliance();
-        robot.limelight.getLimelight().pipelineSwitch(0);
 
         waitForStart();
 
@@ -164,7 +163,6 @@ public class MainTeleOp extends LinearOpMode {
 
         AUTO_END_POSE = null;
         Common.TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
-        robot.limelight.getLimelight().close();
 //        robot.shooter.closeAutoAim();
     }
 }

@@ -21,7 +21,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
-import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
+import org.firstinspires.ftc.teamcode.decode.util.Arducam;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
 import org.firstinspires.ftc.teamcode.decode.util.LimelightEx;
@@ -34,18 +34,17 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 public final class Robot {
     public final Follower drivetrain;
     public final BulkReader bulkReader;
-    public final AutoAim autoAim;
     public final ActionScheduler actionScheduler;
     public final Shooter shooter;
     public final Intake intake;
     public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
     public final LEDController ledController;
-    public final LimelightEx limelight;
-    private Pose llRobotPose;
-    private Pose arduRobotPose;
 
-    private boolean isLimelightRunning = true;
+    public LimelightEx limelight;
+    public Arducam arducam;
+
+    public final boolean isAuto;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -66,7 +65,12 @@ public final class Robot {
      * @param hardwareMap: A constant map that holds all the parts for config in code
      */
     public Robot(HardwareMap hardwareMap, boolean isAuto) {
-        Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        this.isAuto = isAuto;
+
+        if (isAuto) {
+            Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+            limelight = new LimelightEx(limelight3A);
+        }
 
         drivetrain = Constants.createFollower(hardwareMap);
         bulkReader = new BulkReader(hardwareMap);
@@ -75,8 +79,7 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
         ledController = new LEDController(hardwareMap);
-        limelight = new LimelightEx(limelight3A);
-        autoAim = new AutoAim(hardwareMap, "arducam");
+        if (!isAuto) arducam = new Arducam(hardwareMap, "arducam");
 
         ledController.ensureInitialized();
 
@@ -130,22 +133,10 @@ public final class Robot {
         double vy = drivetrain.getVelocity().getYComponent();
         isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
 
-        if (isLimelightRunning) limelight.update();
-
-//        double normalizedRobotHeading = (drivetrain.getPose().getHeading() % (2*Math.PI) + (2*Math.PI)) % (2*Math.PI);
-//        if (normalizedRobotHeading >= Math.toRadians(200) && normalizedRobotHeading <= Math.toRadians(340)) {
-//            limelight.getLimelight().pause();
-//            isLimelightRunning = false;
-//        } else if (!isLimelightRunning) {
-//            limelight.getLimelight().start();
-//            isLimelightRunning = true;
-//        }
-
-        autoAim.detectTarget();
+        if (!isAuto) arducam.detectTarget();
 
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
-        int ballCount = 0;
 
         ledController.update();
 
@@ -164,31 +155,24 @@ public final class Robot {
 
         drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, currentX > 72 ? 0 : Math.PI ));
     }
-    public void relocalizeWithLime() {
-        llRobotPose = robot.limelight.getPoseEstimate(robot.drivetrain.getHeading());
-        if (llRobotPose != null) {
-            robot.drivetrain.setPose(llRobotPose);
-        }
-    }
 
     public void relocalizeWithArdu() {
-        arduRobotPose = autoAim.getTurretPosePedro();
+        if (!isAuto) {
+            Pose arduRobotPose = arducam.getTurretPosePedro();
 
-        if (arduRobotPose != null) {
-            robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
+            if (arduRobotPose != null) {
+                robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
+            }
         }
     }
 
-    public Pose getLLRobotPose(){
-        return llRobotPose;
-    }
     // Prints data on the driver hub for debugging and other uses
     public void printTelemetry() {
         if (isTelemetryOn) {
             shooter.printTelemetry();
             intake.printTelemetry();
-            limelight.printTelemetry();
-            autoAim.printTelemetry();
+            if (isAuto) limelight.printTelemetry();
+            if (!isAuto) arducam.printTelemetry();
         }
         Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
         Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());

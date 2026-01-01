@@ -46,10 +46,10 @@ public class    Hood extends Subsystem<Double> {
 
     public double getHoodAngleWithDistance(double distance) {
 
-        return Range.clip(26.182014839692346*(1) + 1.1213299138282586*(distance) + -0.002162724921235206*(distance*distance), MIN, MAX);
+        return Range.clip(10+26.182014839692346*(1) + 1.1213299138282586*(distance) + -0.002162724921235206*(distance*distance), MIN, MAX);
     }
     public double getHoodAngleWithRPM(double currentRPM) {
-        double angle = -252.051601447441*(1) + 0.21523829719632345*(currentRPM) + -2.842690046324649e-05*(currentRPM * currentRPM);
+        double angle = 5+-252.051601447441*(1) + 0.21523829719632345*(currentRPM) + -2.842690046324649e-05*(currentRPM * currentRPM);
         return Range.clip(angle, MIN, MAX);
     }
 

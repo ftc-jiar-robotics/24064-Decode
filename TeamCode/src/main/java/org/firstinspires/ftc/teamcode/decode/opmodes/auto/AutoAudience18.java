@@ -26,6 +26,12 @@ public class AutoAudience18 extends AbstractAuto{
     private AudiencePaths path;
 
     @Override
+    protected void update() {
+        super.update();
+        robot.limelight.update();
+    }
+
+    @Override
     protected Pose getStartPose() {
         return AudiencePaths.start;
     }
@@ -50,9 +56,9 @@ public class AutoAudience18 extends AbstractAuto{
         shootPreload();
         shootFirst();
         shootHP();
-        shootHPBigBall();
-        shootHPBigBall();
-        shootHPBigBall();
+        while (getRuntime() < AudiencePaths.LEAVE_TIME) {
+            shootHPBigBall();
+        }
         audienceLeave();
     }
 

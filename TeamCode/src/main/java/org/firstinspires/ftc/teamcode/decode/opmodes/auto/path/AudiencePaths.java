@@ -82,6 +82,7 @@ public class AudiencePaths {
             robot.limelight.update();
             result = robot.limelight.getColorResult();
             isArtifactFound = !result.isEmpty();
+            robot.limelight.getLimelight().pipelineSwitch(2);
         }
 
         PathChain path = humanPlayerIntake0;

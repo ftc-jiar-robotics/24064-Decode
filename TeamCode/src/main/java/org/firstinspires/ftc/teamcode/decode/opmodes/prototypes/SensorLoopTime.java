@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.prototypes;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_COLOR_SENSOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_LEFT_PIN0;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_RIGHT_PIN0;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_INTAKE_DISTANCE_SENSOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET_CAMERA;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -16,11 +14,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
-import org.firstinspires.ftc.teamcode.decode.subsystem.Feeder;
-import org.firstinspires.ftc.teamcode.decode.subsystem.Intake;
-import org.firstinspires.ftc.teamcode.decode.util.AutoAim;
+import org.firstinspires.ftc.teamcode.decode.util.Arducam;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
@@ -37,7 +32,7 @@ public class SensorLoopTime extends LinearOpMode {
 
     private BulkReader bulkReader;
     private DigitalChannel pin0Left, pin0Right;
-    private AutoAim autoAim;
+    private Arducam arducam;
 
     private static final String PINPOINT_NAME = "pinpoint";
     private GoBildaPinpointDriver pinpoint;
@@ -100,7 +95,7 @@ public class SensorLoopTime extends LinearOpMode {
         pin0Left.setMode(DigitalChannel.Mode.INPUT);
         pin0Right.setMode(DigitalChannel.Mode.INPUT);
 
-        autoAim = new AutoAim(hardwareMap, NAME_TURRET_CAMERA);
+        arducam = new Arducam(hardwareMap, NAME_TURRET_CAMERA);
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, PINPOINT_NAME);
 
         telemetry.addLine("Sensor Loop Time (Dashboard Config)");
@@ -169,9 +164,9 @@ public class SensorLoopTime extends LinearOpMode {
             // Camera
             if (USE_CAMERA) {
                 long t0 = System.nanoTime();
-                hasTarget = autoAim.detectTarget();
+                hasTarget = arducam.detectTarget();
                 if (hasTarget) {
-                    turretPose = autoAim.getTurretPosePedro();
+                    turretPose = arducam.getTurretPosePedro();
                 }
                 long t1 = System.nanoTime();
                 camMs = (t1 - t0) / 1e6;
@@ -294,8 +289,8 @@ public class SensorLoopTime extends LinearOpMode {
             Common.dashTelemetry.update();
         }
 
-        if (autoAim != null) {
-            autoAim.close();
+        if (arducam != null) {
+            arducam.close();
         }
     }
 }

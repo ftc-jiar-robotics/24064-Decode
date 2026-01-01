@@ -67,7 +67,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             SMOOTH_RPM_GAIN = 0.85,
             DERIV_TOLERANCE = 200,
             IDLE_RPM = 1200,
-            FAR_ARMING_RPM = 3250,
+            FAR_ARMING_RPM = 2950,
             CLOSE_ARMING_RPM = 2500,
             MAX_RPM = 4800,
             VOLTAGE_SCALER = 0.99;

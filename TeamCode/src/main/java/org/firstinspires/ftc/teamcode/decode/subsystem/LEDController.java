@@ -175,7 +175,7 @@ public class LEDController {
     // -------------------------
 
     private Pattern computeLLPattern() {
-        if (robot.autoAim.getTurretPosePedro() == null) {
+        if (robot.arducam != null && robot.arducam.getTurretPosePedro() == null) {
             return Pattern.RED;
         }
         return Pattern.GREEN;

@@ -60,11 +60,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static LowPassGains errorDerivGains = new LowPassGains(0, 2);
 
     public static double
-            kS = -0.1,
+            kS = -0.07,
             WRAP_AROUND_THRESHOLD = 5,
             SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
-            GOAL_ADDITION_X = 9.5,
+            GOAL_ADDITION_X_BLUE = 4,
+            GOAL_ADDITION_X_RED = 9.5,
             GOAL_SUBTRACTION_Y = 6,
             TICKS_TO_DEGREES = 0.232737218162581,
             WRAP_AROUND_ANGLE = 180,
@@ -122,7 +123,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double x = Common.BLUE_GOAL.getX();
         double y = Common.BLUE_GOAL.getY();
         if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
-        else if(robot.drivetrain.getPose().getY()<SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + GOAL_ADDITION_X, y);
+        else if(robot.drivetrain.getPose().getY()<SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE), y);
         else newGoal = new Pose(x, y);
 
 

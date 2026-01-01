@@ -22,7 +22,7 @@ import java.util.List;
 
 @Config
 @Configurable
-public class AutoAim {
+public class Arducam {
     private final VisionPortal visionPortal;
     private final AprilTagProcessor processor;
 
@@ -47,7 +47,7 @@ public class AutoAim {
      * @param hw              FTC HardwareMap
      * @param webcamName      the configured camera name (e.g., "ArduCam")
      */
-    public AutoAim(HardwareMap hw, String webcamName) {
+    public Arducam(HardwareMap hw, String webcamName) {
         setAlliance();
 
         AprilTagProcessor.Builder procB = new AprilTagProcessor.Builder()
