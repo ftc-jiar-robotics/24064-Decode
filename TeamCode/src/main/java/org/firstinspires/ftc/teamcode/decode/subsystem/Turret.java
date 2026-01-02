@@ -65,7 +65,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
             GOAL_ADDITION_X_BLUE = 4,
-            GOAL_ADDITION_X_RED = 9.5,
+            GOAL_ADDITION_X_RED = 7,
             GOAL_SUBTRACTION_Y = 6,
             TICKS_TO_DEGREES = 0.232737218162581,
             WRAP_AROUND_ANGLE = 180,

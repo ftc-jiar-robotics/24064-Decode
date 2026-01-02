@@ -21,7 +21,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
 import org.firstinspires.ftc.teamcode.decode.util.ActionScheduler;
-import org.firstinspires.ftc.teamcode.decode.util.Arducam;
+import org.firstinspires.ftc.teamcode.decode.util.ArduCam;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
 import org.firstinspires.ftc.teamcode.decode.util.LimelightEx;
@@ -41,8 +41,16 @@ public final class Robot {
     public final VoltageSensor batteryVoltageSensor;
     public final LEDController ledController;
 
+    public static int MAX_STALENESS = 50;
+
+    public static double
+            MAX_VARIANCE_X = 0.2,
+            MAX_VARIANCE_Y = 0.3;
+
     public LimelightEx limelight;
-    public Arducam arducam;
+    public ArduCam arducam;
+
+    public boolean hasArduCamRelocalized = false;
 
     public final boolean isAuto;
 
@@ -79,7 +87,7 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
         ledController = new LEDController(hardwareMap);
-        if (!isAuto) arducam = new Arducam(hardwareMap, "arducam");
+        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
 
         ledController.ensureInitialized();
 
@@ -160,7 +168,9 @@ public final class Robot {
         if (!isAuto) {
             Pose arduRobotPose = arducam.getTurretPosePedro();
 
-            if (arduRobotPose != null) {
+            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
+
+            if (hasArduCamRelocalized) {
                 robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
             }
         }

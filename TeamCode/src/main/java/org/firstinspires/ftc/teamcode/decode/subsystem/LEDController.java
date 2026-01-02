@@ -19,7 +19,7 @@ public class LEDController {
 
     private final GoBildaPrismDriver prism;
 
-    private final PrismAnimations.Solid llStrip = new PrismAnimations.Solid();
+    private final PrismAnimations.Solid arduCamStrip = new PrismAnimations.Solid();
     private final PrismAnimations.Solid turretStrip = new PrismAnimations.Solid();
     private final PrismAnimations.Solid intakeFrontRightStrip = new PrismAnimations.Solid();
     private final PrismAnimations.Solid intakeFrontLeftStrip = new PrismAnimations.Solid();
@@ -33,7 +33,7 @@ public class LEDController {
 
     private boolean initialized = false;
 
-    private Pattern lastLLPattern = null;
+    private Pattern lastArduCamPattern = null;
     private Pattern lastTurretPattern = null;
     private Pattern lastFeederPattern = null;
     private Pattern lastIntakeFrontPattern = null;
@@ -49,17 +49,17 @@ public class LEDController {
         if ((LoopUtil.getLoops() & LOOP_COUNTER) == 0) {
             ensureInitialized();
 
-            Pattern llPattern = computeLLPattern();
+            Pattern arduCamPattern = computeLLPattern();
             Pattern turretPattern = computeTurretPattern();
 
             Pattern intakeFrontPattern = computeIntakeFrontPattern();
             Pattern intakeBackPattern = computeIntakeBackPattern();
             Pattern feederPattern = computeFeederPattern();
 
-            if (llPattern != lastLLPattern) {
-                llStrip.setPrimaryColor(toColor(llPattern));
+            if (arduCamPattern != lastArduCamPattern) {
+                arduCamStrip.setPrimaryColor(toColor(arduCamPattern));
                 prism.updateAnimationFromIndex(GoBildaPrismDriver.LayerHeight.LAYER_0);
-                lastLLPattern = llPattern;
+                lastArduCamPattern = arduCamPattern;
             }
 
             if (turretPattern != lastTurretPattern) {
@@ -108,10 +108,10 @@ public class LEDController {
         turretStrip.setPrimaryColor(toColor(Pattern.OFF));
 
         // ---- Turret strip (LEDs 6–11) ----
-        llStrip.setBrightness(BRIGHTNESS);
-        llStrip.setStartIndex(2*BIG_STRIP_LENGTH+SMALL_STRIP_LENGTH);
-        llStrip.setStopIndex(2*BIG_STRIP_LENGTH+(2 * SMALL_STRIP_LENGTH) - 1);
-        llStrip.setPrimaryColor(toColor(Pattern.OFF));
+        arduCamStrip.setBrightness(BRIGHTNESS);
+        arduCamStrip.setStartIndex(2*BIG_STRIP_LENGTH+SMALL_STRIP_LENGTH);
+        arduCamStrip.setStopIndex(2*BIG_STRIP_LENGTH+(2 * SMALL_STRIP_LENGTH) - 1);
+        arduCamStrip.setPrimaryColor(toColor(Pattern.OFF));
 
         // ---- intakeFrontRight Strip ----
         intakeFrontRightStrip.setBrightness(BRIGHTNESS);
@@ -153,7 +153,7 @@ public class LEDController {
 
 
 
-        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_0, llStrip);
+        prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_0, arduCamStrip);
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_1, turretStrip);
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_2, intakeFrontRightStrip);
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_3, intakeFrontLeftStrip);
@@ -162,7 +162,7 @@ public class LEDController {
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_6, feederRightStrip);
         prism.insertAndUpdateAnimation(GoBildaPrismDriver.LayerHeight.LAYER_7, feederLeftStrip);
 
-        lastLLPattern = Pattern.OFF;
+        lastArduCamPattern = Pattern.OFF;
         lastTurretPattern = Pattern.OFF;
         lastFeederPattern = Pattern.OFF ;
         lastIntakeFrontPattern = Pattern.OFF;
@@ -178,6 +178,7 @@ public class LEDController {
         if (robot.arducam != null && robot.arducam.getTurretPosePedro() == null) {
             return Pattern.RED;
         }
+        if (robot.hasArduCamRelocalized) return Pattern.ORANGE;
         return Pattern.GREEN;
     }
 

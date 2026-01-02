@@ -37,8 +37,8 @@ public class AudiencePaths {
 
             start = Common.BLUE_SMALL_TRIANGLE,
             shootPreload = new Pose(55.5, 11.25),
-            shoot = new Pose(63.9, 19.4),
-            leave = new Pose(49.600, 16.200),
+            shoot = new Pose(60.2, 19.4),
+            leave = new Pose(40.1, 24.9),
             startIntake1 = new Pose(36.1, 28.4),
             endIntake1 = new Pose(13.500, 30.400),
             startIntakeHP1 = new Pose(8.000, 8.500),
@@ -46,7 +46,6 @@ public class AudiencePaths {
             endIntakeHP1 = new Pose(10.300, 8.500);
 
     public static double
-            leaveAngle = Math.toRadians(132),
             startAngle = Math.toRadians(90),
             shootAngle = Math.toRadians(167),
             startIntakeAngle = Math.toRadians(153),
@@ -65,10 +64,8 @@ public class AudiencePaths {
         midIntakeHP1 = midIntakeHP1.mirror();
         endIntakeHP1 = endIntakeHP1.mirror();
 
-
         startAngle = mirrorAngleRad(startAngle);
         shootAngle = mirrorAngleRad(shootAngle);
-        leaveAngle = mirrorAngleRad(leaveAngle);
         startIntakeAngle = mirrorAngleRad(startIntakeAngle);
         endIntakeAngle = mirrorAngleRad(endIntakeAngle);
         startIntakeAngleHP1 = mirrorAngleRad(startIntakeAngleHP1);
@@ -236,7 +233,7 @@ public class AudiencePaths {
                         // Path 0
                         new BezierLine(shoot, leave)
                 )
-                .setConstantHeadingInterpolation(leaveAngle)
+                .setConstantHeadingInterpolation(shootAngle)
                 .build();
     }
     public PathChain preload;

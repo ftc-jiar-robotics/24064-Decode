@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
-import org.firstinspires.ftc.teamcode.decode.util.Arducam;
+import org.firstinspires.ftc.teamcode.decode.util.ArduCam;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
@@ -32,7 +32,7 @@ public class SensorLoopTime extends LinearOpMode {
 
     private BulkReader bulkReader;
     private DigitalChannel pin0Left, pin0Right;
-    private Arducam arducam;
+    private ArduCam arducam;
 
     private static final String PINPOINT_NAME = "pinpoint";
     private GoBildaPinpointDriver pinpoint;
@@ -95,7 +95,7 @@ public class SensorLoopTime extends LinearOpMode {
         pin0Left.setMode(DigitalChannel.Mode.INPUT);
         pin0Right.setMode(DigitalChannel.Mode.INPUT);
 
-        arducam = new Arducam(hardwareMap, NAME_TURRET_CAMERA);
+        arducam = new ArduCam(hardwareMap, NAME_TURRET_CAMERA);
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, PINPOINT_NAME);
 
         telemetry.addLine("Sensor Loop Time (Dashboard Config)");
