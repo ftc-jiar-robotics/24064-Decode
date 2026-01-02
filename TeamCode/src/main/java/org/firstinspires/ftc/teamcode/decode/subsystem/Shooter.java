@@ -185,7 +185,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     }
                 }
 
-                if ((queuedShots >= 1 && flywheel.get() == Flywheel.FlyWheelStates.RUNNING && turret.isPIDInTolerance() && distance > Common.MIN_SHOOTING_DISTANCE && (distance <= 120 || turret.isReadyToShoot())) || inEmergency) {
+                if ((queuedShots >= 1 &&
+                        flywheel.get() == Flywheel.FlyWheelStates.RUNNING &&
+                        turret.isPIDInTolerance() &&
+                        (robot.isAuto || distance > Common.MIN_SHOOTING_DISTANCE) &&
+
+                        (distance <= 120 || turret.isReadyToShoot())) || inEmergency) {
                     inEmergency = false;
                     feeder.set(Feeder.FeederStates.RUNNING, true);
                     targetState = ShooterStates.RUNNING;
