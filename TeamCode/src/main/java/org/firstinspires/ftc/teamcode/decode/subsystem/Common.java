@@ -89,7 +89,7 @@ public final class Common {
 
     public static double
             MIN_MOVEMENT_SPEED = 0.5,
-            ANG_VELOCITY_MULTIPLER = 0.1,
+            ANG_VELOCITY_MULTIPLER = 0,
             IMU_YAW_SCALAR = 1.00086,
             SLOW_MODE = 0.55,
             LAUNCH_DELAY = 0.5,    // seconds (feeder > ball leaves flywheel) NOTE: 1 second at 11v, .7 at 12.3

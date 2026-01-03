@@ -84,6 +84,7 @@ public class MainTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             robot.run();
+            robot.relocalizeWithArdu();
             gamepadEx1.readButtons();
 
             if (isSlowMode) robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
@@ -119,10 +120,8 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             } else {
-                if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
-                    robot.relocalizeWithArdu();
-                }
                 if (gamepadEx1.isDown(DPAD_UP)) robot.drivetrain.setPose(new Pose(robot.drivetrain.getPose().getX(), robot.drivetrain.getPose().getY(), Math.toRadians(90)));
+                if (gamepadEx1.isDown(DPAD_DOWN)) robot.relocalizeWithArdu(true);
             }
 
             if (isFlywheelManual) {
@@ -133,8 +132,8 @@ public class MainTeleOp extends LinearOpMode {
 
             if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.emergencyShootArtifacts());
             if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
-            if (gamepadEx1.wasJustPressed(X)) robot.shooter.clearQueueShots();
-            if (gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER)) {
+            if (gamepadEx1.isDown(RIGHT_BUMPER)) robot.shooter.clearQueueShots();
+            if (gamepadEx1.gamepad.guide) {
                 robot.relocalizeWithWall();
             }
 

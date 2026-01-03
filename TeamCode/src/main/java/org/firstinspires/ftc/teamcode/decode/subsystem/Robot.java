@@ -41,11 +41,11 @@ public final class Robot {
     public final VoltageSensor batteryVoltageSensor;
     public final LEDController ledController;
 
-    public static int MAX_STALENESS = 50;
+    public static double MAX_STALENESS = 1e7;
 
     public static double
-            MAX_VARIANCE_X = 0.2,
-            MAX_VARIANCE_Y = 0.3;
+            MAX_VARIANCE_X = 0.35,
+            MAX_VARIANCE_Y = 0.35;
 
     public LimelightEx limelight;
     public ArduCam arducam;
@@ -165,12 +165,16 @@ public final class Robot {
     }
 
     public void relocalizeWithArdu() {
+        relocalizeWithArdu(false);
+    }
+
+    public void relocalizeWithArdu(boolean override) {
         if (!isAuto) {
             Pose arduRobotPose = arducam.getTurretPosePedro();
 
             hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
 
-            if (hasArduCamRelocalized) {
+            if (hasArduCamRelocalized || override) {
                 robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
             }
         }

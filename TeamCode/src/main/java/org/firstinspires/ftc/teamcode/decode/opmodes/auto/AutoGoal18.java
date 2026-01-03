@@ -55,13 +55,13 @@ public class AutoGoal18 extends AbstractAuto{
     @Override
     protected void onRun() {
         shootPreload();
+        SLOW_MODE = slowMode;
         shootSecond();
         shootGateCycle();
         shootGateCycle();
         shootFirst();
         shootThird();
         goalLeave();
-        SLOW_MODE = slowMode;
     }
 
     private void goalLeave() {
@@ -236,7 +236,7 @@ public class AutoGoal18 extends AbstractAuto{
                                 new Actions.UntilConditionAction(() -> !robot.shooter.isBallPresent(),new ParallelAction(
                                         new Actions.CallbackAction(
                                                 RobotActions.emergencyShootArtifacts(),
-                                                path.shootPreload21, 0.5, 0, f, "arm_flywheel_and_turret_0"
+                                                path.shootPreload21, 0.7, 0, f, "arm_flywheel_and_turret_0"
 
                                         ),
                                         new Actions.CallbackAction(
