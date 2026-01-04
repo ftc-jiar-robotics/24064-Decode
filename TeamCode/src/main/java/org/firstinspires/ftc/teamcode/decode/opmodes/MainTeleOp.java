@@ -112,7 +112,7 @@ public class MainTeleOp extends LinearOpMode {
 
             double trigger1 = gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
 
-            isSlowMode = robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING; //true
+//            isSlowMode = robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING; //true
             isSlowMode = gamepadEx1.isDown(LEFT_BUMPER) != isSlowMode;
 
             robot.intake.set(trigger1, false);

@@ -129,14 +129,13 @@ public final class Robot {
     // Runs all the necessary mechanisms
     public void run() {
         update();
+        drivetrain.update();
         shooter.run();
         intake.run();
         actionScheduler.run();
     }
 
     public void update() {
-        drivetrain.update();
-
         double vx = drivetrain.getVelocity().getXComponent();
         double vy = drivetrain.getVelocity().getYComponent();
         isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;

@@ -8,6 +8,8 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -78,6 +80,8 @@ public class ArduCam {
                 .enableLiveView(true)
                 .addProcessor(processor)
                 .build();
+
+        visionPortal.getCameraControl(ExposureControl.class).setMode(ExposureControl.Mode.Auto);
     }
 
     public static double[] getVariance(Queue<Pose> queue) {

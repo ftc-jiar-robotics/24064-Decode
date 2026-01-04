@@ -60,7 +60,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static LowPassGains errorDerivGains = new LowPassGains(0, 2);
 
     public static double
-            kS = -0.07,
+            kS = -0.08,
             WRAP_AROUND_THRESHOLD = 5,
             SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
