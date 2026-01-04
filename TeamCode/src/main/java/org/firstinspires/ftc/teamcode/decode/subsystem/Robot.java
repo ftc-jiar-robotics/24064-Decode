@@ -39,7 +39,7 @@ public final class Robot {
     public final Intake intake;
     public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
-    public final LEDController ledController;
+//    public final LEDController ledController;
 
     public static double MAX_STALENESS = 1e7;
 
@@ -86,10 +86,10 @@ public final class Robot {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
-        ledController = new LEDController(hardwareMap);
+//        ledController = new LEDController(hardwareMap);
         if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
 
-        ledController.ensureInitialized();
+//        ledController.ensureInitialized();
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -146,7 +146,7 @@ public final class Robot {
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
-        ledController.update();
+//        ledController.update();
 
         readSensors();
         LoopUtil.updateLoopCount();
@@ -161,7 +161,7 @@ public final class Robot {
         }
         LOCALIZATION_Y = 7.5;
 
-        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, currentX > 72 ? 0 : Math.PI ));
+        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, drivetrain.getHeading() ));
     }
 
     public void relocalizeWithArdu() {
@@ -174,7 +174,7 @@ public final class Robot {
 
             hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
 
-            if (hasArduCamRelocalized || override) {
+            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
                 robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
             }
         }

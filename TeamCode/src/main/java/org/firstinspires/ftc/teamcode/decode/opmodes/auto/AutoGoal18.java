@@ -144,6 +144,7 @@ public class AutoGoal18 extends AbstractAuto{
 
     private void shootGateCycle() {
         path.gateCycleIntake21.getPath(0).setTValueConstraint(0.88);
+        path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.00349);
         path.gateCycleShoot21.getPath(0).setTValueConstraint(0.8);
         f.setMaxPower(1);
         robot.actionScheduler.addAction(
@@ -236,7 +237,7 @@ public class AutoGoal18 extends AbstractAuto{
                                 new Actions.UntilConditionAction(() -> !robot.shooter.isBallPresent(),new ParallelAction(
                                         new Actions.CallbackAction(
                                                 RobotActions.emergencyShootArtifacts(),
-                                                path.shootPreload21, 0.7, 0, f, "arm_flywheel_and_turret_0"
+                                                path.shootPreload21, 0.67, 0, f, "arm_flywheel_and_turret_0"
 
                                         ),
                                         new Actions.CallbackAction(

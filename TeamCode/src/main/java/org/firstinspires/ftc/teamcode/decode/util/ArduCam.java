@@ -129,7 +129,7 @@ public class ArduCam {
 
             cached = d;
             readTime = System.nanoTime();
-            visionSamplePoses.add(new Pose(cached.robotPose.getPosition().x, cached.robotPose.getPosition().y));
+            if (cached.robotPose != null && cached.robotPose.getPosition() != null) visionSamplePoses.add(new Pose(cached.robotPose.getPosition().x, cached.robotPose.getPosition().y));
 
             visionVariances = getVariance(visionSamplePoses);
 
@@ -154,7 +154,7 @@ public class ArduCam {
             yFilter.reset();
         }
 
-        if (cached != null) {
+        if (cached != null && cached.robotPose != null && cached.robotPose.getPosition() != null) {
             double x = cached.robotPose.getPosition().y + 72;
             double y = 72 - cached.robotPose.getPosition().x;
             double headingDeg = cached.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);

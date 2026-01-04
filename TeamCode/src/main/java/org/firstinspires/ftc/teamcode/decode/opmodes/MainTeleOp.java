@@ -34,6 +34,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
@@ -121,7 +122,10 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             } else {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.drivetrain.setPose(new Pose(robot.drivetrain.getPose().getX(), robot.drivetrain.getPose().getY(), Math.toRadians(90)));
-                if (gamepadEx1.isDown(DPAD_DOWN)) robot.relocalizeWithArdu(true);
+                if (gamepadEx1.isDown(DPAD_DOWN)) {
+                    robot.relocalizeWithArdu(true);
+                    if (!robot.hasArduCamRelocalized) gamepadEx1.gamepad.rumble(250);
+                }
             }
 
             if (isFlywheelManual) {
