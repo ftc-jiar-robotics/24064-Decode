@@ -71,7 +71,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 180,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
-            PID_TOLERANCE_CLOSE = 4.367,
+            PID_DERIV_TOLERANCE = 2.5,
+            PID_TOLERANCE_CLOSE = 2,
             PID_TOLERANCE_FAR = 1.5,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
@@ -79,9 +80,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             BADGE_RETRACTOR_ANGLE = 10,
             BADGE_RETRACTOR_KS = -0.1,
             ABSOLUTE_ENCODER_OFFSET = -179,
-            READY_TO_SHOOT_LOOPS = 2,
-            kA_TURRET = -0.02,
-            kV_TURRET = 0.09,   // start at 0, tune up slowly
+            READY_TO_SHOOT_LOOPS = 5,
+            kA_TURRET = 0,
+            kV_TURRET = 0.1,   // start at 0, tune up slowly
             LOS_EPS = 1e-6;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;
@@ -208,7 +209,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public boolean isPIDInTolerance() {
         double posTol = getPositionTolerance();
-        return Math.abs(currentAngle - targetAngle) < posTol;//controller.isInTolerance(new State(currentAngle, 0, 0, 0), posTol);
+        return Math.abs(currentAngle - targetAngle) < posTol && controller.isInTolerance(new State(currentAngle, 0, 0, 0), posTol, PID_DERIV_TOLERANCE);
     }
 
 

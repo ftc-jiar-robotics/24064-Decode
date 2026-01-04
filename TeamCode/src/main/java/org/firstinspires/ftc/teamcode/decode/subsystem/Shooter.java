@@ -246,6 +246,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private Pose currentPose, predictedPose;
     public Pose getPredictedPose() {
         currentPose = robot.drivetrain.getPose();
+
+        if (targetState != ShooterStates.RUNNING) return currentPose;
 //        double distanceInches = turret.getDistance();
 //        double airtime = Common.getAirtimeForDistance(distanceInches);
         double timeToShoot = Common.LAUNCH_DELAY; // + airtime

@@ -237,7 +237,7 @@ public class AutoGoal18 extends AbstractAuto{
                                 new Actions.UntilConditionAction(() -> !robot.shooter.isBallPresent(),new ParallelAction(
                                         new Actions.CallbackAction(
                                                 RobotActions.emergencyShootArtifacts(),
-                                                path.shootPreload21, 0.67, 0, f, "arm_flywheel_and_turret_0"
+                                                path.shootPreload21, 0.4, 0, f, "arm_flywheel_and_turret_0"
 
                                         ),
                                         new Actions.CallbackAction(
@@ -248,9 +248,9 @@ public class AutoGoal18 extends AbstractAuto{
                                                 ),
                                                 path.shootPreload21, 0.01, 0, f, "arm_flywheel_and_turret_0"
                                         ),
-//                                        new Actions.CallbackAction(
-//                                                new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.2, 0, f, "arm_flywheel_and_turret_0"
-//                                        ),
+                                        new Actions.CallbackAction(
+                                                new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.2, 0, f, "arm_flywheel_and_turret_0"
+                                        ),
                                         new FollowPathAction(f, path.shootPreload21, true)
                                 )
                                 )
