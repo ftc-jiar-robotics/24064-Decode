@@ -136,6 +136,7 @@ public final class Robot {
     }
 
     public void update() {
+        readSensors();
         double vx = drivetrain.getVelocity().getXComponent();
         double vy = drivetrain.getVelocity().getYComponent();
         isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
@@ -146,8 +147,6 @@ public final class Robot {
         Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
 
         ledController.update();
-
-        readSensors();
         LoopUtil.updateLoopCount();
     }
 

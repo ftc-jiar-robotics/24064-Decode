@@ -48,10 +48,11 @@ public class PIDController implements FeedbackController {
 
         if (signum(error.x) != signum(lastError.x)) reset();
         errorIntegral = integrator.getIntegral(error.x);
-        rawErrorDerivative = errorDifferentiator.getDerivative(error.x);
+        rawErrorDerivative = measurementDifferentiator.getDerivative(measurement.x);
         filteredErrorDerivative = derivFilter.calculate(rawErrorDerivative);
 
-        double output = (gains.kP * error.x) + (gains.kI * errorIntegral) + (gains.kD * filteredErrorDerivative);
+        double output = (gains.kP * error.x) + (gains.kI * errorIntegral) - (gains.kD * filteredErrorDerivative);
+
 
         stopIntegration(abs(output) >= gains.maxOutputWithIntegral && signum(output) == signum(error.x));
 
