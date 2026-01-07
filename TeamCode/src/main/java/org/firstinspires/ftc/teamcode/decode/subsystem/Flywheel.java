@@ -55,6 +55,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             10
     );
 
+
+
     public enum FlyWheelStates {
         IDLE, ARMING, RUNNING
     }
@@ -111,6 +113,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motorGroup = new MotorEx[]{shooterMaster, shooterSlave};
 
+        velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
         velocityController.setGains(shootingVelocityGains);
         rpmFilter.setGains(rpmFilterGains);
     }
