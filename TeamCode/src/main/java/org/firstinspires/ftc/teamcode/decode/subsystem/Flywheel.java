@@ -113,7 +113,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motorGroup = new MotorEx[]{shooterMaster, shooterSlave};
 
-        velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
+       // velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
         velocityController.setGains(shootingVelocityGains);
         rpmFilter.setGains(rpmFilterGains);
     }
