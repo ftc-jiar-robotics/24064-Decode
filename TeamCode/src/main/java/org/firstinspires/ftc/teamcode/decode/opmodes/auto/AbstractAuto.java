@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+import org.firstinspires.ftc.teamcode.decode.util.Logging.MatchReplayLogger;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 
 
@@ -28,7 +29,16 @@ public abstract class AbstractAuto extends LinearOpMode {
         robot.shooter.run();
         robot.intake.run();
         robot.printTelemetry();
+
+        double t = getRuntime();
+        if (lastLogSec < 0 || (t - lastLogSec) >= LOG_PERIOD_SEC) {
+            lastLogSec = t;
+            MatchReplayLogger.get().logRobot(robot, t);
+        }
+
     }
+    private double lastLogSec = -1;
+    private static final double LOG_PERIOD_SEC = 0.05; // 20 Hz
 
     @Override
     public final void runOpMode() {
@@ -45,6 +55,23 @@ public abstract class AbstractAuto extends LinearOpMode {
         if (isStopRequested()) return;
 
         waitForStart();
+
+        MatchReplayLogger.get().startAutonomous(getClass().getSimpleName());
+        MatchReplayLogger.get().event(0.0, "AUTO_SELECTED", getClass().getSimpleName());
+        try {
+            robot.drivetrain.setPose(getStartPose());
+            onRun();
+
+            robot.actionScheduler.addAction(new SleepAction(2));
+            robot.actionScheduler.runBlocking();
+
+            Common.AUTO_END_POSE = robot.drivetrain.getPose();
+            Common.TURRET_ENC_OFFSET = robot.shooter.getTurretAngle();
+        } finally {
+            // this runs even if you stop early
+            MatchReplayLogger.get().stopAutonomous(getRuntime());
+            robot.limelight.getLimelight().close(); // move your close here too
+        }
 
         resetRuntime();
         robot.drivetrain.setPose(getStartPose());

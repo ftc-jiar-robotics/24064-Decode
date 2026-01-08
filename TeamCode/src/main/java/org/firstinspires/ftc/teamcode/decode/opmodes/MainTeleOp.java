@@ -40,6 +40,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
+import org.firstinspires.ftc.teamcode.decode.util.Logging.MatchReplayLogger;
 
 @TeleOp(name = "Main TeleOp", group = "24064")
 public class MainTeleOp extends LinearOpMode {
@@ -48,6 +49,9 @@ public class MainTeleOp extends LinearOpMode {
     boolean lastInTriangle = false;
 
     private int storedShots = 0;
+    private double lastLogSec = -1;
+    private static final double LOG_PERIOD_SEC = 0.05; // 20 Hz
+
 
     @Override
     public void runOpMode() {
@@ -77,12 +81,15 @@ public class MainTeleOp extends LinearOpMode {
         robot.shooter.setGoalAlliance();
 
         waitForStart();
+        MatchReplayLogger.get().startTeleOp(getClass().getSimpleName());
+        MatchReplayLogger.get().event(0.0, "TELEOP_START", getClass().getSimpleName());
 
         robot.drivetrain.setStartingPose(AUTO_END_POSE);
 
         robot.drivetrain.update();
         robot.drivetrain.startTeleopDrive(true);
 
+    try {
         while (opModeIsActive()) {
             robot.run();
             robot.relocalizeWithArdu();
@@ -121,7 +128,8 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             } else {
-                if (gamepadEx1.isDown(DPAD_UP)) robot.drivetrain.setPose(new Pose(robot.drivetrain.getPose().getX(), robot.drivetrain.getPose().getY(), Math.toRadians(90)));
+                if (gamepadEx1.isDown(DPAD_UP))
+                    robot.drivetrain.setPose(new Pose(robot.drivetrain.getPose().getX(), robot.drivetrain.getPose().getY(), Math.toRadians(90)));
                 if (gamepadEx1.isDown(DPAD_DOWN)) {
                     robot.relocalizeWithArdu(true);
                     if (!robot.hasArduCamRelocalized) gamepadEx1.gamepad.rumble(250);
@@ -134,8 +142,10 @@ public class MainTeleOp extends LinearOpMode {
 
             }
 
-            if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.emergencyShootArtifacts());
-            if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
+            if (gamepadEx1.wasJustPressed(A))
+                robot.actionScheduler.addAction(RobotActions.emergencyShootArtifacts());
+            if (gamepadEx1.wasJustPressed(B))
+                robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
             if (gamepadEx1.isDown(RIGHT_BUMPER)) robot.shooter.clearQueueShots();
             if (gamepadEx1.gamepad.guide) {
                 robot.relocalizeWithWall();
@@ -163,7 +173,9 @@ public class MainTeleOp extends LinearOpMode {
 
             robot.printTelemetry();
         }
-
+    } finally {
+        MatchReplayLogger.get().stopTeleOp(getRuntime());
+    }
         AUTO_END_POSE = null;
         Common.TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
 //        robot.shooter.closeAutoAim();

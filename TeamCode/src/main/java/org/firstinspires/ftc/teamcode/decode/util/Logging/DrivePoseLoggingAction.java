@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.decode.util;
+package org.firstinspires.ftc.teamcode.decode.util.Logging;
 
 import android.util.Log;
 
@@ -8,6 +8,8 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.decode.util.PoseMessage;
 
 public class DrivePoseLoggingAction implements Action {
     String label;
