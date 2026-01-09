@@ -81,7 +81,7 @@ public class ArduCam {
                 .addProcessor(processor)
                 .build();
 
-        visionPortal.getCameraControl(ExposureControl.class).setMode(ExposureControl.Mode.Auto);
+//        visionPortal.getCameraControl(ExposureControl.class).setMode(ExposureControl.Mode.Auto);
     }
 
     public static double[] getVariance(Queue<Pose> queue) {

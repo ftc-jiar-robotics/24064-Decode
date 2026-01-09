@@ -14,6 +14,18 @@ import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.NoFilte
 
 public class PIDController implements FeedbackController {
 
+    public enum DerivativeMode {
+        ERROR,        // current behavior (default)
+        MEASUREMENT   // for flywheel (no derivative kick from setpoint noise)
+    }
+
+    private DerivativeMode derivativeMode = DerivativeMode.ERROR;
+
+    public void setDerivativeMode(DerivativeMode mode) {
+        this.derivativeMode = mode;
+    }
+
+
     private PIDGains gains = new PIDGains();
     private State target = new State();
 
@@ -48,10 +60,20 @@ public class PIDController implements FeedbackController {
 
         if (signum(error.x) != signum(lastError.x)) reset();
         errorIntegral = integrator.getIntegral(error.x);
-        rawErrorDerivative = errorDifferentiator.getDerivative(error.x);
+        if (derivativeMode == DerivativeMode.MEASUREMENT) {
+            // D on measurement (prevents derivative kick from noisy setpoint)
+            rawErrorDerivative = measurementDifferentiator.getDerivative(measurement.x);
+        } else {
+            // Default: D on error (existing behavior)
+            rawErrorDerivative = errorDifferentiator.getDerivative(error.x);
+        }
         filteredErrorDerivative = derivFilter.calculate(rawErrorDerivative);
 
-        double output = (gains.kP * error.x) + (gains.kI * errorIntegral) + (gains.kD * filteredErrorDerivative);
+        double dTerm = (derivativeMode == DerivativeMode.MEASUREMENT) ? (-gains.kD * filteredErrorDerivative) : (gains.kD * filteredErrorDerivative);
+
+        double output = (gains.kP * error.x) + (gains.kI * errorIntegral) + dTerm;
+
+
 
         stopIntegration(abs(output) >= gains.maxOutputWithIntegral && signum(output) == signum(error.x));
 
@@ -59,14 +81,16 @@ public class PIDController implements FeedbackController {
     }
 
     public boolean isInTolerance(State measurement, double tolerance, double derivTolerance) {
-        double deriv = movingAverageFilter.calculate(measurementDifferentiator.getDerivative(measurement.x));
+        double rawDeriv = (derivativeMode == DerivativeMode.MEASUREMENT) ? rawErrorDerivative : measurementDifferentiator.getDerivative(measurement.x);
+// already d(measurement)/dt from calculate()
+        double deriv = movingAverageFilter.calculate(rawDeriv);
 
         boolean isDerivativeInTolerance = Math.abs(deriv) <= derivTolerance;
         boolean isMeasurementInTolerance = Math.abs(target.x - measurement.x) <= tolerance;
 
-        // if current has spiked and we're in tolerance and we're not in a timer(start time + time period > curr time
         return isDerivativeInTolerance && isMeasurementInTolerance;
     }
+
 
     public boolean isInTolerance(State measurement, double tolerance) {
         return Math.abs(target.x - measurement.x) <= tolerance;

@@ -36,26 +36,26 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.0008,
+            0.008,
             0.0,
-            0.0003,
+            0.002,
             Double.POSITIVE_INFINITY
     );
 
     private final FIRLowPassFilter rpmFilter = new FIRLowPassFilter();
-    public static MovingAverageGains rpmDerivAverageFilterGains = new MovingAverageGains(
-            3
-    );
+   // public static MovingAverageGains rpmDerivAverageFilterGains = new MovingAverageGains(3);
     public static MovingAverageGains targetRPMAverageFilterGains = new MovingAverageGains(
             5
     );
 
-    private final Filter targetRPMAverageFilter = new MovingAverageFilter(targetRPMAverageFilterGains);
+    //private final Filter targetRPMAverageFilter = new MovingAverageFilter(targetRPMAverageFilterGains);
 
     public static LowPassGains rpmFilterGains = new LowPassGains(
             0.5,
             10
     );
+
+
 
     public enum FlyWheelStates {
         IDLE, ARMING, RUNNING
@@ -70,7 +70,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             FAR_ARMING_RPM = 2950,
             CLOSE_ARMING_RPM = 2500,
             MAX_RPM = 4800,
-            VOLTAGE_SCALER = 0.99;
+            VOLTAGE_SCALER = 0.99,
+            TARGET_RPM_STEP = 30.0,
+            TARGET_RPM_MID_BAND = 9.0;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
@@ -87,6 +89,18 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             shootingRPM = 4000,
             currentPower = 0;
 
+    private static double quantizeWithMidpointBand(double rpmRaw, double step, double band) {
+        double low = Math.floor(rpmRaw / step) * step;
+        double high = low + step;
+        double mid = (low + high) / 2.0;
+
+        // If we're near the midpoint (like 2375), use midpoint so it doesn't flip bins
+        if (Math.abs(rpmRaw - mid) <= band) return mid;
+
+        // Otherwise normal rounding to nearest step
+        return Math.round(rpmRaw / step) * step;
+    }
+
     public Flywheel(HardwareMap hw) {
         MotorEx shooterMaster = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
         MotorEx shooterSlave = new MotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
@@ -99,6 +113,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motorGroup = new MotorEx[]{shooterMaster, shooterSlave};
 
+       // velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
         velocityController.setGains(shootingVelocityGains);
         rpmFilter.setGains(rpmFilterGains);
     }
@@ -188,10 +203,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
 //        }
         if (!isFlywheelManual) {
-            shootingRPM = 1498.9596472960714*(1) + 11.474709465472186*(distance);
-            shootingRPM = targetRPMAverageFilter.calculate(shootingRPM);
+            double rpmRaw = 1498.9596472960714 + 11.474709465472186 * distance;
+            shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
             velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
         }
+
     }
 
 
