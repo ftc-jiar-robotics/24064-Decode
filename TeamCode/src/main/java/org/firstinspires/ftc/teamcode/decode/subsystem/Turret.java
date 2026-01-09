@@ -60,7 +60,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static LowPassGains errorDerivGains = new LowPassGains(0, 2);
 
     public static double
-            kS = -0.08,
+            kS = -0.07,
             WRAP_AROUND_THRESHOLD = 5,
             SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
@@ -71,7 +71,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 180,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
-            PID_DERIV_TOLERANCE = 2.5,
+            PID_DERIV_TOLERANCE = 10,
             PID_TOLERANCE_CLOSE = 2,
             PID_TOLERANCE_FAR = 1.5,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still

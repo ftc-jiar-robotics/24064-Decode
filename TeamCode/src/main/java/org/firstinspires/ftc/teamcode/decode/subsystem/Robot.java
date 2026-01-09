@@ -44,8 +44,8 @@ public final class Robot {
     public static double MAX_STALENESS = 1e7;
 
     public static double
-            MAX_VARIANCE_X = 0.35,
-            MAX_VARIANCE_Y = 0.35;
+            MAX_VARIANCE_X = 0.5,
+            MAX_VARIANCE_Y = 0.5;
 
     public LimelightEx limelight;
     public ArduCam arducam;

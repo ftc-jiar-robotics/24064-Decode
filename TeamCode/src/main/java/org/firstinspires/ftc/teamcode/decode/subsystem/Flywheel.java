@@ -36,9 +36,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.0008,
+            0.008,
             0.0,
-            0.0003,
+            0.002,
             Double.POSITIVE_INFINITY
     );
 
@@ -71,8 +71,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             CLOSE_ARMING_RPM = 2500,
             MAX_RPM = 4800,
             VOLTAGE_SCALER = 0.99,
-            TARGET_RPM_STEP = 50.0,
-            TARGET_RPM_MID_BAND = 3.0;
+            TARGET_RPM_STEP = 30.0,
+            TARGET_RPM_MID_BAND = 9.0;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
