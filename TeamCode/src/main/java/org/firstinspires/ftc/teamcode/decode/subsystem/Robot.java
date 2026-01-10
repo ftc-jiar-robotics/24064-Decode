@@ -41,11 +41,11 @@ public final class Robot {
     public final VoltageSensor batteryVoltageSensor;
     public final LEDController ledController;
 
-    public static double MAX_STALENESS = 1e7;
+    public static double MAX_STALENESS = 1e9;
 
     public static double
-            MAX_VARIANCE_X = 0.5,
-            MAX_VARIANCE_Y = 0.5;
+            MAX_VARIANCE_X = 0.4,
+            MAX_VARIANCE_Y = 0.4;
 
     public LimelightEx limelight;
     public ArduCam arducam;
