@@ -8,6 +8,8 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.PathChain;
 
+import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+
 @Configurable
 public class GoalPaths {
     private final Follower f;
@@ -29,7 +31,7 @@ public class GoalPaths {
             control0 = new Pose(47.6, 113.1),
             gateControl12 = new Pose(22.1, 78.4),
             gateControl15 = new Pose(27.1, 72.4),
-            start = new Pose(30.5, 135.5, Math.toRadians(270)),
+            start = Common.BLUE_BIG_TRIANGLE,
             shoot = new Pose(51.0, 101.0),
             gate = new Pose(15.5, 73),
             leave = new Pose(37.5,90.1),
@@ -133,7 +135,7 @@ public class GoalPaths {
                 .addPath(
                         new BezierLine(start, preload21)
                 )
-                .setLinearHeadingInterpolation(startAngle, intake21Angle)
+                .setLinearHeadingInterpolation(start.getHeading(), intake21Angle)
                 .addPath(
                         new BezierLine(preload21, preloadShoot21)
                 )
@@ -245,7 +247,7 @@ public class GoalPaths {
                                 shoot
                         )
                 )
-                .setLinearHeadingInterpolation(startAngle, shootAngle)
+                .setLinearHeadingInterpolation(start.getHeading(), shootAngle)
                 .build();
 
         firstIntake = f.pathBuilder()
@@ -373,7 +375,7 @@ public class GoalPaths {
                                 shoot
                         )
                 )
-                .setLinearHeadingInterpolation(startAngle, shootAngle)
+                .setLinearHeadingInterpolation(start.getHeading(), shootAngle)
                 .build();
 
         firstIntake = f.pathBuilder()
