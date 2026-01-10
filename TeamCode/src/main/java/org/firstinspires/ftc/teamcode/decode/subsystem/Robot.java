@@ -10,6 +10,8 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
+import android.util.Log;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.Style;
 import com.pedropathing.follower.Follower;
@@ -185,17 +187,19 @@ public final class Robot {
             intake.printTelemetry();
             if (isAuto) limelight.printTelemetry();
             if (!isAuto) arducam.printTelemetry();
+
+            Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
+            Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
+            Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
+            Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
+
+            Drawing.drawRobot(shooter.getPredictedPose(), new Style("", "#FF0000", 2.0));
+            Drawing.drawDebug(drivetrain);
+
+            Common.telemetry.update();
+            Common.dashTelemetry.update();
+        } else {
+            Log.d("loop time (LOOPS): ", "" + LoopUtil.getLoopTimeInHertz());
         }
-        Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
-        Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
-        Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
-        Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
-        Common.telemetry.addData("loop time (LOOPS): ", LoopUtil.getLoopTimeInHertz());
-
-        Drawing.drawRobot(shooter.getPredictedPose(), new Style("", "#FF0000", 2.0));
-        Drawing.drawDebug(drivetrain);
-
-        Common.telemetry.update();
-        Common.dashTelemetry.update();
     }
 }

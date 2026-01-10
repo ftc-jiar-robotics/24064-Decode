@@ -57,14 +57,15 @@ public class RobotActions {
                         new InstantAction(shotTimer::reset),
                         telemetryPacket -> robot.shooter.getQueuedShots() > 0 && shotTimer.seconds() <= seconds,
                         new InstantAction(() -> robot.shooter.clearQueueShots()),
-                        setIntake(0, 0),
-                        new Actions.SingleCheckAction(
-                                RobotActions::getDoSetSlowMode,
-                                new InstantAction(() -> {
-                                    robot.drivetrain.setMaxPowerScaling(1);
-                                    isSlowMode = false;
-                                })
-                        )
+                        setIntake(0, 0)
+//                        ,
+//                        new Actions.SingleCheckAction(
+//                                RobotActions::getDoSetSlowMode,
+//                                new InstantAction(() -> {
+//                                    robot.drivetrain.setMaxPowerScaling(1);
+//                                    isSlowMode = false;
+//                                })
+//                        )
                 )
         );
     }
