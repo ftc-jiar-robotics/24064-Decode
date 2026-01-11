@@ -59,6 +59,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     public static double HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE = 120;
     public static double ALL_BALL_CONFIDENCE_THRESHOLD = 2;
+    public static int OUT_OF_TOL_LOOPS_TO_RETRACK = 3; // tune
+    private int outOfTolLoops = 0;
+
 
 
     public int getQueuedShots() {
@@ -155,7 +158,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         if (targetState == ShooterStates.RUNNING && didCurrentDrop) {
             queuedShots = 0;
         }
-
+        boolean runningInTolThisLoop = true; // only meaningful in RUNNING
         switch (targetState) {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
@@ -209,8 +212,26 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
 
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
-                feeder.set(Feeder.FeederStates.RUNNING, true);
 
+// only evaluate retrack logic if we DIDN'T just shoot
+                if (!didCurrentDrop) {
+                    double distanceR = turret.getDistance();
+
+                    runningInTolThisLoop = flywheel.isPIDInTolerance() && turret.isPIDInTolerance() && (robot.isAuto || distanceR > Common.MIN_SHOOTING_DISTANCE) && (distanceR <= 120 || turret.isReadyToShoot());
+
+                    // IMPORTANT: don't block feeder unless we’re actually going to retrack
+                    boolean willRetrackThisLoop = (!runningInTolThisLoop) && ((outOfTolLoops + 1) >= OUT_OF_TOL_LOOPS_TO_RETRACK);
+
+                    if (willRetrackThisLoop) {
+                        feeder.set(Feeder.FeederStates.BLOCKING, true);
+                        targetState = ShooterStates.PREPPING;
+                        if (turret.get() != Turret.TurretStates.ODOM_TRACKING) {
+                            turret.set(Turret.TurretStates.ODOM_TRACKING, true);
+                        }
+                        break;
+                    }
+                }
+                feeder.set(Feeder.FeederStates.RUNNING, true);
                 if (didCurrentDrop) {
                     if (queuedShots <= 0) {
                         targetState = ShooterStates.IDLE;
@@ -229,6 +250,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
                 break;
         }
+        if (targetState == ShooterStates.RUNNING && !didCurrentDrop) {
+            outOfTolLoops = runningInTolThisLoop ? 0 : (outOfTolLoops + 1);
+        } else {
+            outOfTolLoops = 0;
+        }
+
 
 
         turret.run();
