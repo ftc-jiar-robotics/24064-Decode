@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -247,7 +248,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public Pose getPredictedPose() {
         currentPose = robot.drivetrain.getPose();
 
-        if (targetState != ShooterStates.RUNNING) return currentPose;
+        if (targetState != ShooterStates.RUNNING) {
+            predictedPose = currentPose;
+            return currentPose;
+        }
 //        double distanceInches = turret.getDistance();
 //        double airtime = Common.getAirtimeForDistance(distanceInches);
         double timeToShoot = Common.LAUNCH_DELAY; // + airtime
@@ -298,18 +302,20 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         telemetry.addData("queued shots (DOUBLE): ", queuedShots);
         telemetry.addData("did current drop? (BOOLEAN): ", didCurrentDrop);
 
-        telemetry.addLine("PREDICTED POSE DEBUG");
-        telemetry.addData("Velocity (vx, vy) in/s", String.format("(%.3f, %.3f)", vx, vy));
-        telemetry.addData("Acceleration (ax, ay) in/s²", String.format("(%.3f, %.3f)", ax, ay));
-        telemetry.addData("Angular Velocity ω (rad/s)", String.format("%.3f", omega));
-        telemetry.addData("ΔPose (dx, dy, dθ°)",
-                String.format("%.3f, %.3f, %.3f",
-                        predictedPose.getX() - currentPose.getX(),
-                        predictedPose.getY() - currentPose.getY(),
-                        Math.toDegrees(predictedPose.getHeading() - currentPose.getHeading())));
-        telemetry.addData("Predicted Pose (X, Y, Heading)", String.format("%.3f, %.3f, %.3f",
-                        predictedPose.getX(),
-                        predictedPose.getY(),
-                        Math.toDegrees(predictedPose.getHeading())));
+        if(isFuturePoseOn) {
+            telemetry.addLine("PREDICTED POSE DEBUG");
+            telemetry.addData("Velocity (vx, vy) in/s", String.format("(%.3f, %.3f)", vx, vy));
+            telemetry.addData("Acceleration (ax, ay) in/s²", String.format("(%.3f, %.3f)", ax, ay));
+            telemetry.addData("Angular Velocity ω (rad/s)", String.format("%.3f", omega));
+            telemetry.addData("ΔPose (dx, dy, dθ°)",
+                    String.format("%.3f, %.3f, %.3f",
+                            predictedPose.getX() - currentPose.getX(),
+                            predictedPose.getY() - currentPose.getY(),
+                            Math.toDegrees(predictedPose.getHeading() - currentPose.getHeading())));
+            telemetry.addData("Predicted Pose (X, Y, Heading)", String.format("%.3f, %.3f, %.3f",
+                    predictedPose.getX(),
+                    predictedPose.getY(),
+                    Math.toDegrees(predictedPose.getHeading())));
+        }
     }
 }

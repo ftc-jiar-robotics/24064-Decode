@@ -80,7 +80,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             BADGE_RETRACTOR_ANGLE = 10,
             BADGE_RETRACTOR_KS = -0.1,
             ABSOLUTE_ENCODER_OFFSET = -179,
-            READY_TO_SHOOT_LOOPS = 5,
+            READY_TO_SHOOT_LOOPS = 3,
             kA_TURRET = 0,
             kV_TURRET = 0.1,   // start at 0, tune up slowly
             LOS_EPS = 1e-6;    // divide by zero guard
