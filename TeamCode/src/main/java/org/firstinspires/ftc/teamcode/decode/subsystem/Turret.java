@@ -50,7 +50,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         IDLE, ODOM_TRACKING
     }
 
-    private TurretStates currentState = ODOM_TRACKING;
+    private TurretStates currentState = TurretStates.IDLE;
 
     private final Differentiator differentiator = new Differentiator();
     public static LowPassGains targetAngleGains = new LowPassGains(0.10);
@@ -61,6 +61,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static double
             kS = -0.07,
+            LAUNCH_DELAY = 0.5,    // seconds (feeder > ball leaves flywheel) NOTE: 1 second at 11v, .7 at 12.3
             WRAP_AROUND_THRESHOLD = 5,
             SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
@@ -81,6 +82,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             BADGE_RETRACTOR_KS = -0.1,
             ABSOLUTE_ENCODER_OFFSET = -179,
             READY_TO_SHOOT_LOOPS = 3,
+            OUT_OF_TOLERANCE_LOOPS = 3,
             kA_TURRET = 0,
             kV_TURRET = 0.1,   // start at 0, tune up slowly
             LOS_EPS = 1e-6;    // divide by zero guard
@@ -91,6 +93,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private double
             currentAngle = 0.0,
             targetAngle = 0.0,
+            notInToleranceCounter = 0,
             toleranceCounter = 0,
             encoderOffset = 0.0,
             robotHeadingTurretDomain = 0.0,
@@ -123,8 +126,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double x = Common.BLUE_GOAL.getX();
         double y = Common.BLUE_GOAL.getY();
-        if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
-        else if(robot.drivetrain.getPose().getY()<SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE), y);
+        if (!robot.isAuto && robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
+        else if (robot.isAuto || robot.drivetrain.getPose().getY() < SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE), y);
         else newGoal = new Pose(x, y);
 
 
@@ -146,10 +149,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return currentState;
     }
 
-    public double getDistance() {
+    public double getDistance(Pose turretPos) {
         double dx = goal.getX() - turretPos.getX();
         double dy = goal.getY() - turretPos.getY();
         return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    public double getDistance() {
+        return getDistance(turretPos);
     }
 
     double getCurrentAngle() {
@@ -217,7 +224,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
      * Calculate the turret position (xt, yt).
      * Formula: xt = x - cos(heading) * D, yt = y - sin(heading) * D
      */
-    public Pose calculateTurretPosition(Pose robotPos, double headingDeg, double offset) {
+    public static Pose calculateTurretPosition(Pose robotPos, double headingDeg, double offset) {
         double headingRad = Math.toRadians(headingDeg);
 
         double xOffset = Math.cos(headingRad) * offset;
@@ -284,7 +291,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         errorDerivFilter.setGains(errorDerivGains);
         targetAngleFilter.setGains(targetAngleGains);
         // turning robot heading to turret heading
-        double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading();
+        double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose(LAUNCH_DELAY).getHeading() : robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
@@ -299,7 +306,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     if (robot.shooter.isBallPresent()) currentState = ODOM_TRACKING;
                     break;
                 case ODOM_TRACKING:
-                    turretPos = calculateTurretPosition(isFuturePoseOn ? robot.shooter.getPredictedPose() : robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
+                    turretPos = calculateTurretPosition(isFuturePoseOn ? robot.shooter.getPredictedPose(LAUNCH_DELAY) : robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
                     setTracking();
 
                     double alphaDot = getDesiredTurretOmegaRadPerSec();
@@ -314,8 +321,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
             if (isPIDInTolerance()) {
                 toleranceCounter++;
-            } else toleranceCounter = 0;
-
+                notInToleranceCounter = 0;
+            } else {
+                toleranceCounter = 0;
+                notInToleranceCounter++;
+            }
 
             turret.set(output);
         }
@@ -328,6 +338,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         // We already increment toleranceCounter only when we're in a very tight tolerance
         // So this is basically: "have we been super in-tolerance for a few loops in a row?"
         return toleranceCounter >= READY_TO_SHOOT_LOOPS;
+    }
+
+    public boolean isNotStable() {
+        return notInToleranceCounter >= OUT_OF_TOLERANCE_LOOPS;
     }
 
     public void printTelemetry() {

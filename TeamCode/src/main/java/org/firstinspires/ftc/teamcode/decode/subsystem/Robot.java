@@ -155,13 +155,13 @@ public final class Robot {
     public void relocalizeWithWall() {
         double currentX = drivetrain.getPose().getX();
         if (currentX > 72) {
-            LOCALIZATION_X = 134;
+            LOCALIZATION_X = 125;
         } else {
-            LOCALIZATION_X = 10;
+            LOCALIZATION_X = 19;
         }
-        LOCALIZATION_Y = 7.5;
+        LOCALIZATION_Y = 25.5;
 
-        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, drivetrain.getHeading() ));
+        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toDegrees(270)));
     }
 
     public void relocalizeWithArdu() {
@@ -193,7 +193,7 @@ public final class Robot {
             Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
             Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
 
-            Drawing.drawRobot(shooter.getPredictedPose(), new Style("", "#FF0000", 2.0));
+            Drawing.drawRobot(shooter.getPredictedPose(Turret.LAUNCH_DELAY), new Style("", "#FF0000", 2.0));
             Drawing.drawDebug(drivetrain);
 
             Common.telemetry.update();

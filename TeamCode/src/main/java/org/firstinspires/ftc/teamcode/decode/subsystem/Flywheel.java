@@ -4,8 +4,10 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_SLAVE_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFlywheelManual;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.calculateTurretPosition;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -62,6 +64,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
+            LAUNCH_DELAY = 0.3,
+            OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 30,
             RPM_TOLERANCE_WHILE_MOVING = 70,
             SMOOTH_RPM_GAIN = 0.85,
@@ -84,6 +88,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     private double
             currentRPM = 0.0,
+            notInToleranceCounter = 0,
             currentRPMSmooth = 0.0,
             manualPower = 0.0,
             shootingRPM = 4000,
@@ -167,12 +172,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
                 break;
             case ARMING:
-                chooseShootingRPM(robot.shooter.turret.getDistance());
-
+                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
                 break;
             case RUNNING:
-                chooseShootingRPM(robot.shooter.turret.getDistance());
+                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
                 break;
         }
 
@@ -180,8 +184,14 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
         currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
 
-        if (isPIDInTolerance()) currentPower = motorPowerFilter.calculate(currentPower);
-        else motorPowerFilter.reset();
+        if (isPIDInTolerance()) {
+            currentPower = motorPowerFilter.calculate(currentPower);
+            notInToleranceCounter = 0;
+        }
+        else {
+            motorPowerFilter.reset();
+            notInToleranceCounter++;
+        }
 
         currentPower = Range.clip(currentPower, 0.0, 1.0);
 
@@ -195,6 +205,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         else shootingRPM -= RPM;
 
         velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+    }
+
+    public boolean isNotStable() {
+        return notInToleranceCounter >= OUT_OF_TOLERANCE_LOOPS;
     }
 
     private void chooseShootingRPM(double distance) {

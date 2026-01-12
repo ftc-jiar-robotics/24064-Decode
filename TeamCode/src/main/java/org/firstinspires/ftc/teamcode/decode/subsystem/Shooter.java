@@ -20,7 +20,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     final Feeder feeder;
 
     private boolean
-            didCurrentDrop,
+            didShotOccur,
             inEmergency;
 
     private int queuedShots = 0;
@@ -151,8 +151,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         else {
             ballConfidence = 0;
         }
-        didCurrentDrop = feeder.didShotOccur();
-        if (targetState == ShooterStates.RUNNING && didCurrentDrop) {
+        didShotOccur = feeder.didShotOccur();
+        if (targetState == ShooterStates.RUNNING && didShotOccur) {
             queuedShots = 0;
         }
 
@@ -190,7 +190,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                         flywheel.get() == Flywheel.FlyWheelStates.RUNNING &&
                         turret.isPIDInTolerance() &&
                         (robot.isAuto || distance > Common.MIN_SHOOTING_DISTANCE) &&
-
                         (distance <= 120 || turret.isReadyToShoot())) || inEmergency) {
                     inEmergency = false;
                     feeder.set(Feeder.FeederStates.RUNNING, true);
@@ -199,6 +198,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case RUNNING:
+//                if (turret.isNotStable() || flywheel.isNotStable()) targetState = ShooterStates.PREPPING;
+
                 if (!isHoodManual) {
                     double distanceR = turret.getDistance();
                     if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
@@ -211,12 +212,13 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
                 feeder.set(Feeder.FeederStates.RUNNING, true);
 
-                if (didCurrentDrop) {
+                if (didShotOccur) {
                     if (queuedShots <= 0) {
                         targetState = ShooterStates.IDLE;
                         turret.set(Turret.TurretStates.IDLE);
                         flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
                         feeder.set(Feeder.FeederStates.BLOCKING, true);
+
                     }
                     else {
                         targetState = ShooterStates.RUNNING;
@@ -224,7 +226,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     }
 
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
-
                 }
 
                 break;
@@ -245,7 +246,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private double alpha;
 
     private Pose currentPose, predictedPose;
-    public Pose getPredictedPose() {
+    public Pose getPredictedPose(double timeToShoot) {
         currentPose = robot.drivetrain.getPose();
 
         if (targetState != ShooterStates.RUNNING) {
@@ -253,8 +254,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             return currentPose;
         }
 //        double distanceInches = turret.getDistance();
-//        double airtime = Common.getAirtimeForDistance(distanceInches);
-        double timeToShoot = Common.LAUNCH_DELAY; // + airtime
+//        double airtime = Common.getAirtimeForDistance(distanceInches)
         vx = robot.drivetrain.getVelocity().getXComponent();
         vy = robot.drivetrain.getVelocity().getYComponent();
         omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
@@ -300,22 +300,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         telemetry.addLine("SHOOTER");
         telemetry.addData("shooter state (ENUM):", targetState);
         telemetry.addData("queued shots (DOUBLE): ", queuedShots);
-        telemetry.addData("did current drop? (BOOLEAN): ", didCurrentDrop);
-
-        if(isFuturePoseOn) {
-            telemetry.addLine("PREDICTED POSE DEBUG");
-            telemetry.addData("Velocity (vx, vy) in/s", String.format("(%.3f, %.3f)", vx, vy));
-            telemetry.addData("Acceleration (ax, ay) in/s²", String.format("(%.3f, %.3f)", ax, ay));
-            telemetry.addData("Angular Velocity ω (rad/s)", String.format("%.3f", omega));
-            telemetry.addData("ΔPose (dx, dy, dθ°)",
-                    String.format("%.3f, %.3f, %.3f",
-                            predictedPose.getX() - currentPose.getX(),
-                            predictedPose.getY() - currentPose.getY(),
-                            Math.toDegrees(predictedPose.getHeading() - currentPose.getHeading())));
-            telemetry.addData("Predicted Pose (X, Y, Heading)", String.format("%.3f, %.3f, %.3f",
-                    predictedPose.getX(),
-                    predictedPose.getY(),
-                    Math.toDegrees(predictedPose.getHeading())));
-        }
+        telemetry.addData("did current drop? (BOOLEAN): ", didShotOccur);
     }
 }
