@@ -155,11 +155,11 @@ public final class Robot {
     public void relocalizeWithWall() {
         double currentX = drivetrain.getPose().getX();
         if (currentX > 72) {
-            LOCALIZATION_X = 125;
+            LOCALIZATION_X = 136.52;
         } else {
-            LOCALIZATION_X = 19;
+            LOCALIZATION_X = 7.48;
         }
-        LOCALIZATION_Y = 25.5;
+        LOCALIZATION_Y = 10.039;
 
         drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toDegrees(270)));
     }
