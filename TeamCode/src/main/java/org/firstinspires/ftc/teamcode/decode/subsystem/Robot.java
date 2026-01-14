@@ -161,7 +161,7 @@ public final class Robot {
         }
         LOCALIZATION_Y = 10.039;
 
-        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toDegrees(270)));
+        drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toRadians(270)));
     }
 
     public void relocalizeWithArdu() {
