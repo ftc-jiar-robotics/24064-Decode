@@ -72,7 +72,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 180,
             ROUNDING_POINT = 100000,
             PID_SWITCH_ANGLE = 15,
-            PID_DERIV_TOLERANCE = 10,
+            PID_DERIV_TOLERANCE = 15,
             PID_TOLERANCE_CLOSE = 2,
             PID_TOLERANCE_FAR = 2,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
