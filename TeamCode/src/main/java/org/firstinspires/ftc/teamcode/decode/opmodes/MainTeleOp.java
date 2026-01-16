@@ -123,8 +123,10 @@ public class MainTeleOp extends LinearOpMode {
             } else {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.drivetrain.setPose(new Pose(robot.drivetrain.getPose().getX(), robot.drivetrain.getPose().getY(), Math.toRadians(270)));
                 if (gamepadEx1.isDown(DPAD_DOWN)) {
-                    robot.relocalizeWithArdu(true);
-                    if (!robot.hasArduCamRelocalized) gamepadEx1.gamepad.rumble(250);
+                    if (robot.arducam.getStaleness() < Robot.MAX_STALENESS) {
+                        robot.relocalizeWithArdu(true);
+                        if (robot.hasArduCamRelocalized) gamepadEx1.gamepad.rumble(250);
+                    }
                 }
             }
 
