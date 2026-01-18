@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.BLUE_GOAL_ID;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.COLOR_SENSOR_UPDATE_LOOPS;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.RED_GOAL_ID;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
@@ -116,7 +119,7 @@ public class ArduCam {
 
     /** Change alliance (and active target ID) on the fly if needed. */
     public void setAlliance() {
-        this.activeTargetId = (Common.isRed) ? Common.RED_GOAL_ID : Common.BLUE_GOAL_ID;
+        this.activeTargetId = (Common.isRed) ? RED_GOAL_ID : Common.BLUE_GOAL_ID;
     }
 
     /** Returns true if the selected target tag (by alliance) is currently detected. */
@@ -127,7 +130,7 @@ public class ArduCam {
 
         // since the field has only one of this ID, first match is enough
         for (AprilTagDetection d : dets) {
-//            if (d.id == activeTargetId) {
+            if (d.id == RED_GOAL_ID || d.id == BLUE_GOAL_ID) {
 
             if (visionSamplePoses.size() > MAX_VARIANCE_SIZE) visionSamplePoses.remove();
 
@@ -138,7 +141,7 @@ public class ArduCam {
             visionVariances = getVariance(visionSamplePoses);
 
             return true;
-//            }
+            }
         }
         return false;
     }

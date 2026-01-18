@@ -33,6 +33,8 @@ public class LEDController {
 
     private boolean initialized = false;
 
+    public boolean enabled = true;
+
     private Pattern lastArduCamPattern = null;
     private Pattern lastTurretPattern = null;
     private Pattern lastFeederPattern = null;
@@ -46,7 +48,7 @@ public class LEDController {
     }
 
     public void update() {
-        if ((LoopUtil.getLoops() & LOOP_COUNTER) == 0) {
+        if (enabled && (LoopUtil.getLoops() & LOOP_COUNTER) == 0) {
             ensureInitialized();
 
             Pattern arduCamPattern = computeLLPattern();
