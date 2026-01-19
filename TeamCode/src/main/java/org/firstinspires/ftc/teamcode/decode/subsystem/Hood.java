@@ -27,7 +27,7 @@ public class    Hood extends Subsystem<Double> {
 
 
     public Hood(HardwareMap hw) {
-        this.hood = new CachedServo(hw, NAME_HOOD_SERVO, Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_1, AngleUnit.DEGREES);
+        this.hood = new CachedServo(hw, NAME_HOOD_SERVO, Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_2, AngleUnit.DEGREES);
     }
 
     @Override
