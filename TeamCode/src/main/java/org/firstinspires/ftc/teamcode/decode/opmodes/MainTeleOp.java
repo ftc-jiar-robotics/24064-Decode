@@ -116,6 +116,9 @@ public class MainTeleOp extends LinearOpMode {
             isSlowMode = gamepadEx1.isDown(LEFT_BUMPER) ;//!= isSlowMode;
 
             robot.intake.set(trigger1, false);
+            if (trigger1 > 0.1 && robot.shooter.isRobotFullWithBalls()) {
+                gamepadEx1.gamepad.rumble(0.5 , 0.5 , 250);
+            }
 
             if (isHoodManual) {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);

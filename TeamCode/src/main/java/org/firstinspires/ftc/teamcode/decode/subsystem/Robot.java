@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
@@ -153,8 +154,7 @@ public final class Robot {
     }
 
     public void relocalizeWithWall() {
-        double currentX = drivetrain.getPose().getX();
-        if (currentX > 72) {
+        if (!isRed) {
             LOCALIZATION_X = 136.52;
         } else {
             LOCALIZATION_X = 7.48;
