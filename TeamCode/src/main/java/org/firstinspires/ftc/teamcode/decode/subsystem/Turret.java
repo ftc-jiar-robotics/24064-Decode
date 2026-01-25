@@ -100,6 +100,22 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             manualPower = 0.0,
             quadratureTurretAngle = 0.0;
 
+    // --- Projectile lead compensation (added) ---
+    public static boolean USE_LEAD_COMP = true;
+    /**
+     * If lead is the wrong direction, flip this to -1.
+     * (You can also tune magnitude with Shooter.LEAD_SCALE)
+     */
+    public static double LEAD_SIGN = 1.0;
+    private double leadOffsetDeg = 0.0;
+    public void setLeadOffsetDeg(double deg) {
+        leadOffsetDeg = deg;
+    }
+    public void clearLeadOffsetDeg() {
+        leadOffsetDeg = 0.0;
+    }
+
+
     public Turret(HardwareMap hw) {
         this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_435, ROUNDING_POINT);
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_435);
@@ -121,7 +137,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return controller.getError();
     }
 
-    private Pose setGoal() {
+    private Pose computeGoalPose() {
         Pose newGoal;
 
         double x = Common.BLUE_GOAL.getX();
@@ -206,6 +222,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
+// Apply lead offset in the SAME domain as theta (degrees)
+        if (USE_LEAD_COMP) {
+            theta = (theta + (LEAD_SIGN * leadOffsetDeg) + 3600) % 360;
+        }
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
@@ -268,7 +288,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     @Override
     public void run() {
-        goal = setGoal();
+        goal = computeGoalPose();
 
         quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
         currentAngle = quadratureTurretAngle;

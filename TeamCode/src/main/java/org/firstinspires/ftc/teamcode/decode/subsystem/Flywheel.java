@@ -105,6 +105,14 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         // Otherwise normal rounding to nearest step
         return Math.round(rpmRaw / step) * step;
     }
+    // --- Projectile effective-distance override (added) ---
+    private double distanceOverride = Double.NaN;
+    public void setDistanceOverride(double distance) {
+        distanceOverride = distance;
+    }
+    public void clearDistanceOverride() {
+        distanceOverride = Double.NaN;
+    }
 
     public Flywheel(HardwareMap hw) {
         MotorEx shooterMaster = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
@@ -172,16 +180,24 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
                 break;
             case ARMING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+            {
+                double dist = robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y));
+                if (!Double.isNaN(distanceOverride)) dist = distanceOverride;
+                chooseShootingRPM(dist);
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
                 break;
-            case RUNNING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+            }
+            case RUNNING: {
+                double dist = robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y));
+                if (!Double.isNaN(distanceOverride)) dist = distanceOverride;
+                chooseShootingRPM(dist);
                 break;
+            }
         }
 
 
-        currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
+
+            currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
         currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
 
         if (isPIDInTolerance()) {

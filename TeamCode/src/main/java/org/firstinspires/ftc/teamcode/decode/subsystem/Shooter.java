@@ -142,6 +142,17 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         flywheel.incrementFlywheelRPM(rpmIncrement, isIncrementing);
     }
 
+    public static boolean USE_PROJECTILE_COMP = true;
+
+    // Apply which parts?
+    public static boolean COMP_TURRET_LEAD = true;
+    public static boolean COMP_EFFECTIVE_DISTANCE = true;
+
+    // Tune magnitude if needed
+    public static double LEAD_SCALE = 1.0;
+
+    // Optional: only enable in shooting states
+    public static boolean COMP_ONLY_WHEN_PREPPING_OR_RUNNING = true;
 
     @Override
     public void run() {
@@ -158,6 +169,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
         switch (targetState) {
             case IDLE:
+                // Clear overrides when idle
+                turret.clearLeadOffsetDeg();
+                flywheel.clearDistanceOverride();
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
 
                 double distanceI = turret.getDistance();
@@ -178,6 +192,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case PREPPING:
                 double distance = turret.getDistance();
+                if (USE_PROJECTILE_COMP && (!COMP_ONLY_WHEN_PREPPING_OR_RUNNING || targetState != ShooterStates.IDLE)) {
+                    distance = updateProjectileCompAndGetDistance();
+                }
                 if (!isHoodManual) {
                     if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
                         hood.set(hood.getHoodAngleWithDistance(distance), true);
@@ -202,6 +219,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
                 if (!isHoodManual) {
                     double distanceR = turret.getDistance();
+                    if (USE_PROJECTILE_COMP && (!COMP_ONLY_WHEN_PREPPING_OR_RUNNING || targetState != ShooterStates.IDLE)) {
+                        distanceR = updateProjectileCompAndGetDistance();
+                    }
                     if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
                         hood.set(hood.getHoodAngleWithDistance(distanceR), true);
                     } else {
@@ -251,6 +271,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
         if (targetState != ShooterStates.RUNNING) {
             predictedPose = currentPose;
+
             return currentPose;
         }
 //        double distanceInches = turret.getDistance();
@@ -288,6 +309,49 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
 
+    private double updateProjectileCompAndGetDistance() {
+        // Use same pose timing turret uses so turret lead matches where we aim
+        Pose predicted = isFuturePoseOn
+                ? getPredictedPose(Turret.LAUNCH_DELAY)
+                : robot.drivetrain.getPose();
+
+        Pose turretPos = Turret.calculateTurretPosition(
+                predicted,
+                Math.toDegrees(predicted.getHeading()),
+                -Common.TURRET_OFFSET_Y
+        );
+
+        Pose goal = turret.computeGoalPose();
+
+        double vx = robot.drivetrain.getVelocity().getXComponent();
+        double vy = robot.drivetrain.getVelocity().getYComponent();
+
+        Ballistics.Solution sol = Ballistics.solve(turretPos, goal, vx, vy);
+
+        // Default fallback = normal geometric distance
+        double fallbackDist = turret.getDistance(turretPos);
+
+        if (sol == null || !sol.valid) {
+            // No solution -> remove overrides
+            turret.clearLeadOffsetDeg();
+            flywheel.clearDistanceOverride();
+            return fallbackDist;
+        }
+        // Convert "effective x" back into a usable "distance-like" value for your LUTs
+        double effectiveDist = sol.xEffectiveComp + Ballistics.PASS_THROUGH_POINT_RADIUS;
+
+        if (COMP_TURRET_LEAD) {
+            turret.setLeadOffsetDeg(LEAD_SCALE * Math.toDegrees(sol.turretLeadOffsetRad));
+        } else {
+            turret.clearLeadOffsetDeg();
+        }
+        if (COMP_EFFECTIVE_DISTANCE) {
+            flywheel.setDistanceOverride(effectiveDist);
+        } else {
+            flywheel.clearDistanceOverride();
+        }
+        return effectiveDist;
+    }
 
 
     @SuppressLint("DefaultLocale")
