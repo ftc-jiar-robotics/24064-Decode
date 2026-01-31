@@ -21,8 +21,8 @@ public class ZoneChecker {
             new Pose(142, 142)
     };
 
-    public void setRectangle(double x, double y, double heading) {
-        rectangle = generateRectangle(x, y, ROBOT_WIDTH, ROBOT_LENGTH, heading);
+    public void setRectangle(double x, double y, double headingRadians) {
+        rectangle = generateRectangle(x, y, ROBOT_WIDTH, ROBOT_LENGTH, headingRadians);
     }
 
     // Check if Pose P is inside triangle ABC using barycentric coordinates
@@ -83,13 +83,12 @@ public class ZoneChecker {
      * @param cy     Center Y
      * @param width  Width of rectangle (short side)
      * @param length Length of rectangle (long side)
-     * @param headingDegrees Rotation angle in radians (0 is along +X axis)
+     * @param headingRadians Rotation angle in radians (0 is along +X axis)
      * @return Array of 4 Poses in clockwise order
      */
-    public static Pose[] generateRectangle(double cx, double cy, double width, double length, double headingDegrees) {
+    public static Pose[] generateRectangle(double cx, double cy, double width, double length, double headingRadians) {
         double dx = length / 2.0;
         double dy = width / 2.0;
-        double headingRadians = Math.toDegrees(headingDegrees);
         // Unit vectors along rotated axes
         double cos = Math.cos(headingRadians);
         double sin = Math.sin(headingRadians);
