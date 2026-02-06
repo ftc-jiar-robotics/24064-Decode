@@ -325,17 +325,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             this.launchSpeed = launchSpeed;
         }
     }
-
-    /**
-     * This is the video function, adapted:
-     * - Uses predicted pose -> turret position -> robotToGoal geometry
-     * - Decomposes robot velocity into parallel/perpendicular to goal line
-     * - Computes compensated horizontal distance "ndr"
-     * - Computes turret lead offset atan(perp/ivr)
-     *
-     * IMPORTANT: This does NOT directly set hood servo angle from physics (your hood is distance-fit).
-     * Instead it outputs an "effective distance" that you feed into your existing hood/flywheel distance fits.
-     */
+    
     private ShotComp calculateShotCompFromVideoMath() {
         // predicted pose so comp matches your LAUNCH_DELAY pipeline
         Pose predicted = isFuturePoseOn ? getPredictedPose(Turret.LAUNCH_DELAY) : robot.drivetrain.getPose();
