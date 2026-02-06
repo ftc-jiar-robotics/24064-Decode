@@ -100,6 +100,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             manualPower = 0.0,
             quadratureTurretAngle = 0.0;
 
+    private double externalLeadDeg = 0.0;
+    public void setExternalLeadDeg(double deg) { externalLeadDeg = deg; }
+    public void clearExternalLeadDeg() { externalLeadDeg = 0.0; }
+
+    public Pose getGoalPose() { return goal; }
+
     public Turret(HardwareMap hw) {
         this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_435, ROUNDING_POINT);
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_435);
@@ -205,7 +211,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     private void setTracking() {
-        double theta = calculateAngleToGoal(turretPos);
+        double theta = calculateAngleToGoal(turretPos) + externalLeadDeg;
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
