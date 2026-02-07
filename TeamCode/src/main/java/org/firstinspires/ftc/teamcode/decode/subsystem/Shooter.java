@@ -235,8 +235,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         double a = SCORE_ANGLE;
 
         //calculate initial launch components
-        double hoodAngle = MathFunctions.clamp(Math.atan(2 * y / x - Math.tan(a)), Hood.MAX,
-                Hood.MIN);
+        double hoodAngle = Math.atan(2 * y / x - Math.tan(a));
 
         double flywheelSpeed = Math.sqrt(g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y)));
 
@@ -256,17 +255,15 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         double ndr = nvr * time;
 
         //recalculate launch components
-        hoodAngle = MathFunctions.clamp(Math.atan(vz / nvr), Hood.MAX,
-                Hood.MIN);
+        hoodAngle = Math.atan(vz / nvr);
 
         flywheel.flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (ndr * Math.tan(hoodAngle) - y)));
 
-        if (!isHoodManual) hood.set(hoodAngle);
+//        if (!isHoodManual) hood.set(hoodAngle);
 
         //update turret
-        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
+        turret.turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
 
-        turret.setTracking(Math.toDegrees(turretVelCompOffset));
 //        double turretAngle = Math.toDegrees(robotHeading - robotToGoalVector.getTheta() + turretVelCompOffset);
 //
 //        if (turretAngle > 180) {

@@ -100,6 +100,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             manualPower = 0.0,
             quadratureTurretAngle = 0.0;
 
+    double turretVelCompOffset = 0;
+
     public Turret(HardwareMap hw) {
         this.turret = new CachedMotor(hw, NAME_TURRET_MOTOR, Motor.GoBILDA.RPM_435, ROUNDING_POINT);
         MotorEx rightBack = new MotorEx(hw, "right back", Motor.GoBILDA.RPM_435);
@@ -310,7 +312,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     break;
                 case ODOM_TRACKING:
                     turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
-//                    setTracking();
+                    setTracking(Math.toDegrees(turretVelCompOffset));
 
                     double alphaDot = getDesiredTurretOmegaRadPerSec();
                     output += (kA_TURRET * differentiator.getDerivative(alphaDot)) * scalar;

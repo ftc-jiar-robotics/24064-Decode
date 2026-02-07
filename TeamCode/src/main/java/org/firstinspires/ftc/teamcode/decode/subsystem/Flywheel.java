@@ -226,9 +226,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     }
 
-    double getShootingSpeed(double velocity) {
-        return 0;
-        // TODO set shooting rpm from curve fitted of velocity to rpm
+    void getShootingSpeed(double velocity) {
+        shootingRPM = quantizeWithMidpointBand((11.72375 * velocity) - 68.10271, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+        velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
     }
 
 
