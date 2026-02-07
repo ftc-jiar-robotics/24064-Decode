@@ -159,7 +159,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         switch (targetState) {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
-                turret.clearExternalLeadDeg();
 
                 double distanceI = turret.getDistance();
 //                if (!isHoodManual) hood.set(Hood.MIN);
@@ -179,13 +178,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case PREPPING:
                 double distance = turret.getDistance();
-                if (USE_PROJECTILE_COMP) {
-                    ShotComp comp = calculateShotCompFromVideoMath();
-                    distance = comp.compensatedDistance;
-                    turret.setExternalLeadDeg(comp.turretLeadDeg);
-                } else {
-                    turret.clearExternalLeadDeg();
-                }
                 if (!isHoodManual) {
                     if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
                         hood.set(hood.getHoodAngleWithDistance(distance), true);
@@ -210,13 +202,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
                 if (!isHoodManual) {
                     double distanceR = turret.getDistance();
-                    if (USE_PROJECTILE_COMP) {
-                        ShotComp comp = calculateShotCompFromVideoMath();
-                        distanceR = comp.compensatedDistance;
-                        turret.setExternalLeadDeg(comp.turretLeadDeg);
-                    } else {
-                        turret.clearExternalLeadDeg();
-                    }
                     if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
                         hood.set(hood.getHoodAngleWithDistance(distanceR), true);
                     } else {
@@ -301,116 +286,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 currentPose.getHeading() + dh);
         return robot.isRobotMoving() ? predictedPose : currentPose;
     }
-
-
-    // ======================= PROJECTILE / MOVING SHOT COMP (VIDEO MATH) =======================
-    public static boolean USE_PROJECTILE_COMP = true;
-
-    // if lead points wrong direction, flip to -1
-    public static double LEAD_SIGN = 1.0;
-
-    // gravity (in/s^2)
-    public static double G = 32.174 * 12.0;
-
-    private static class ShotComp {
-        final double compensatedDistance;   // "ndr + passThrough"
-        final double turretLeadDeg;         // degrees to add to turret aim
-        final double hoodAngleRad;          // physical launch angle (for debugging)
-        final double launchSpeed;           // physical initial speed (for debugging)
-
-        ShotComp(double compensatedDistance, double turretLeadDeg, double hoodAngleRad, double launchSpeed) {
-            this.compensatedDistance = compensatedDistance;
-            this.turretLeadDeg = turretLeadDeg;
-            this.hoodAngleRad = hoodAngleRad;
-            this.launchSpeed = launchSpeed;
-        }
-    }
-    
-    private ShotComp calculateShotCompFromVideoMath() {
-        // predicted pose so comp matches your LAUNCH_DELAY pipeline
-        Pose predicted = isFuturePoseOn ? getPredictedPose(Turret.LAUNCH_DELAY) : robot.drivetrain.getPose();
-
-        Pose turretPosLocal = Turret.calculateTurretPosition(
-                predicted,
-                Math.toDegrees(predicted.getHeading()),
-                -Common.TURRET_OFFSET_Y
-        );
-
-        // goal pose from turret (already alliance-aware)
-        Pose goal = turret.getGoalPose(); // <-- you will add this 1-line getter in Turret (see below)
-
-        // robot->goal vector
-        double dx = goal.getX() - turretPosLocal.getX();
-        double dy = goal.getY() - turretPosLocal.getY();
-        double robotToGoalTheta = Math.atan2(dy, dx);
-        double robotToGoalMag = Math.hypot(dx, dy);
-
-        // ---------------- constants (video) ----------------
-        double g = G;
-        double x = robotToGoalMag - ShooterConstants.PASS_THROUGH_POINT_RADIUS;
-        double y = ShooterConstants.SCORE_HEIGHT;
-        double a = ShooterConstants.SCORE_ANGLE;
-
-        if (x <= 1e-6) {
-            return new ShotComp(robotToGoalMag, 0.0, 0.0, 0.0);
-        }
-
-        // ---------------- initial launch components (video) ----------------
-        double hoodAngle = com.pedropathing.math.MathFunctions.clamp(
-                Math.atan(2 * y / x - Math.tan(a)),
-                Math.toRadians(75), // clamp physical alpha (tune if needed)
-                Math.toRadians(15)
-        );
-
-        double denom = (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y));
-        if (denom <= 1e-9) {
-            return new ShotComp(robotToGoalMag, 0.0, hoodAngle, 0.0);
-        }
-
-        double flywheelSpeed = Math.sqrt(g * x * x / denom); // physical v0 (in/s)
-
-        // ---------------- robot velocity -> parallel / perpendicular (video) ----------------
-        double vx = robot.drivetrain.getVelocity().getXComponent();
-        double vy = robot.drivetrain.getVelocity().getYComponent();
-
-        double robotVelTheta = Math.atan2(vy, vx);
-        double robotVelMag = Math.hypot(vx, vy);
-
-        double coordinateTheta = robotVelTheta - robotToGoalTheta;
-
-        double parallelComponent = -Math.cos(coordinateTheta) * robotVelMag;
-        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelMag;
-
-        // ---------------- velocity compensation variables (video) ----------------
-        double vz = flywheelSpeed * Math.sin(hoodAngle);
-        double time = x / (flywheelSpeed * Math.cos(hoodAngle));
-
-        double ivr = x / time + parallelComponent; // effective horizontal speed in goal direction
-        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
-        double ndr = nvr * time; // EFFECTIVE horizontal distance ("ndr" in video)
-
-        // ---------------- recalculate launch components (video) ----------------
-        hoodAngle = com.pedropathing.math.MathFunctions.clamp(
-                Math.atan(vz / nvr),
-                Math.toRadians(75),
-                Math.toRadians(15)
-        );
-
-        double denom2 = (2 * Math.pow(Math.cos(hoodAngle), 2) * (ndr * Math.tan(hoodAngle) - y));
-        if (denom2 > 1e-9) {
-            flywheelSpeed = Math.sqrt(g * ndr * ndr / denom2);
-        }
-
-        // ---------------- update turret (video) ----------------
-        double turretVelCompOffset = Math.atan2(perpendicularComponent, ivr); // atan2 for safety
-
-        // This is the key output you actually use in YOUR code:
-        double effectiveDistance = ndr + ShooterConstants.PASS_THROUGH_POINT_RADIUS;
-        double leadDeg = LEAD_SIGN * Math.toDegrees(turretVelCompOffset);
-
-        return new ShotComp(effectiveDistance, leadDeg, hoodAngle, flywheelSpeed);
-    }
-// ======================= END PROJECTILE / MOVING SHOT COMP =======================
 
     @SuppressLint("DefaultLocale")
     public void printTelemetry() {
