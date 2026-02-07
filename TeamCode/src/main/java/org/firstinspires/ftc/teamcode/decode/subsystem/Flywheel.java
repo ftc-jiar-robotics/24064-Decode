@@ -57,8 +57,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             10
     );
 
-
-
     public enum FlyWheelStates {
         IDLE, ARMING, RUNNING
     }
@@ -93,6 +91,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             manualPower = 0.0,
             shootingRPM = 4000,
             currentPower = 0;
+
+    double flywheelSpeed = 0;
 
     private static double quantizeWithMidpointBand(double rpmRaw, double step, double band) {
         double low = Math.floor(rpmRaw / step) * step;
@@ -172,11 +172,13 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
                 break;
             case ARMING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+//                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                getShootingSpeed(flywheelSpeed);
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
                 break;
             case RUNNING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+//                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                getShootingSpeed(flywheelSpeed);
                 break;
         }
 
@@ -222,6 +224,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
         }
 
+    }
+
+    double getShootingSpeed(double velocity) {
+        return 0;
+        // TODO set shooting rpm from curve fitted of velocity to rpm
     }
 
 

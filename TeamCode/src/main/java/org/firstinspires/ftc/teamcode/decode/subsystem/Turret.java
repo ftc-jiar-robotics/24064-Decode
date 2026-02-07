@@ -121,6 +121,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return controller.getError();
     }
 
+    public Pose getGoal() {
+        return goal;
+    }
+
     private Pose setGoal() {
         Pose newGoal;
 
@@ -204,8 +208,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         else encoderOffset = motorEncoder.getPosition() * TICKS_TO_DEGREES - Common.TURRET_ENC_OFFSET;
     }
 
-    private void setTracking() {
-        double theta = calculateAngleToGoal(turretPos);
+    void setTracking() {
+        setTracking(0);
+    }
+
+    void setTracking(double offsetDegrees) {
+        double theta = calculateAngleToGoal(turretPos) + offsetDegrees;
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
@@ -272,11 +280,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         quadratureTurretAngle = (motorEncoder.getPosition() * TICKS_TO_DEGREES) - encoderOffset;
         currentAngle = quadratureTurretAngle;
-        // Use quadrature to detect wraparound region
-//        boolean inWraparoundZone = quadratureTurretAngle > WRAP_AROUND_ANGLE || quadratureTurretAngle < WRAP_AROUND_ANGLE - 360;
-
-        // In wrap -> trust quadrature; elsewhere -> trust filtered abs encoder
-//        currentAngle = inWraparoundZone ? quadratureTurretAngle : getAbsoluteEncoderAngle();
 
         double error = currentAngle - targetAngle;
 
@@ -291,7 +294,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         errorDerivFilter.setGains(errorDerivGains);
         targetAngleFilter.setGains(targetAngleGains);
         // turning robot heading to turret heading
-        double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose(LAUNCH_DELAY).getHeading() : robot.drivetrain.getHeading();
+        double robotHeading = robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
@@ -306,8 +309,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     if (robot.shooter.isBallPresent()) currentState = ODOM_TRACKING;
                     break;
                 case ODOM_TRACKING:
-                    turretPos = calculateTurretPosition(isFuturePoseOn ? robot.shooter.getPredictedPose(LAUNCH_DELAY) : robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
-                    setTracking();
+                    turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
+//                    setTracking();
 
                     double alphaDot = getDesiredTurretOmegaRadPerSec();
                     output += (kA_TURRET * differentiator.getDerivative(alphaDot)) * scalar;

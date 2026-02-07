@@ -82,19 +82,11 @@ public final class Common {
             BLUE_GOAL = new Pose(0,144),
             RED_BLUE = BLUE_GOAL.mirror();
 
-    public static double getAirtimeForDistance(double distanceInches) {
-        double t = AIRTIME_A * distanceInches + AIRTIME_B;
-        return Math.max(MIN_AIRTIME, t);
-    }
-
     public static double
             MIN_MOVEMENT_SPEED = 0.5,
             ANG_VELOCITY_MULTIPLER = 0.15,
             IMU_YAW_SCALAR = 1.00086,
             SLOW_MODE = 0.55,
-            AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
-            AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
-            MIN_AIRTIME  = 0.02, //safety
             MIN_POWER_INPUT = 0.3,
             MAX_VELOCITY_MAGNITUDE = 0.2,
             LOCALIZATION_X = 10,
@@ -122,8 +114,6 @@ public final class Common {
             PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0),
             INTAKE_NONE_MIN_CR = new HSV(98, 0.275, 0),
             INTAKE_NONE_MAX_CR = new HSV(102, 0.415, 2);
-
-
 
     public static Robot robot;
 

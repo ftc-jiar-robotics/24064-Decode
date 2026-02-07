@@ -193,7 +193,6 @@ public final class Robot {
             Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
             Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
 
-            Drawing.drawRobot(shooter.getPredictedPose(Turret.LAUNCH_DELAY), new Style("", "#FF0000", 2.0));
             Drawing.drawDebug(drivetrain);
 
             Common.telemetry.update();

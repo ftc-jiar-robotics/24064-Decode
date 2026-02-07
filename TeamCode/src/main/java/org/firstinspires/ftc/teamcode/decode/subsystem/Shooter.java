@@ -1,15 +1,23 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.BLUE_GOAL;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.BLUE_GOAL_ID;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
+
+import static java.lang.Math.atan2;
+import static java.lang.Math.round;
 
 import android.annotation.SuppressLint;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.MathFunctions;
+import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
@@ -28,6 +36,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public enum ShooterStates {
         IDLE, PREPPING, RUNNING
     }
+
+    public static double SCORE_HEIGHT = 26; //inches
+    public static double SCORE_ANGLE = Math.toRadians(-30); //radians
+    public static double PASS_THROUGH_POINT_RADIUS = 5; //inches
 
     private ShooterStates targetState = ShooterStates.IDLE;
 
@@ -160,16 +172,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
 
-                double distanceI = turret.getDistance();
-//                if (!isHoodManual) hood.set(Hood.MIN);
-                if (!isHoodManual) {
-                    if (distanceI <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distanceI), true);
-                    } else {
-                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
-                }
-
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.PREPPING;
@@ -177,14 +179,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case PREPPING:
+                calculateShotVectorAndUpdateTurret();
                 double distance = turret.getDistance();
-                if (!isHoodManual) {
-                    if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distance), true);
-                    } else {
-                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
-                }
 
                 if ((queuedShots >= 1 &&
                         flywheel.get() == Flywheel.FlyWheelStates.RUNNING &&
@@ -198,17 +194,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case RUNNING:
-//                if (turret.isNotStable() || flywheel.isNotStable()) targetState = ShooterStates.PREPPING;
-
-                if (!isHoodManual) {
-                    double distanceR = turret.getDistance();
-                    if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distanceR), true);
-                    } else {
-                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
-                }
-
+                calculateShotVectorAndUpdateTurret();
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
                 feeder.set(Feeder.FeederStates.RUNNING, true);
 
@@ -238,57 +224,57 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.run();
     }
 
-    private double vx;
-    private double vy;
-    private double omega;
-    private double ax;
-    private double ay;
-    private double alpha;
 
-    private Pose currentPose, predictedPose;
-    public Pose getPredictedPose(double timeToShoot) {
-        currentPose = robot.drivetrain.getPose();
+    private void calculateShotVectorAndUpdateTurret() {
+        //constants
+        Vector robotToGoalVector = new Vector(turret.getDistance(), atan2(turret.getGoal().getY() - robot.drivetrain.getPose().getY(), turret.getGoal().getX() - robot.drivetrain.getPose().getX()));
 
-        if (targetState != ShooterStates.RUNNING) {
-            predictedPose = currentPose;
-            return currentPose;
-        }
-//        double distanceInches = turret.getDistance();
-//        double airtime = Common.getAirtimeForDistance(distanceInches)
-        vx = robot.drivetrain.getVelocity().getXComponent();
-        vy = robot.drivetrain.getVelocity().getYComponent();
-        omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
-        ax = robot.drivetrain.getAcceleration().getXComponent();
-        ay = robot.drivetrain.getAcceleration().getYComponent();
-        // ay (no accel)
-        alpha = 0;
+        double g = 32.174 * 12;
+        double x = robotToGoalVector.getMagnitude() - PASS_THROUGH_POINT_RADIUS;
+        double y = SCORE_HEIGHT;
+        double a = SCORE_ANGLE;
 
-        double
-                // Predict velocity at shot time (accounts for accel if available)
-                futureVx = vx + ax * timeToShoot,
-                futureVy = vy + ay * timeToShoot,
-                futureOmega = omega + alpha * timeToShoot,
+        //calculate initial launch components
+        double hoodAngle = MathFunctions.clamp(Math.atan(2 * y / x - Math.tan(a)), Hood.MAX,
+                Hood.MIN);
 
-                // Average velocity over interval
-                avgVx = (vx + futureVx) / 2.0,
-                avgVy = (vy + futureVy) / 2.0,
-                avgOmega = (omega + futureOmega) / 2.0,
+        double flywheelSpeed = Math.sqrt(g * x * x / (2 * Math.pow(Math.cos(hoodAngle), 2) * (x * Math.tan(hoodAngle) - y)));
 
-                // Displacement = average velocity × time
-                dx = avgVx * timeToShoot,
-                dy = avgVy * timeToShoot,
-                dh = avgOmega * timeToShoot;
+        //get robot velocity and convert it into parallel and perpendicular components
+        Vector robotVelocity = robot.drivetrain.poseTracker.getVelocity();
 
-        // Return new predicted pose (in inches and radians)
-        predictedPose = new Pose(
-                currentPose.getX() + dx,
-                currentPose.getY() + dy,
-                currentPose.getHeading() + dh);
-        return robot.isRobotMoving() ? predictedPose : currentPose;
+        double coordinateTheta = robotVelocity.getTheta() - robotToGoalVector.getTheta();
+
+        double parallelComponent = -Math.cos(coordinateTheta) * robotVelocity.getMagnitude();
+        double perpendicularComponent = Math.sin(coordinateTheta) * robotVelocity.getMagnitude();
+
+        //velocity compensation variables
+        double vz = flywheelSpeed * Math.sin(hoodAngle);
+        double time = x / (flywheelSpeed * Math.cos(hoodAngle));
+        double ivr = x / time + parallelComponent;
+        double nvr = Math.sqrt(ivr * ivr + perpendicularComponent * perpendicularComponent);
+        double ndr = nvr * time;
+
+        //recalculate launch components
+        hoodAngle = MathFunctions.clamp(Math.atan(vz / nvr), Hood.MAX,
+                Hood.MIN);
+
+        flywheel.flywheelSpeed = Math.sqrt(g * ndr * ndr / (2 * Math.pow(Math.cos(hoodAngle), 2) * (ndr * Math.tan(hoodAngle) - y)));
+
+        if (!isHoodManual) hood.set(hoodAngle);
+
+        //update turret
+        double turretVelCompOffset = Math.atan(perpendicularComponent / ivr);
+
+        turret.setTracking(Math.toDegrees(turretVelCompOffset));
+//        double turretAngle = Math.toDegrees(robotHeading - robotToGoalVector.getTheta() + turretVelCompOffset);
+//
+//        if (turretAngle > 180) {
+//            turretAngle -= 360;
+//        }
     }
 
-    @SuppressLint("DefaultLocale")
-    public void printTelemetry() {
+        public void printTelemetry() {
             turret.printTelemetry();
             flywheel.printTelemetry();
             feeder.printTelemetry();
