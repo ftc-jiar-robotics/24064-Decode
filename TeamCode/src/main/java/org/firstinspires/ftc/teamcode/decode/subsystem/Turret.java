@@ -78,7 +78,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             MANUAL_POWER_MULTIPLIER = 0.7,
-            BADGE_RETRACTOR_ANGLE = 90,
+            BADGE_RETRACTOR_ANGLE = 150,
             BADGE_RETRACTOR_KS = -0.15,
             ABSOLUTE_ENCODER_OFFSET = -177.4444,
             READY_TO_SHOOT_LOOPS = 3,
