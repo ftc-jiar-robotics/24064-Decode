@@ -35,7 +35,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 public final class Robot {
-    public static Follower drivetrain;
+    public final Follower drivetrain;
     public final BulkReader bulkReader;
     public final ActionScheduler actionScheduler;
     public final Shooter shooter;
@@ -83,7 +83,7 @@ public final class Robot {
             limelight = new LimelightEx(limelight3A);
         }
 
-        if (Robot.drivetrain == null) Robot.drivetrain = Constants.createFollower(hardwareMap);
+        drivetrain = Constants.createFollower(hardwareMap);
         bulkReader = new BulkReader(hardwareMap);
         actionScheduler = new ActionScheduler();
         shooter = new Shooter(hardwareMap);

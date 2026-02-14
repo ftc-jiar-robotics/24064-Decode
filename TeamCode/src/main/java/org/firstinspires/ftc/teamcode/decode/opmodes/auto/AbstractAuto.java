@@ -10,7 +10,6 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -25,7 +24,7 @@ public abstract class AbstractAuto extends LinearOpMode {
 
     protected void update() {
         robot.update();
-        Robot.drivetrain.update();
+        robot.drivetrain.update();
         robot.shooter.run();
         robot.intake.run();
         robot.printTelemetry();
@@ -48,17 +47,17 @@ public abstract class AbstractAuto extends LinearOpMode {
         waitForStart();
 
         resetRuntime();
-        Robot.drivetrain.setPose(getStartPose());
+        robot.drivetrain.setPose(getStartPose());
         onRun();
         robot.actionScheduler.addAction(new SleepAction(3.5));
         robot.actionScheduler.runBlocking();
-        Common.AUTO_END_POSE = Robot.drivetrain.getPose();
+        Common.AUTO_END_POSE = robot.drivetrain.getPose();
         Common.TURRET_ENC_OFFSET = robot.shooter.getTurretAngle();
         robot.limelight.getLimelight().close();
     }
 
     protected void onInit() {
-        Robot.drivetrain.setPose(getStartPose());
+        robot.drivetrain.setPose(getStartPose());
     }
 
     protected void configure() {
@@ -71,8 +70,6 @@ public abstract class AbstractAuto extends LinearOpMode {
             dashTelemetry.addLine("PRESS A TO TOGGLE SIDES");
             dashTelemetry.addData("IS RED: ", Common.isRed);
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) Common.isRed = !Common.isRed;
-
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B))((PinpointLocalizer) Robot.drivetrain.poseTracker.getLocalizer()).recalibrate();
 
             dashTelemetry.update();
         }
