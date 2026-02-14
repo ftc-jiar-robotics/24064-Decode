@@ -73,33 +73,34 @@ public class MainTeleOp extends LinearOpMode {
 
         }
 
+        boolean isDrivetrainBuilt = Robot.drivetrain != null;
         robot = new Robot(hardwareMap);
         robot.shooter.setGoalAlliance();
 
         waitForStart();
 
-        robot.drivetrain.setStartingPose(AUTO_END_POSE);
+        if (!isDrivetrainBuilt) Robot.drivetrain.setStartingPose(AUTO_END_POSE);
 
-        robot.drivetrain.update();
-        robot.drivetrain.startTeleopDrive(true);
+        Robot.drivetrain.update();
+        Robot.drivetrain.startTeleopDrive(true);
 
         while (opModeIsActive()) {
             robot.run();
             robot.relocalizeWithArdu();
             gamepadEx1.readButtons();
 
-            if (isSlowMode) robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
-            else robot.drivetrain.setMaxPowerScaling(1);
+            if (isSlowMode) Robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
+            else Robot.drivetrain.setMaxPowerScaling(1);
 
             if (isRed) {
-                robot.drivetrain.setTeleOpDrive(
+                Robot.drivetrain.setTeleOpDrive(
                         gamepadEx1.getLeftY(),
                         -gamepadEx1.getLeftX(),
                         -gamepadEx1.getRightX() * (isSlowMode ? 0.7 : 1),
                         false
                 );
             } else {
-                robot.drivetrain.setTeleOpDrive(
+                Robot.drivetrain.setTeleOpDrive(
                         -gamepadEx1.getLeftY(),
                         gamepadEx1.getLeftX(),
                         -gamepadEx1.getRightX() * (isSlowMode ? 0.7 : 1),
@@ -124,7 +125,7 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             } else {
-                if (gamepadEx1.isDown(DPAD_UP)) robot.drivetrain.setPose(new Pose(robot.drivetrain.getPose().getX(), robot.drivetrain.getPose().getY(), Math.toRadians(270)));
+                if (gamepadEx1.isDown(DPAD_UP)) Robot.drivetrain.setPose(new Pose(Robot.drivetrain.getPose().getX(), Robot.drivetrain.getPose().getY(), Math.toRadians(270)));
                 if (gamepadEx1.isDown(DPAD_DOWN)) {
                     if (robot.arducam.getStaleness() < Robot.MAX_STALENESS) {
                         robot.relocalizeWithArdu(true);
