@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -57,6 +58,8 @@ public abstract class AbstractAuto extends LinearOpMode {
     }
 
     protected void onInit() {
+        ((PinpointLocalizer) robot.drivetrain.poseTracker.getLocalizer()).resetIMU();
+        ((PinpointLocalizer) robot.drivetrain.poseTracker.getLocalizer()).recalibrate();
         robot.drivetrain.setPose(getStartPose());
     }
 
@@ -71,6 +74,12 @@ public abstract class AbstractAuto extends LinearOpMode {
             dashTelemetry.addData("IS RED: ", Common.isRed);
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) Common.isRed = !Common.isRed;
 
+            dashTelemetry.addLine("PRESS B TO RECALIBRATE IMU");
+
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) {
+                ((PinpointLocalizer) robot.drivetrain.poseTracker.getLocalizer()).resetIMU();
+                ((PinpointLocalizer) robot.drivetrain.poseTracker.getLocalizer()).recalibrate();
+            }
             dashTelemetry.update();
         }
     }

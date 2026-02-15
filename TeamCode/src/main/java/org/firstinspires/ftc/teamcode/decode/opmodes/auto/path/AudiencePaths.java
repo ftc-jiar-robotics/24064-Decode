@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -31,7 +32,9 @@ public class AudiencePaths {
     public static long
             MAX_HP_TIME_MS = 567,
             MAX_HP_GOING_MS = 6000;
-    public static double LEAVE_TIME = 29.5;
+    public static double
+            LEAVE_TIME = 28,
+            MAX_Y_DISTANCE = 65.6;
 
     public static Pose
 
@@ -42,6 +45,7 @@ public class AudiencePaths {
             startIntake1 = new Pose(36.1, 28.4),
             endIntake1 = new Pose(13.500, 30.400),
             startIntakeHP1 = new Pose(8.000, 8.000),
+            audienceControl = new Pose(60.8,8.1),
             midIntakeHP1 = new Pose(14.300, 8.000),
             endIntakeHP1 = new Pose(10.300, 8.000);
 
@@ -63,6 +67,7 @@ public class AudiencePaths {
         startIntakeHP1 = startIntakeHP1.mirror();
         midIntakeHP1 = midIntakeHP1.mirror();
         endIntakeHP1 = endIntakeHP1.mirror();
+        audienceControl = audienceControl.mirror();
 
         startAngle = mirrorAngleRad(startAngle);
         shootAngle = mirrorAngleRad(shootAngle);
@@ -89,6 +94,7 @@ public class AudiencePaths {
         robot.limelight.getLimelight().captureSnapshot("MOVE_TO_BALLS");
         if (isArtifactFound) {
             double tx = result.get(0).getTargetXDegrees();
+
             tx = (isPathRed ? tx : tx - 180) - Math.toDegrees(robotPose.getHeading());
             double wallX;
 
@@ -100,7 +106,7 @@ public class AudiencePaths {
             ballDist = isPathRed ? -ballDist : ballDist;
             wallX += isPathRed ? -10 : 10;
 
-            Pose bigBallPose = new Pose(wallX, Math.max(endIntakeHP1.getY(),robotPose.getY() + ballDist));
+            Pose bigBallPose = new Pose(wallX, Math.min(MAX_Y_DISTANCE , (Math.max(endIntakeHP1.getY(),robotPose.getY() + ballDist))));
 
             path = f.pathBuilder()
                     .addPath(
@@ -204,7 +210,11 @@ public class AudiencePaths {
         humanPlayerIntake0 = f.pathBuilder()
                 .addPath(
                         // Path 0
-                        new BezierLine(shoot, startIntakeHP1)
+                        new BezierCurve(
+                                shoot,
+                                audienceControl,
+                                startIntakeHP1
+                        )
                 )
                 .setConstantHeadingInterpolation(startIntakeAngleHP1)
                 .build();
