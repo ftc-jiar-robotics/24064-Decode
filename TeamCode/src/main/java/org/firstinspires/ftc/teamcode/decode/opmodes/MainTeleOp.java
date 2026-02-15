@@ -46,7 +46,6 @@ public class MainTeleOp extends LinearOpMode {
     GamepadEx gamepadEx1;
 
     boolean lastInTriangle = false;
-
     private int storedShots = 0;
 
     @Override
@@ -136,8 +135,8 @@ public class MainTeleOp extends LinearOpMode {
             if (isFlywheelManual) {
                 if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5, true);
                 if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(5, false);
-
             }
+
 
             if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.emergencyShootArtifacts());
             if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
@@ -158,7 +157,7 @@ public class MainTeleOp extends LinearOpMode {
                     }
                 }
                 if ((robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) && robot.shooter.getQueuedShots() > 0)
-                    robot.intake.set(0.85, true);
+                    robot.intake.set(isSlowMode ? .5 : 1, true);
             } else if (lastInTriangle) {
                 storedShots = robot.shooter.getQueuedShots();
                 robot.shooter.clearQueueShots();

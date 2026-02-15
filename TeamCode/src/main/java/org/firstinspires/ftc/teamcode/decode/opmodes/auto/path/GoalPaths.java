@@ -49,6 +49,7 @@ public class GoalPaths {
             controlHP = new Pose(57.300, 17.400),
             preload21 = new Pose(49.800, 93.600),
             shoot21 = new Pose(58.7, 75.7),
+            shootThird21 = new Pose(58.7,82),
             intake21Control = new Pose(60.800, 60.100),
             endIntakeSecond21 = new Pose(8.400, 59.100),
             gateCycleControl21 = new Pose(15.9, 56.900),
@@ -99,6 +100,7 @@ public class GoalPaths {
         controlHP = controlHP.mirror();
         preload21 = preload21.mirror();
         shoot21 = shoot21.mirror();
+        shootThird21 = shootThird21.mirror();
         intake21Control = intake21Control.mirror();
         endIntakeSecond21 = endIntakeSecond21.mirror();
         gateCycleControl21 = gateCycleControl21.mirror();
@@ -224,7 +226,7 @@ public class GoalPaths {
                 )
                 .setConstantHeadingInterpolation(intake21Angle)
                 .addPath(
-                        new BezierLine(endIntakeThird21, shoot21)
+                        new BezierLine(endIntakeThird21, shootThird21)
                 )
                 .setConstantHeadingInterpolation(goHome21Angle).build();
         goalLeave21 = f.pathBuilder()
