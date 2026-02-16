@@ -140,9 +140,7 @@ public final class Robot {
 
     public void update() {
         readSensors();
-        double vx = drivetrain.getVelocity().getXComponent();
-        double vy = drivetrain.getVelocity().getYComponent();
-        isRobotMoving = Math.hypot(vx, vy) > MIN_MOVEMENT_SPEED;
+        isRobotMoving = isRobotMoving(MIN_MOVEMENT_SPEED);
 
         if (!isAuto) arducam.detectTarget();
 
@@ -151,6 +149,10 @@ public final class Robot {
 
 //        ledController.update();
         LoopUtil.updateLoopCount();
+    }
+
+    public boolean isRobotMoving(double minMovementSpeed) {
+        return Math.hypot(drivetrain.getVelocity().getXComponent(), drivetrain.getVelocity().getYComponent()) > minMovementSpeed;
     }
 
     public void relocalizeWithWall() {

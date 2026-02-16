@@ -44,6 +44,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             Double.POSITIVE_INFINITY
     );
 
+    public static PIDGains shootingWhileMovingVelocityGains = new PIDGains(
+            0.009,
+            0,
+            0.003
+    );
+
     private final FIRLowPassFilter rpmFilter = new FIRLowPassFilter();
    // public static MovingAverageGains rpmDerivAverageFilterGains = new MovingAverageGains(3);
     public static MovingAverageGains targetRPMAverageFilterGains = new MovingAverageGains(
@@ -64,6 +70,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
+            MIN_MOVEMENT_SPEED = 35,
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 30,
@@ -156,7 +163,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (currentRPMSmooth > 10000) currentRPMSmooth = 0;
 
         motorPowerFilter.setGains(motorPowerGains);
-        velocityController.setGains(shootingVelocityGains);
+
+        if (robot.isRobotMoving(MIN_MOVEMENT_SPEED)) velocityController.setGains(shootingWhileMovingVelocityGains);
+        else velocityController.setGains(shootingVelocityGains);
 
         switch (targetState) {
             case IDLE:
