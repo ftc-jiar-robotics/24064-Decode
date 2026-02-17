@@ -124,7 +124,7 @@ public class AutoAudience18 extends AbstractAuto{
                                         RobotActions.setIntake(0, 0),
                                         path.humanPlayerShoot1, 0.3, 0, f, "stop_intake"
                                 ),
-                                new FollowPathAction(f, path.humanPlayerShoot1, false)
+                                new FollowPathAction(f, path.humanPlayerShoot1, true)
                         ),
 
                         RobotActions.shootArtifacts(3, 2.5),
