@@ -34,7 +34,7 @@ public class AudiencePaths {
             MAX_HP_GOING_MS = 6000;
     public static double
             LEAVE_TIME = 28,
-            MAX_Y_DISTANCE = 65.6;
+            MAX_Y_DISTANCE = 54.0;
 
     public static Pose
 
