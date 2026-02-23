@@ -34,7 +34,7 @@ public class AudiencePaths {
             MAX_HP_GOING_MS = 6000;
     public static double
             LEAVE_TIME = 28,
-            MAX_Y_DISTANCE = 54.0;
+            MAX_Y_DISTANCE = 35.7;
 
     public static Pose
 
@@ -169,7 +169,7 @@ public class AudiencePaths {
                         ),
                         new Actions.CallbackAction(
                                 RobotActions.setIntake(0, 0),
-                                pathShoot, 0.3, 0, f, "stop_intake"
+                                pathShoot, 0.01, 0, f, "stop_intake"
                         ),
                         new FollowPathAction(f, pathShoot, true)
                 )

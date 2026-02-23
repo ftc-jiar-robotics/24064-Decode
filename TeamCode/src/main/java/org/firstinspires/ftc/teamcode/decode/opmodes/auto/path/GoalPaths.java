@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto.path;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
@@ -52,8 +54,9 @@ public class GoalPaths {
             shootThird21 = new Pose(58.7,82),
             intake21Control = new Pose(60.800, 60.100),
             endIntakeSecond21 = new Pose(8.400, 59.100),
-            gateCycleControl21 = new Pose(15.9, 56.900),
-            intakeGateCycle21 = new Pose(12.5, 62.5),
+            gateCycleControl21 = new Pose(18.9, 53.900),
+            intakeGateCycle21 = new Pose(12.5, 62),
+            intakeGateCycleRed21 = new Pose(15.5, 64),
             endIntakeFirst21 = new Pose(23.0, 83.900),
             intakeThirdControl21 = new Pose(59.700, 35.900),
             startIntakeThird21 = new Pose(46.700, 35.900),
@@ -104,7 +107,7 @@ public class GoalPaths {
         intake21Control = intake21Control.mirror();
         endIntakeSecond21 = endIntakeSecond21.mirror();
         gateCycleControl21 = gateCycleControl21.mirror();
-        intakeGateCycle21 = intakeGateCycle21.mirror();
+        intakeGateCycle21 = isRed ? intakeGateCycleRed21.mirror() : intakeGateCycle21;
         endIntakeFirst21 = endIntakeFirst21.mirror();
         intakeThirdControl21 = intakeThirdControl21.mirror();
         startIntakeThird21 = startIntakeThird21.mirror();

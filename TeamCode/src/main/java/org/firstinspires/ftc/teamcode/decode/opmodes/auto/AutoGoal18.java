@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.AudiencePaths;
@@ -52,8 +53,8 @@ public class AutoGoal18 extends AbstractAuto{
     protected void onRun() {
         shootPreload();
         shootSecond();
-        shootGateCycle();
-        shootGateCycle();
+        shootGateCycle(0);
+        shootGateCycle(0);
         shootFirst();
         shootThird();
         goalLeave();
@@ -137,16 +138,17 @@ public class AutoGoal18 extends AbstractAuto{
         robot.actionScheduler.runBlocking();
     }
 
-    private void shootGateCycle() {
+    private void shootGateCycle(double offset) {
         path.gateCycleIntake21.getPath(0).setTValueConstraint(0.88);
-        path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.003);
+        path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.0);
         path.gateCycleShoot21.getPath(0).setTValueConstraint(0.8);
+
         f.setMaxPower(1);
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_GATE_CYCLE")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.3)), path.gateCycleIntake21, 0.7, 0, f, "speed_up_2"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), path.gateCycleIntake21, 0.65, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
                                         RobotActions.setIntake(1, 0),
                                         path.gateCycleIntake21, 0.7, 0, f, "slow_down_2"),
