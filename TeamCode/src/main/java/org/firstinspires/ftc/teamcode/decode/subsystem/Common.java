@@ -33,7 +33,8 @@ public final class Common {
             NAME_INTAKE_MOTO_MOTOR = "intakeFeederMotor",
             NAME_INTAKE_DISTANCE_SENSOR = "distanceSensorIntake",
 
-            NAME_TURRET_MOTOR = "turret",
+            NAME_TURRET_MASTER_SERVO = "turretMaster",
+            NAME_TURRET_SLAVE_SERVO = "turretSlave",
             NAME_TURRET_ENCODER = "turretEncoder",
             NAME_TURRET_CAMERA = "arduCam";
 
@@ -63,6 +64,7 @@ public final class Common {
             SERVO_AXON_MAX_1 = 270,
             SERVO_AXON_MIN = 0,
             SERVO_AXON_MAX_2 = 355,
+            SERVO_AXON_MINI_MK2_MAX = 360,
 
             FORWARD_POD_Y = 80,
             STRAFE_POD_X = -83.5,
