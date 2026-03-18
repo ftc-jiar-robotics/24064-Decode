@@ -30,8 +30,6 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     private FeederStates currentState = FeederStates.BLOCKING;
 
-    public static float GAIN = 1.0f;
-
     private int
             lastPinState = 0,
             currentPinState = 0;
@@ -47,9 +45,9 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
-        backFeeder2 = hw.get(CRServo.class, NAME_FEEDER_BACK2_SERVO);
         backFeeder1 = hw.get(CRServo.class, NAME_FEEDER_BACK1_SERVO);
         backFeeder1.setDirection(DcMotorSimple.Direction.REVERSE);
+        backFeeder2 = hw.get(CRServo.class, NAME_FEEDER_BACK2_SERVO);
         pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
         pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);
         motor = new MotorEx(hw, NAME_INTAKE_MOTO_MOTOR, Motor.GoBILDA.RPM_435);
@@ -87,6 +85,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
         backFeeder1.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         backFeeder2.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? 1 : 0));
+        motor.set(currentState == FeederStates.RUNNING ? 1.0 : -0.01);
         feederGate.run();
     }
 
