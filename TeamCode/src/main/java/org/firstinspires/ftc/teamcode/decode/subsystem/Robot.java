@@ -134,8 +134,8 @@ public final class Robot {
         Common.telemetry.addData("robot max power: ", robot.drivetrain.getMaxPowerScaling());
         Common.telemetry.addData("loop time (LOOPS): ", LoopUtil.getLoopTimeInHertz());
 
-        Drawing.drawRobot(robot.shooter.getPredictedPose(), new Style("", "#FF0000", 2.0));
-        Drawing.drawDebug(drivetrain);
+//        Drawing.drawRobot(robot.shooter.getPredictedPose(), new Style("", "#FF0000", 2.0));
+        Drawing.drawRobot(drivetrain.getPose(), new Style("", "#FF0000", 2.0));
 
         Common.telemetry.update();
         Common.dashTelemetry.update();

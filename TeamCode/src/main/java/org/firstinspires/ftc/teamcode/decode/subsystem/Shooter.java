@@ -176,43 +176,47 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.run();
     }
 
-    private double vx, vy, omega, ax, ay, alpha;
-    private Pose currentPose, predictedPose;
-    public Pose getPredictedPose() {
-        currentPose = robot.drivetrain.getPose();
-
-        double timeToShoot = Common.TIME_TO_SHOOT;
-         vx = robot.drivetrain.getVelocity().getXComponent();
-         vy = robot.drivetrain.getVelocity().getYComponent();
-
-        omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
-        ax = robot.drivetrain.getAcceleration().getXComponent();                                  // ax (no accel)
-        ay = robot.drivetrain.getAcceleration().getYComponent();                                        // ay (no accel)
-        alpha = 0;
-
-        double
-                // Predict velocity at shot time (accounts for accel if available)
-                futureVx = vx + ax * timeToShoot,
-                futureVy = vy + ay * timeToShoot,
-                futureOmega = omega + alpha * timeToShoot,
-
-                // Average velocity over interval
-                avgVx = (vx + futureVx) / 2.0,
-                avgVy = (vy + futureVy) / 2.0,
-                avgOmega = (omega + futureOmega) / 2.0,
-
-                // Displacement = average velocity × time
-                dx = avgVx * timeToShoot,
-                dy = avgVy * timeToShoot,
-                dh = avgOmega * timeToShoot;
-
-        // Return new predicted pose (in inches and radians)
-        predictedPose = new Pose(
-                currentPose.getX() + dx,
-                currentPose.getY() + dy,
-                currentPose.getHeading() + dh);
-        return predictedPose;
+    public double getAirtimeFromDistance(double distance) {
+        return (-0.0000102785 * (distance * distance)) + (0.00534471 * distance) + 0.202018;
     }
+
+//    private double vx, vy, omega, ax, ay, alpha;
+//    private Pose currentPose, predictedPose;
+//    public Pose getPredictedPose() {
+//        currentPose = robot.drivetrain.getPose();
+//
+//        double timeToShoot = Common.TIME_TO_SHOOT;
+//         vx = robot.drivetrain.getVelocity().getXComponent();
+//         vy = robot.drivetrain.getVelocity().getYComponent();
+//
+//        omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
+//        ax = robot.drivetrain.getAcceleration().getXComponent();                                  // ax (no accel)
+//        ay = robot.drivetrain.getAcceleration().getYComponent();                                        // ay (no accel)
+//        alpha = 0;
+//
+//        double
+//                // Predict velocity at shot time (accounts for accel if available)
+//                futureVx = vx + ax * timeToShoot,
+//                futureVy = vy + ay * timeToShoot,
+//                futureOmega = omega + alpha * timeToShoot,
+//
+//                // Average velocity over interval
+//                avgVx = (vx + futureVx) / 2.0,
+//                avgVy = (vy + futureVy) / 2.0,
+//                avgOmega = (omega + futureOmega) / 2.0,
+//
+//                // Displacement = average velocity × time
+//                dx = avgVx * timeToShoot,
+//                dy = avgVy * timeToShoot,
+//                dh = avgOmega * timeToShoot;
+//
+//        // Return new predicted pose (in inches and radians)
+//        predictedPose = new Pose(
+//                currentPose.getX() + dx,
+//                currentPose.getY() + dy,
+//                currentPose.getHeading() + dh);
+//        return predictedPose;
+//    }
 
 
 
@@ -229,18 +233,18 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         telemetry.addData("queued shots (DOUBLE): ", queuedShots);
         telemetry.addData("did current drop? (BOOLEAN): ", didCurrentDrop);
 
-        telemetry.addLine("PREDICTED POSE DEBUG");
-        telemetry.addData("Velocity (vx, vy) in/s", String.format("(%.3f, %.3f)", vx, vy));
-        telemetry.addData("Acceleration (ax, ay) in/s²", String.format("(%.3f, %.3f)", ax, ay));
-        telemetry.addData("Angular Velocity ω (rad/s)", String.format("%.3f", omega));
-        telemetry.addData("ΔPose (dx, dy, dθ°)",
-                String.format("%.3f, %.3f, %.3f",
-                        predictedPose.getX() - currentPose.getX(),
-                        predictedPose.getY() - currentPose.getY(),
-                        Math.toDegrees(predictedPose.getHeading() - currentPose.getHeading())));
-        telemetry.addData("Predicted Pose (X, Y, Heading)", String.format("%.3f, %.3f, %.3f",
-                        predictedPose.getX(),
-                        predictedPose.getY(),
-                        Math.toDegrees(predictedPose.getHeading())));
+//        telemetry.addLine("PREDICTED POSE DEBUG");
+//        telemetry.addData("Velocity (vx, vy) in/s", String.format("(%.3f, %.3f)", vx, vy));
+//        telemetry.addData("Acceleration (ax, ay) in/s²", String.format("(%.3f, %.3f)", ax, ay));
+//        telemetry.addData("Angular Velocity ω (rad/s)", String.format("%.3f", omega));
+//        telemetry.addData("ΔPose (dx, dy, dθ°)",
+//                String.format("%.3f, %.3f, %.3f",
+//                        predictedPose.getX() - currentPose.getX(),
+//                        predictedPose.getY() - currentPose.getY(),
+//                        Math.toDegrees(predictedPose.getHeading() - currentPose.getHeading())));
+//        telemetry.addData("Predicted Pose (X, Y, Heading)", String.format("%.3f, %.3f, %.3f",
+//                        predictedPose.getX(),
+//                        predictedPose.getY(),
+//                        Math.toDegrees(predictedPose.getHeading())));
     }
 }

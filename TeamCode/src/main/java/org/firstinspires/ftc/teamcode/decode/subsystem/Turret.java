@@ -198,7 +198,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         controller.setGains(gains);
         derivFilter.setGains(filterGains);
         // turning robot heading to turret heading
-        double robotHeading = isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading();
+        double robotHeading = robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
 
         if (Math.abs(manualPower) > 0) turret.set(manualPower);
@@ -210,7 +210,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     break;
                 case ODOM_TRACKING:
-                    turretPos = calculateTurretPosition(isFuturePoseOn ? robot.shooter.getPredictedPose() : robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
+                    turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
                     setTracking();
                     output += controller.calculate(new State(currentAngle, 0, 0 ,0));
                     if ((LoopUtil.getLoops() & CHECK_UNDETECTED_LOOPS) == 0) {
@@ -230,7 +230,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                         }
 
                         turretPos = autoAim.getTurretPosePedro();
-                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, isFuturePoseOn ? robot.shooter.getPredictedPose().getHeading() : robot.drivetrain.getHeading());
+                        robotPoseFromVision = relocalizeRobotFromTurret(turretPos, robot.drivetrain.getHeading());
 
                         visionSamplePoses.add(robotPoseFromVision);
                         if (visionSamplePoses.size() >= VISION_SAMPLE_SIZE) visionSamplePoses.remove();
