@@ -15,6 +15,8 @@ public final class Common {
             NAME_FEEDER_BACK2_SERVO = "feederBack2",
             NAME_FEEDER_GATE_SERVO = "feederGate",
             NAME_FEEDER_COLOR_SENSOR = "colorSensorFeeder",
+            NAME_GATE_OPENER_RED_SERVO = "gateOpenerRed",
+            NAME_GATE_OPENER_BLUE_SERVO = "gateOpenerBlue",
             NAME_FEEDER_LEFT_DISTANCE_SENSOR = "leftDistanceSensorFeeder",
             NAME_FEEDER_RIGHT_DISTANCE_SENSOR = "rightDistanceSensorFeeder",
             NAME_FEEDER_LEFT_PIN0 = "leftDistancePin0",
