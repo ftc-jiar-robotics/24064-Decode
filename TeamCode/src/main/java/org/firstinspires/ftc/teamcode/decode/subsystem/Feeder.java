@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACK_SERVO;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_FRONT_SERVO;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACK1_SERVO;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACK2_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_GATE_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_INTAKE_MOTO_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
@@ -17,14 +17,13 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 import org.firstinspires.ftc.teamcode.decode.util.SimpleServoPivot;
 
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
     private final SimpleServoPivot feederGate;
-    private final CRServo backFeeder;
-    private final CRServo frontFeeder;
+    private final CRServo backFeeder1;
+    private final CRServo backFeeder2;
     private final MotorEx motor;
 
     private final DigitalChannel pin0Left, pin0Right;
@@ -48,9 +47,9 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
-        frontFeeder = hw.get(CRServo.class, NAME_FEEDER_FRONT_SERVO);
-        backFeeder = hw.get(CRServo.class, NAME_FEEDER_BACK_SERVO);
-        backFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        backFeeder2 = hw.get(CRServo.class, NAME_FEEDER_BACK2_SERVO);
+        backFeeder1 = hw.get(CRServo.class, NAME_FEEDER_BACK1_SERVO);
+        backFeeder1.setDirection(DcMotorSimple.Direction.REVERSE);
         pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
         pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);
         motor = new MotorEx(hw, NAME_INTAKE_MOTO_MOTOR, Motor.GoBILDA.RPM_435);
@@ -86,8 +85,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     @Override
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
-        backFeeder.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
-        frontFeeder.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
+        backFeeder1.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
+        backFeeder2.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? 1 : 0));
         feederGate.run();
     }
 
