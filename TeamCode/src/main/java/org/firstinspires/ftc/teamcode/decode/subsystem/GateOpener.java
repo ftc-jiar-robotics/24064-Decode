@@ -21,8 +21,8 @@ public class GateOpener extends Subsystem<Boolean> {
             OPEN_ANGLE = 90;
 
     public GateOpener(HardwareMap hw) {
-        gateRed  = new CachedServo(hw, NAME_GATE_OPENER_RED_SERVO, Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_2, AngleUnit.DEGREES);
-        gateBlue = new CachedServo(hw, NAME_GATE_OPENER_BLUE_SERVO, Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_2, AngleUnit.DEGREES);
+        gateRed  = new CachedServo(hw, NAME_GATE_OPENER_RED_SERVO, Common.SERVO_25_KG_MIN, Common.SERVO_25_KG_MAX, AngleUnit.DEGREES);
+        gateBlue = new CachedServo(hw, NAME_GATE_OPENER_BLUE_SERVO, Common.SERVO_25_KG_MIN, Common.SERVO_25_KG_MAX, AngleUnit.DEGREES);
     }
 
     @Override
