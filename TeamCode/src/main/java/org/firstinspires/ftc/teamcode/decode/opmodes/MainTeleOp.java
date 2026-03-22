@@ -90,19 +90,27 @@ public class MainTeleOp extends LinearOpMode {
             if (isSlowMode) robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
             else robot.drivetrain.setMaxPowerScaling(1);
 
-            if (isRed) {
-                robot.drivetrain.setTeleOpDrive(
-                        gamepadEx1.getLeftY(),
-                        -gamepadEx1.getLeftX(),
-                        -gamepadEx1.getRightX() * (isSlowMode ? 0.7 : 1),
-                        false
-                );
+            if (!robot.liftAndBrake.getIsLiftStarted()) {
+                if (isRed) {
+                    robot.drivetrain.setTeleOpDrive(
+                            gamepadEx1.getLeftY(),
+                            -gamepadEx1.getLeftX(),
+                            -gamepadEx1.getRightX() * (isSlowMode ? 0.7 : 1),
+                            false
+                    );
+                } else {
+                    robot.drivetrain.setTeleOpDrive(
+                            -gamepadEx1.getLeftY(),
+                            gamepadEx1.getLeftX(),
+                            -gamepadEx1.getRightX() * (isSlowMode ? 0.7 : 1),
+                            false
+                    );
+                }
             } else {
                 robot.drivetrain.setTeleOpDrive(
-                        -gamepadEx1.getLeftY(),
-                        gamepadEx1.getLeftX(),
-                        -gamepadEx1.getRightX() * (isSlowMode ? 0.7 : 1),
-                        false
+                        1,
+                        0,
+                        0
                 );
             }
 

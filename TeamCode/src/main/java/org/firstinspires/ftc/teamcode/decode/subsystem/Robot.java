@@ -42,6 +42,7 @@ public final class Robot {
     public final Intake intake;
     public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
+    public final LiftAndBrake liftAndBrake;
 //    public final LEDController ledController;
 
     public static double MAX_STALENESS = 1e9;
@@ -89,6 +90,7 @@ public final class Robot {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
+        liftAndBrake = new LiftAndBrake(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
         if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
 
@@ -136,6 +138,7 @@ public final class Robot {
         shooter.run();
         intake.run();
         actionScheduler.run();
+        liftAndBrake.run();
     }
 
     public void update() {

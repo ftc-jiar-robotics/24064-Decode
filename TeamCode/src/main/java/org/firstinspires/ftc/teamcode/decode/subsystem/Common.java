@@ -31,7 +31,11 @@ public final class Common {
 
             NAME_TURRET_MOTOR = "turret",
             NAME_TURRET_ENCODER = "turretEncoder",
-            NAME_TURRET_CAMERA = "arduCam";
+            NAME_TURRET_CAMERA = "arduCam",
+
+            NAME_PTO_SERVO = "pto",
+            NAME_BRAKE_MASTER_SERVO = "brakeMaster",
+            NAME_BRAKE_SLAVE_SERVO = "brakeSlave";
 
     public static Pose AUTO_END_POSE = null;
 

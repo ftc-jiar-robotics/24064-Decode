@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.decode.subsystem.LiftAndBrake.LiftConfig;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 
 // TODO tune timings
@@ -19,6 +20,8 @@ public class RobotActions {
     private static final ElapsedTime shotTimer = new ElapsedTime();
 
     private static boolean doSetSlowMode = false;
+
+    private static double stallSubsystemsPTOWait = 5;
 
     public static Action setIntake(double power, double sleepSeconds) {
         return new ParallelAction(
@@ -94,5 +97,13 @@ public class RobotActions {
 
     public static Action armTurret() {
         return new InstantAction(() -> robot.shooter.setTurretManual(Turret.TurretStates.ODOM_TRACKING));
+    }
+
+    public static Action engagePTO() {
+        return new SequentialAction(
+            // TODO make turret go backwards BEFORE lifting
+            new InstantAction(() -> Common.robot.liftAndBrake.set(new LiftConfig(LiftAndBrake.LiftStates.LIFT, stallSubsystemsPTOWait))),
+            new SleepAction(stallSubsystemsPTOWait)
+        );
     }
 }
