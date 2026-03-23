@@ -116,7 +116,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public Flywheel(HardwareMap hw) {
         MotorEx shooterMaster = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
         MotorEx shooterSlave = new MotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
-        MotorEx dummy = new MotorEx(hw, "left front", Motor.GoBILDA.BARE);
+        MotorEx dummy = new MotorEx(hw, "right back", Motor.GoBILDA.BARE);
 
         shooterSlave.setInverted(false);
         shooterMaster.setInverted(true);
