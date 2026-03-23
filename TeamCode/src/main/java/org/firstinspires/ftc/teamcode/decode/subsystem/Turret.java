@@ -16,6 +16,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.IIRLowPassFilter;
@@ -47,7 +48,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             GOAL_ADDITION_X_BLUE = 4,
             GOAL_ADDITION_X_RED = 7,
             GOAL_SUBTRACTION_Y = 6,
-            WRAP_AROUND_ANGLE = 180,
+            WRAP_AROUND_ANGLE = 0,
             ANGLE_TOLERANCE = 2,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
@@ -69,6 +70,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         this.turretSlave = new CachedServo(hw, NAME_TURRET_SLAVE_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES);
 
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
+
+        turretMaster.setPwmRange(500, 2500);
+        turretSlave.setPwmRange(500, 2500);
+
 //        autoAim = new ArduCam(hw, NAME_TURRET_CAMERA);
     }
 
@@ -190,7 +195,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     // Inputs only from 0 - 360 degrees
     public static double normalizeToTurretRange(double angle) {
-        return angle > WRAP_AROUND_ANGLE ? angle - 360 : angle;
+        return (WRAP_AROUND_ANGLE-angle +3600)%360;//angle > WRAP_AROUND_ANGLE ? angle - 360 : angle;
     }
 
     // RAW abs encoder math
@@ -229,8 +234,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         if (isPIDInTolerance()) toleranceCounter++;
         else toleranceCounter = 0;
 
-        turretMaster.turnToAngle(targetAngleDebounced);
-        turretSlave.turnToAngle(targetAngleDebounced);
+        turretMaster.turnToAngle(targetAngle);
+        turretSlave.turnToAngle(targetAngle);
     }
 
     public boolean isReadyToShoot() {

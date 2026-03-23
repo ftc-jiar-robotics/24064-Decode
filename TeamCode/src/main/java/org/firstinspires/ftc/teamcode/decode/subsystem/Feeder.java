@@ -84,7 +84,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
         backFeeder1.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
-        backFeeder2.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? 1 : 0));
+        backFeeder2.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         motor.set(currentState == FeederStates.RUNNING ? 1.0 : -0.01);
         feederGate.run();
     }

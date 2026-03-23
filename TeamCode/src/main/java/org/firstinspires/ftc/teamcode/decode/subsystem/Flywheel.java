@@ -118,10 +118,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         MotorEx shooterSlave = new MotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
         MotorEx dummy = new MotorEx(hw, "left front", Motor.GoBILDA.BARE);
 
-        shooterSlave.setInverted(true);
+        shooterSlave.setInverted(false);
         shooterMaster.setInverted(true);
 
         shooterEncoder = dummy.encoder;
+        shooterEncoder.setDirection(Motor.Direction.FORWARD);
 
         motorGroup = new MotorEx[]{shooterMaster, shooterSlave};
 
@@ -157,7 +158,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     @Override
     public void run() {
-        currentRPM = (shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
+        currentRPM = (-shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
         currentRPMSmooth = (SMOOTH_RPM_GAIN * currentRPMSmooth) + (1 - SMOOTH_RPM_GAIN) * currentRPM;
         if (currentRPM > 10000) currentRPM = 0;
         if (currentRPMSmooth > 10000) currentRPMSmooth = 0;

@@ -90,7 +90,8 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
 //        ledController = new LEDController(hardwareMap);
-        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
+//        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
+
 
 //        ledController.ensureInitialized();
 
@@ -142,7 +143,7 @@ public final class Robot {
         readSensors();
         isRobotMoving = isRobotMoving(MIN_MOVEMENT_SPEED);
 
-        if (!isAuto) arducam.detectTarget();
+//        if (!isAuto) arducam.detectTarget();
 
         zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
         Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
@@ -172,13 +173,13 @@ public final class Robot {
 
     public void relocalizeWithArdu(boolean override) {
         if (!isAuto) {
-            Pose arduRobotPose = arducam.getTurretPosePedro();
-
-            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
-
-            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
-                robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
-            }
+//            Pose arduRobotPose = arducam.getTurretPosePedro();
+//
+//            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
+//
+//            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
+//                robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
+//            }
         }
     }
 
@@ -188,7 +189,7 @@ public final class Robot {
             shooter.printTelemetry();
             intake.printTelemetry();
             if (isAuto) limelight.printTelemetry();
-            if (!isAuto) arducam.printTelemetry();
+//            if (!isAuto) arducam.printTelemetry();
 
             Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
             Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());

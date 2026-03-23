@@ -128,7 +128,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public void applyOffsets() {
-        turret.applyOffset();
+//        turret.applyOffset();
     }
     public void setFlywheelManual(Flywheel.FlyWheelStates f) {
         flywheel.set(f, true);
