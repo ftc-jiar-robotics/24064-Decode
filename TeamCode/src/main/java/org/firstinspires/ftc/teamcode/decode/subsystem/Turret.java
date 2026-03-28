@@ -17,6 +17,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.IIRLowPassFilter;
@@ -48,11 +49,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             GOAL_ADDITION_X_BLUE = 4,
             GOAL_ADDITION_X_RED = 7,
             GOAL_SUBTRACTION_Y = 6,
-            WRAP_AROUND_ANGLE = 0,
-            ANGLE_TOLERANCE = 2,
+            WRAP_AROUND_ANGLE = 180,
+            TURRET_CLIP_ANGLE_MIN = 15,
+            TURRET_CLIP_ANGLE_MAX = 340,
+
+    ANGLE_TOLERANCE = 10,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
-            ABSOLUTE_ENCODER_OFFSET = -177.4444,
+            ABSOLUTE_ENCODER_OFFSET = -96.4444,
             LOS_EPS = 1e-6;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;
@@ -73,6 +77,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         turretMaster.setPwmRange(500, 2500);
         turretSlave.setPwmRange(500, 2500);
+        turretMaster.setInverted(true);
+        turretSlave.setInverted(true);
 
 //        autoAim = new ArduCam(hw, NAME_TURRET_CAMERA);
     }
@@ -203,9 +209,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double voltage = absoluteEncoder.getVoltage();
 
         double rawDegrees = (360 - (voltage / 3.24 * 360.0 + ABSOLUTE_ENCODER_OFFSET)) % 360.0;
-        double turretDomain = (360.0 - rawDegrees) % 360.0;
+//        double turretDomain = (360.0 - rawDegrees) % 360.0;
 
-        return normalizeToTurretRange(turretDomain);
+        return normalizeToTurretRange(rawDegrees);
     }
 
     @Override
@@ -218,15 +224,16 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         // turning robot heading to turret heading
         double robotHeading = robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
+        turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
 
         switch (currentState) {
             case IDLE:
-                targetAngle = 0;
+//                targetAngle = 180;
+                setTracking();
                 differentiator.reset();
                 if (robot.shooter.isBallPresent()) currentState = ODOM_TRACKING;
                 break;
             case ODOM_TRACKING:
-                turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
                 setTracking();
                 break;
         }
@@ -234,8 +241,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         if (isPIDInTolerance()) toleranceCounter++;
         else toleranceCounter = 0;
 
-        turretMaster.turnToAngle(targetAngle);
-        turretSlave.turnToAngle(targetAngle);
+        double targetAngleClipped = Range.clip(targetAngle, TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
+        turretMaster.turnToAngle(targetAngleClipped);
+        turretSlave.turnToAngle(targetAngleClipped);
     }
 
     public boolean isReadyToShoot() {

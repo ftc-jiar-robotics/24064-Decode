@@ -38,9 +38,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.0010,
+            0.00925,
             0.0,
-            0.0003,
+            0.00255,
             Double.POSITIVE_INFINITY
     );
 
@@ -75,7 +75,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 30,
             RPM_TOLERANCE_WHILE_MOVING = 70,
-            SMOOTH_RPM_GAIN = 0.85,
+            SMOOTH_RPM_GAIN = .9,
             DERIV_TOLERANCE = 200,
             IDLE_RPM = 1200,
             FAR_ARMING_RPM = 2950,
@@ -158,7 +158,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     @Override
     public void run() {
-        currentRPM = (-shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
+        currentRPM = (shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
         currentRPMSmooth = (SMOOTH_RPM_GAIN * currentRPMSmooth) + (1 - SMOOTH_RPM_GAIN) * currentRPM;
         if (currentRPM > 10000) currentRPM = 0;
         if (currentRPMSmooth > 10000) currentRPMSmooth = 0;
@@ -227,7 +227,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
 //        }
         if (!isFlywheelManual) {
-            double rpmRaw = 1498.9596472960714 + 11.474709465472186 * distance;
+            double rpmRaw = 957.2952559300876*(1) + 14.312109862671662*(distance);
             shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
             velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
         }

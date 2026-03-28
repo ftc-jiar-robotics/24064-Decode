@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_DISTANCE_FEEDER;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACK1_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACK2_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_GATE_SERVO;
@@ -41,7 +42,10 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public static double
         BLOCKING_ANGLE = 240,
         RUNNING_ANGLE = 310,
-        MAX_PIN_STATE = 15; // default
+        MAX_PIN_STATE = 15, // default
+        CLOSE_SHOOTING_SPEED = 0.725,
+        FAR_SHOOTING_SPEED = 0.45,
+        MID_SHOOTER_SPEED = 0.56;
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
@@ -50,7 +54,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         backFeeder2 = hw.get(CRServo.class, NAME_FEEDER_BACK2_SERVO);
         pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
         pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);
-        motor = new MotorEx(hw, NAME_INTAKE_MOTO_MOTOR, Motor.GoBILDA.RPM_435);
+        motor = new MotorEx(hw, NAME_INTAKE_MOTO_MOTOR, Motor.GoBILDA.BARE);
+        motor.setInverted(true);
     }
 
     @Override
@@ -85,7 +90,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
         backFeeder1.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         backFeeder2.setPower(currentState == FeederStates.RUNNING ? robot.intake.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
-        motor.set(currentState == FeederStates.RUNNING ? 1.0 : -0.01);
+        motor.set(currentState == FeederStates.RUNNING ? (robot.isFar ? FAR_SHOOTING_SPEED : (robot.isMid ? MID_SHOOTER_SPEED : CLOSE_SHOOTING_SPEED)) : 0.2);
         feederGate.run();
     }
 

@@ -1,20 +1,20 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.FAR_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MAX_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MIN_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MID_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
 import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
 import android.util.Log;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.field.Style;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -56,6 +56,9 @@ public final class Robot {
     public boolean hasArduCamRelocalized = false;
 
     public final boolean isAuto;
+    public boolean isFar;
+
+    public boolean isMid;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -142,6 +145,9 @@ public final class Robot {
     public void update() {
         readSensors();
         isRobotMoving = isRobotMoving(MIN_MOVEMENT_SPEED);
+
+        isFar = shooter.turret.getDistance() > FAR_DISTANCE;
+        isMid = !isFar && shooter.turret.getDistance() > MID_DISTANCE;
 
 //        if (!isAuto) arducam.detectTarget();
 

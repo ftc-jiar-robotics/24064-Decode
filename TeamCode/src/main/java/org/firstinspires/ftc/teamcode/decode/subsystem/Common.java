@@ -66,8 +66,8 @@ public final class Common {
             SERVO_AXON_MAX_2 = 355,
             SERVO_AXON_MINI_MK2_MAX = 360,
 
-            FORWARD_POD_Y = 80,
-            STRAFE_POD_X = -83.5,
+            FORWARD_POD_Y = 84, // 84 mm
+            STRAFE_POD_X = -152, //
 
             // Camera Stuff
             CAM_HEIGHT = 9.4375,
@@ -76,7 +76,7 @@ public final class Common {
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
             CAM_OFFSET_X = 0,
             CAM_OFFSET_Y = 7.5,
-            TURRET_OFFSET_Y = -2.559,
+            TURRET_OFFSET_Y = -2.48592,
 
             MAX_VOLTAGE = 13;
 
@@ -96,6 +96,9 @@ public final class Common {
     public static double
             MIN_MOVEMENT_SPEED = 0.5,
             ANG_VELOCITY_MULTIPLER = 0.15,
+            FAR_DISTANCE = 120,
+            MID_DISTANCE = 100,
+
             IMU_YAW_SCALAR = 1.00086,
             SLOW_MODE = 0.55,
             AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
