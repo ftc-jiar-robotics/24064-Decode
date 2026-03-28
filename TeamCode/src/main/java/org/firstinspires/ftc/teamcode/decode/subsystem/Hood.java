@@ -21,9 +21,9 @@ public class    Hood extends Subsystem<Double> {
             lutOutput;
 
     public static double
-            PHYSICAL_MAX = 200,
+            PHYSICAL_MAX = 195,
             MAX = 180,
-            MIN = 68;
+            MIN = 90;
 
 
     public Hood(HardwareMap hw) {
