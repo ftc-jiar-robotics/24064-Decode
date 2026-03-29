@@ -45,9 +45,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     );
 
     public static PIDGains shootingWhileMovingVelocityGains = new PIDGains(
-            0.009,
-            0,
-            0.003
+            0.00925,
+            0.0,
+            0.00255,
+            Double.POSITIVE_INFINITY
     );
 
     private final FIRLowPassFilter rpmFilter = new FIRLowPassFilter();
@@ -74,20 +75,20 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 30,
-            RPM_TOLERANCE_WHILE_MOVING = 70,
+            RPM_TOLERANCE_WHILE_MOVING = 30,
             SMOOTH_RPM_GAIN = .9,
             DERIV_TOLERANCE = 200,
             IDLE_RPM = 1200,
             FAR_ARMING_RPM = 2950,
             CLOSE_ARMING_RPM = 2500,
-            MAX_RPM = 4800,
+            MAX_RPM = 4000,
             VOLTAGE_SCALER = 0.99,
             TARGET_RPM_STEP = 30.0,
             TARGET_RPM_MID_BAND = 9.0;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
-    public static LowPassGains motorPowerGains = new LowPassGains(.99);
+    public static LowPassGains motorPowerGains = new LowPassGains(0);
 
     private final IIRLowPassFilter motorPowerFilter = new IIRLowPassFilter(motorPowerGains);
 
@@ -182,11 +183,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
                 break;
             case ARMING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(/*robot.shooter.getPredictedPose(LAUNCH_DELAY)*/ robot.drivetrain.getPose(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
                 break;
             case RUNNING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(/*robot.shooter.getPredictedPose(LAUNCH_DELAY)*/ robot.drivetrain.getPose(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
                 break;
         }
 
