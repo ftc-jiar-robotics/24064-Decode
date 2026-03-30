@@ -81,7 +81,7 @@ public final class Common {
             MAX_VOLTAGE = 13;
 
     public static final Pose
-            RED_BIG_TRIANGLE = new Pose(111.625, 134.0, Math.toRadians(0)),
+            RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
             RED_SMALL_TRIANGLE = new Pose(88.125, 7.5, Math.toRadians(90)),
             BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror(),
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90)),

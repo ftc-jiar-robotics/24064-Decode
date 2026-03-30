@@ -95,4 +95,11 @@ public class RobotActions {
     public static Action armTurret() {
         return new InstantAction(() -> robot.shooter.setTurretManual(Turret.TurretStates.ODOM_TRACKING));
     }
+
+    public static Action openGate() {
+        return new InstantAction(() -> robot.gateOpener.set(true, true));
+    }
+    public static Action closeGate() {
+        return new InstantAction(() -> robot.gateOpener.set(false, true));
+    }
 }

@@ -38,6 +38,7 @@ public final class Robot {
     public final Follower drivetrain;
     public final BulkReader bulkReader;
     public final ActionScheduler actionScheduler;
+    public final GateOpener gateOpener;
     public final Shooter shooter;
     public final Intake intake;
     public final ZoneChecker zoneChecker;
@@ -92,6 +93,7 @@ public final class Robot {
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
         zoneChecker = new ZoneChecker();
+        gateOpener = new GateOpener(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
 //        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
 
@@ -140,6 +142,7 @@ public final class Robot {
         shooter.run();
         intake.run();
         actionScheduler.run();
+        gateOpener.run();
     }
 
     public void update() {

@@ -117,7 +117,7 @@ public class AutoGoal18 extends AbstractAuto{
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.firstIntake21, 0.3, 0, f, "intaking_first"), // slow down to intake balls
+                                        path.firstIntake21, 0.2, 0, f, "intaking_first"), // slow down to intake balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
@@ -150,7 +150,10 @@ public class AutoGoal18 extends AbstractAuto{
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), path.gateCycleIntake21, 0.65, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
-                                        RobotActions.setIntake(1, 0),
+                                        new ParallelAction(
+                                                RobotActions.setIntake(1, 0),
+                                                RobotActions.openGate()
+                                        ),
                                         path.gateCycleIntake21, 0.7, 0, f, "slow_down_2"),
                                 new FollowPathAction(f, path.gateCycleIntake21, true)
                         ),
@@ -164,6 +167,7 @@ public class AutoGoal18 extends AbstractAuto{
                         new ParallelAction(
                                 new Actions.CallbackAction(
                                         new ParallelAction(
+                                                RobotActions.closeGate(),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel(),
                                                 RobotActions.setIntake(1, 0)
@@ -230,32 +234,23 @@ public class AutoGoal18 extends AbstractAuto{
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_PRELOAD")),
                         new ParallelAction(
-                                RobotActions.shootArtifacts(3, 4, false),
                                 new SequentialAction(
                                         new Actions.UntilConditionAction(() -> !robot.shooter.isBallPresent(),new ParallelAction(
-                                                new Actions.CallbackAction(
-                                                        new SequentialAction(
-                                                                RobotActions.emergencyShootArtifacts()
-                                                        ),
-                                                        path.shootPreload21, 0.4, 0, f, "arm_flywheel_and_turret_0"
-
-                                                ),
                                                 new Actions.CallbackAction(
                                                         RobotActions.armTurret(),
                                                         path.shootPreload21, 0.2, 0, f, "arm_turret_0"
                                                 ),
                                                 new Actions.CallbackAction(
-                                                        new ParallelAction(
-                                                                new InstantAction(() -> f.setMaxPower(0.55)),
-                                                                RobotActions.armFlywheel()
-                                                        ),
+                                                        RobotActions.armFlywheel(),
                                                         path.shootPreload21, 0.01, 0, f, "arm_flywheel_0"
                                                 ),
 //                                                new Actions.CallbackAction(
 //                                                        new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.2, 0, f, "arm_flywheel_and_turret_0"
 //                                                ),
                                                 new FollowPathAction(f, path.shootPreload21, true)
+
                                         )),
+                                        RobotActions.shootArtifacts(3, 4, false),
                                         new InstantAction(() -> f.setMaxPower(1))
                                 )
 

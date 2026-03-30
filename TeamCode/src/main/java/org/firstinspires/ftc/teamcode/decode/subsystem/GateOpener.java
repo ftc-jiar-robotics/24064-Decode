@@ -17,8 +17,10 @@ public class GateOpener extends Subsystem<Boolean> {
     private boolean isOpen = false;
 
     public static double
-            CLOSED_ANGLE = 0,
-            OPEN_ANGLE = 90;
+            CLOSED_ANGLE_RED = 50,
+            OPEN_ANGLE_RED = 175,
+            CLOSED_ANGLE_BLUE = 230,
+            OPEN_ANGLE_BLUE = 105;
 
     public GateOpener(HardwareMap hw) {
         gateRed  = new CachedServo(hw, NAME_GATE_OPENER_RED_SERVO, Common.SERVO_25_KG_MIN, Common.SERVO_25_KG_MAX, AngleUnit.DEGREES);
@@ -38,11 +40,11 @@ public class GateOpener extends Subsystem<Boolean> {
     @Override
     public void run() {
         if (Common.isRed) {
-            gateRed.turnToAngle(isOpen ? OPEN_ANGLE : CLOSED_ANGLE);
-            gateBlue.turnToAngle(CLOSED_ANGLE);
+            gateRed.turnToAngle(isOpen ? OPEN_ANGLE_RED : CLOSED_ANGLE_RED);
+            gateBlue.turnToAngle(CLOSED_ANGLE_BLUE);
         } else {
-            gateBlue.turnToAngle(isOpen ? OPEN_ANGLE : CLOSED_ANGLE);
-            gateRed.turnToAngle(CLOSED_ANGLE);
+            gateBlue.turnToAngle(isOpen ? OPEN_ANGLE_BLUE : CLOSED_ANGLE_BLUE);
+            gateRed.turnToAngle(CLOSED_ANGLE_RED);
         }
     }
 
