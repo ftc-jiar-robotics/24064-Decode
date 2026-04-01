@@ -23,7 +23,7 @@ public class    Hood extends Subsystem<Double> {
     public static double
             PHYSICAL_MAX = 195,
             MAX = 180,
-            MIN = 90;
+            MIN = 70;
 
 
     public Hood(HardwareMap hw) {

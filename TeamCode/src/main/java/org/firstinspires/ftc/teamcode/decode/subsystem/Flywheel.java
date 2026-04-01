@@ -38,16 +38,16 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.00925,
+            0.00125,
             0.0,
-            0.00255,
+            0.000875,
             Double.POSITIVE_INFINITY
     );
 
     public static PIDGains shootingWhileMovingVelocityGains = new PIDGains(
-            0.00925,
+            0.00125,
             0.0,
-            0.00255,
+            0.000875,
             Double.POSITIVE_INFINITY
     );
 
@@ -75,9 +75,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 30,
+            LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             RPM_TOLERANCE_WHILE_MOVING = 30,
             SMOOTH_RPM_GAIN = .9,
-            DERIV_TOLERANCE = 200,
+            DERIV_TOLERANCE = 100,
             IDLE_RPM = 1200,
             FAR_ARMING_RPM = 2950,
             CLOSE_ARMING_RPM = 2500,
@@ -88,7 +89,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
-    public static LowPassGains motorPowerGains = new LowPassGains(0);
+    public static LowPassGains motorPowerGains = new LowPassGains(
+            0.4,
+            6);
 
     private final IIRLowPassFilter motorPowerFilter = new IIRLowPassFilter(motorPowerGains);
 
@@ -192,10 +195,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         }
 
 
-        currentPower = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
+        double feedforwardValue = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
+
+        currentPower = feedforwardValue;
         currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
 
-        if (isPIDInTolerance()) {
+        if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
             currentPower = motorPowerFilter.calculate(currentPower);
             notInToleranceCounter = 0;
         }
@@ -204,7 +209,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             notInToleranceCounter++;
         }
 
-        currentPower = Range.clip(currentPower, 0.0, 1.0);
+        currentPower = Range.clip(currentPower, feedforwardValue/2, 1.0);
 
         for (MotorEx m : motorGroup) m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
 

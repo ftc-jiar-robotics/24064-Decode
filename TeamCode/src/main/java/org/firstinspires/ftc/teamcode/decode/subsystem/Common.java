@@ -78,7 +78,7 @@ public final class Common {
             CAM_OFFSET_Y = 7.5,
             TURRET_OFFSET_Y = -2.48592,
 
-            MAX_VOLTAGE = 13;
+            MAX_VOLTAGE = 14;
 
     public static final Pose
             RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
