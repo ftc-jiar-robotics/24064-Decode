@@ -11,6 +11,7 @@ import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.PathChain;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+import org.opencv.core.Mat;
 
 @Configurable
 public class GoalPaths {
@@ -50,13 +51,13 @@ public class GoalPaths {
             midIntakeHP = new Pose(18.300, 10.600),
             controlHP = new Pose(57.300, 17.400),
             preload21 = new Pose(49.800, 93.600),
-            shoot21 = new Pose(58.7, 75.7),
+            shoot21 = new Pose(53.7, 80.7),
             shootThird21 = new Pose(58.7,82),
             intake21Control = new Pose(60.800, 60.100),
             endIntakeSecond21 = new Pose(8.400, 59.100),
-            gateCycleControl21 = new Pose(18.9, 53.900),
-            intakeGateCycle21 = new Pose(12, 61.25),
-            intakeGateCycleRed21 = new Pose(12, 61.25),
+            gateCycleControl21 = new Pose(25.9, 57.900),
+            intakeGateCycle21 = new Pose(11.5, 60.5),
+            intakeGateCycleRed21 = new Pose(11.5, 60.5),
             endIntakeFirst21 = new Pose(23.0, 83.900),
             intakeThirdControl21 = new Pose(59.700, 35.900),
             startIntakeThird21 = new Pose(45.200, 35.900),
@@ -70,8 +71,9 @@ public class GoalPaths {
             gateAngle = Math.toRadians(180),
             startAngle = Math.toRadians(270),
             shootAngle = Math.toRadians(-127),
+            endIntakeAngleFirst = Math.toRadians(180),
             gateCycleShootAngle = Math.toRadians(215),
-            gateCycleIntakeAngle = Math.toRadians(153),
+            gateCycleIntakeAngle = Math.toRadians(160),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
             startIntakeAngleHP = Math.toRadians(180),
@@ -127,6 +129,7 @@ public class GoalPaths {
         intake21Angle = mirrorAngleRad(intake21Angle);
         goHome21Angle = mirrorAngleRad(goHome21Angle);
 
+        endIntakeAngleFirst = mirrorAngleRad(endIntakeAngleFirst);
     }
 
     public double mirrorAngleRad(double angle) {
@@ -195,15 +198,6 @@ public class GoalPaths {
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed().build();
-        firstIntake21 = f.pathBuilder()
-                .addPath(
-                        new BezierLine(shoot21, endIntakeFirst21)
-                )
-                .setTangentHeadingInterpolation()
-                .addPath(
-                        new BezierLine(endIntakeFirst21, shoot21)
-                )
-                .setTangentHeadingInterpolation().setReversed().build();
         thirdIntake21 = f.pathBuilder()
                 .addPath(
                         new BezierCurve(
@@ -232,6 +226,15 @@ public class GoalPaths {
                         new BezierLine(endIntakeThird21, shootThird21)
                 )
                 .setConstantHeadingInterpolation(goHome21Angle).build();
+        firstIntake21 = f.pathBuilder()
+                .addPath(
+                        new BezierLine(shoot21, endIntakeFirst21)
+                )
+                .setTangentHeadingInterpolation()
+                .addPath(
+                        new BezierLine(endIntakeFirst21, shoot21)
+                )
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, endIntakeAngleFirst, 0.75)).build();
         goalLeave21 = f.pathBuilder()
                 .addPath(
                         // Path 0
@@ -473,6 +476,7 @@ public class GoalPaths {
     public PathChain goalLeave;
     public PathChain shootPreload21;
     public PathChain firstIntake21;
+    public PathChain shootFirstIntake21;
     public PathChain secondIntake21;
     public PathChain thirdIntake21;
     public PathChain gateCycleIntake21;

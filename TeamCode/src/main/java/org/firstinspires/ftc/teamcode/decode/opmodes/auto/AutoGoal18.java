@@ -94,7 +94,7 @@ public class AutoGoal18 extends AbstractAuto{
                         ),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 1.5),
+                        RobotActions.shootArtifacts(3, 1),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )));
@@ -120,7 +120,6 @@ public class AutoGoal18 extends AbstractAuto{
                                         path.firstIntake21, 0.2, 0, f, "intaking_first"), // slow down to intake balls
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel(),
                                                 RobotActions.setIntake(0.25, 0)
@@ -130,7 +129,7 @@ public class AutoGoal18 extends AbstractAuto{
                                 new FollowPathAction(f, path.firstIntake21, true)
                         ),
 
-                        RobotActions.shootArtifacts(3, 1.5),
+                        RobotActions.shootArtifacts(3, 1),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )
         ));
@@ -154,7 +153,7 @@ public class AutoGoal18 extends AbstractAuto{
                                                 RobotActions.setIntake(1, 0),
                                                 RobotActions.openGate()
                                         ),
-                                        path.gateCycleIntake21, 0.7, 0, f, "slow_down_2"),
+                                        path.gateCycleIntake21, 0.5, 0, f, "slow_down_2"),
                                 new FollowPathAction(f, path.gateCycleIntake21, true)
                         ),
                         new Actions.UntilConditionAction(
@@ -177,10 +176,10 @@ public class AutoGoal18 extends AbstractAuto{
                                 new FollowPathAction(f, path.gateCycleShoot21, true)
                         ),
 
-                        new SleepAction(.5),
+                        new SleepAction(.2),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 1.5),
+                        RobotActions.shootArtifacts(3, 1),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_GATE"))
                 )
@@ -216,7 +215,7 @@ public class AutoGoal18 extends AbstractAuto{
                         ),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 1.5),
+                        RobotActions.shootArtifacts(3, 1),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_SECOND"))
                 ));
@@ -250,7 +249,7 @@ public class AutoGoal18 extends AbstractAuto{
                                                 new FollowPathAction(f, path.shootPreload21, true)
 
                                         )),
-                                        RobotActions.shootArtifacts(3, 4, false),
+                                        RobotActions.shootArtifacts(3, 2, false),
                                         new InstantAction(() -> f.setMaxPower(1))
                                 )
 

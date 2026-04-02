@@ -13,7 +13,11 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
@@ -31,23 +35,23 @@ import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 @Configurable
 @Config
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
-    private final MotorEx[] motorGroup;
+    private final DcMotorEx[] motorGroup;
 
     private final Motor.Encoder shooterEncoder;
 
     private final PIDController velocityController = new PIDController();
 
     public static PIDGains shootingVelocityGains = new PIDGains(
-            0.00125,
-            0.0,
-            0.000875,
+            600,
+            50,
+            0,
             Double.POSITIVE_INFINITY
     );
 
     public static PIDGains shootingWhileMovingVelocityGains = new PIDGains(
-            0.00125,
-            0.0,
-            0.000875,
+            600,
+            50,
+            0,
             Double.POSITIVE_INFINITY
     );
 
@@ -81,9 +85,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             DERIV_TOLERANCE = 100,
             IDLE_RPM = 1200,
             FAR_ARMING_RPM = 2950,
-            CLOSE_ARMING_RPM = 2500,
+            CLOSE_ARMING_RPM = 2100,
             MAX_RPM = 4000,
-            VOLTAGE_SCALER = 0.99,
+            VOLTAGE_SCALER = 0,
             TARGET_RPM_STEP = 30.0,
             TARGET_RPM_MID_BAND = 9.0;
 
@@ -118,17 +122,28 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public Flywheel(HardwareMap hw) {
-        MotorEx shooterMaster = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
-        MotorEx shooterSlave = new MotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
-        MotorEx dummy = new MotorEx(hw, "right back", Motor.GoBILDA.BARE);
+//        MotorEx shooterMaster = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
+//        MotorEx shooterSlave = new MotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
+        MotorEx dummy = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
 
-        shooterSlave.setInverted(false);
-        shooterMaster.setInverted(true);
+        DcMotorEx shooterMaster = hw.get(DcMotorEx.class,NAME_FLYWHEEL_MASTER_MOTOR);
+        DcMotorEx shooterSlave = hw.get(DcMotorEx.class, NAME_FLYWHEEL_SLAVE_MOTOR);
+
+
+//        shooterSlave.setInverted(false);
+        shooterMaster.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        shooterMaster.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterSlave.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shooterMaster.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,0));
+        shooterSlave.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,0));
+
 
         shooterEncoder = dummy.encoder;
         shooterEncoder.setDirection(Motor.Direction.FORWARD);
 
-        motorGroup = new MotorEx[]{shooterMaster, shooterSlave};
+        motorGroup = new DcMotorEx[]{shooterMaster, shooterSlave};
 
        // velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
         velocityController.setGains(shootingVelocityGains);
@@ -211,7 +226,15 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         currentPower = Range.clip(currentPower, feedforwardValue/2, 1.0);
 
-        for (MotorEx m : motorGroup) m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
+//        for (MotorEx m : motorGroup) m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
+
+
+        for (DcMotorEx m : motorGroup) {
+
+            m.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,feedforwardValue));
+            m.setVelocity(shootingRPM*28.0/60.0);
+        }
+
 
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
     }
