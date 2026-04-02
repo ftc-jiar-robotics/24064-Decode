@@ -9,8 +9,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MID_DISTANC
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
-import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
-import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
 import android.util.Log;
 
@@ -29,7 +27,6 @@ import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
 import org.firstinspires.ftc.teamcode.decode.util.LimelightEx;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
-import org.firstinspires.ftc.teamcode.decode.util.ZoneChecker;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -41,7 +38,6 @@ public final class Robot {
     public final GateOpener gateOpener;
     public final Shooter shooter;
     public final Intake intake;
-    public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
 //    public final LEDController ledController;
 
@@ -92,7 +88,6 @@ public final class Robot {
         actionScheduler = new ActionScheduler();
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
-        zoneChecker = new ZoneChecker();
         gateOpener = new GateOpener(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
 //        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
@@ -154,8 +149,7 @@ public final class Robot {
 
 //        if (!isAuto) arducam.detectTarget();
 
-        zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
-        Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
+        Common.inTriangle = LaunchZone.getCurrentZone(drivetrain.getPose()) != LaunchZone.NONE;
 
 //        ledController.update();
         LoopUtil.updateLoopCount();
