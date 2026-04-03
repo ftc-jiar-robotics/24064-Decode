@@ -148,6 +148,7 @@ public class MainTeleOp extends LinearOpMode {
 
             if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.emergencyShootArtifacts());
             if (gamepadEx1.wasJustPressed(B)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(3));
+            if (gamepadEx1.wasJustPressed(X)) robot.actionScheduler.addAction(RobotActions.engagePTO());
             if (gamepadEx1.isDown(RIGHT_BUMPER)) robot.shooter.clearQueueShots();
             if (gamepadEx1.gamepad.guide) {
                 robot.relocalizeWithWall();

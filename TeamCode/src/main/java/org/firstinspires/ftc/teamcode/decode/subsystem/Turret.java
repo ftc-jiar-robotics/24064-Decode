@@ -47,7 +47,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     );
 
     public enum TurretStates {
-        IDLE, ODOM_TRACKING
+        IDLE, ODOM_TRACKING, LIFT
     }
 
     private TurretStates currentState = TurretStates.IDLE;
@@ -85,7 +85,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             OUT_OF_TOLERANCE_LOOPS = 3,
             kA_TURRET = 0,
             kV_TURRET = 0.1,   // start at 0, tune up slowly
-            LOS_EPS = 1e-6;    // divide by zero guard
+            LOS_EPS = 1e-6,    // divide by zero guard
+            LIFT_TURRET_ANGLE = 180; // TODO tune
 
     private Pose goal = Common.BLUE_GOAL;
     private Pose turretPos = new Pose(0, 0);
@@ -312,6 +313,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                     double alphaDot = getDesiredTurretOmegaRadPerSec();
                     output += (kA_TURRET * differentiator.getDerivative(alphaDot)) * scalar;
                     output += (kV_TURRET * alphaDot) * scalar;
+
+                    break;
+                case LIFT:
+                    targetAngle = LIFT_TURRET_ANGLE;
+                    controller.setTarget(new State(targetAngle, 0, 0, 0));
+                    differentiator.reset();
+                    if (isPIDInTolerance()) applyOffset(true);
 
                     break;
             }

@@ -42,7 +42,7 @@ public class LiftAndBrake extends Subsystem<LiftAndBrake.LiftConfig> {
         }
     }
 
-    private LiftConfig currentConfig = new LiftConfig(LiftStates.PARKING_BRAKE, 0);
+    private LiftConfig currentConfig = new LiftConfig(LiftStates.FINISHED, 0);
 
     public LiftAndBrake(HardwareMap hw) {
         this.ptoEngager = new SimpleServoPivot(INITIAL_ANGLE_PTO, ENGAGED_ANGLE_PTO, SimpleServoPivot.getGoBildaServo(hw, Common.NAME_PTO_SERVO));

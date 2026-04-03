@@ -101,8 +101,8 @@ public class RobotActions {
 
     public static Action engagePTO() {
         return new SequentialAction(
-            // TODO make turret go backwards BEFORE lifting
-            new InstantAction(() -> Common.robot.liftAndBrake.set(new LiftConfig(LiftAndBrake.LiftStates.LIFT, stallSubsystemsPTOWait))),
+            new InstantAction(() -> robot.shooter.turret.set(Turret.TurretStates.LIFT)),
+            new InstantAction(() -> robot.liftAndBrake.set(new LiftConfig(LiftAndBrake.LiftStates.LIFT, stallSubsystemsPTOWait))),
             new SleepAction(stallSubsystemsPTOWait)
         );
     }
