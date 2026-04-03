@@ -274,7 +274,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         dashTelemetry.addLine("FLYWHEEL");
         dashTelemetry.addData("current RPM (ROTATIONS PER MINUTE): ", currentRPM);
         dashTelemetry.addData("current RPM Smooth (ROTATIONS PER MINUTE): ", currentRPMSmooth);
-        dashTelemetry.addData("current power (PERCENTAGE): ", currentPower);
+        dashTelemetry.addData("current power 1 (PERCENTAGE): ", motorGroup[0].getPower());
+        dashTelemetry.addData("current power 2 (PERCENTAGE): ", motorGroup[1].getPower());
         dashTelemetry.addData("current pos (TICKS): ", shooterEncoder.getPosition());
         dashTelemetry.addData("target RPM (ROTATIONS PER MINUTE): ", shootingRPM);
 

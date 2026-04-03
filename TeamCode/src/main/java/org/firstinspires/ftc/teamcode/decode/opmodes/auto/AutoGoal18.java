@@ -57,7 +57,7 @@ public class AutoGoal18 extends AbstractAuto{
         shootGateCycle(0);
         shootFirst();
         shootThird();
-        goalLeave();
+//        goalLeave();
     }
 
     private void goalLeave() {
