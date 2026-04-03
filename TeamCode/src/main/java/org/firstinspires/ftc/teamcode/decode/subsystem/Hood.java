@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_HOOD_SERVO;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -51,6 +52,12 @@ public class    Hood extends Subsystem<Double> {
     public double getHoodAngleWithRPM(double currentRPM) {
         double angle = -87.51927299612511*(1) + 0.1366987334209007*(currentRPM) + -1.888596858075093e-05*(currentRPM*currentRPM);
         return Range.clip(angle, MIN, MAX);
+    }
+
+    public double launchRadiansToServoAngle(double targetRadians) {
+        double scaleFactor = (Hood.MAX - Hood.MIN) / (Math.toDegrees(KinematicsSolver.θ_launchMax) - Math.toDegrees(KinematicsSolver.θ_launchMin));
+
+        return Hood.MIN + ((Math.toDegrees(targetRadians) - Math.toDegrees(KinematicsSolver.θ_launchMin)) * scaleFactor);
     }
 
     @Override

@@ -39,7 +39,6 @@ public final class Robot {
     public final Shooter shooter;
     public final Intake intake;
     public final VoltageSensor batteryVoltageSensor;
-//    public final LEDController ledController;
 
     public static double MAX_STALENESS = 1e9;
 

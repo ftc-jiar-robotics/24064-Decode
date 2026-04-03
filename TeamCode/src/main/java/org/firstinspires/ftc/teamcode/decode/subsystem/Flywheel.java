@@ -75,6 +75,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
+            FLYWHEEL_DIAMETER = 3, // INCHES
             MIN_MOVEMENT_SPEED = 35,
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
@@ -163,10 +164,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         return currentRPMSmooth;
     }
 
-    public double getError() {
-        return velocityController.getError();
-    }
-
     public void setManualPower(double power) {
         manualPower = power;
     }
@@ -201,14 +198,17 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
                 break;
             case ARMING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(/*robot.shooter.getPredictedPose(LAUNCH_DELAY)*/ robot.drivetrain.getPose(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.kinematicsSolver.v_launch), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
                 break;
             case RUNNING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(/*robot.shooter.getPredictedPose(LAUNCH_DELAY)*/ robot.drivetrain.getPose(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.kinematicsSolver.v_launch), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
+
                 break;
         }
-
 
         double feedforwardValue = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
 
@@ -226,15 +226,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         currentPower = Range.clip(currentPower, feedforwardValue/2, 1.0);
 
-//        for (MotorEx m : motorGroup) m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
-
-
-        for (DcMotorEx m : motorGroup) {
-
-            m.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,feedforwardValue));
-            m.setVelocity(shootingRPM*28.0/60.0);
-        }
-
+        for (DcMotorEx m : motorGroup) m.setVelocity(shootingRPM*28.0/60.0);
 
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
     }
@@ -246,21 +238,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
     }
 
-    public boolean isNotStable() {
-        return notInToleranceCounter >= OUT_OF_TOLERANCE_LOOPS;
+    public static double inchesPerSecondToRPM(double x) {
+        return (0.0302967 * x * x) + (13.72206 * x) + 542.03103;
     }
 
-    private void chooseShootingRPM(double distance) {
-//        shootingRPM = lutRPM[0];
-//        for (int i = 0; i < lutDistances.length; i++) {
-//            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
-//        }
-        if (!isFlywheelManual) {
-            double rpmRaw = 957.2952559300876*(1) + 14.312109862671662*(distance);
-            shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
-            velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
-        }
-
+    public static double RPMToInchesPerSecond(double x) {
+        return (-0.00000602597 * x * x) + (0.0761039 * x) - 38.59307;
     }
 
 

@@ -36,19 +36,19 @@ public final class KinematicsSolver {
     public static double
             r_rimClearance = 0.75,
             admissibleVerticalErrorAtGoal = 1,
-            y_goal = 40;
+            θ_launchMin = toRadians(42.441), // DONE!
+            θ_launchMax = toRadians(62.543), // DONE!
+            r_compression = 6/25.4, // DONE (P.S diff compression for arc and counter roller; using arc comp.)
+            y_goal = 40,
+            v_launchMin = 0, // TODO RETUNE BASED ON CURVE FIT
+            v_launchMax = Flywheel.RPMToInchesPerSecond(Flywheel.MAX_RPM); // TODO RETUNE BASED ON CURVE FIT
 
     private static final double
             a_G = -386.0886,
-            θ_launchMin = toRadians(31.901328), // TODO determine empirically
-            θ_launchMax = toRadians(61.7419355), // TODO determine empirically
             θ_avg = (θ_launchMin + θ_launchMax) / 2,
-            v_launchMin = 177, // TODO determine empirically
-            v_launchMax = 350, // TODO determine empirically
             o_turretForward = Common.TURRET_OFFSET_Y,
             y_rim = 38.75,
             r_ball = 2.5,
-            r_compression = 7/25.4, // TODO pls adjust
             r_wheel_physical = 1.5,
             r_wheel = r_wheel_physical - r_compression,
             c = r_wheel + r_ball,
@@ -59,7 +59,7 @@ public final class KinematicsSolver {
             s_wheel = new Vector2(3.64584291339,10.611220472440944),
             Center = new Vector2(half_F, half_F);
 
-    private final Vector2
+    final Vector2
             // constant after init
             G = new Vector2(),
 
@@ -301,9 +301,12 @@ public final class KinematicsSolver {
             }
         }
 
+        v_launch = Ranges.clip(v_launch, v_launchMin, v_launchMax);
+
         computeForwardKinematics();
         computeRimApproach(v0.x, v0.y);
         return
+                v_launch >= v_launchMin && v_launch < v_launchMax &&
                 s_rimNearest.y >= s_rim.y &&
                 s_rimNearest.distance(s_rim) >= r_ball + r_rimClearance - rim_dist_comparison_error &&
                 abs(s_atGoal.y - s_goal.y) <= admissibleVerticalErrorAtGoal;
@@ -316,6 +319,7 @@ public final class KinematicsSolver {
         v_launch = currentV;
         θ_launch = θ_avg;
         α_launch = 0;
+        computeForwardKinematics();         // determine flight distance for drag correction
 
         double θi, cos_θi, sin_θi, vi, vf, θf, α;
 

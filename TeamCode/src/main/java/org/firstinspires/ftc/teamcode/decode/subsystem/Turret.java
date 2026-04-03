@@ -60,6 +60,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             LOS_EPS = 1e-6;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;
+
     private Pose turretPos = new Pose(0, 0);
 
     private double
@@ -115,6 +116,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return currentState;
     }
 
+    public Pose getTurretPos() {
+        return turretPos;
+    }
+
     public double getDistance(Pose turretPos) {
         double dx = goal.getX() - turretPos.getX();
         double dy = goal.getY() - turretPos.getY();
@@ -161,6 +166,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private void setTracking() {
         double theta = calculateAngleToGoal(turretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
+        turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
         targetAngle = targetAngleFilter.calculate(targetAngle);
@@ -242,6 +248,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         else toleranceCounter = 0;
 
         double targetAngleClipped = Range.clip(targetAngle, TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
+        targetAngleClipped += Math.toDegrees(robot.shooter.kinematicsSolver.α_launch);
+
         turretMaster.turnToAngle(targetAngleClipped);
         turretSlave.turnToAngle(targetAngleClipped);
     }

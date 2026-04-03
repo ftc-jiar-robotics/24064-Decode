@@ -18,10 +18,13 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     final Flywheel flywheel;
     final Turret turret;
     final Feeder feeder;
+    final KinematicsSolver kinematicsSolver;
 
     private boolean
             didShotOccur,
-            inEmergency;
+            inEmergency,
+            kinematicsValidFullSolve,
+            kinematicsValidFixedV;
 
     private int queuedShots = 0;
     private int ballConfidence = 0;
@@ -36,6 +39,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.flywheel = new Flywheel(hw);
         this.turret = new Turret(hw);
         this.feeder = new Feeder(hw);
+        this.kinematicsSolver = new KinematicsSolver();
     }
 
     @Override
@@ -57,9 +61,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.setLocked(isLocked);
     }
 
-    public static double HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE = 120;
     public static double ALL_BALL_CONFIDENCE_THRESHOLD = 2;
-
 
     public int getQueuedShots() {
         return queuedShots;
@@ -113,6 +115,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     public void setGoalAlliance() {
         turret.setAlliance();
+        kinematicsSolver.setAlliance(Common.isRed);
     }
 
     public void setFeederIdle(boolean isIdle) {
@@ -145,6 +148,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     @Override
     public void run() {
+            kinematicsSolver.setRobotState(robot.drivetrain.getPose(), robot.drivetrain.getVelocity(), robot.drivetrain.getAngularVelocity());
+
         if (isBallInFeeder() && isBallInIntakeFront() && isBallInIntakeBack()) {
             ballConfidence++;
         }
@@ -156,19 +161,14 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             queuedShots = 0;
         }
 
+        kinematicsValidFullSolve = kinematicsSolver.calculateTarget_v_θ_α();
+        double idealVLaunch = kinematicsSolver.v_launch;
+
         switch (targetState) {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
 
-                double distanceI = turret.getDistance();
-//                if (!isHoodManual) hood.set(Hood.MIN);
-                if (!isHoodManual) {
-                    if (distanceI <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distanceI), true);
-                    } else {
-                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
-                }
+                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(kinematicsSolver.θ_launch));
 
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
@@ -178,13 +178,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case PREPPING:
                 double distance = turret.getDistance();
-                if (!isHoodManual) {
-                    if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distance), true);
-                    } else {
-                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
-                }
+                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(kinematicsSolver.θ_launch));
 
                 if ((queuedShots >= 1 &&
                         flywheel.get() == Flywheel.FlyWheelStates.RUNNING &&
@@ -198,16 +192,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case RUNNING:
-//                if (turret.isNotStable() || flywheel.isNotStable()) targetState = ShooterStates.PREPPING;
-
-                if (!isHoodManual) {
-                    double distanceR = turret.getDistance();
-                    if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distanceR), true);
-                    } else {
-                        hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
-                }
+                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(kinematicsSolver.θ_launch));
 
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
                 feeder.set(Feeder.FeederStates.RUNNING, true);
@@ -231,6 +216,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
         }
 
+        kinematicsValidFixedV = kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(flywheel.getCurrentRPMSmooth()));
+        kinematicsSolver.v_launch = idealVLaunch;
 
         turret.run();
         flywheel.run();
@@ -301,5 +288,22 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         telemetry.addData("shooter state (ENUM):", targetState);
         telemetry.addData("queued shots (DOUBLE): ", queuedShots);
         telemetry.addData("did current drop? (BOOLEAN): ", didShotOccur);
+
+        Common.dashTelemetry.addLine("KINEMATICS");
+        Common.dashTelemetry.addData("turret pos X (INCHES): ", kinematicsSolver.s_turret.x);
+        Common.dashTelemetry.addData("turret pos Y (INCHES): ", kinematicsSolver.s_turret.y);
+        Common.dashTelemetry.addData("goal pos X (INCHES): ", kinematicsSolver.G.x);
+        Common.dashTelemetry.addData("goal pos Y (INCHES): ", kinematicsSolver.G.y);
+        Common.dashTelemetry.addData("turret to goal distance (INCHES): ", kinematicsSolver.s_turret.distance(kinematicsSolver.G));
+        Common.dashTelemetry.addData("unit vector to goal X: ", kinematicsSolver.unitTurretToGoal.x);
+        Common.dashTelemetry.addData("unit vector to goal Y: ", kinematicsSolver.unitTurretToGoal.y);
+        Common.dashTelemetry.addData("full solve valid (BOOLEAN): ", kinematicsValidFullSolve);
+        Common.dashTelemetry.addData("fixed-v solve valid (BOOLEAN): ", kinematicsValidFixedV);
+        Common.dashTelemetry.addData("v_launch (IPS): ", kinematicsSolver.v_launch);
+        Common.dashTelemetry.addData("v_launch calculated RPM: ", Flywheel.inchesPerSecondToRPM(kinematicsSolver.v_launch));
+        Common.dashTelemetry.addData("θ_launch (RAD): ", kinematicsSolver.θ_launch);
+        Common.dashTelemetry.addData("θ_launch calculated hood angle (DEG): ", hood.launchRadiansToServoAngle(kinematicsSolver.θ_launch));
+        Common.dashTelemetry.addData("α_launch (RAD): ", kinematicsSolver.α_launch);
+        Common.dashTelemetry.addData("α_launch calculated turret offset (DEG): ", Math.toDegrees(kinematicsSolver.α_launch));
     }
 }
