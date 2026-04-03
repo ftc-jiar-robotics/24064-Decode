@@ -32,7 +32,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final AnalogInput absoluteEncoder;
 
     public enum TurretStates {
-        IDLE, ODOM_TRACKING
+        IDLE, ODOM_TRACKING, LIFT
     }
 
     private TurretStates currentState = TurretStates.IDLE;
@@ -52,12 +52,12 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 180,
             TURRET_CLIP_ANGLE_MIN = 15,
             TURRET_CLIP_ANGLE_MAX = 340,
-
-    ANGLE_TOLERANCE = 10,
+            ANGLE_TOLERANCE = 10,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
-            LOS_EPS = 1e-6;    // divide by zero guard
+            LOS_EPS = 1e-6,    // divide by zero guard
+            LIFT_TURRET_ANGLE = 180; // TODO TUNE FOR PTO!
 
     private Pose goal = Common.BLUE_GOAL;
     private Pose turretPos = new Pose(0, 0);
@@ -235,6 +235,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
                 break;
             case ODOM_TRACKING:
                 setTracking();
+                break;
+            case LIFT:
+                targetAngle = LIFT_TURRET_ANGLE;
                 break;
         }
 
