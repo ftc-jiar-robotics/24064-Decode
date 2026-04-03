@@ -101,9 +101,17 @@ public class RobotActions {
 
     public static Action engagePTO() {
         return new SequentialAction(
-            new InstantAction(() -> robot.shooter.turret.set(Turret.TurretStates.LIFT)),
-            new InstantAction(() -> robot.liftAndBrake.set(new LiftConfig(LiftAndBrake.LiftStates.LIFT, stallSubsystemsPTOWait))),
-            new SleepAction(stallSubsystemsPTOWait)
+                new InstantAction(() -> robot.shooter.turret.set(Turret.TurretStates.LIFT)),
+                new InstantAction(() -> robot.liftAndBrake.set(new LiftConfig(LiftAndBrake.LiftStates.LIFT, stallSubsystemsPTOWait))),
+                new SleepAction(stallSubsystemsPTOWait)
         );
+    }
+
+    public static Action openGate() {
+        return new InstantAction(() -> robot.gateOpener.set(true, true));
+    }
+
+    public static Action closeGate() {
+        return new InstantAction(() -> robot.gateOpener.set(false, true));
     }
 }

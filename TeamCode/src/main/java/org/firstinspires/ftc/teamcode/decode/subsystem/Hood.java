@@ -21,9 +21,9 @@ public class    Hood extends Subsystem<Double> {
             lutOutput;
 
     public static double
-            PHYSICAL_MAX = 200,
+            PHYSICAL_MAX = 195,
             MAX = 180,
-            MIN = 68;
+            MIN = 70;
 
 
     public Hood(HardwareMap hw) {
@@ -46,10 +46,10 @@ public class    Hood extends Subsystem<Double> {
 
     public double getHoodAngleWithDistance(double distance) {
 
-        return Range.clip(10+26.182014839692346*(1) + 1.1213299138282586*(distance) + -0.002162724921235206*(distance*distance), MIN, MAX);
+        return Range.clip(21.25528184671319*(1) + 1.551657839403464*(distance) + -0.00445309317429351*(distance*distance), MIN, MAX);
     }
     public double getHoodAngleWithRPM(double currentRPM) {
-        double angle = 5+-252.051601447441*(1) + 0.21523829719632345*(currentRPM) + -2.842690046324649e-05*(currentRPM * currentRPM);
+        double angle = -87.51927299612511*(1) + 0.1366987334209007*(currentRPM) + -1.888596858075093e-05*(currentRPM*currentRPM);
         return Range.clip(angle, MIN, MAX);
     }
 

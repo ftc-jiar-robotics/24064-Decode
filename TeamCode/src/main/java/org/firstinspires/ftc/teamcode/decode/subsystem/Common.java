@@ -11,9 +11,12 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 @Config
 public final class Common {
     public static final String
-            NAME_FEEDER_BACK_SERVO = "feederBack",
+            NAME_FEEDER_BACK1_SERVO = "feederBack1",
+            NAME_FEEDER_BACK2_SERVO = "feederBack2",
             NAME_FEEDER_GATE_SERVO = "feederGate",
             NAME_FEEDER_COLOR_SENSOR = "colorSensorFeeder",
+            NAME_GATE_OPENER_RED_SERVO = "gateOpenerRed",
+            NAME_GATE_OPENER_BLUE_SERVO = "gateOpenerBlue",
             NAME_FEEDER_LEFT_DISTANCE_SENSOR = "leftDistanceSensorFeeder",
             NAME_FEEDER_RIGHT_DISTANCE_SENSOR = "rightDistanceSensorFeeder",
             NAME_FEEDER_LEFT_PIN0 = "leftDistancePin0",
@@ -27,9 +30,11 @@ public final class Common {
             NAME_HOOD_SERVO = "hood",
 
             NAME_INTAKE_MOTOR = "intake",
+            NAME_INTAKE_MOTO_MOTOR = "intakeFeederMotor",
             NAME_INTAKE_DISTANCE_SENSOR = "distanceSensorIntake",
 
-            NAME_TURRET_MOTOR = "turret",
+            NAME_TURRET_MASTER_SERVO = "turretMaster",
+            NAME_TURRET_SLAVE_SERVO = "turretSlave",
             NAME_TURRET_ENCODER = "turretEncoder",
             NAME_TURRET_CAMERA = "arduCam",
 
@@ -63,9 +68,10 @@ public final class Common {
             SERVO_AXON_MAX_1 = 270,
             SERVO_AXON_MIN = 0,
             SERVO_AXON_MAX_2 = 355,
+            SERVO_AXON_MINI_MK2_MAX = 360,
 
-            FORWARD_POD_Y = 80,
-            STRAFE_POD_X = -83.5,
+            FORWARD_POD_Y = 84, // 84 mm
+            STRAFE_POD_X = -152, //
 
             // Camera Stuff
             CAM_HEIGHT = 9.4375,
@@ -74,12 +80,12 @@ public final class Common {
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
             CAM_OFFSET_X = 0,
             CAM_OFFSET_Y = 7.5,
-            TURRET_OFFSET_Y = -2.559,
+            TURRET_OFFSET_Y = -2.48592,
 
-            MAX_VOLTAGE = 13;
+            MAX_VOLTAGE = 14;
 
     public static final Pose
-            RED_BIG_TRIANGLE = new Pose(111.625, 134.0, Math.toRadians(0)),
+            RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
             RED_SMALL_TRIANGLE = new Pose(88.125, 7.5, Math.toRadians(90)),
             BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror(),
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90)),
@@ -94,6 +100,9 @@ public final class Common {
     public static double
             MIN_MOVEMENT_SPEED = 0.5,
             ANG_VELOCITY_MULTIPLER = 0.15,
+            FAR_DISTANCE = 120,
+            MID_DISTANCE = 100,
+
             IMU_YAW_SCALAR = 1.00086,
             SLOW_MODE = 0.55,
             AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.

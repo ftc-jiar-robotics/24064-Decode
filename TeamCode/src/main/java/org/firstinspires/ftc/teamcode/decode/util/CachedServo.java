@@ -8,6 +8,8 @@ import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PwmControl;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -17,8 +19,16 @@ public class CachedServo extends SimpleServo {
 
     public static double roundingPoint = 1000;
 
+    private final ServoImplEx servoImplEx;
+
     public CachedServo(@NonNull HardwareMap hardwareMap, String id, double minAngle, double maxAngle, AngleUnit angleUnit) {
         super(hardwareMap, id, minAngle, maxAngle, angleUnit);
+
+        servoImplEx = hardwareMap.get(ServoImplEx.class, id);
+    }
+
+    public void setPwmRange(double minUs, double maxUs) {
+        servoImplEx.setPwmRange(new PwmControl.PwmRange(minUs, maxUs));
     }
 
     @Override

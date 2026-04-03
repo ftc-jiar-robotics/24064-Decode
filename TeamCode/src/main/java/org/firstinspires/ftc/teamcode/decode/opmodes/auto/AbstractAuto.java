@@ -28,6 +28,7 @@ public abstract class AbstractAuto extends LinearOpMode {
         robot.drivetrain.update();
         robot.shooter.run();
         robot.intake.run();
+        robot.gateOpener.run();
         robot.printTelemetry();
     }
 

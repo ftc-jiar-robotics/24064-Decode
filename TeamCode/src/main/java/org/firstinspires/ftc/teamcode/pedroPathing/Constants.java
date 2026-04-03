@@ -18,13 +18,13 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 public class Constants {
 
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(11.29445)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.125,0.000025,0.01125,0.03))
-            .headingPIDFCoefficients(new PIDFCoefficients(0.67,0,0.015,0.035))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.0067, 0, 0.00002, 0.6, 0.07))
-            .forwardZeroPowerAcceleration(-35.3036594008226)
-            .lateralZeroPowerAcceleration(-77.0797908371733)
-            .centripetalScaling(0.00035);
+            .mass(14.0614)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.125,0.000025,0.01125,0.025))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.9,0,0.015,0.003))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.0076, 0, 0.00004, 0.6, 0.05))
+            .forwardZeroPowerAcceleration(-27.437689317630763)
+            .lateralZeroPowerAcceleration(-67.38974604416983)
+            .centripetalScaling(0.00015);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .leftFrontMotorName("left front")
@@ -35,8 +35,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(78.75557101993111)
-            .yVelocity(64.10822686623399)
+            .xVelocity(80.12127637487697)
+            .yVelocity(59.382353054256896)
             .useBrakeModeInTeleOp(true);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
@@ -57,7 +57,7 @@ public class Constants {
             150,
             0.95,
             10,
-            1
+            .9
     );
 
     public static Follower createFollower(HardwareMap hardwareMap) {

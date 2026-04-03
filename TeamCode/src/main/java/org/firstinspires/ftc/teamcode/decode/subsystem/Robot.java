@@ -1,20 +1,18 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.FAR_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MAX_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MIN_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MID_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
-import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.closeTriangle;
-import static org.firstinspires.ftc.teamcode.decode.util.ZoneChecker.farTriangle;
 
 import android.util.Log;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.field.Style;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -29,7 +27,6 @@ import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
 import org.firstinspires.ftc.teamcode.decode.util.LimelightEx;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
-import org.firstinspires.ftc.teamcode.decode.util.ZoneChecker;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -38,9 +35,9 @@ public final class Robot {
     public final Follower drivetrain;
     public final BulkReader bulkReader;
     public final ActionScheduler actionScheduler;
+    public final GateOpener gateOpener;
     public final Shooter shooter;
     public final Intake intake;
-    public final ZoneChecker zoneChecker;
     public final VoltageSensor batteryVoltageSensor;
     public final LiftAndBrake liftAndBrake;
 //    public final LEDController ledController;
@@ -57,6 +54,9 @@ public final class Robot {
     public boolean hasArduCamRelocalized = false;
 
     public final boolean isAuto;
+    public boolean isFar;
+
+    public boolean isMid;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -89,10 +89,11 @@ public final class Robot {
         actionScheduler = new ActionScheduler();
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap);
-        zoneChecker = new ZoneChecker();
         liftAndBrake = new LiftAndBrake(hardwareMap);
+        gateOpener = new GateOpener(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
-        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
+//        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
+
 
 //        ledController.ensureInitialized();
 
@@ -139,16 +140,19 @@ public final class Robot {
         intake.run();
         actionScheduler.run();
         liftAndBrake.run();
+        gateOpener.run();
     }
 
     public void update() {
         readSensors();
         isRobotMoving = isRobotMoving(MIN_MOVEMENT_SPEED);
 
-        if (!isAuto) arducam.detectTarget();
+        isFar = shooter.turret.getDistance() > FAR_DISTANCE;
+        isMid = !isFar && shooter.turret.getDistance() > MID_DISTANCE;
 
-        zoneChecker.setRectangle(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getHeading());
-        Common.inTriangle = zoneChecker.checkRectangleTriangleIntersection(farTriangle) || zoneChecker.checkRectangleTriangleIntersection(closeTriangle);
+//        if (!isAuto) arducam.detectTarget();
+
+        Common.inTriangle = LaunchZone.getCurrentZone(drivetrain.getPose()) != LaunchZone.NONE;
 
 //        ledController.update();
         LoopUtil.updateLoopCount();
@@ -175,13 +179,13 @@ public final class Robot {
 
     public void relocalizeWithArdu(boolean override) {
         if (!isAuto) {
-            Pose arduRobotPose = arducam.getTurretPosePedro();
-
-            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
-
-            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
-                robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
-            }
+//            Pose arduRobotPose = arducam.getTurretPosePedro();
+//
+//            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
+//
+//            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
+//                robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
+//            }
         }
     }
 
@@ -191,14 +195,12 @@ public final class Robot {
             shooter.printTelemetry();
             intake.printTelemetry();
             if (isAuto) limelight.printTelemetry();
-            if (!isAuto) arducam.printTelemetry();
+//            if (!isAuto) arducam.printTelemetry();
 
             Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
             Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
             Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
             Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
-
-            Drawing.drawRobot(shooter.getPredictedPose(Turret.LAUNCH_DELAY), new Style("", "#FF0000", 2.0));
             Drawing.drawDebug(drivetrain);
 
             Common.telemetry.update();
