@@ -57,7 +57,7 @@ public class    Hood extends Subsystem<Double> {
     public double launchRadiansToServoAngle(double targetRadians) {
         double scaleFactor = (Hood.MAX - Hood.MIN) / (Math.toDegrees(KinematicsSolver.θ_launchMax) - Math.toDegrees(KinematicsSolver.θ_launchMin));
 
-        return Hood.MIN + ((Math.toDegrees(targetRadians) - Math.toDegrees(KinematicsSolver.θ_launchMin)) * scaleFactor);
+        return Hood.MIN + Math.toDegrees(KinematicsSolver.θ_launchMax - targetRadians) * scaleFactor;
     }
 
     @Override

@@ -170,6 +170,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
                 if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(kinematicsSolver.θ_launch));
 
+
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.PREPPING;

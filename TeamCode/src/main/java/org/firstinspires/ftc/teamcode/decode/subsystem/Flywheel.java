@@ -81,9 +81,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 30,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
-            RPM_TOLERANCE_WHILE_MOVING = 30,
+            RPM_TOLERANCE_WHILE_MOVING = 60,
             SMOOTH_RPM_GAIN = .9,
-            DERIV_TOLERANCE = 100,
+            DERIV_TOLERANCE = 200,
             IDLE_RPM = 1200,
             FAR_ARMING_RPM = 2950,
             CLOSE_ARMING_RPM = 2100,
@@ -210,21 +210,21 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 break;
         }
 
-        double feedforwardValue = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
-
-        currentPower = feedforwardValue;
-        currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
-
-        if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
-            currentPower = motorPowerFilter.calculate(currentPower);
-            notInToleranceCounter = 0;
-        }
-        else {
-            motorPowerFilter.reset();
-            notInToleranceCounter++;
-        }
-
-        currentPower = Range.clip(currentPower, feedforwardValue/2, 1.0);
+//        double feedforwardValue = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
+//
+//        currentPower = feedforwardValue;
+//        currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
+//
+//        if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
+//            currentPower = motorPowerFilter.calculate(currentPower);
+//            notInToleranceCounter = 0;
+//        }
+//        else {
+//            motorPowerFilter.reset();
+//            notInToleranceCounter++;
+//        }
+//
+//        currentPower = Range.clip(currentPower, feedforwardValue/2, 1.0);
 
         for (DcMotorEx m : motorGroup) m.setVelocity(shootingRPM*28.0/60.0);
 
@@ -239,11 +239,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double inchesPerSecondToRPM(double x) {
-        return (0.0302967 * x * x) + (13.72206 * x) + 542.03103;
+        return (0.0571374 * x * x) + (-6.80299 * x) + 985.1611;
     }
 
     public static double RPMToInchesPerSecond(double x) {
-        return (-0.00000602597 * x * x) + (0.0761039 * x) - 38.59307;
+        return (-0.0000175444 * x * x) + (0.13418 * x) + 8.4288;
     }
 
 

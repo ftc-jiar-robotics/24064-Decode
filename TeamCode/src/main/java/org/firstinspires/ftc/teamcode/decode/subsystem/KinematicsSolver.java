@@ -34,10 +34,10 @@ public final class KinematicsSolver {
 
     public static final Vector2 o_goal = new Vector2(5, -2.5);
     public static double
-            r_rimClearance = 0.75,
+            r_rimClearance = 7,
             admissibleVerticalErrorAtGoal = 1,
-            θ_launchMin = toRadians(42.441), // DONE!
-            θ_launchMax = toRadians(62.543), // DONE!
+            θ_launchMin = toRadians(68 - 33.7795275591), // DONE!
+            θ_launchMax = toRadians(68), // DONE!
             r_compression = 6/25.4, // DONE (P.S diff compression for arc and counter roller; using arc comp.)
             y_goal = 40,
             v_launchMin = 0, // TODO RETUNE BASED ON CURVE FIT
@@ -407,7 +407,7 @@ public final class KinematicsSolver {
     }
 
     public String resultsToString() {
-        return "θ_launch: " + θ_launch + "\nv_launch: " + v_launch + "\nα_launch: " + α_launch;
+        return "θ_launch (Deg): " + Math.toDegrees(θ_launch) + "\nv_launch: " + v_launch + "\nα_launch: " + α_launch;
     }
     public void printResults() {
         System.out.println(resultsToString()+"\n");
@@ -420,11 +420,11 @@ public final class KinematicsSolver {
         KinematicsSolver solver = new KinematicsSolver();
         solver.setAlliance(true);
 
-        solver.setRobotState(71.5,70, -3.12, 0.5, 95, 0.13);
+        solver.setRobotState(100,100, -3.12, 0.5, 95, 0.13);
         System.out.println(solver.calculateTarget_v_θ_α());
         solver.printResults();
 
-        solver.setRobotState(104.6,108.2, -0.05, -50.4, 0.5, 0.13);
+        solver.setRobotState(70,17, -0.05, -50.4, 0.5, 0.13);
         System.out.println(solver.calculateTarget_θ_α(200));
         solver.printResults();
     }
