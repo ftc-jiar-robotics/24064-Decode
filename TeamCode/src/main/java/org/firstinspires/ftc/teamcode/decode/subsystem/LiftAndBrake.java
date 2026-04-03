@@ -18,11 +18,12 @@ public class LiftAndBrake extends Subsystem<LiftAndBrake.LiftConfig> {
 
     public enum LiftStates {
         PARKING_BRAKE,
-        LIFT
+        LIFT,
+        FINISHED
     }
 
     public static class LiftConfig {
-        private final LiftStates currentState;
+        LiftStates currentState;
         private final double targetBrakeTime;
 
         private double startTime = 0;
@@ -33,11 +34,11 @@ public class LiftAndBrake extends Subsystem<LiftAndBrake.LiftConfig> {
         }
 
         public void startTimer() {
-            startTime = System.nanoTime() * 1e9;
+            startTime = System.nanoTime() / 1e9;
         }
 
-        public boolean isParkingBrakeRunning() {
-            return (((System.nanoTime() * 1e9) - startTime < targetBrakeTime) && currentState != LiftStates.LIFT);
+        public boolean isTimerRunning() {
+            return (System.nanoTime() / 1e9) - startTime < targetBrakeTime;
         }
     }
 
@@ -68,10 +69,15 @@ public class LiftAndBrake extends Subsystem<LiftAndBrake.LiftConfig> {
 
     @Override
     public void run() {
-        if (currentConfig.isParkingBrakeRunning()) {
+        if (currentConfig.currentState != LiftStates.FINISHED && !currentConfig.isTimerRunning()) {
+            currentConfig.currentState = LiftStates.FINISHED;
+        }
+        if (currentConfig.currentState == LiftStates.PARKING_BRAKE) {
             parkingBrakeMaster.set(1);
             parkingBrakeSlave.set(1);
-        } else ptoEngager.run();
+        } else {
+            ptoEngager.run();
+        }
     }
 
     @Override
