@@ -22,7 +22,7 @@ public class    Hood extends Subsystem<Double> {
 
     public static double
             PHYSICAL_MAX = 195,
-            MAX = 180,
+            MAX = 160,
             MIN = 70;
 
 
