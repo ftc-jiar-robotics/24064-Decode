@@ -199,33 +199,17 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
                 break;
             case ARMING:
-                shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.kinematicsSolver.v_launch), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
                 velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
                 break;
             case RUNNING:
-                shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.kinematicsSolver.v_launch), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
                 velocityController.setTarget(new State(shootingRPM, 0, 0, 0));
 
                 break;
         }
-
-//        double feedforwardValue = (shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
-//
-//        currentPower = feedforwardValue;
-//        currentPower += velocityController.calculate(new State(currentRPMSmooth, 0, 0, 0));
-//
-//        if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
-//            currentPower = motorPowerFilter.calculate(currentPower);
-//            notInToleranceCounter = 0;
-//        }
-//        else {
-//            motorPowerFilter.reset();
-//            notInToleranceCounter++;
-//        }
-//
-//        currentPower = Range.clip(currentPower, feedforwardValue/2, 1.0);
 
         for (DcMotorEx m : motorGroup){
             m.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,0));

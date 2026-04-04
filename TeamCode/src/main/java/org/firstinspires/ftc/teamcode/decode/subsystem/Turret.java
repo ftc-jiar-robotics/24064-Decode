@@ -248,7 +248,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         else toleranceCounter = 0;
 
         double targetAngleClipped = Range.clip(targetAngle, TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
-        targetAngleClipped += Math.toDegrees(robot.shooter.kinematicsSolver.α_launch);
+        targetAngleClipped += Math.toDegrees(robot.shooter.getCompensatedValues()[2]);
 
         turretMaster.turnToAngle(targetAngleClipped);
         turretSlave.turnToAngle(targetAngleClipped);

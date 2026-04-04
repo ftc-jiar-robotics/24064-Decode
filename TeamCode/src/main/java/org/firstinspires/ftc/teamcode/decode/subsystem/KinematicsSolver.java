@@ -34,18 +34,19 @@ public final class KinematicsSolver {
 
     public static final Vector2 o_goal = new Vector2(5, -2.5);
     public static double
-            r_rimClearance = 7,
-            admissibleVerticalErrorAtGoal = 1,
+            r_rimClearance = 0.75, // TODO RETUNE BASED ON SHOTS
+            admissibleVerticalErrorAtGoal = 1, // TODO RETUNE BASED ON SHOTS
             θ_launchMax = toRadians(68), // DONE!
             θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)), // DONE!
             r_compression = 6/25.4, // DONE (P.S diff compression for arc and counter roller; using arc comp.)
             y_goal = 40,
-            v_launchMin = 0, // TODO RETUNE BASED ON CURVE FIT
-            v_launchMax = Flywheel.RPMToInchesPerSecond(Flywheel.MAX_RPM); // TODO RETUNE BASED ON CURVE FIT
+            v_launchMin = 0,
+            v_launchMax = Flywheel.RPMToInchesPerSecond(Flywheel.MAX_RPM);
 
     private static final double
             a_G = -386.0886,
             θ_avg = (θ_launchMin + θ_launchMax) / 2,
+            v_avg = (v_launchMin + v_launchMax) / 2,
             o_turretForward = Common.TURRET_OFFSET_Y,
             y_rim = 38.75,
             r_ball = 2.5,
@@ -83,7 +84,7 @@ public final class KinematicsSolver {
 
     private double m2, b, turretAngle;
 
-    double θ_launch = θ_avg, v_launch = 275, α_launch = 0;
+    double θ_launch = θ_avg, v_launch = v_avg, α_launch = 0;
 
     public void setAlliance(boolean isRedAlliance) {
         double i = isRedAlliance ? 1 : -1;

@@ -29,9 +29,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private int queuedShots = 0;
     private int ballConfidence = 0;
 
-    // Phase 2: estimated RPM drop per ball passing through the flywheel. Tune empirically.
-    public static double RPM_DROP_ESTIMATE = 400;
-    private double compθLaunch, compαLaunch;
+    public static double RPM_DROP_ESTIMATE = 400; // TODO TUNE!!
+    private double compθLaunch, compαLaunch, idealVLaunch;
 
     public enum ShooterStates {
         IDLE, PREPPING, RUNNING
@@ -67,6 +66,17 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public static double ALL_BALL_CONFIDENCE_THRESHOLD = 2;
+
+    /**
+     * @return ideal flywheel velocity (0), compensated hood angle (1), compensated turret angle (2)
+     */
+    public double[] getCompensatedValues() {
+        return new double[]{idealVLaunch, compθLaunch, compαLaunch};
+    }
+
+    public double rpmDropFromCurrentRPM(double rpm) {
+        return rpm; // TODO CURVE FIT RPM DROP AND REPLACE RPM DROP VARIABLE
+    }
 
     public int getQueuedShots() {
         return queuedShots;
@@ -166,36 +176,17 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             queuedShots = 0;
         }
 
-        // Full solve: ideal velocity, theta, alpha assuming flywheel is at target RPM
         kinematicsValidFullSolve = kinematicsSolver.calculateTarget_v_θ_α();
-        double idealVLaunch = kinematicsSolver.v_launch;
-        double idealθLaunch = kinematicsSolver.θ_launch;
-        double idealαLaunch = kinematicsSolver.α_launch;
+        idealVLaunch = kinematicsSolver.v_launch;
 
-        // Phase 1: Fixed-v solve with actual current RPM — reactive theta/alpha compensation
         kinematicsValidFixedV = kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(flywheel.getCurrentRPMSmooth()));
         compθLaunch = kinematicsSolver.θ_launch;
         compαLaunch = kinematicsSolver.α_launch;
 
-        // Phase 2: On shot detection, pre-solve for the predicted trough RPM so the hood
-        // starts moving to the compensated angle immediately rather than waiting to react
-        if (didShotOccur && targetState == ShooterStates.RUNNING) {
-            double predictedTroughRPM = flywheel.getCurrentRPMSmooth() - RPM_DROP_ESTIMATE;
-            kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(predictedTroughRPM));
-            compθLaunch = kinematicsSolver.θ_launch;
-            compαLaunch = kinematicsSolver.α_launch;
-        }
-
-        // Restore ideal values: flywheel PID reads v_launch for its RPM target;
-        // turret defaults to ideal alpha unless RUNNING overrides it below
-        kinematicsSolver.v_launch = idealVLaunch;
-        kinematicsSolver.θ_launch = idealθLaunch;
-        kinematicsSolver.α_launch = idealαLaunch;
-
         switch (targetState) {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
-                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(idealθLaunch));
+                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(compθLaunch));
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.PREPPING;
@@ -204,7 +195,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case PREPPING:
                 double distance = turret.getDistance();
-                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(idealθLaunch));
+                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(compθLaunch));
                 if ((queuedShots >= 1 &&
                         flywheel.get() == Flywheel.FlyWheelStates.RUNNING &&
                         turret.isPIDInTolerance() &&
@@ -217,7 +208,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case RUNNING:
-                // Use compensated theta/alpha for the actual (or predicted) post-shot RPM
                 if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(compθLaunch));
                 kinematicsSolver.α_launch = compαLaunch;
 
@@ -225,16 +215,20 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 feeder.set(Feeder.FeederStates.RUNNING, true);
 
                 if (didShotOccur) {
+                    kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(flywheel.getCurrentRPMSmooth() - RPM_DROP_ESTIMATE));
+                    compθLaunch = kinematicsSolver.θ_launch;
+                    compαLaunch = kinematicsSolver.α_launch;
+
                     if (queuedShots <= 0) {
                         targetState = ShooterStates.IDLE;
                         turret.set(Turret.TurretStates.IDLE);
                         flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
                         feeder.set(Feeder.FeederStates.BLOCKING, true);
-                    }
-                    else {
+                    } else {
                         targetState = ShooterStates.RUNNING;
                         feeder.set(Feeder.FeederStates.RUNNING, true);
                     }
+
                     if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 }
                 break;
@@ -245,58 +239,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         feeder.run();
         hood.run();
     }
-
-    private double vx;
-    private double vy;
-    private double omega;
-    private double ax;
-    private double ay;
-    private double alpha;
-
-    private Pose currentPose, predictedPose;
-    public Pose getPredictedPose(double timeToShoot) {
-        currentPose = robot.drivetrain.getPose();
-
-        if (targetState != ShooterStates.RUNNING) {
-            predictedPose = currentPose;
-            return currentPose;
-        }
-//        double distanceInches = turret.getDistance();
-//        double airtime = Common.getAirtimeForDistance(distanceInches)
-        vx = robot.drivetrain.getVelocity().getXComponent();
-        vy = robot.drivetrain.getVelocity().getYComponent();
-        omega = robot.drivetrain.getAngularVelocity() * ANG_VELOCITY_MULTIPLER;
-        ax = robot.drivetrain.getAcceleration().getXComponent();
-        ay = robot.drivetrain.getAcceleration().getYComponent();
-        // ay (no accel)
-        alpha = 0;
-
-        double
-                // Predict velocity at shot time (accounts for accel if available)
-                futureVx = vx + ax * timeToShoot,
-                futureVy = vy + ay * timeToShoot,
-                futureOmega = omega + alpha * timeToShoot,
-
-                // Average velocity over interval
-                avgVx = (vx + futureVx) / 2.0,
-                avgVy = (vy + futureVy) / 2.0,
-                avgOmega = (omega + futureOmega) / 2.0,
-
-                // Displacement = average velocity × time
-                dx = avgVx * timeToShoot,
-                dy = avgVy * timeToShoot,
-                dh = avgOmega * timeToShoot;
-
-        // Return new predicted pose (in inches and radians)
-        predictedPose = new Pose(
-                currentPose.getX() + dx,
-                currentPose.getY() + dy,
-                currentPose.getHeading() + dh);
-        return robot.isRobotMoving() ? predictedPose : currentPose;
-    }
-
-
-
 
     @SuppressLint("DefaultLocale")
     public void printTelemetry() {
