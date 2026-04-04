@@ -34,8 +34,8 @@ public final class KinematicsSolver {
 
     public static final Vector2 o_goal = new Vector2(5, -2.5);
     public static double
-            r_rimClearance = 0.75, // TODO RETUNE BASED ON SHOTS
-            admissibleVerticalErrorAtGoal = 1, // TODO RETUNE BASED ON SHOTS
+            r_rimClearance = 5, // TODO RETUNE BASED ON SHOTS
+            admissibleVerticalErrorAtGoal = 0.67, // TODO RETUNE BASED ON SHOTS
             θ_launchMax = toRadians(68), // DONE!
             θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)), // DONE!
             r_compression = 6/25.4, // DONE (P.S diff compression for arc and counter roller; using arc comp.)

@@ -210,15 +210,14 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case RUNNING:
                 if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(compθLaunch));
-                kinematicsSolver.α_launch = compαLaunch;
 
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
                 feeder.set(Feeder.FeederStates.RUNNING, true);
 
                 if (didShotOccur) {
-                    kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(flywheel.getCurrentRPMSmooth() - RPM_DROP_ESTIMATE));
-                    compθLaunch = kinematicsSolver.θ_launch;
-                    compαLaunch = kinematicsSolver.α_launch;
+//                    kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(flywheel.getCurrentRPMSmooth() - RPM_DROP_ESTIMATE));
+//                    compθLaunch = kinematicsSolver.θ_launch;
+//                    compαLaunch = kinematicsSolver.α_launch;
 
                     if (queuedShots <= 0) {
                         targetState = ShooterStates.IDLE;
