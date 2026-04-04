@@ -163,11 +163,11 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 double distanceI = turret.getDistance();
 //                if (!isHoodManual) hood.set(Hood.MIN);
                 if (!isHoodManual) {
-                    if (distanceI <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distanceI), true);
-                    } else {
+//                    if (distanceI <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
+//                        hood.set(hood.getHoodAngleWithDistance(distanceI), true);
+//                    } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
+//                    }
                 }
 
                 if (queuedShots >= 1) {
@@ -179,11 +179,11 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case PREPPING:
                 double distance = turret.getDistance();
                 if (!isHoodManual) {
-                    if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distance), true);
-                    } else {
+//                    if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
+//                        hood.set(hood.getHoodAngleWithDistance(distance), true);
+//                    } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
+//                    }
                 }
 
                 if ((queuedShots >= 1 &&
@@ -202,12 +202,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 //                if (turret.isNotStable() || flywheel.isNotStable()) targetState = ShooterStates.PREPPING;
 
                 if (!isHoodManual) {
-                    double distanceR = turret.getDistance();
-                    if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-                        hood.set(hood.getHoodAngleWithDistance(distanceR), true);
-                    } else {
+//                    double distanceR = turret.getDistance();
+//                    if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
+//                        hood.set(hood.getHoodAngleWithDistance(distanceR), true);
+//                    } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-                    }
+//                    }
                 }
 
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);

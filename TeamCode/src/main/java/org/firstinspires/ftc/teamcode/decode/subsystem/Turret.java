@@ -52,11 +52,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 180,
             TURRET_CLIP_ANGLE_MIN = 15,
             TURRET_CLIP_ANGLE_MAX = 340,
-
-    ANGLE_TOLERANCE = 10,
+            ANGLE_TOLERANCE = 10,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
+            LAUNCH_DELAY = 0.5,
             LOS_EPS = 1e-6;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;
@@ -221,10 +221,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         currentAngle = turretMaster.getAngle();
 
         targetAngleFilter.setGains(targetAngleGains);
+
+        Pose predictedPose = robot.shooter.getPredictedPose(LAUNCH_DELAY);
+
         // turning robot heading to turret heading
-        double robotHeading = robot.drivetrain.getHeading();
+        double robotHeading = predictedPose.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
-        turretPos = calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
+        turretPos = calculateTurretPosition(predictedPose, Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y);
 
         switch (currentState) {
             case IDLE:

@@ -18,9 +18,9 @@ public class GateOpener extends Subsystem<Boolean> {
 
     public static double
             CLOSED_ANGLE_RED = 50,
-            OPEN_ANGLE_RED = 165,
+            OPEN_ANGLE_RED = 170,
             CLOSED_ANGLE_BLUE = 230,
-            OPEN_ANGLE_BLUE = 115;
+            OPEN_ANGLE_BLUE = 110;
 
     public GateOpener(HardwareMap hw) {
         gateRed  = new CachedServo(hw, NAME_GATE_OPENER_RED_SERVO, Common.SERVO_25_KG_MIN, Common.SERVO_25_KG_MAX, AngleUnit.DEGREES);
