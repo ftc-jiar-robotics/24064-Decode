@@ -27,6 +27,13 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 public class AutoGoal18 extends AbstractAuto{
     private GoalPaths path;
+
+    public static double
+            FIRST_INTAKE_BRAKING_STRENGTH = 2,
+            FIRST_INTAKE_BRAKING_START = 3,
+            THIRD_INTAKE_BRAKING_STRENGTH = 2,
+            THIRD_INTAKE_BRAKING_START = 3;
+
     @Override
     protected Pose getStartPose() {
         return GoalPaths.start;
@@ -70,6 +77,9 @@ public class AutoGoal18 extends AbstractAuto{
         path.thirdIntake21.getPath(1).setTValueConstraint(0.88);
         path.thirdIntake21.getPath(0).setTValueConstraint(0.88);
 
+        path.thirdIntake21.getPath(2).setBrakingStrength(THIRD_INTAKE_BRAKING_STRENGTH);
+        path.thirdIntake21.getPath(2).setBrakingStart(THIRD_INTAKE_BRAKING_START);
+
         robot.actionScheduler.addAction(
                 new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME,
                         new SequentialAction(
@@ -106,6 +116,10 @@ public class AutoGoal18 extends AbstractAuto{
     private void shootFirst() {
         path.firstIntake21.getPath(1).setTValueConstraint(0.88);
         path.firstIntake21.getPath(0).setTValueConstraint(0.88);
+
+        path.firstIntake21.getPath(1).setBrakingStrength(FIRST_INTAKE_BRAKING_STRENGTH);
+        path.firstIntake21.getPath(1).setBrakingStart(FIRST_INTAKE_BRAKING_START);
+
         robot.actionScheduler.addAction(
                 new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME,
                         new SequentialAction(

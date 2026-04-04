@@ -54,7 +54,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //            Double.POSITIVE_INFINITY
 //    );
 
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS = new PIDFCoefficients(0.0067, 0, 0, 0.00024);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS = new PIDFCoefficients(0.003, 0, 0.0004, 0.00022);
 
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS);
     private final FIRLowPassFilter rpmFilter = new FIRLowPassFilter();
@@ -88,7 +88,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             IDLE_RPM = 1200,
             FAR_ARMING_RPM = 2950,
             CLOSE_ARMING_RPM = 2100,
-            BB_TOLERANCE = 50000,
+            BB_TOLERANCE = 50,
             MAX_RPM = 4000,
             VOLTAGE_SCALER = .9,
             TARGET_RPM_STEP = 30.0,

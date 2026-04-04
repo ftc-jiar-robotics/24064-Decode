@@ -92,7 +92,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double x = Common.BLUE_GOAL.getX();
         double y = Common.BLUE_GOAL.getY();
-        if (!robot.isAuto && robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
+        if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
         else if (robot.isAuto || robot.drivetrain.getPose().getY() < SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE), y);
         else newGoal = new Pose(x, y);
 
