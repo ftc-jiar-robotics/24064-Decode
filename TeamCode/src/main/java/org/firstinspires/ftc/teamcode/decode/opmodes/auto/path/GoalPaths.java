@@ -24,7 +24,7 @@ public class GoalPaths {
     public static long
             MAX_HP_TIME_MS = 670,
             MAX_HP_GOING_MS = 6000;
-    public static double LEAVE_TIME = 29;
+    public static double LEAVE_TIME = 30;
 
     // TODO put all poses/heading in respective named list & mirror thru list
 
@@ -52,12 +52,12 @@ public class GoalPaths {
             controlHP = new Pose(57.300, 17.400),
             preload21 = new Pose(49.800, 93.600),
             shoot21 = new Pose(53.7, 80.7),
-            shootThird21 = new Pose(58.7,82),
+            shootThird21 = new Pose(52,110),
             intake21Control = new Pose(60.800, 60.100),
             endIntakeSecond21 = new Pose(8.400, 59.100),
             gateCycleControl21 = new Pose(25.9, 57.900),
-            intakeGateCycle21 = new Pose(11.5, 60.5),
-            intakeGateCycleRed21 = new Pose(11.5, 60.5),
+            intakeGateCycle21 = new Pose(11.8, 60.3),
+            intakeGateCycleRed21 = new Pose(11.8, 60.3),
             endIntakeFirst21 = new Pose(23.0, 83.900),
             intakeThirdControl21 = new Pose(59.700, 35.900),
             startIntakeThird21 = new Pose(45.200, 35.900),
@@ -225,7 +225,9 @@ public class GoalPaths {
                 .addPath(
                         new BezierLine(endIntakeThird21, shootThird21)
                 )
-                .setConstantHeadingInterpolation(goHome21Angle).build();
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
         firstIntake21 = f.pathBuilder()
                 .addPath(
                         new BezierLine(shoot21, endIntakeFirst21)
@@ -240,7 +242,7 @@ public class GoalPaths {
                         // Path 0
                         new BezierLine(shoot21, leave21)
                 )
-                .setTangentHeadingInterpolation()
+                .setTangentHeadingInterpolation().setReversed()
                 .build();
 
     }

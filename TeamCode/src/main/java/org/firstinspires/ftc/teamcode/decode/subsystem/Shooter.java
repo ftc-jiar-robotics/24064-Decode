@@ -203,6 +203,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                         (distance <= 120 || turret.isReadyToShoot())) || inEmergency) {
                     inEmergency = false;
                     feeder.set(Feeder.FeederStates.RUNNING, true);
+
                     targetState = ShooterStates.RUNNING;
                     if (turret.get() != Turret.TurretStates.ODOM_TRACKING) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
                 }

@@ -57,7 +57,7 @@ public class AutoGoal18 extends AbstractAuto{
         shootGateCycle(0);
         shootFirst();
         shootThird();
-        goalLeave();
+//        goalLeave();
     }
 
     private void goalLeave() {
@@ -138,8 +138,9 @@ public class AutoGoal18 extends AbstractAuto{
     }
 
     private void shootGateCycle(double offset) {
-        path.gateCycleIntake21.getPath(0).setTValueConstraint(0.88);
-        path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.0);
+        path.gateCycleIntake21.getPath(0).setTValueConstraint(0.94);
+        path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.00077);
+        path.gateCycleIntake21.getPath(0).setTranslationalConstraint(0.01);
         path.gateCycleShoot21.getPath(0).setTValueConstraint(0.8);
 
         f.setMaxPower(1);
