@@ -36,8 +36,8 @@ public final class KinematicsSolver {
     public static double
             r_rimClearance = 7,
             admissibleVerticalErrorAtGoal = 1,
-            θ_launchMin = toRadians(68 - 33.7795275591), // DONE!
             θ_launchMax = toRadians(68), // DONE!
+            θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)), // DONE!
             r_compression = 6/25.4, // DONE (P.S diff compression for arc and counter roller; using arc comp.)
             y_goal = 40,
             v_launchMin = 0, // TODO RETUNE BASED ON CURVE FIT

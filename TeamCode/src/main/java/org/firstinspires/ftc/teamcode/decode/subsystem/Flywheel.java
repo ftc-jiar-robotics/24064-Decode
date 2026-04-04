@@ -80,6 +80,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 30,
+            BB_TOLERANCE = 20000,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             RPM_TOLERANCE_WHILE_MOVING = 60,
             SMOOTH_RPM_GAIN = .9,
@@ -226,7 +227,21 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //
 //        currentPower = Range.clip(currentPower, feedforwardValue/2, 1.0);
 
-        for (DcMotorEx m : motorGroup) m.setVelocity(shootingRPM*28.0/60.0);
+        for (DcMotorEx m : motorGroup){
+            m.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,0));
+        }
+
+        if (shootingRPM - currentRPMSmooth > BB_TOLERANCE)
+            for (DcMotorEx m : motorGroup) {
+                m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                m.setPower(1);
+            }
+        else
+            for (DcMotorEx m : motorGroup) {
+                m.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                m.setVelocity(shootingRPM*28.0/60.0);
+            }
+
 
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
     }
