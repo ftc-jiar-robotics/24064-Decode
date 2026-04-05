@@ -251,13 +251,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         telemetry.addData("did current drop? (BOOLEAN): ", didShotOccur);
 
         Common.dashTelemetry.addLine("KINEMATICS");
-        Common.dashTelemetry.addData("turret pos X (INCHES): ", kinematicsSolver.s_turret.x);
-        Common.dashTelemetry.addData("turret pos Y (INCHES): ", kinematicsSolver.s_turret.y);
-        Common.dashTelemetry.addData("goal pos X (INCHES): ", kinematicsSolver.G.x);
-        Common.dashTelemetry.addData("goal pos Y (INCHES): ", kinematicsSolver.G.y);
-        Common.dashTelemetry.addData("turret to goal distance (INCHES): ", kinematicsSolver.s_turret.distance(kinematicsSolver.G));
-        Common.dashTelemetry.addData("unit vector to goal X: ", kinematicsSolver.unitTurretToGoal.x);
-        Common.dashTelemetry.addData("unit vector to goal Y: ", kinematicsSolver.unitTurretToGoal.y);
+        kinematicsSolver.printTelemetry();
         Common.dashTelemetry.addData("full solve valid (BOOLEAN): ", kinematicsValidFullSolve);
         Common.dashTelemetry.addData("fixed-v solve valid (BOOLEAN): ", kinematicsValidFixedV);
         Common.dashTelemetry.addData("v_launch (IPS): ", kinematicsSolver.v_launch);

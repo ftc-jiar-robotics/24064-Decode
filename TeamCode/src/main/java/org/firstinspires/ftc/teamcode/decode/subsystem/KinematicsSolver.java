@@ -24,8 +24,6 @@ import org.firstinspires.ftc.teamcode.decode.control.Ranges;
  * Angles are in radians (rad) <br>
  * Durations are in seconds (s) <br>
  *
- * @implSpec <a href="https://www.desmos.com/calculator/rq5t2y3n3f">Desmos</a>
- *
  * @author Arshad Anas
  * @since 2025/09/18
  */
@@ -34,23 +32,22 @@ public final class KinematicsSolver {
 
     public static final Vector2 o_goal = new Vector2(5, -2.5);
     public static double
-            r_rimClearance = 5, // TODO RETUNE BASED ON SHOTS
-            admissibleVerticalErrorAtGoal = 0.67, // TODO RETUNE BASED ON SHOTS
-            θ_launchMax = toRadians(68), // DONE!
-            θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)), // DONE!
-            r_compression = 6/25.4, // DONE (P.S diff compression for arc and counter roller; using arc comp.)
+            r_rimClearance = 0.75,
+            admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
+    
+            θ_launchMax = toRadians(68), // TODO redo
+            θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)), // TODO redo
             v_launchMin = 0,
             v_launchMax = Flywheel.RPMToInchesPerSecond(Flywheel.MAX_RPM);
 
     private static final double
             a_G = -386.0886,
-            θ_avg = (θ_launchMin + θ_launchMax) / 2,
-            v_avg = (v_launchMin + v_launchMax) / 2,
             o_turretForward = Common.TURRET_OFFSET_Y,
             y_rim = 38.75,
             r_ball = 2.5,
             r_wheel_physical = 1.5,
+            r_compression = 6/25.4,
             r_wheel = r_wheel_physical - r_compression,
             c = r_wheel + r_ball,
             half_F = 141.5/2,
@@ -60,7 +57,7 @@ public final class KinematicsSolver {
             s_wheel = new Vector2(3.64584291339,10.611220472440944),
             Center = new Vector2(half_F, half_F);
 
-    final Vector2
+    private final Vector2
             // constant after init
             G = new Vector2(),
 
@@ -84,7 +81,9 @@ public final class KinematicsSolver {
 
     private double m2, b, turretAngle;
 
-    double θ_launch = θ_avg, v_launch = v_avg, α_launch = 0;
+    double θ_launch = (θ_launchMin + θ_launchMax) / 2,
+            v_launch = (v_launchMin + v_launchMax) / 2,
+            α_launch = 0;
 
     public void setAlliance(boolean isRedAlliance) {
         double i = isRedAlliance ? 1 : -1;
@@ -135,8 +134,8 @@ public final class KinematicsSolver {
         );
 
         double m1 = (G.y - s_launch.y) / (G.x - s_launch.x);
-        double k_x = (m1 * s_launch.x - s_launch.y + b) / (m1 - m2);
-        k.set(k_x, m2 * k_x + b);
+        k.x = (m1 * s_launch.x - s_launch.y + b) / (m1 - m2);
+        k.y = m2 * k.x + b;
 
         s_goal.set(s_launch.distance(G) + s0.x, y_goal);
         s_rim.set(s_launch.distance(k) + s0.x, y_rim);
@@ -257,7 +256,7 @@ public final class KinematicsSolver {
      *         within {@link #admissibleVerticalErrorAtGoal} inches vertical error
      */
     public boolean calculateTarget_v_θ_α() {
-        θ_launch = θ_avg;
+        θ_launch = (θ_launchMin + θ_launchMax) / 2;
         α_launch = 0;
         double θi, cos_θi = 0, sin_θi = 0, tan_θi, vi = 0, vf, θf, α;
 
@@ -318,7 +317,7 @@ public final class KinematicsSolver {
      */
     public double calculateTarget_θ_α(double currentV, boolean upper) {
         v_launch = currentV;
-        θ_launch = θ_avg;
+        θ_launch = (θ_launchMin + θ_launchMax) / 2;
         α_launch = 0;
         computeForwardKinematics();         // determine flight distance for drag correction
 
@@ -406,6 +405,13 @@ public final class KinematicsSolver {
         }
         return true;
     }
+    
+    void printTelemetry() {
+        Common.dashTelemetry.addData("turret pos (in): ", s_turret);
+        Common.dashTelemetry.addData("goal pos (in): ", G);
+        Common.dashTelemetry.addData("turret to goal distance (in): ", s_turret.distance(G));
+        Common.dashTelemetry.addData("unit vector to goal: ", unitTurretToGoal);
+    }
 
     public String resultsToString() {
         return "θ_launch (Deg): " + Math.toDegrees(θ_launch) + "\nv_launch: " + v_launch + "\nα_launch: " + α_launch;
@@ -414,6 +420,9 @@ public final class KinematicsSolver {
         System.out.println(resultsToString()+"\n");
     }
 
+    /**
+     * Use <a href="https://www.desmos.com/calculator/agavajtz5x">this Desmos</a> to visualize your test cases:
+     */
     public static void main(String[] args) {
         new Vector2(3,3).normalize();
         new Pose(0, 0, 0);
