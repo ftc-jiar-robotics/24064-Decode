@@ -197,12 +197,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         switch (targetState) {
             case IDLE:
-                boolean isRobotCloseToFar = robot.drivetrain.getPose().getY() < 40;
-                boolean isMagnitudeInPositiveTolerance = robot.drivetrain.getVelocity().getYComponent() > 0.3;
-                boolean isMagnitudeInNegativeTolerance = robot.drivetrain.getVelocity().getYComponent() < -0.3;
-
-                if (isMagnitudeInPositiveTolerance) isDirectionForward = true;
-                else if (isMagnitudeInNegativeTolerance) isDirectionForward = false;
+//                boolean isRobotCloseToFar = robot.drivetrain.getPose().getY() < 40;
+//                boolean isMagnitudeInPositiveTolerance = robot.drivetrain.getVelocity().getYComponent() > 0.3;
+//                boolean isMagnitudeInNegativeTolerance = robot.drivetrain.getVelocity().getYComponent() < -0.3;
+//
+//                if (isMagnitudeInPositiveTolerance) isDirectionForward = true;
+//                else if (isMagnitudeInNegativeTolerance) isDirectionForward = false;
 
                 if (!isFlywheelManual) {
                     if (robot.shooter.isBallPresent())

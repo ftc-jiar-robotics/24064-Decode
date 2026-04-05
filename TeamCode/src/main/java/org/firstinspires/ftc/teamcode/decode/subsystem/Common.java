@@ -70,12 +70,12 @@ public final class Common {
             STRAFE_POD_X = -152, //
 
             // Camera Stuff
-            CAM_HEIGHT = 9.4375,
+            CAM_HEIGHT = 10,
             CAM_PITCH = 0,
 
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
             CAM_OFFSET_X = 0,
-            CAM_OFFSET_Y = 7.5,
+            CAM_OFFSET_Y = 7,
             TURRET_OFFSET_Y = -2.48592,
 
             MAX_VOLTAGE = 14;

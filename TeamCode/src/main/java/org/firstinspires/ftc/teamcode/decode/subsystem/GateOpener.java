@@ -43,10 +43,10 @@ public class GateOpener extends Subsystem<Boolean> {
     public void run() {
         if (Common.isRed) {
             gateRed.turnToAngle(isOpen ? OPEN_ANGLE_RED : CLOSED_ANGLE_RED);
-            gateBlue.turnToAngle(isOpen ? BLOCKING_ANGLE_BLUE : CLOSED_ANGLE_BLUE);
+            gateBlue.turnToAngle(/*isOpen ? BLOCKING_ANGLE_BLUE : */CLOSED_ANGLE_BLUE);
         } else {
             gateBlue.turnToAngle(isOpen ? OPEN_ANGLE_BLUE : CLOSED_ANGLE_BLUE);
-            gateRed.turnToAngle(isOpen ? BLOCKING_ANGLE_RED : CLOSED_ANGLE_RED);
+            gateRed.turnToAngle(/*isOpen ? BLOCKING_ANGLE_RED : */CLOSED_ANGLE_RED);
         }
     }
 

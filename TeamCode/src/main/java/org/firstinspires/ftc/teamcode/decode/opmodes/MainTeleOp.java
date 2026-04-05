@@ -124,12 +124,12 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             } else {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.drivetrain.setPose(new Pose(robot.drivetrain.getPose().getX(), robot.drivetrain.getPose().getY(), Math.toRadians(270)));
-//                if (gamepadEx1.isDown(DPAD_DOWN)) {
-//                    if (robot.arducam != null && robot.arducam.getStaleness() < Robot.MAX_STALENESS) {
-//                        robot.relocalizeWithArdu(true);
-//                        if (robot.hasArduCamRelocalized) gamepadEx1.gamepad.rumble(250);
-//                    }
-//                }
+                if (gamepadEx1.isDown(DPAD_DOWN)) {
+                    if (robot.arducam != null && robot.arducam.getStaleness() < Robot.MAX_STALENESS) {
+                        robot.relocalizeWithArdu(true);
+                        if (robot.hasArduCamRelocalized) gamepadEx1.gamepad.rumble(250);
+                    }
+                }
             }
 
             if (isFlywheelManual) {

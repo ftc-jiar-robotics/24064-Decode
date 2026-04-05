@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MID_DISTANC
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import android.util.Log;
 
@@ -88,7 +89,7 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         gateOpener = new GateOpener(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
-//        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
+        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
 
 
 //        ledController.ensureInitialized();
@@ -130,7 +131,7 @@ public final class Robot {
         isFar = shooter.turret.getDistance() > FAR_DISTANCE;
         isMid = !isFar && shooter.turret.getDistance() > MID_DISTANCE;
 
-//        if (!isAuto) arducam.detectTarget();
+        if (!isAuto) arducam.detectTarget();
 
         Common.inTriangle = LaunchZone.getCurrentZone(drivetrain.getPose()) != LaunchZone.NONE;
 
@@ -159,13 +160,13 @@ public final class Robot {
 
     public void relocalizeWithArdu(boolean override) {
         if (!isAuto) {
-//            Pose arduRobotPose = arducam.getTurretPosePedro();
-//
-//            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
-//
-//            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
-//                robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
-//            }
+            Pose arduRobotPose = arducam.getTurretPosePedro();
+
+            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
+
+            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
+                drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
+            }
         }
     }
 
@@ -175,7 +176,7 @@ public final class Robot {
             shooter.printTelemetry();
             intake.printTelemetry();
             if (isAuto) limelight.printTelemetry();
-//            if (!isAuto) arducam.printTelemetry();
+            if (!isAuto) arducam.printTelemetry();
 
             Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
             Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());

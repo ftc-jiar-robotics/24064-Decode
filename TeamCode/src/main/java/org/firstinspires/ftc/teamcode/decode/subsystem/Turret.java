@@ -80,12 +80,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         turretMaster.setInverted(true);
         turretSlave.setInverted(true);
 
-//        autoAim = new ArduCam(hw, NAME_TURRET_CAMERA);
     }
 
-//    public void closeArduCam() {
-//        autoAim.close();
-//    }
 
     private Pose setGoal() {
         Pose newGoal;
