@@ -67,7 +67,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static PIDGains FLYWHEEL_PIDF_COEFFICIENTS = new PIDGains(0.0067, 0, 0, 1);
     private final PIDController velocityController = new PIDController(derivFilter);
 
-    private boolean isDirectionForward = false;
+    boolean ballIsPresent, movingToFarZone;
 
     private double rawRPM, manualPower, pidf;
     private final State shootingRPM = new State(4000,0,0,0);
@@ -138,8 +138,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         switch (targetState) {
             case IDLE:
                 if (!isFlywheelManual)
-                    shootingRPM.x = !robot.shooter.isBallPresent() ? IDLE_RPM :
-                                    robot.movingTowardsFarZone() ? FAR_ARMING_RPM : CLOSE_ARMING_RPM;
+                    shootingRPM.x = !ballIsPresent ? IDLE_RPM :
+                                    movingToFarZone ? FAR_ARMING_RPM : CLOSE_ARMING_RPM;
                 break;
             case ARMING:
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;

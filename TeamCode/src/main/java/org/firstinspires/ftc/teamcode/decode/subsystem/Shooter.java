@@ -233,6 +233,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         }
 
         turret.run();
+        flywheel.ballIsPresent = isBallPresent();
         flywheel.run();
         feeder.run();
         hood.run();

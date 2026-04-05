@@ -133,6 +133,10 @@ public final class Robot {
     public void run() {
         update();
         drivetrain.update();
+
+        shooter.flywheel.movingToFarZone = drivetrain.getPose().getY() < 40 &&
+                                            drivetrain.getVelocity().getYComponent() < -0.3;
+
         shooter.run();
         intake.run();
         actionScheduler.run();
@@ -183,12 +187,6 @@ public final class Robot {
 //                robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
 //            }
         }
-    }
-
-    boolean movingTowardsFarZone() {
-        return
-                drivetrain.getPose().getY() < 40 &&
-                drivetrain.getVelocity().getYComponent() < -0.3;
     }
 
     // Prints data on the driver hub for debugging and other uses
