@@ -84,14 +84,11 @@ public final class Common {
             RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
             RED_SMALL_TRIANGLE = new Pose(88.125, 7.5, Math.toRadians(90)),
             BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror(),
-            BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90)),
-            BLUE_GOAL = new Pose(0,144),
-            RED_BLUE = BLUE_GOAL.mirror();
+            BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90));
 
-    public static double getAirtimeForDistance(double distanceInches) {
-        double t = AIRTIME_A * distanceInches + AIRTIME_B;
-        return Math.max(MIN_AIRTIME, t);
-    }
+    public static Pose
+            BLUE_GOAL = new Pose(2,142),
+            RED_GOAL = BLUE_GOAL.mirror();
 
     public static double
             MIN_MOVEMENT_SPEED = 0.5,
@@ -117,22 +114,6 @@ public final class Common {
             MIN_SHOOTING_DISTANCE = 49,
             RELOCALIZE_UPDATE_LOOPS = (1 << 3) - 1,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
-
-    public static HSV
-            GREEN_MIN_REV = new HSV(145, 0.5, 0.0),
-            GREEN_MAX_REV = new HSV(160, 0.7, 2.0),
-            PURPLE_MIN_REV = new HSV(180, 0.3, 0.0),
-            PURPLE_MAX_REV = new HSV(230, 0.45, 2.0);
-
-    public static HSV
-            GREEN_MIN_CR = new HSV(55, 0.5, 0.0),
-            GREEN_MAX_CR = new HSV(90, 0.77, 2.0),
-            PURPLE_MIN_CR = new HSV(44.3, 0.45, 0.0),
-            PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0),
-            INTAKE_NONE_MIN_CR = new HSV(98, 0.275, 0),
-            INTAKE_NONE_MAX_CR = new HSV(102, 0.415, 2);
-
-
 
     public static Robot robot;
 
