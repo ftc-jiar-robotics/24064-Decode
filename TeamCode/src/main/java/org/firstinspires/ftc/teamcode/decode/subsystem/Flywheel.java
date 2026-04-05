@@ -137,17 +137,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         switch (targetState) {
             case IDLE:
-                boolean isRobotCloseToFar = robot.drivetrain.getPose().getY() < 40;
-                boolean isMagnitudeInPositiveTolerance = robot.drivetrain.getVelocity().getYComponent() > 0.3;
-                boolean isMagnitudeInNegativeTolerance = robot.drivetrain.getVelocity().getYComponent() < -0.3;
-
-                if (isMagnitudeInPositiveTolerance) isDirectionForward = true;
-                else if (isMagnitudeInNegativeTolerance) isDirectionForward = false;
-
-                if (!isFlywheelManual) shootingRPM.x =
-                        !robot.shooter.isBallPresent() ?            IDLE_RPM :
-                        isRobotCloseToFar && !isDirectionForward ?  FAR_ARMING_RPM :
-                                                                    CLOSE_ARMING_RPM;
+                if (!isFlywheelManual)
+                    shootingRPM.x = !robot.shooter.isBallPresent() ? IDLE_RPM :
+                                    robot.movingTowardsFarZone() ? FAR_ARMING_RPM : CLOSE_ARMING_RPM;
                 break;
             case ARMING:
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
@@ -179,8 +171,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         return 0;
     }
 
-    public void incrementFlywheelRPM(double RPM, boolean isIncrementing) {
-        shootingRPM.x += RPM * (isIncrementing ? 1 : -1);
+    public void incrementFlywheelRPM(double RPM) {
+        shootingRPM.x += RPM;
         velocityController.setTarget(shootingRPM);
     }
 

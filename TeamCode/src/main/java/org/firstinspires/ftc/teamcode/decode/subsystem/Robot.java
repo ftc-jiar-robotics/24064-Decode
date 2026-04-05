@@ -185,6 +185,12 @@ public final class Robot {
         }
     }
 
+    boolean movingTowardsFarZone() {
+        return
+                drivetrain.getPose().getY() < 40 &&
+                drivetrain.getVelocity().getYComponent() < -0.3;
+    }
+
     // Prints data on the driver hub for debugging and other uses
     public void printTelemetry() {
         if (isTelemetryOn) {

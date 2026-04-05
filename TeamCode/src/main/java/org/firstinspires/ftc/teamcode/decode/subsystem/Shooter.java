@@ -153,8 +153,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.set(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
     }
 
-    public void incrementFlywheelRPM(double rpmIncrement, boolean isIncrementing) {
-        flywheel.incrementFlywheelRPM(rpmIncrement, isIncrementing);
+    public void incrementFlywheelRPM(double rpmIncrement) {
+        flywheel.incrementFlywheelRPM(rpmIncrement);
     }
 
 

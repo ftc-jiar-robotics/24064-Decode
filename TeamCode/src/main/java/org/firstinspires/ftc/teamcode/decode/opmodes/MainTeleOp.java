@@ -7,18 +7,8 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LEFT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_POWER_INPUT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
@@ -31,10 +21,13 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isStrafePower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
@@ -133,8 +126,8 @@ public class MainTeleOp extends LinearOpMode {
             }
 
             if (isFlywheelManual) {
-                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5, true);
-                if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(5, false);
+                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5);
+                if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(-5);
             }
 
 
