@@ -31,7 +31,7 @@ public class AutoGoal18 extends AbstractAuto{
     public static double
             FIRST_INTAKE_BRAKING_STRENGTH = 2,
             FIRST_INTAKE_BRAKING_START = 3,
-            THIRD_INTAKE_BRAKING_STRENGTH = 2,
+            THIRD_INTAKE_BRAKING_STRENGTH = 3,
             THIRD_INTAKE_BRAKING_START = 3;
 
     @Override

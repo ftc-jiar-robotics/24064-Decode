@@ -204,7 +204,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 if (isMagnitudeInPositiveTolerance) isDirectionForward = true;
                 else if (isMagnitudeInNegativeTolerance) isDirectionForward = false;
 
-                if (!isFlywheelManual) shootingRPM = robot.shooter.isBallPresent() ? (isRobotCloseToFar && !isDirectionForward ? FAR_ARMING_RPM : CLOSE_ARMING_RPM) : IDLE_RPM;
+                if (!isFlywheelManual) {
+                    if (robot.shooter.isBallPresent())
+                        chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                    else
+                        shootingRPM =  IDLE_RPM;
+                }
                 velocityController.setSetPoint(shootingRPM);
 
                 break;

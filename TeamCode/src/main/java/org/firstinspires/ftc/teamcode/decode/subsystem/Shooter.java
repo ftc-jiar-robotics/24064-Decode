@@ -160,7 +160,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
 
-                double distanceI = turret.getDistance();
+//                double distanceI = turret.getDistance();
 //                if (!isHoodManual) hood.set(Hood.MIN);
                 if (!isHoodManual) {
 //                    if (distanceI <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
