@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.SISOKal
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.KalmanGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.State;
-import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
+import org.firstinspires.ftc.teamcode.decode.util.CachedMotorEx;
 
 @Configurable
 @Config
