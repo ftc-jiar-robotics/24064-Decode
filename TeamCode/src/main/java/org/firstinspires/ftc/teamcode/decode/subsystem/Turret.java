@@ -247,8 +247,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         if (isPIDInTolerance()) toleranceCounter++;
         else toleranceCounter = 0;
 
-        double targetAngleClipped = Range.clip(targetAngle, TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
-        targetAngleClipped += Math.toDegrees(robot.shooter.getCompensatedValues()[2]);
+        double targetAngleClipped = Range.clip(robot.shooter.kinematicsSolver.getTurretAngle(), TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
 
         turretMaster.turnToAngle(targetAngleClipped);
         turretSlave.turnToAngle(targetAngleClipped);

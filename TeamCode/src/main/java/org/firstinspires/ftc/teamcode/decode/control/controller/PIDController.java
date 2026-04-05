@@ -94,7 +94,7 @@ public class PIDController implements FeedbackController {
 
     public boolean isInTolerance(State measurement, double tolerance) {
         return Math.abs(target.x - measurement.x) <= tolerance;
-    }
+    }n
 
     public void setTarget(State target) {
         this.target = target;
