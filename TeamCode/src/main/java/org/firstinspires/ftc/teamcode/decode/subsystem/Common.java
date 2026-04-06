@@ -95,14 +95,9 @@ public final class Common {
             ANG_VELOCITY_MULTIPLER = 0.15,
             FAR_DISTANCE = 120,
             MID_DISTANCE = 100,
-
             IMU_YAW_SCALAR = 1.00086,
             SLOW_MODE = 0.55,
-            AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
-            AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
-            MIN_AIRTIME  = 0.02, //safety
             MIN_POWER_INPUT = 0.3,
-            MAX_VELOCITY_MAGNITUDE = 0.2,
             LOCALIZATION_X = 10,
             LOCALIZATION_Y = 7.5,
             TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
@@ -111,7 +106,6 @@ public final class Common {
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
             MAX_DISTANCE_FEEDER = 90, // TODO mm
-            MIN_SHOOTING_DISTANCE = 49,
             RELOCALIZE_UPDATE_LOOPS = (1 << 3) - 1,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 

@@ -73,7 +73,7 @@ public class AutoGoal18 extends AbstractAuto{
                 new FollowPathAction(f, path.goalLeave21, true));
     }
     private void shootThird() {
-        path.thirdIntake21.getPath(2).setTValueConstraint(0.88);
+        path.thirdIntake21.getPath(2).setTValueConstraint(.99);
         path.thirdIntake21.getPath(1).setTValueConstraint(0.88);
         path.thirdIntake21.getPath(0).setTValueConstraint(0.88);
 
@@ -114,7 +114,7 @@ public class AutoGoal18 extends AbstractAuto{
 
     }
     private void shootFirst() {
-        path.firstIntake21.getPath(1).setTValueConstraint(0.88);
+        path.firstIntake21.getPath(1).setTValueConstraint(.99);
         path.firstIntake21.getPath(0).setTValueConstraint(0.88);
 
         path.firstIntake21.getPath(1).setBrakingStrength(FIRST_INTAKE_BRAKING_STRENGTH);
@@ -155,7 +155,7 @@ public class AutoGoal18 extends AbstractAuto{
         path.gateCycleIntake21.getPath(0).setTValueConstraint(0.94);
         path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.00077);
         path.gateCycleIntake21.getPath(0).setTranslationalConstraint(0.01);
-        path.gateCycleShoot21.getPath(0).setTValueConstraint(0.8);
+        path.gateCycleShoot21.getPath(0).setTValueConstraint(.95);
 
         f.setMaxPower(1);
         robot.actionScheduler.addAction(

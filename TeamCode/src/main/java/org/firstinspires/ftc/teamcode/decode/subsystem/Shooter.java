@@ -57,8 +57,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.setLocked(isLocked);
     }
 
-    public static double HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE = 120;
-    public static double ALL_BALL_CONFIDENCE_THRESHOLD = 2;
+    public static double
+            ALL_BALL_CONFIDENCE_THRESHOLD = 2,
+            MIN_SHOOTING_DISTANCE = 35;
 
 
     public int getQueuedShots() {
@@ -189,7 +190,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 if ((queuedShots >= 1 &&
                         flywheel.get() == Flywheel.FlyWheelStates.RUNNING &&
                         turret.isPIDInTolerance() &&
-                        (robot.isAuto || distance > Common.MIN_SHOOTING_DISTANCE) &&
+                        (robot.isAuto || distance > MIN_SHOOTING_DISTANCE) &&
                         (distance <= 120 || turret.isReadyToShoot())) || inEmergency) {
                     inEmergency = false;
                     feeder.set(Feeder.FeederStates.RUNNING, true);
