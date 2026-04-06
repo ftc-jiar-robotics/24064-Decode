@@ -40,6 +40,7 @@ public final class Common {
             isBigTriangle = false,
             isHoodManual = false,
             isFlywheelManual = false,
+            isControllingRPM = true,
             inTriangle = false;
 
     public static final double
@@ -87,26 +88,7 @@ public final class Common {
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
             MAX_DISTANCE_FEEDER = 90, // TODO mm
-            MIN_SHOOTING_DISTANCE = 40,
-            COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
-
-
-
-    public static HSV
-            GREEN_MIN_REV = new HSV(145, 0.5, 0.0),
-            GREEN_MAX_REV = new HSV(160, 0.7, 2.0),
-            PURPLE_MIN_REV = new HSV(180, 0.3, 0.0),
-            PURPLE_MAX_REV = new HSV(230, 0.45, 2.0);
-
-    public static HSV
-            GREEN_MIN_CR = new HSV(55, 0.5, 0.0),
-            GREEN_MAX_CR = new HSV(90, 0.77, 2.0),
-            PURPLE_MIN_CR = new HSV(44.3, 0.45, 0.0),
-            PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0),
-            INTAKE_NONE_MIN_CR = new HSV(98, 0.275, 0),
-            INTAKE_NONE_MAX_CR = new HSV(102, 0.415, 2);
-
-
+            MIN_SHOOTING_DISTANCE = 40;
 
     public static Robot robot;
 

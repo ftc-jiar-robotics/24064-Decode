@@ -20,6 +20,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_PO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isBigTriangle;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isControllingRPM;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFlywheelManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
@@ -115,9 +116,13 @@ public class MainTeleOp extends LinearOpMode {
             }
 
             if (isFlywheelManual) {
-                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5, true);
-                if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(5, false);
-
+                if (isControllingRPM) {
+                    if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.changeFlywheelPower(0.05);
+                    if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.changeFlywheelPower(-0.05);
+                } else {
+                    if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.changeFlywheelRPM(5, true);
+                    if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.changeFlywheelRPM(5, false);
+                }
             }
 
             if (gamepadEx1.wasJustPressed(A)) robot.actionScheduler.addAction(RobotActions.shootArtifacts(1));
@@ -157,6 +162,5 @@ public class MainTeleOp extends LinearOpMode {
         }
 
         AUTO_END_POSE = null;
-        robot.shooter.closeAutoAim();
     }
 }

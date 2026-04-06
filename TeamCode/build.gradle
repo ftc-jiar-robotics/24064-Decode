@@ -21,6 +21,10 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+
+    defaultConfig {
+        multiDexEnabled true
+    }
 }
 
 dependencies {
