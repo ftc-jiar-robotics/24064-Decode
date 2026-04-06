@@ -193,7 +193,15 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motorPowerFilter.setGains(motorPowerGains);
 
+        double originalKd = FLYWHEEL_PIDF_COEFFICIENTS.d;
+        double originalKf = FLYWHEEL_PIDF_COEFFICIENTS.f;
+        FLYWHEEL_PIDF_COEFFICIENTS.d  = originalKd*(Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage()));
+        FLYWHEEL_PIDF_COEFFICIENTS.f  = originalKf*(Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage()));
+
         velocityController.setCoefficients(FLYWHEEL_PIDF_COEFFICIENTS);
+
+        FLYWHEEL_PIDF_COEFFICIENTS.d = originalKd;
+        FLYWHEEL_PIDF_COEFFICIENTS.f = originalKf;
 
         switch (targetState) {
             case IDLE:
