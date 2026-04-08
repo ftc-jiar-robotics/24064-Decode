@@ -37,7 +37,7 @@ public final class KinematicsSolver {
             admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
 
-    θ_launchMax = toRadians(48.5),
+            θ_launchMax = toRadians(48.5),
             θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (15.0/131) * (40.0/20)),
             v_launchMin = 0,
             v_launchMax = Flywheel.RPMToInchesPerSecond(Flywheel.MAX_RPM);

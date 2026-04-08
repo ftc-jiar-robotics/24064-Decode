@@ -36,7 +36,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            IPS_TO_RPM_MULTIPLER = 3, // TODO EMPIRICALLY TUNE
+            IPS_TO_RPM_MULTIPLER = 12, // TODO EMPIRICALLY TUNE
             MIN_MOVEMENT_SPEED = 35,
             RPM_TOLERANCE = 30,
             RPM_TOLERANCE_WHILE_MOVING = 60,
@@ -49,7 +49,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             TARGET_RPM_STEP = 30.0,
             TARGET_RPM_MID_BAND = 9.0,
             CACHE_THRESHOLD_MOTORS = 0.001,
-            BATTERY_VOLTAGE_TUNED_AT = 13;
+            BATTERY_VOLTAGE_TUNED_AT = 13.40; // TODO TUNE
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
@@ -88,10 +88,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motors = new CachedMotorEx[]{
                 new CachedMotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE).reversed(),
-                new CachedMotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE)
+                new CachedMotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE).reversed()
         };
 
-        encoder = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE).encoder;
+        encoder = new MotorEx(hw, "left front", Motor.GoBILDA.BARE).encoder;
         encoder.setDirection(Motor.Direction.FORWARD);
 
         batteryVoltageSensor = hw.voltageSensor.iterator().next();
@@ -105,8 +105,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public void setManualPower(double power, boolean isChanging) {
-        manualPower = power;
-
         if (isChanging) manualPower += power;
         else manualPower = power;
     }
@@ -204,11 +202,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         dashTelemetry.addLine("FLYWHEEL");
         dashTelemetry.addData("current RPM (ROTATIONS PER MINUTE): ", rawRPM);
-        dashTelemetry.addData("current RPM Smooth (ROTATIONS PER MINUTE): ", currentRPMSmooth);
+        dashTelemetry.addData("current RPM Smooth (ROTATIONS PER MINUTE): ", currentRPMSmooth.x);
         dashTelemetry.addData("current power (PERCENTAGE): ", pidf);
 
         dashTelemetry.addData("current pos (TICKS): ", encoder.getPosition());
-        dashTelemetry.addData("target RPM (ROTATIONS PER MINUTE): ", shootingRPM);
+        dashTelemetry.addData("target RPM (ROTATIONS PER MINUTE): ", shootingRPM.x);
 
     }
 }
