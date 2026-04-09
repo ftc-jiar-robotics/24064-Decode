@@ -54,7 +54,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //            Double.POSITIVE_INFINITY
 //    );
 
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS = new PIDFCoefficients(0.003, 0, 0.001, 0.00022);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS = new PIDFCoefficients(0.0015, 0, 0, 0.00012);
 
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS);
     private final FIRLowPassFilter rpmFilter = new FIRLowPassFilter();
@@ -83,16 +83,18 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             RPM_TOLERANCE_WHILE_MOVING = 30,
-            SMOOTH_RPM_GAIN = .9,
+            SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 100,
             IDLE_RPM = 1200,
             FAR_ARMING_RPM = 2950,
             CLOSE_ARMING_RPM = 2100,
             BB_TOLERANCE = 50,
+            BB_ENABLE_DISTANCE = 110,
             MAX_RPM = 4000,
             VOLTAGE_SCALER = .9,
             TARGET_RPM_STEP = 30.0,
-            TARGET_RPM_MID_BAND = 9.0;
+            TARGET_RPM_MID_BAND = 9.0,
+            kS = 0.2;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
@@ -193,15 +195,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motorPowerFilter.setGains(motorPowerGains);
 
-        double originalKd = FLYWHEEL_PIDF_COEFFICIENTS.d;
-        double originalKf = FLYWHEEL_PIDF_COEFFICIENTS.f;
-        FLYWHEEL_PIDF_COEFFICIENTS.d  = originalKd*(Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage()));
-        FLYWHEEL_PIDF_COEFFICIENTS.f  = originalKf*(Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage()));
 
-        velocityController.setCoefficients(FLYWHEEL_PIDF_COEFFICIENTS);
-
-        FLYWHEEL_PIDF_COEFFICIENTS.d = originalKd;
-        FLYWHEEL_PIDF_COEFFICIENTS.f = originalKf;
 
         switch (targetState) {
             case IDLE:
@@ -233,7 +227,17 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         double feedforwardValue = 0;//(shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
 
-        currentPower = feedforwardValue;
+        double originalKd = FLYWHEEL_PIDF_COEFFICIENTS.d;
+        double originalKf = FLYWHEEL_PIDF_COEFFICIENTS.f;
+        double originalKp = FLYWHEEL_PIDF_COEFFICIENTS.p;
+        FLYWHEEL_PIDF_COEFFICIENTS.d  = originalKd*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+        FLYWHEEL_PIDF_COEFFICIENTS.f  = originalKf*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+        FLYWHEEL_PIDF_COEFFICIENTS.p  = originalKp*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+
+
+        velocityController.setCoefficients(FLYWHEEL_PIDF_COEFFICIENTS);
+
+        currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
         currentPower += velocityController.calculate(currentRPMSmooth);
 
         if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
@@ -245,12 +249,17 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             notInToleranceCounter++;
         }
 
+        FLYWHEEL_PIDF_COEFFICIENTS.d = originalKd;
+        FLYWHEEL_PIDF_COEFFICIENTS.f = originalKf;
+        FLYWHEEL_PIDF_COEFFICIENTS.p = originalKp;
+
+
         currentPower = Range.clip(currentPower, feedforwardValue, 1.0);
 
 //        if (robot.shooter.get() == Shooter.ShooterStates.RUNNING) currentPower = motorGroup[0].get();
 
         for (MotorEx m : motorGroup) {
-            if (shootingRPM-currentRPMSmooth>BB_TOLERANCE) m.set(1);
+            if (shootingRPM-currentRPMSmooth>BB_TOLERANCE && robot.shooter.turret.getDistance()>BB_ENABLE_DISTANCE) m.set(1);
             else m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
         }
 
