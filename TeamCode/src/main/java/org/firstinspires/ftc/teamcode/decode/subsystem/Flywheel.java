@@ -27,10 +27,10 @@ import org.firstinspires.ftc.teamcode.decode.control.solverscontrol.SolversPIDF;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final MotorEx[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.001, 0, 0, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0012, 0, 0, 0.00009);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.001, 0, 0, 0.00012);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.001, 0, 0, 0.00012);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
-    public static final double GEAR_RATIO = 25.0/16.0;
+    public static final double GEAR_RATIO = 20.0/20;
     public enum FlyWheelStates {
         IDLE, ARMING, RUNNING
     }
@@ -47,7 +47,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             TARGET_RPM_STEP = 30.0,
             TARGET_RPM_MID_BAND = 9.0,
             SWITCH_PID_DIST = 100, // inches to switch to far PID
-            kS = 0.3;
+            kS = 0.25;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
@@ -182,12 +182,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 FLYWHEEL_PIDF_COEFFICIENTS_CLOSE :
                 FLYWHEEL_PIDF_COEFFICIENTS_FAR;
 
-        double originalKd = coefficients.d;
+//        double originalKd = coefficients.d;
         double originalKf = coefficients.f;
-        double originalKp = coefficients.p;
-        coefficients.d  = originalKd*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+//        double originalKp = coefficients.p;
+//        coefficients.d  = originalKd*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
         coefficients.f  = originalKf*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
-        coefficients.p  = originalKp*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+//        coefficients.p  = originalKp*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
 
         velocityController.setCoefficients(coefficients);
 
@@ -203,9 +203,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             notInToleranceCounter++;
         }
 
-        coefficients.d = originalKd;
+//        coefficients.d = originalKd;
         coefficients.f = originalKf;
-        coefficients.p = originalKp;
+//        coefficients.p = originalKp;
 
 
         currentPower = Range.clip(currentPower, feedforwardValue, 1.0);
