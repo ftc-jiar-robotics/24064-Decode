@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_HOOD_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel.GEAR_RATIO;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -49,6 +50,7 @@ public class    Hood extends Subsystem<Double> {
         return Range.clip(21.25528184671319*(1) + 1.551657839403464*(distance) + -0.00445309317429351*(distance*distance), MIN, MAX);
     }
     public double getHoodAngleWithRPM(double currentRPM) {
+        currentRPM*=1/GEAR_RATIO;
         double angle = -87.51927299612511*(1) + 0.1366987334209007*(currentRPM) + -1.888596858075093e-05*(currentRPM*currentRPM) - 10;
         return Range.clip(angle, MIN, MAX);
     }

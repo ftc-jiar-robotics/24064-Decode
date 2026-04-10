@@ -43,9 +43,9 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         BLOCKING_ANGLE = 240,
         RUNNING_ANGLE = 310,
         MAX_PIN_STATE = 7, // default
-        CLOSE_SHOOTING_SPEED = .55,
-        FAR_SHOOTING_SPEED = .47,
-        MID_SHOOTER_SPEED = .5;
+        CLOSE_SHOOTING_SPEED = .45,
+        FAR_SHOOTING_SPEED = .35,
+        MID_SHOOTER_SPEED = .4;
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
@@ -88,7 +88,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     @Override
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
-        motor.set(currentState == FeederStates.RUNNING ? (robot.isFar ? FAR_SHOOTING_SPEED : (robot.isMid ? MID_SHOOTER_SPEED : CLOSE_SHOOTING_SPEED)) : (Math.abs(robot.intake.get()) > 0.1 ? .3 : 0));
+        motor.set((Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage())*(currentState == FeederStates.RUNNING ? (robot.isFar ? FAR_SHOOTING_SPEED : (robot.isMid ? MID_SHOOTER_SPEED : CLOSE_SHOOTING_SPEED)) : (Math.abs(robot.intake.get()) > 0.1 ? .3 : 0)));
         backFeeder1.setPower(currentState == FeederStates.RUNNING ? motor.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         backFeeder2.setPower(currentState == FeederStates.RUNNING ? motor.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         feederGate.run();
