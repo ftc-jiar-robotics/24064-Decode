@@ -38,7 +38,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private TurretStates currentState = TurretStates.IDLE;
 
     private final Differentiator differentiator = new Differentiator();
-    public static LowPassGains targetAngleGains = new LowPassGains(0.10);
+    public static LowPassGains targetAngleGains = new LowPassGains(0.40);
     private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
 
     public static double
@@ -50,13 +50,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             GOAL_ADDITION_X_RED = 7,
             GOAL_SUBTRACTION_Y = 6,
             WRAP_AROUND_ANGLE = 180,
-            TURRET_CLIP_ANGLE_MIN = 15,
+            TURRET_CLIP_ANGLE_MIN = 40,
             TURRET_CLIP_ANGLE_MAX = 340,
-            ANGLE_TOLERANCE = 10,
+            ANGLE_TOLERANCE = 5,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
-            LAUNCH_DELAY = 0.5,
+            LAUNCH_DELAY = 0.3,
             LOS_EPS = 1e-6;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;

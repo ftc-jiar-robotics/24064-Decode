@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHE
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FLYWHEEL_SLAVE_MOTOR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFlywheelManual;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Turret.calculateTurretPosition;
@@ -13,88 +12,41 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.decode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
-import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.Filter;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.IIRLowPassFilter;
-import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
-import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.PIDGains;
-import org.firstinspires.ftc.teamcode.decode.control.motion.Differentiator;
-import org.firstinspires.ftc.teamcode.decode.control.motion.State;
 import org.firstinspires.ftc.teamcode.decode.control.solverscontrol.SolversPIDF;
-import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 
 @Configurable
 @Config
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final MotorEx[] motorGroup;
-
     private final Motor.Encoder shooterEncoder;
-
-//    public static PIDGains shootingVelocityGains = new PIDGains(
-//            0.00425,
-//            0.0,
-//            0.000825,
-//            Double.POSITIVE_INFINITY
-//    );
-//
-//    public static PIDGains shootingWhileMovingVelocityGains = new PIDGains(
-//            0.00425,
-//            0.0,
-//            0.000825,
-//            Double.POSITIVE_INFINITY
-//    );
-
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS = new PIDFCoefficients(0.0012, 0, 0, 0.00009);
-
-    private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS);
-    private final FIRLowPassFilter rpmFilter = new FIRLowPassFilter();
-   // public static MovingAverageGains rpmDerivAverageFilterGains = new MovingAverageGains(3);
-    public static MovingAverageGains targetRPMAverageFilterGains = new MovingAverageGains(
-            5
-    );
-
-    public static final double GEAR_RATIO = 24.0/16.0;
-    //private final Filter targetRPMAverageFilter = new MovingAverageFilter(targetRPMAverageFilterGains);
-
-    public static LowPassGains rpmFilterGains = new LowPassGains(
-            0.5,
-            10
-    );
-
-
-
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.001, 0, 0, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0012, 0, 0, 0.00009);
+    private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
+    public static final double GEAR_RATIO = 25.0/16.0;
     public enum FlyWheelStates {
         IDLE, ARMING, RUNNING
     }
-
     public static double
-            MIN_MOVEMENT_SPEED = 35,
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
-            RPM_TOLERANCE_WHILE_MOVING = 30,
             SMOOTH_RPM_GAIN = 0,
-            DERIV_TOLERANCE = 100,
+            DERIV_TOLERANCE = 200,
             IDLE_RPM = 1200,
-            FAR_ARMING_RPM = 2950,
-            CLOSE_ARMING_RPM = 2100,
             BB_TOLERANCE = 50,
             BB_ENABLE_DISTANCE = 110,
-            MAX_RPM = 4000,
-            VOLTAGE_SCALER = .9,
             TARGET_RPM_STEP = 30.0,
             TARGET_RPM_MID_BAND = 9.0,
+            SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.3;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
@@ -105,7 +57,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     private final IIRLowPassFilter motorPowerFilter = new IIRLowPassFilter(motorPowerGains);
 
-    private boolean isDirectionForward = false;
 
     private double
             currentRPM = 0.0,
@@ -154,7 +105,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
        // velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
 //        velocityController.setGains(shootingVelocityGains);
-        rpmFilter.setGains(rpmFilterGains);
     }
 
     @Override
@@ -181,7 +131,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public boolean isPIDInTolerance() {
 //        return (velocityController.isInTolerance(new State(currentRPMSmooth, 0, 0, 0), robot.isRobotMoving() ? RPM_TOLERANCE_WHILE_MOVING : RPM_TOLERANCE, DERIV_TOLERANCE));
 
-        velocityController.setTolerance(robot.isRobotMoving() ? RPM_TOLERANCE_WHILE_MOVING : RPM_TOLERANCE, DERIV_TOLERANCE);
+        velocityController.setTolerance(/*robot.isRobotMoving() ? RPM_TOLERANCE_WHILE_MOVING : */RPM_TOLERANCE, DERIV_TOLERANCE);
 
         return velocityController.atSetPoint();
     }
@@ -228,15 +178,18 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         double feedforwardValue = 0;//(shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
 
-        double originalKd = FLYWHEEL_PIDF_COEFFICIENTS.d;
-        double originalKf = FLYWHEEL_PIDF_COEFFICIENTS.f;
-        double originalKp = FLYWHEEL_PIDF_COEFFICIENTS.p;
-        FLYWHEEL_PIDF_COEFFICIENTS.d  = originalKd*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
-        FLYWHEEL_PIDF_COEFFICIENTS.f  = originalKf*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
-        FLYWHEEL_PIDF_COEFFICIENTS.p  = originalKp*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+        PIDFCoefficients coefficients = robot.shooter.turret.getDistance() <= SWITCH_PID_DIST ?
+                FLYWHEEL_PIDF_COEFFICIENTS_CLOSE :
+                FLYWHEEL_PIDF_COEFFICIENTS_FAR;
 
+        double originalKd = coefficients.d;
+        double originalKf = coefficients.f;
+        double originalKp = coefficients.p;
+        coefficients.d  = originalKd*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+        coefficients.f  = originalKf*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+        coefficients.p  = originalKp*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
 
-        velocityController.setCoefficients(FLYWHEEL_PIDF_COEFFICIENTS);
+        velocityController.setCoefficients(coefficients);
 
         currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
         currentPower += velocityController.calculate(currentRPMSmooth);
@@ -250,9 +203,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             notInToleranceCounter++;
         }
 
-        FLYWHEEL_PIDF_COEFFICIENTS.d = originalKd;
-        FLYWHEEL_PIDF_COEFFICIENTS.f = originalKf;
-        FLYWHEEL_PIDF_COEFFICIENTS.p = originalKp;
+        coefficients.d = originalKd;
+        coefficients.f = originalKf;
+        coefficients.p = originalKp;
 
 
         currentPower = Range.clip(currentPower, feedforwardValue, 1.0);

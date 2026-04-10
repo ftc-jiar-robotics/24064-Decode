@@ -88,7 +88,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     @Override
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING);
-        motor.set((Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage())*(currentState == FeederStates.RUNNING ? (robot.isFar ? FAR_SHOOTING_SPEED : (robot.isMid ? MID_SHOOTER_SPEED : CLOSE_SHOOTING_SPEED)) : (Math.abs(robot.intake.get()) > 0.1 ? .3 : 0)));
+        motor.set((Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage())*(currentState == FeederStates.RUNNING ? (robot.isFar ? FAR_SHOOTING_SPEED : (robot.isMid ? MID_SHOOTER_SPEED : CLOSE_SHOOTING_SPEED)) : (Math.abs(robot.intake.get()) > 0.1 ? .2 : 0)));
         backFeeder1.setPower(currentState == FeederStates.RUNNING ? motor.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         backFeeder2.setPower(currentState == FeederStates.RUNNING ? motor.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         feederGate.run();
