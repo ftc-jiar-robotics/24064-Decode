@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_HOOD_SERVO;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Flywheel.GEAR_RATIO;
 
@@ -47,11 +48,12 @@ public class    Hood extends Subsystem<Double> {
 
     public double getHoodAngleWithDistance(double distance) {
 
-        return Range.clip(21.25528184671319*(1) + 1.551657839403464*(distance) + -0.00445309317429351*(distance*distance), MIN, MAX);
+        return Range.clip(92.09058425976954*(1) + -0.5688475893964194*(distance) + 0.007004514149670448*(distance*distance) + -1.1458570595006808e-05*(distance*distance*distance), MIN, MAX);
     }
     public double getHoodAngleWithRPM(double currentRPM) {
         currentRPM*=1/GEAR_RATIO;
-        double angle = -87.51927299612511*(1) + 0.1366987334209007*(currentRPM) + -1.888596858075093e-05*(currentRPM*currentRPM) - 10;
+        double angle = 223.02768335704332*(1) + -0.2402281345368125*(currentRPM) + 0.00012097296615785684*(currentRPM*currentRPM) + -1.696772841529239e-08*(currentRPM*currentRPM*currentRPM);
+        if(robot.isFar)angle+=4;
         return Range.clip(angle, MIN, MAX);
     }
 

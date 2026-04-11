@@ -28,7 +28,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final MotorEx[] motorGroup;
     private final Motor.Encoder shooterEncoder;
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0019, 0, 0.00005, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.001, 0, 0, 0.00012);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0018, 0, 0, 0.00015);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
     public static final double GEAR_RATIO = 20.0/20;
     public enum FlyWheelStates {
@@ -245,8 +245,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
 //        }
         if (!isFlywheelManual) {
-            double rpmRaw = GEAR_RATIO*(957.2952559300876*(1) + 13.812109862671662*(distance));
+            double rpmRaw = GEAR_RATIO*(1591.965085639697*(1) + -2.1583397782159177*(distance) + 0.06810134596813792*(distance*distance));
+            if (robot.isFar) rpmRaw+=100;
+            else rpmRaw+=50;
             shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+
             velocityController.setSetPoint(shootingRPM);
         }
 
