@@ -59,7 +59,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     public static double
             ALL_BALL_CONFIDENCE_THRESHOLD = 2,
-            MIN_SHOOTING_DISTANCE = 35;
+            MIN_SHOOTING_DISTANCE = 40;
 
 
     public int getQueuedShots() {
