@@ -24,17 +24,17 @@ public class GateOpener extends Subsystem<GateOpener.GateOpenerStates> {
 
     public static double
             CLOSED_ANGLE_RED = 50,
+            MID_ANGLE_RED = 145,
             OPEN_ANGLE_RED = 175,
-            BLOCKING_ANGLE_RED = 175,
             CLOSED_ANGLE_BLUE = 230,
             OPEN_ANGLE_BLUE = 105,
-            BLOCKING_ANGLE_BLUE = 105,
-            GATE_OPEN_Y_MIN = 59.4,
-            GATE_OPEN_Y_MAX = 77.9,
-            GATE_OPEN_X_MIN_BLUE = 1.8,
-            GATE_OPEN_X_MAX_BLUE = 19.5,
-            GATE_OPEN_X_MIN_RED = 144-GATE_OPEN_X_MIN_BLUE,
-            GATE_OPEN_X_MAX_RED = 144-GATE_OPEN_X_MAX_BLUE,
+            MID_ANGLE_BLUE = 135,
+            GATE_OPEN_Y_MIN = 40,
+            GATE_OPEN_Y_MAX = 90,
+            GATE_OPEN_X_MIN_BLUE = 0,
+            GATE_OPEN_X_MAX_BLUE = 20,
+            GATE_OPEN_X_MIN_RED = 144-GATE_OPEN_X_MAX_BLUE,
+            GATE_OPEN_X_MAX_RED = 144-GATE_OPEN_X_MIN_BLUE,
             GATE_OPEN_ANGLE_MIN_BLUE = 90,
             GATE_OPEN_ANGLE_MAX_BLUE = 180,
             GATE_OPEN_ANGLE_MIN_RED = 0,
@@ -48,7 +48,7 @@ public class GateOpener extends Subsystem<GateOpener.GateOpenerStates> {
     }
 
     @Override
-    public void set(GateOpenerStates state) {
+    protected void set(GateOpenerStates state) {
         currentState = state;
     }
 
@@ -74,10 +74,10 @@ public class GateOpener extends Subsystem<GateOpener.GateOpenerStates> {
 
     private void updateOpener() {
         if (Common.isRed) {
-            gateRed.turnToAngle(isOpen ? OPEN_ANGLE_RED : CLOSED_ANGLE_RED);
+            gateRed.turnToAngle(isOpen ? (currentState == GateOpenerStates.AUTOMATIC ? MID_ANGLE_RED : OPEN_ANGLE_RED) : CLOSED_ANGLE_RED);
             gateBlue.turnToAngle(CLOSED_ANGLE_BLUE);
         } else {
-            gateBlue.turnToAngle(isOpen ? OPEN_ANGLE_BLUE : CLOSED_ANGLE_BLUE);
+            gateBlue.turnToAngle(isOpen ? (currentState == GateOpenerStates.AUTOMATIC ? MID_ANGLE_BLUE : OPEN_ANGLE_BLUE) : CLOSED_ANGLE_BLUE);
             gateRed.turnToAngle(CLOSED_ANGLE_RED);
         }
     }

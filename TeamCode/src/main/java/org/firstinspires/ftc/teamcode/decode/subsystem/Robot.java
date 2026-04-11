@@ -89,7 +89,10 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         gateOpener = new GateOpener(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
-        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
+        if (!isAuto) {
+            arducam = new ArduCam(hardwareMap, "arducam");
+//            gateOpener.set(GateOpener.GateOpenerStates.AUTOMATIC,true);
+        }
 
 
 //        ledController.ensureInitialized();
@@ -175,6 +178,7 @@ public final class Robot {
         if (isTelemetryOn) {
             shooter.printTelemetry();
             intake.printTelemetry();
+            gateOpener.printTelemetry();
             if (isAuto) limelight.printTelemetry();
             if (!isAuto) arducam.printTelemetry();
 
