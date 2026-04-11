@@ -28,8 +28,8 @@ import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0, 0.00005, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0022, 0, 0.00005, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0029, 0, 0.00002, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0, 0.00002, 0.000077);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
     public static final double GEAR_RATIO = 20.0/20;
     public enum FlyWheelStates {
@@ -189,13 +189,13 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //        double originalKd = coefficients.d;
         double originalKf = coefficients.f;
 //        double originalKp = coefficients.p;
-//        coefficients.d  = originalKd*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
-        coefficients.f  = originalKf*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
-//        coefficients.p  = originalKp*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+//        coefficients.d  = originalKd*(Common.MAX_VOLTAGE / robot.getVoltage());
+        coefficients.f  = originalKf*(Common.MAX_VOLTAGE / robot.getVoltage());
+//        coefficients.p  = originalKp*(Common.MAX_VOLTAGE / robot.getVoltage());
 
         velocityController.setCoefficients(coefficients);
 
-        currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.batteryVoltageSensor.getVoltage());
+        currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.getVoltage());
         currentPower += velocityController.calculate(currentRPMSmooth);
 
         if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {

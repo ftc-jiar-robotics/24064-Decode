@@ -64,7 +64,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private Pose turretPos = new Pose(0, 0);
 
     private double
-            currentAngle = 0.0,
+//            currentAngle = 0.0,
             targetAngle = 0.0,
             targetAngleDebounced = 0.0,
             toleranceCounter = 0,
@@ -122,9 +122,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return getDistance(turretPos);
     }
 
-    double getCurrentAngle() {
-        return currentAngle;
-    }
+//    double getCurrentAngle() {
+//        return currentAngle;
+//    }
     private double getPositionTolerance() {
         // Scale based on if the robot is moving
         boolean moving = robot.isRobotMoving();
@@ -219,7 +219,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public void run() {
         goal = setGoal();
 
-        currentAngle = turretMaster.getAngle();
+//        currentAngle = turretMaster.getAngle();
 
         targetAngleFilter.setGains(targetAngleGains);
 
@@ -267,7 +267,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addLine("TURRET");
         dashTelemetry.addData("vision setpoint (RADIANS): ", 0);
 //        dashTelemetry.addData("current vision (RADIANS): ", autoAim.getTargetYawDegrees());
-        dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
+        dashTelemetry.addData("encoder angle (ANGLE): ", turretMaster.getAngle());
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("absolute encoder (VOLTAGE): ", absoluteEncoder.getVoltage());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);

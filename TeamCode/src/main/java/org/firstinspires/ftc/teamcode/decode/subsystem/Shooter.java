@@ -70,9 +70,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public double getFeederSpeed(){
         return feeder.getSpeed();
     }
-    public double getTurretAngle() {
-        return turret.getCurrentAngle();
-    }
+//    public double getTurretAngle() {
+//        return turret.getCurrentAngle();
+//    }
 
     public void armFlywheel() {
         flywheel.set(Flywheel.FlyWheelStates.ARMING, true);

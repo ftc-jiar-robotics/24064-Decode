@@ -37,7 +37,7 @@ public final class Robot {
     public final GateOpener gateOpener;
     public final Shooter shooter;
     public final Intake intake;
-    public final VoltageSensor batteryVoltageSensor;
+    private final VoltageSensor batteryVoltageSensor;
 //    public final LEDController ledController;
 
     public static double MAX_STALENESS = 1e9;
@@ -52,9 +52,9 @@ public final class Robot {
     public boolean hasArduCamRelocalized = false;
 
     public final boolean isAuto;
-    public boolean isFar;
+    public boolean isFar, isMid;
 
-    public boolean isMid;
+    private double voltage;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -112,9 +112,16 @@ public final class Robot {
         return isRobotMoving;
     }
 
+
+
     // Reads all the necessary sensors (including battery volt.) in one bulk read
     public void readSensors() {
         bulkReader.bulkRead();
+        voltage = batteryVoltageSensor.getVoltage();
+    }
+
+    public double getVoltage(){
+        return voltage;
     }
 
     // Runs all the necessary mechanisms
