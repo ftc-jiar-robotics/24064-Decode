@@ -36,7 +36,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double
-            FLYWHEEL_DIAMETER = 3, // INCHES
+            RPM_PER_SEC_IN = 8.17067, // TODO EMPIRICALLY TUNE
             MIN_MOVEMENT_SPEED = 35,
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
@@ -177,11 +177,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public static double inchesPerSecondToRPM(double x) {
-        return (0.0571374 * x * x) + (-6.80299 * x) + 985.1611;
+        return x * RPM_PER_SEC_IN;
     }
 
     public static double RPMToInchesPerSecond(double x) {
-        return (-0.0000175444 * x * x) + (0.13418 * x) + 8.4288;
+        return x / RPM_PER_SEC_IN;
     }
 
     private void chooseShootingRPM(double distance) {

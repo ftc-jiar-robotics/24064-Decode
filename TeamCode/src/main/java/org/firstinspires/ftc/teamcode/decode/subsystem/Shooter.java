@@ -176,11 +176,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         kinematicsValidFullSolve = kinematicsSolver.calculateTarget_v_θ_α();
         idealVLaunch = kinematicsSolver.v_launch;
 
-        kinematicsValidFixedV = kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(flywheel.getCurrentRPMSmooth()));
-        launchAngle = kinematicsSolver.θ_launch;
-        turretOffset = kinematicsSolver.α_launch;
-
-
         switch (targetState) {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
@@ -231,6 +226,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
         }
+
+        kinematicsValidFixedV = kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(flywheel.getCurrentRPMSmooth()));
+        launchAngle = kinematicsSolver.θ_launch;
+        turretOffset = kinematicsSolver.α_launch;
 
         turret.run();
         flywheel.ballIsPresent = isBallPresent();

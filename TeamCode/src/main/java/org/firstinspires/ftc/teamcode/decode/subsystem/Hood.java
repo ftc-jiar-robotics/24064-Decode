@@ -48,11 +48,15 @@ public class    Hood extends Subsystem<Double> {
     public double getHoodAngleWithDistance(double distance) {
 
         return Range.clip(21.25528184671319*(1) + 1.551657839403464*(distance) + -0.00445309317429351*(distance*distance), MIN, MAX);
+
+        // in launch radians: 1.03332039 - (0.00620188 * distance) + (0.00001780 * distance * distance);
     }
     public double getHoodAngleWithRPM(double currentRPM) {
         double angle = -87.51927299612511*(1) + 0.1366987334209007*(currentRPM) + -1.888596858075093e-05*(currentRPM*currentRPM);
         return Range.clip(angle, MIN, MAX);
-    }
+
+        // in launch radians: 1.46808546 - (0.00054638 * currentRPM) + (0.0000000755 * currentRPM * currentRPM);
+        }
 
     public double launchRadiansToServoAngle(double targetRadians) {
         double scaleFactor = (Hood.MAX - Hood.MIN) / (Math.toDegrees(KinematicsSolver.θ_launchMax) - Math.toDegrees(KinematicsSolver.θ_launchMin));
