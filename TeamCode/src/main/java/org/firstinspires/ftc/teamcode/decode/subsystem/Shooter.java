@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -60,6 +59,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public static double
             ALL_BALL_CONFIDENCE_THRESHOLD = 2,
             MIN_SHOOTING_DISTANCE = 40;
+    public static double HOOD_DISTANCE_SHOOTER_SWITCH = 100;
 
 
     public int getQueuedShots() {
@@ -161,14 +161,14 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
 
-//                double distanceI = turret.getDistance();
-//                if (!isHoodManual) hood.set(Hood.MIN);
+                double distanceI = turret.getDistance();
+                if (!isHoodManual) hood.set(Hood.MIN);
                 if (!isHoodManual) {
-//                    if (distanceI <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-//                        hood.set(hood.getHoodAngleWithDistance(distanceI), true);
-//                    } else {
+                    if (distanceI <= HOOD_DISTANCE_SHOOTER_SWITCH) {
+                        hood.set(hood.getHoodAngleWithDistance(distanceI), true);
+                    } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-//                    }
+                    }
                 }
 
                 if (queuedShots >= 1) {
@@ -180,11 +180,11 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case PREPPING:
                 double distance = turret.getDistance();
                 if (!isHoodManual) {
-//                    if (distance <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-//                        hood.set(hood.getHoodAngleWithDistance(distance), true);
-//                    } else {
+                    if (distance <= HOOD_DISTANCE_SHOOTER_SWITCH) {
+                        hood.set(hood.getHoodAngleWithDistance(distance), true);
+                    } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-//                    }
+                    }
                 }
 
                 if ((queuedShots >= 1 &&
@@ -200,15 +200,14 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case RUNNING:
-//                if (turret.isNotStable() || flywheel.isNotStable()) targetState = ShooterStates.PREPPING;
 
                 if (!isHoodManual) {
-//                    double distanceR = turret.getDistance();
-//                    if (distanceR <= HOOD_DISTANCE_SHOOTER_TING_SWITCH_CASE) {
-//                        hood.set(hood.getHoodAngleWithDistance(distanceR), true);
-//                    } else {
+                    double distanceR = turret.getDistance();
+                    if (distanceR <= HOOD_DISTANCE_SHOOTER_SWITCH) {
+                        hood.set(hood.getHoodAngleWithDistance(distanceR), true);
+                    } else {
                         hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
-//                    }
+                    }
                 }
 
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
