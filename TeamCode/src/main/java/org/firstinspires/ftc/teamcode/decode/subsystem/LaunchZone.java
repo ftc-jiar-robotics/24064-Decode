@@ -24,6 +24,11 @@ public enum LaunchZone {
             SIZE_FIELD = 141.5,
             SIZE_TILE = SIZE_FIELD/6;
 
+    private static final double NEAR_CX = SIZE_FIELD / 2.0, NEAR_CY = SIZE_FIELD;
+    private static final double FAR_CX  = SIZE_FIELD / 2.0, FAR_CY  = 0.0;
+    private static final double ZONE_ANGLE = toRadians(45);
+    private static final double nearHalfSize, farHalfSize;
+
     private static final Transform nearZonePosition, farZonePosition, robotPose = new Transform();
     private static final Rectangle nearZoneRect, farZoneRect, robotRect;
     private static final Gjk collisionSolver = new Gjk();
@@ -31,6 +36,8 @@ public enum LaunchZone {
     static {
         double nearZoneSize = SIZE_TILE * Math.sqrt(2) * 3;
         double farZoneSize = SIZE_TILE * Math.sqrt(2);
+        nearHalfSize = nearZoneSize / 2.0;
+        farHalfSize  = farZoneSize  / 2.0;
 
         nearZoneRect = new Rectangle(nearZoneSize, nearZoneSize);
         farZoneRect = new Rectangle(farZoneSize, farZoneSize);
@@ -45,6 +52,121 @@ public enum LaunchZone {
 
         farZonePosition.rotate(toRadians(45));
         farZonePosition.translate(SIZE_FIELD / 2, 0);
+    }
+
+    /**
+     * Returns the point on the boundary of the nearest launch zone the robot will reach,
+     * given its current position and direction of travel from the velocity vector.
+     * If the travel direction does not intersect either zone, returns the closest boundary
+     * point on whichever zone is nearer to the robot.
+     */
+    public static Pose getInterceptOrClosestPoint() {
+        Pose robotPos = Common.robot.drivetrain.getPose();
+        double theta  = Common.robot.drivetrain.poseTracker.getVelocity().getTheta();
+
+        double rx = robotPos.getX(), ry = robotPos.getY();
+        double dx = cos(theta),      dy = sin(theta);
+
+        Pose nearHit = rayRectIntercept(rx, ry, dx, dy, NEAR_CX, NEAR_CY, nearHalfSize);
+        Pose farHit  = rayRectIntercept(rx, ry, dx, dy, FAR_CX,  FAR_CY,  farHalfSize);
+
+        if (nearHit != null && farHit != null)
+            return dist2(rx, ry, nearHit) <= dist2(rx, ry, farHit) ? nearHit : farHit;
+        if (nearHit != null) return nearHit;
+        if (farHit  != null) return farHit;
+
+        Pose nearClosest = closestBoundaryPoint(rx, ry, NEAR_CX, NEAR_CY, nearHalfSize);
+        Pose farClosest  = closestBoundaryPoint(rx, ry, FAR_CX,  FAR_CY,  farHalfSize);
+        return dist2(rx, ry, nearClosest) <= dist2(rx, ry, farClosest) ? nearClosest : farClosest;
+    }
+
+    /**
+     * Ray-rectangle intersection in world space.
+     * The rectangle is a square with half-side {@code halfSize} centered at (cx, cy), rotated 45°.
+     * Returns the first hit point in the travel direction, or null if there is none.
+     */
+    private static Pose rayRectIntercept(
+            double rx, double ry, double dx, double dy,
+            double cx, double cy, double halfSize) {
+
+        // Transform ray into the rectangle's local (unrotated) frame
+        double relX = rx - cx, relY = ry - cy;
+        double cosN = cos(-ZONE_ANGLE), sinN = sin(-ZONE_ANGLE);
+        double lox = relX * cosN - relY * sinN;
+        double loy = relX * sinN + relY * cosN;
+        double ldx = dx * cosN - dy * sinN;
+        double ldy = dx * sinN + dy * cosN;
+
+        // Slab intersection with AABB [-h, h] x [-h, h]
+        double h = halfSize;
+        double txMin, txMax, tyMin, tyMax;
+        if (Math.abs(ldx) < 1e-9) {
+            if (Math.abs(lox) > h) return null;
+            txMin = Double.NEGATIVE_INFINITY; txMax = Double.POSITIVE_INFINITY;
+        } else {
+            txMin = (-h - lox) / ldx; txMax = (h - lox) / ldx;
+            if (txMin > txMax) { double tmp = txMin; txMin = txMax; txMax = tmp; }
+        }
+        if (Math.abs(ldy) < 1e-9) {
+            if (Math.abs(loy) > h) return null;
+            tyMin = Double.NEGATIVE_INFINITY; tyMax = Double.POSITIVE_INFINITY;
+        } else {
+            tyMin = (-h - loy) / ldy; tyMax = (h - loy) / ldy;
+            if (tyMin > tyMax) { double tmp = tyMin; tyMin = tyMax; tyMax = tmp; }
+        }
+
+        double tMin = Math.max(txMin, tyMin);
+        double tMax = Math.min(txMax, tyMax);
+        if (tMin > tMax || tMax < 0) return null;
+
+        double t = (tMin >= 0) ? tMin : tMax; // entry if outside, exit if already inside
+        double lpx = lox + t * ldx, lpy = loy + t * ldy;
+
+        // Transform hit point back to world space
+        double cosF = cos(ZONE_ANGLE), sinF = sin(ZONE_ANGLE);
+        return new Pose(lpx * cosF - lpy * sinF + cx,
+                        lpx * sinF + lpy * cosF + cy, 0);
+    }
+
+    /**
+     * Closest point on the boundary of a 45°-rotated square (center cx,cy, half-side halfSize)
+     * to the query point (px, py).
+     */
+    private static Pose closestBoundaryPoint(
+            double px, double py, double cx, double cy, double halfSize) {
+
+        double relX = px - cx, relY = py - cy;
+        double cosN = cos(-ZONE_ANGLE), sinN = sin(-ZONE_ANGLE);
+        double lx = relX * cosN - relY * sinN;
+        double ly = relX * sinN + relY * cosN;
+
+        double h = halfSize;
+        double clampedX, clampedY;
+
+        if (Math.abs(lx) > h || Math.abs(ly) > h) {
+            // Outside — clamp to nearest face
+            clampedX = Math.max(-h, Math.min(h, lx));
+            clampedY = Math.max(-h, Math.min(h, ly));
+        } else {
+            // Inside — project to nearest edge
+            double toLeft = lx + h, toRight = h - lx;
+            double toBot  = ly + h, toTop   = h - ly;
+            double minD = Math.min(Math.min(toLeft, toRight), Math.min(toBot, toTop));
+            clampedX = lx; clampedY = ly;
+            if      (minD == toLeft)  clampedX = -h;
+            else if (minD == toRight) clampedX =  h;
+            else if (minD == toBot)   clampedY = -h;
+            else                      clampedY =  h;
+        }
+
+        double cosF = cos(ZONE_ANGLE), sinF = sin(ZONE_ANGLE);
+        return new Pose(clampedX * cosF - clampedY * sinF + cx,
+                        clampedX * sinF + clampedY * cosF + cy, 0);
+    }
+
+    private static double dist2(double rx, double ry, Pose p) {
+        double dx = p.getX() - rx, dy = p.getY() - ry;
+        return dx * dx + dy * dy;
     }
 
     static LaunchZone getCurrentZone(Pose currentPose) {

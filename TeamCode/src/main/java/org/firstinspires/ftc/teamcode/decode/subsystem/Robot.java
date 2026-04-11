@@ -187,6 +187,7 @@ public final class Robot {
             Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
             Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
             Drawing.drawDebug(drivetrain);
+            Drawing.drawRobot(LaunchZone.getInterceptOrClosestPoint());
 
             Common.telemetry.update();
             Common.dashTelemetry.update();

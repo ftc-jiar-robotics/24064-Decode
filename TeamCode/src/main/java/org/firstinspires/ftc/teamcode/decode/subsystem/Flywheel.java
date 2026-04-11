@@ -28,7 +28,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final MotorEx[] motorGroup;
     private final Motor.Encoder shooterEncoder;
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0, 0.00005, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0011, 0, 0, 0.0001);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0022, 0, 0.00005, 0.000077);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
     public static final double GEAR_RATIO = 20.0/20;
     public enum FlyWheelStates {
@@ -42,7 +42,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 200,
             IDLE_RPM = 1200,
-            BB_TOLERANCE = 150,
+            BB_TOLERANCE = 1000000,
             BB_ENABLE_DISTANCE = 110,
             TARGET_RPM_STEP = 30.0,
             TARGET_RPM_MID_BAND = 9.0,
@@ -158,9 +158,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //                else if (isMagnitudeInNegativeTolerance) isDirectionForward = false;
 
                 if (!isFlywheelManual) {
-                    if (robot.shooter.isBallPresent())
-                        chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
-                    else
+                    if (robot.shooter.isBallPresent()) {
+                        chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(LaunchZone.getInterceptOrClosestPoint(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                    } else
                         shootingRPM =  IDLE_RPM;
                 }
                 velocityController.setSetPoint(shootingRPM);

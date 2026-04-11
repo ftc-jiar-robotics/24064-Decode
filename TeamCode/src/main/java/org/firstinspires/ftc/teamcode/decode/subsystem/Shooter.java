@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.ANG_VELOCITY_MULTIPLER;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isHoodManual;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -253,7 +254,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public Pose getPredictedPose(double timeToShoot) {
         currentPose = robot.drivetrain.getPose();
 
-        if (timeToShoot <= 0.01) {
+        if (timeToShoot <= 0.01 || !isFuturePoseOn) {
             predictedPose = currentPose;
             return currentPose;
         }
