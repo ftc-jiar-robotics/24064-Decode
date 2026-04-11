@@ -11,18 +11,20 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 import org.firstinspires.ftc.teamcode.decode.util.DistanceSensorEx;
 import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
 
 @Configurable
 public class Intake extends Subsystem<Double> {
-    private final MotorEx motor;
+    private final CachedMotor motor;
     public static float GAIN = 1.0f; //TODO: change gain
     private double power = 0;
     private final DigitalChannel pin0Front, pin0Back;
+    public static double ROUNDING_POINT = 20;
 
     public Intake(HardwareMap hardwareMap) {
-        this.motor = new MotorEx(hardwareMap, NAME_INTAKE_MOTOR, Motor.GoBILDA.RPM_435);
+        this.motor = new CachedMotor(hardwareMap, NAME_INTAKE_MOTOR, Motor.GoBILDA.RPM_435,ROUNDING_POINT);
         pin0Front = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_FRONT_PIN0);
         pin0Back = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_BACK_PIN0);
     }

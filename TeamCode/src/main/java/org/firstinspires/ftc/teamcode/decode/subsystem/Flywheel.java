@@ -21,11 +21,12 @@ import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.IIRLowP
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 import org.firstinspires.ftc.teamcode.decode.control.solverscontrol.SolversPIDF;
+import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 
 @Configurable
 @Config
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
-    private final MotorEx[] motorGroup;
+    private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0, 0.00005, 0.000077);
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0022, 0, 0.00005, 0.000077);
@@ -49,7 +50,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.25,
             CLOSE_ADJUSTMENT_RPM = 25, // added onto rpm curve
-            FAR_ADJUSTMENT_RPM = 40;
+            FAR_ADJUSTMENT_RPM = 40,
+            ROUNDING_POINT = 100;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
@@ -81,8 +83,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public Flywheel(HardwareMap hw) {
-        MotorEx shooterMaster = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
-        MotorEx shooterSlave = new MotorEx(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE);
+        CachedMotor shooterMaster = new CachedMotor(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE,ROUNDING_POINT);
+        CachedMotor shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE,ROUNDING_POINT);
         MotorEx dummy = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
 
 //        DcMotorEx shooterMaster = hw.get(DcMotorEx.class,NAME_FLYWHEEL_MASTER_MOTOR);
@@ -103,7 +105,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         shooterEncoder = dummy.encoder;
         shooterEncoder.setDirection(Motor.Direction.FORWARD);
 
-        motorGroup = new MotorEx[]{shooterMaster, shooterSlave};
+        motorGroup = new CachedMotor[]{shooterMaster, shooterSlave};
 
        // velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
 //        velocityController.setGains(shootingVelocityGains);

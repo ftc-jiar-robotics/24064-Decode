@@ -40,11 +40,7 @@ public class CachedMotor extends MotorEx {
         }
 
         if (currentOutput != output || (currentOutput != 0 && output == 0)) {
-
-            double desiredChange = output - currentOutput;
-            double limitedChange = Math.max(-SLEW_RATE, Math.min(desiredChange, SLEW_RATE));
-            super.set(currentOutput += limitedChange);
-
+            super.set(output);
             currentOutput = output;
         }
     }

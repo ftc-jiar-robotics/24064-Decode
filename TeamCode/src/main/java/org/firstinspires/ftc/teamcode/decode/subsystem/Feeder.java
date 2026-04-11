@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_DISTANCE_FEEDER;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACK1_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_BACK2_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_FEEDER_GATE_SERVO;
@@ -10,22 +9,22 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.decode.util.CachedCRServo;
+import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 import org.firstinspires.ftc.teamcode.decode.util.SimpleServoPivot;
 
 @Configurable
 public class Feeder extends Subsystem<Feeder.FeederStates> {
     private final SimpleServoPivot feederGate;
-    private final CRServo backFeeder1;
-    private final CRServo backFeeder2;
-    private final MotorEx motor;
+    private final CachedCRServo backFeeder1;
+    private final CachedCRServo backFeeder2;
+    private final CachedMotor motor;
 
     private final DigitalChannel pin0Left, pin0Right;
 
@@ -45,16 +44,19 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         MAX_PIN_STATE = 7, // default
         CLOSE_SHOOTING_SPEED = .725,
         FAR_SHOOTING_SPEED = .3,
-        MID_SHOOTER_SPEED = .55;
+        MID_SHOOTER_SPEED = .55,
+        ROUNDING_POINT = 10;
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
-        backFeeder1 = hw.get(CRServo.class, NAME_FEEDER_BACK1_SERVO);
+        backFeeder1 = new CachedCRServo(hw, NAME_FEEDER_BACK1_SERVO, ROUNDING_POINT);
+        backFeeder2 = new CachedCRServo(hw, NAME_FEEDER_BACK2_SERVO, ROUNDING_POINT);
         backFeeder1.setDirection(DcMotorSimple.Direction.REVERSE);
-        backFeeder2 = hw.get(CRServo.class, NAME_FEEDER_BACK2_SERVO);
+
         pin0Left = hw.digitalChannel.get(Common.NAME_FEEDER_LEFT_PIN0);
         pin0Right = hw.digitalChannel.get(Common.NAME_FEEDER_RIGHT_PIN0);
-        motor = new MotorEx(hw, NAME_INTAKE_MOTO_MOTOR, Motor.GoBILDA.BARE);
+
+        motor = new CachedMotor(hw, NAME_INTAKE_MOTO_MOTOR, Motor.GoBILDA.BARE, ROUNDING_POINT);
         motor.setInverted(true);
     }
 

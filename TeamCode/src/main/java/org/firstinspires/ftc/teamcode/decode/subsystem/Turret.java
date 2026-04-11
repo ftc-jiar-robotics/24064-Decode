@@ -57,7 +57,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
             LAUNCH_DELAY = 0.3,
-            LOS_EPS = 1e-6;    // divide by zero guard
+            LOS_EPS = 1e-6,
+            ROUNDING_POINT = 20;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;
     private Pose turretPos = new Pose(0, 0);
@@ -70,8 +71,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             robotHeadingTurretDomain = 0.0;
 
     public Turret(HardwareMap hw) {
-        this.turretMaster = new CachedServo(hw, NAME_TURRET_MASTER_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES);
-        this.turretSlave = new CachedServo(hw, NAME_TURRET_SLAVE_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES);
+        this.turretMaster = new CachedServo(hw, NAME_TURRET_MASTER_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES, ROUNDING_POINT);
+        this.turretSlave = new CachedServo(hw, NAME_TURRET_SLAVE_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES, ROUNDING_POINT);
 
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
 

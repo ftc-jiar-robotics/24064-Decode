@@ -16,18 +16,19 @@ public class CachedCRServo {
     // Last power actually sent to the hardware
     private double currentOutput = 0.0;
 
-    // How finely we quantize power. Example:
-    // 100.0 => steps of 0.01, 20.0 => steps of 0.05, 0.0 => no quantization
-    public static double POWER_ROUNDING_POINT = 100.0;
+    private double roundingPoint;
 
-    public static double SLEW_RATE = 0.2;
-
-    public CachedCRServo(@NonNull HardwareMap hardwareMap, @NonNull String id) {
+    public CachedCRServo(@NonNull HardwareMap hardwareMap, @NonNull String id, double roundingPoint) {
+        this.roundingPoint = roundingPoint;
         this.servo = hardwareMap.get(CRServo.class, id);
     }
 
     public void setDirection(DcMotorSimple.Direction direction) {
         servo.setDirection(direction);
+    }
+
+    public void setRoundingPoint(double roundingPoint) {
+        this.roundingPoint = roundingPoint;
     }
 
     public double getCurrentOutput() {
@@ -42,26 +43,19 @@ public class CachedCRServo {
         // Clamp incoming command
         double output = Range.clip(power, -1.0, 1.0);
 
-        if (POWER_ROUNDING_POINT > 0) {
+        if (roundingPoint > 0) {
             if (output > 0) {
-                output = Math.floor(output * POWER_ROUNDING_POINT) / POWER_ROUNDING_POINT;
+                output = Math.floor(output * roundingPoint) / roundingPoint;
             } else if (output < 0) {
-                output = Math.ceil(output * POWER_ROUNDING_POINT) / POWER_ROUNDING_POINT;
+                output = Math.ceil(output * roundingPoint) / roundingPoint;
             } else {
                 output = 0;
             }
         }
 
-        // If nothing changed and we are not going to 0, do nothing
-        if (output == currentOutput && !(currentOutput != 0 && output == 0)) {
-            return;
+        if (currentOutput != output || (currentOutput != 0 && output == 0)) {
+            servo.setPower(output);
+            currentOutput = output;
         }
-
-        double desiredChange = output - currentOutput;
-        double limitedChange = Range.clip(desiredChange, -SLEW_RATE, SLEW_RATE);
-        double newOutput = currentOutput + limitedChange;
-
-        servo.setPower(newOutput);
-        currentOutput = newOutput;
     }
 }
