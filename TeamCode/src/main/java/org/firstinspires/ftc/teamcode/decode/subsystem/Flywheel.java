@@ -249,7 +249,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
 //        }
         if (!isFlywheelManual) {
-            double rpmRaw = GEAR_RATIO*(1591.965085639697*(1) + -2.1583397782159177*(distance) + 0.06810134596813792*(distance*distance));
+            double rpmRaw = GEAR_RATIO*(1674.6095342210476*(1) + -4.328034369655546*(distance) + 0.08095436010080519*(distance*distance));
             if (robot.isFar) rpmRaw+=FAR_ADJUSTMENT_RPM;
             else rpmRaw+=CLOSE_ADJUSTMENT_RPM;
             shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
