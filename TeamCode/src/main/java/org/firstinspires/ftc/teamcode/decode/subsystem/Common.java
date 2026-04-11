@@ -70,12 +70,12 @@ public final class Common {
             STRAFE_POD_X = -152, //
 
             // Camera Stuff
-            CAM_HEIGHT = 9.4375,
+            CAM_HEIGHT = 10,
             CAM_PITCH = 0,
 
             // Camera offset from turret center (inches) +X = right, -X = left | +Y = forward, -Y = backward
             CAM_OFFSET_X = 0,
-            CAM_OFFSET_Y = 7.5,
+            CAM_OFFSET_Y = 7,
             TURRET_OFFSET_Y = -2.48592,
 
             MAX_VOLTAGE = 14;
@@ -84,28 +84,20 @@ public final class Common {
             RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
             RED_SMALL_TRIANGLE = new Pose(88.125, 7.5, Math.toRadians(90)),
             BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror(),
-            BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90)),
-            BLUE_GOAL = new Pose(0,144),
-            RED_BLUE = BLUE_GOAL.mirror();
+            BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90));
 
-    public static double getAirtimeForDistance(double distanceInches) {
-        double t = AIRTIME_A * distanceInches + AIRTIME_B;
-        return Math.max(MIN_AIRTIME, t);
-    }
+    public static Pose
+            BLUE_GOAL = new Pose(2,142),
+            RED_GOAL = BLUE_GOAL.mirror();
 
     public static double
             MIN_MOVEMENT_SPEED = 0.5,
             ANG_VELOCITY_MULTIPLER = 0.15,
-            FAR_DISTANCE = 120,
-            MID_DISTANCE = 100,
-
+            FAR_DISTANCE = 110,
+            MID_DISTANCE = 90,
             IMU_YAW_SCALAR = 1.00086,
             SLOW_MODE = 0.55,
-            AIRTIME_A    = 0.0025,  // seconds per inch (tune) how much airtime increases per inch of distance.
-            AIRTIME_B    = 0.03,    // base airtime (tune) minimum airtime when distance is zero.
-            MIN_AIRTIME  = 0.02, //safety
             MIN_POWER_INPUT = 0.3,
-            MAX_VELOCITY_MAGNITUDE = 0.2,
             LOCALIZATION_X = 10,
             LOCALIZATION_Y = 7.5,
             TURRET_ENC_OFFSET = Double.POSITIVE_INFINITY;
@@ -114,25 +106,8 @@ public final class Common {
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
             MAX_DISTANCE_FEEDER = 90, // TODO mm
-            MIN_SHOOTING_DISTANCE = 49,
             RELOCALIZE_UPDATE_LOOPS = (1 << 3) - 1,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
-
-    public static HSV
-            GREEN_MIN_REV = new HSV(145, 0.5, 0.0),
-            GREEN_MAX_REV = new HSV(160, 0.7, 2.0),
-            PURPLE_MIN_REV = new HSV(180, 0.3, 0.0),
-            PURPLE_MAX_REV = new HSV(230, 0.45, 2.0);
-
-    public static HSV
-            GREEN_MIN_CR = new HSV(55, 0.5, 0.0),
-            GREEN_MAX_CR = new HSV(90, 0.77, 2.0),
-            PURPLE_MIN_CR = new HSV(44.3, 0.45, 0.0),
-            PURPLE_MAX_CR = new HSV(49.3, 0.77, 2.0),
-            INTAKE_NONE_MIN_CR = new HSV(98, 0.275, 0),
-            INTAKE_NONE_MAX_CR = new HSV(102, 0.415, 2);
-
-
 
     public static Robot robot;
 

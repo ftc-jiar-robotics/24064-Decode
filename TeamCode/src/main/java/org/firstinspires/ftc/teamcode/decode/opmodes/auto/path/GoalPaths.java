@@ -56,13 +56,13 @@ public class GoalPaths {
             intake21Control = new Pose(60.800, 60.100),
             endIntakeSecond21 = new Pose(8.400, 59.100),
             gateCycleControl21 = new Pose(25.9, 57.900),
-            intakeGateCycle21 = new Pose(11.8, 60.3),
-            intakeGateCycleRed21 = new Pose(11.8, 60.3),
+            intakeGateCycle21 = new Pose(12, 59.3),
+            intakeGateCycleRed21 = new Pose(12, 59.3),
             endIntakeFirst21 = new Pose(23.0, 83.900),
             intakeThirdControl21 = new Pose(59.700, 35.900),
             startIntakeThird21 = new Pose(45.200, 35.900),
             endIntakeThird21 = new Pose(14.400, 36.200),
-            preloadShoot21 = new Pose(61.5, 83.7),
+            preloadShoot21 = new Pose(55, 83.7),
             leave21 = new Pose(53.8, 66.1);
 
 
@@ -73,7 +73,7 @@ public class GoalPaths {
             shootAngle = Math.toRadians(-127),
             endIntakeAngleFirst = Math.toRadians(180),
             gateCycleShootAngle = Math.toRadians(215),
-            gateCycleIntakeAngle = Math.toRadians(160),
+            gateCycleIntakeAngle = Math.toRadians(155),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
             startIntakeAngleHP = Math.toRadians(180),

@@ -97,9 +97,9 @@ public class RobotActions {
     }
 
     public static Action openGate() {
-        return new InstantAction(() -> robot.gateOpener.set(true, true));
+        return new InstantAction(() -> robot.gateOpener.set(GateOpener.GateOpenerStates.OPEN));
     }
     public static Action closeGate() {
-        return new InstantAction(() -> robot.gateOpener.set(false, true));
+        return new InstantAction(() -> robot.gateOpener.set(GateOpener.GateOpenerStates.CLOSE));
     }
 }

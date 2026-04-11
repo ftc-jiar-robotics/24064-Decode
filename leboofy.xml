@@ -3,9 +3,9 @@
     <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
         <LynxModule name="Expansion Hub 2" port="2">
             <goBILDA5201SeriesMotor name="shooterMaster" port="0" />
-            <goBILDA5201SeriesMotor name="shooterSlave" port="1" />
+            <goBILDA5201SeriesMotor name="intake" port="1" />
             <goBILDA5201SeriesMotor name="intakeFeederMotor" port="2" />
-            <goBILDA5201SeriesMotor name="intake" port="3" />
+            <goBILDA5201SeriesMotor name="shooterSlave" port="3" />
             <Servo name="gateOpenerBlue" port="0" />
             <RevColorSensorV3 name="leftDistanceSensorFeeder" port="0" bus="2" />
             <RevColorSensorV3 name="rightDistanceSensorFeeder" port="0" bus="3" />

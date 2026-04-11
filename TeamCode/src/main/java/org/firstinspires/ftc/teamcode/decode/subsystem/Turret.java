@@ -38,7 +38,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private TurretStates currentState = TurretStates.IDLE;
 
     private final Differentiator differentiator = new Differentiator();
-    public static LowPassGains targetAngleGains = new LowPassGains(0.10);
+    public static LowPassGains targetAngleGains = new LowPassGains(0.40);
     private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
 
     public static double
@@ -48,15 +48,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             SWITCH_Y_POSITION_SMALL = 48,
             GOAL_ADDITION_X_BLUE = 4,
             GOAL_ADDITION_X_RED = 7,
-            GOAL_SUBTRACTION_Y = 6,
+            GOAL_SUBTRACTION_Y = 2,
             WRAP_AROUND_ANGLE = 180,
-            TURRET_CLIP_ANGLE_MIN = 15,
+            TURRET_CLIP_ANGLE_MIN = 40,
             TURRET_CLIP_ANGLE_MAX = 340,
-
-    ANGLE_TOLERANCE = 10,
+            ANGLE_TOLERANCE = 3,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
+            LAUNCH_DELAY = 0.3,
             LOS_EPS = 1e-6;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;
@@ -81,19 +81,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         turretMaster.setInverted(true);
         turretSlave.setInverted(true);
 
-//        autoAim = new ArduCam(hw, NAME_TURRET_CAMERA);
     }
 
-//    public void closeArduCam() {
-//        autoAim.close();
-//    }
 
     private Pose setGoal() {
         Pose newGoal;
 
         double x = Common.BLUE_GOAL.getX();
         double y = Common.BLUE_GOAL.getY();
-        if (!robot.isAuto && robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
+        if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
         else if (robot.isAuto || robot.drivetrain.getPose().getY() < SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE), y);
         else newGoal = new Pose(x, y);
 
@@ -164,7 +160,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     private void setTracking() {
-        double theta = calculateAngleToGoal(turretPos);
+        setTracking(turretPos);
+    }
+
+    private void setTracking(Pose customTurretPos) {
+        double theta = calculateAngleToGoal(customTurretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
         targetAngle = normalizeToTurretRange(alpha);
@@ -227,6 +227,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         currentAngle = turretMaster.getAngle();
 
         targetAngleFilter.setGains(targetAngleGains);
+
         // turning robot heading to turret heading
         double robotHeading = robot.drivetrain.getHeading();
         robotHeadingTurretDomain = ((360 - Math.toDegrees(robotHeading)) + 90 + 3600) % 360;
@@ -236,6 +237,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             case IDLE:
 //                targetAngle = 180;
                 setTracking();
+
+//                setTracking(calculateTurretPosition(LaunchZone.getInterceptOrClosestPoint(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y));
                 differentiator.reset();
                 if (robot.shooter.isBallPresent()) currentState = ODOM_TRACKING;
                 break;
@@ -247,7 +250,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         if (isPIDInTolerance()) toleranceCounter++;
         else toleranceCounter = 0;
 
-        double targetAngleClipped = Range.clip(robot.shooter.kinematicsSolver.getTurretAngle(), TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
+        double targetAngleClipped = Range.clip(robot.shooter.getCompensatedValues()[2], TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
 
         turretMaster.turnToAngle(targetAngleClipped);
         turretSlave.turnToAngle(targetAngleClipped);

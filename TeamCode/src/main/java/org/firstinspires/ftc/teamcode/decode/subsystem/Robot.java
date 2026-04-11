@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.FAR_DISTANCE;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MAX_CR;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.INTAKE_NONE_MIN_CR;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MID_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
 import android.util.Log;
 
@@ -89,7 +88,10 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         gateOpener = new GateOpener(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
-//        if (!isAuto) arducam = new ArduCam(hardwareMap, "arducam");
+        if (!isAuto) {
+            arducam = new ArduCam(hardwareMap, "arducam");
+//            gateOpener.set(GateOpener.GateOpenerStates.AUTOMATIC,true);
+        }
 
 
 //        ledController.ensureInitialized();
@@ -114,21 +116,6 @@ public final class Robot {
         bulkReader.bulkRead();
     }
 
-
-    public static boolean isArtifactFound(ColorSensor colorSensor) {
-        return !colorSensor.hsv.inRange(INTAKE_NONE_MIN_CR, INTAKE_NONE_MAX_CR);
-    }
-
-    public static Robot.ArtifactColor getColor(ColorSensor colorSensor, boolean isRev) {
-        HSV minGreen = isRev ? Common.GREEN_MIN_REV : Common.GREEN_MIN_CR;
-        HSV maxGreen = isRev ? Common.GREEN_MAX_REV : Common.GREEN_MAX_CR;
-        HSV minPurple = isRev ? Common.PURPLE_MIN_REV : Common.PURPLE_MIN_CR;
-        HSV maxPurple = isRev ? Common.PURPLE_MAX_REV : Common.PURPLE_MAX_CR;
-
-        if (colorSensor.hsv.inRange(minGreen, maxGreen)) return Robot.ArtifactColor.GREEN;
-        else if (colorSensor.hsv.inRange(minPurple, maxPurple)) return Robot.ArtifactColor.PURPLE;
-        else return Robot.ArtifactColor.NONE;
-    }
     // Runs all the necessary mechanisms
     public void run() {
         update();
@@ -150,7 +137,7 @@ public final class Robot {
         isFar = shooter.turret.getDistance() > FAR_DISTANCE;
         isMid = !isFar && shooter.turret.getDistance() > MID_DISTANCE;
 
-//        if (!isAuto) arducam.detectTarget();
+        if (!isAuto) arducam.detectTarget();
 
         Common.inTriangle = LaunchZone.getCurrentZone(drivetrain.getPose()) != LaunchZone.NONE;
 
@@ -178,14 +165,14 @@ public final class Robot {
     }
 
     public void relocalizeWithArdu(boolean override) {
-        if (!isAuto) {
-//            Pose arduRobotPose = arducam.getTurretPosePedro();
-//
-//            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
-//
-//            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
-//                robot.drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
-//            }
+        if (!isAuto && !robot.isFar) {
+            Pose arduRobotPose = arducam.getTurretPosePedro();
+
+            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
+
+            if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
+                drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));
+            }
         }
     }
 
@@ -194,14 +181,16 @@ public final class Robot {
         if (isTelemetryOn) {
             shooter.printTelemetry();
             intake.printTelemetry();
+            gateOpener.printTelemetry();
             if (isAuto) limelight.printTelemetry();
-//            if (!isAuto) arducam.printTelemetry();
+            if (!isAuto) arducam.printTelemetry();
 
             Common.telemetry.addData("robot x (DOUBLE): ", drivetrain.getPose().getX());
             Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
             Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
             Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
             Drawing.drawDebug(drivetrain);
+            Drawing.drawRobot(LaunchZone.getInterceptOrClosestPoint());
 
             Common.telemetry.update();
             Common.dashTelemetry.update();

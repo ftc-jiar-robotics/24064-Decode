@@ -62,7 +62,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.setLocked(isLocked);
     }
 
-    public static double ALL_BALL_CONFIDENCE_THRESHOLD = 2;
+    public static double
+            ALL_BALL_CONFIDENCE_THRESHOLD = 2,
+            MIN_SHOOTING_DISTANCE = 40,
+            HOOD_DISTANCE_SHOOTER_SWITCH = 1000;
 
     /**
      * @return ideal flywheel velocity (0), compensated hood angle (1), compensated turret angle (2)
@@ -79,6 +82,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return queuedShots;
     }
 
+    public double getFeederSpeed(){
+        return feeder.getSpeed();
+    }
     public double getTurretAngle() {
         return turret.getCurrentAngle();
     }
@@ -180,6 +186,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
                 if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(launchAngle));
+
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
                     targetState = ShooterStates.PREPPING;
@@ -189,10 +196,11 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case PREPPING:
                 double distance = turret.getDistance();
                 if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(launchAngle));
+
                 if ((queuedShots >= 1 &&
                         flywheel.get() == Flywheel.FlyWheelStates.RUNNING &&
                         turret.isPIDInTolerance() &&
-                        (robot.isAuto || distance > Common.MIN_SHOOTING_DISTANCE) &&
+                        (robot.isAuto || distance > MIN_SHOOTING_DISTANCE) &&
                         (distance <= 120 || turret.isReadyToShoot())) || inEmergency) {
                     inEmergency = false;
                     feeder.set(Feeder.FeederStates.RUNNING, true);

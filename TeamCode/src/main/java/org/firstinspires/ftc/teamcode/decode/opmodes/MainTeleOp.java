@@ -68,12 +68,12 @@ public class MainTeleOp extends LinearOpMode {
         robot = new Robot(hardwareMap);
         robot.shooter.setGoalAlliance();
 
-        waitForStart();
-
         robot.drivetrain.setStartingPose(AUTO_END_POSE);
 
         robot.drivetrain.update();
         robot.drivetrain.startTeleopDrive(true);
+
+        waitForStart();
 
         while (opModeIsActive()) {
             robot.run();
@@ -117,12 +117,12 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_DOWN)) robot.shooter.setHoodManual(0.5, false);
             } else {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.drivetrain.setPose(new Pose(robot.drivetrain.getPose().getX(), robot.drivetrain.getPose().getY(), Math.toRadians(270)));
-//                if (gamepadEx1.isDown(DPAD_DOWN)) {
-//                    if (robot.arducam != null && robot.arducam.getStaleness() < Robot.MAX_STALENESS) {
-//                        robot.relocalizeWithArdu(true);
-//                        if (robot.hasArduCamRelocalized) gamepadEx1.gamepad.rumble(250);
-//                    }
-//                }
+                if (gamepadEx1.isDown(DPAD_DOWN)) {
+                    if (robot.arducam != null && robot.arducam.getStaleness() < Robot.MAX_STALENESS) {
+                        robot.relocalizeWithArdu(true);
+                        if (robot.hasArduCamRelocalized) gamepadEx1.gamepad.rumble(250);
+                    }
+                }
             }
 
             if (isFlywheelManual) {
@@ -150,7 +150,7 @@ public class MainTeleOp extends LinearOpMode {
                     }
                 }
                 if ((robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) && robot.shooter.getQueuedShots() > 0)
-                    robot.intake.set(isSlowMode ? .5 : 1, true);
+                    robot.intake.set(robot.shooter.getFeederSpeed(), true);
             } else if (lastInTriangle) {
                 storedShots = robot.shooter.getQueuedShots();
                 robot.shooter.clearQueueShots();

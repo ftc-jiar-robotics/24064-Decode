@@ -27,6 +27,13 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 public class AutoGoal18 extends AbstractAuto{
     private GoalPaths path;
+
+    public static double
+            FIRST_INTAKE_BRAKING_STRENGTH = 2,
+            FIRST_INTAKE_BRAKING_START = 3,
+            THIRD_INTAKE_BRAKING_STRENGTH = 3,
+            THIRD_INTAKE_BRAKING_START = 3;
+
     @Override
     protected Pose getStartPose() {
         return GoalPaths.start;
@@ -66,9 +73,12 @@ public class AutoGoal18 extends AbstractAuto{
                 new FollowPathAction(f, path.goalLeave21, true));
     }
     private void shootThird() {
-        path.thirdIntake21.getPath(2).setTValueConstraint(0.88);
+        path.thirdIntake21.getPath(2).setTValueConstraint(.99);
         path.thirdIntake21.getPath(1).setTValueConstraint(0.88);
         path.thirdIntake21.getPath(0).setTValueConstraint(0.88);
+
+        path.thirdIntake21.getPath(2).setBrakingStrength(THIRD_INTAKE_BRAKING_STRENGTH);
+        path.thirdIntake21.getPath(2).setBrakingStart(THIRD_INTAKE_BRAKING_START);
 
         robot.actionScheduler.addAction(
                 new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME,
@@ -104,8 +114,12 @@ public class AutoGoal18 extends AbstractAuto{
 
     }
     private void shootFirst() {
-        path.firstIntake21.getPath(1).setTValueConstraint(0.88);
+        path.firstIntake21.getPath(1).setTValueConstraint(.99);
         path.firstIntake21.getPath(0).setTValueConstraint(0.88);
+
+        path.firstIntake21.getPath(1).setBrakingStrength(FIRST_INTAKE_BRAKING_STRENGTH);
+        path.firstIntake21.getPath(1).setBrakingStart(FIRST_INTAKE_BRAKING_START);
+
         robot.actionScheduler.addAction(
                 new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME,
                         new SequentialAction(
@@ -129,7 +143,7 @@ public class AutoGoal18 extends AbstractAuto{
                                 new FollowPathAction(f, path.firstIntake21, true)
                         ),
 
-                        RobotActions.shootArtifacts(3, 1),
+                        RobotActions.shootArtifacts(3, 2),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )
         ));
@@ -141,7 +155,7 @@ public class AutoGoal18 extends AbstractAuto{
         path.gateCycleIntake21.getPath(0).setTValueConstraint(0.94);
         path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.00077);
         path.gateCycleIntake21.getPath(0).setTranslationalConstraint(0.01);
-        path.gateCycleShoot21.getPath(0).setTValueConstraint(0.8);
+        path.gateCycleShoot21.getPath(0).setTValueConstraint(.95);
 
         f.setMaxPower(1);
         robot.actionScheduler.addAction(
@@ -180,7 +194,7 @@ public class AutoGoal18 extends AbstractAuto{
                         new SleepAction(.2),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 1),
+                        RobotActions.shootArtifacts(3, 2),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_GATE"))
                 )
