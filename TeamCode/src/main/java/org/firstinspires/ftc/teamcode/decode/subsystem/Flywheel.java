@@ -27,8 +27,8 @@ import org.firstinspires.ftc.teamcode.decode.control.solverscontrol.SolversPIDF;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final MotorEx[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0019, 0, 0.00005, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0018, 0, 0, 0.00015);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0, 0.00005, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0011, 0, 0, 0.0001);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
     public static final double GEAR_RATIO = 20.0/20;
     public enum FlyWheelStates {
@@ -37,12 +37,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static double
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
-            RPM_TOLERANCE = 70,
+            RPM_TOLERANCE = 100,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 200,
             IDLE_RPM = 1200,
-            BB_TOLERANCE = 50,
+            BB_TOLERANCE = 150,
             BB_ENABLE_DISTANCE = 110,
             TARGET_RPM_STEP = 30.0,
             TARGET_RPM_MID_BAND = 9.0,

@@ -59,13 +59,16 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public static double
             ALL_BALL_CONFIDENCE_THRESHOLD = 2,
             MIN_SHOOTING_DISTANCE = 40;
-    public static double HOOD_DISTANCE_SHOOTER_SWITCH = 100;
+    public static double HOOD_DISTANCE_SHOOTER_SWITCH = 1000;
 
 
     public int getQueuedShots() {
         return queuedShots;
     }
 
+    public double getFeederSpeed(){
+        return feeder.getSpeed();
+    }
     public double getTurretAngle() {
         return turret.getCurrentAngle();
     }

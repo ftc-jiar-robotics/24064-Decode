@@ -157,7 +157,7 @@ public class MainTeleOp extends LinearOpMode {
                     }
                 }
                 if ((robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) && robot.shooter.getQueuedShots() > 0)
-                    robot.intake.set(isSlowMode ? .5 : 1, true);
+                    robot.intake.set(robot.shooter.getFeederSpeed(), true);
             } else if (lastInTriangle) {
                 storedShots = robot.shooter.getQueuedShots();
                 robot.shooter.clearQueueShots();

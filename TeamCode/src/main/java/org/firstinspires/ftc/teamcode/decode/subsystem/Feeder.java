@@ -94,6 +94,10 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         feederGate.run();
     }
 
+    public double getSpeed(){
+        return motor.get();
+    }
+
     public void printTelemetry() {
         feederGate.updateAngles(BLOCKING_ANGLE, RUNNING_ANGLE);
 
