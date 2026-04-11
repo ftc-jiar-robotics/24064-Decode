@@ -253,7 +253,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public Pose getPredictedPose(double timeToShoot) {
         currentPose = robot.drivetrain.getPose();
 
-        if (targetState != ShooterStates.RUNNING) {
+        if (timeToShoot <= 0.01) {
             predictedPose = currentPose;
             return currentPose;
         }
