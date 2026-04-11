@@ -43,9 +43,9 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         BLOCKING_ANGLE = 240,
         RUNNING_ANGLE = 310,
         MAX_PIN_STATE = 7, // default
-        CLOSE_SHOOTING_SPEED = .45,
+        CLOSE_SHOOTING_SPEED = .725,
         FAR_SHOOTING_SPEED = .3,
-        MID_SHOOTER_SPEED = .4;
+        MID_SHOOTER_SPEED = .55;
 
     public Feeder(HardwareMap hw) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));

@@ -62,22 +62,25 @@ public enum LaunchZone {
      */
     public static Pose getInterceptOrClosestPoint() {
         Pose robotPos = Common.robot.drivetrain.getPose();
-        double theta  = Common.robot.drivetrain.poseTracker.getVelocity().getTheta();
+
+        // Already inside a zone — return current pose directly
+        if (getCurrentZone(robotPos) != NONE) return robotPos;
 
         double rx = robotPos.getX(), ry = robotPos.getY();
-        double dx = cos(theta),      dy = sin(theta);
 
-        Pose nearHit = rayRectIntercept(rx, ry, dx, dy, NEAR_CX, NEAR_CY, nearHalfSize);
-        Pose farHit  = rayRectIntercept(rx, ry, dx, dy, FAR_CX,  FAR_CY,  farHalfSize);
-
-        if (nearHit != null && farHit != null)
-            return dist2(rx, ry, nearHit) <= dist2(rx, ry, farHit) ? nearHit : farHit;
-        if (nearHit != null) return nearHit;
-        if (farHit  != null) return farHit;
-
+        // Find closest boundary point on each zone, then aim toward whichever is nearer
         Pose nearClosest = closestBoundaryPoint(rx, ry, NEAR_CX, NEAR_CY, nearHalfSize);
         Pose farClosest  = closestBoundaryPoint(rx, ry, FAR_CX,  FAR_CY,  farHalfSize);
-        return dist2(rx, ry, nearClosest) <= dist2(rx, ry, farClosest) ? nearClosest : farClosest;
+        Pose target = dist2(rx, ry, nearClosest) <= dist2(rx, ry, farClosest) ? nearClosest : farClosest;
+
+        // Cast ray from robot toward that closest point to find the entry intersection
+        double dx = target.getX() - rx, dy = target.getY() - ry;
+        boolean isNear = target == nearClosest;
+        Pose hit = isNear
+                ? rayRectIntercept(rx, ry, dx, dy, NEAR_CX, NEAR_CY, nearHalfSize)
+                : rayRectIntercept(rx, ry, dx, dy, FAR_CX,  FAR_CY,  farHalfSize);
+
+        return hit != null ? hit : target;
     }
 
     /**
@@ -117,10 +120,9 @@ public enum LaunchZone {
 
         double tMin = Math.max(txMin, tyMin);
         double tMax = Math.min(txMax, tyMax);
-        if (tMin > tMax || tMax < 0) return null;
+        if (tMin > tMax || tMin < 0) return null; // no hit, or entry is behind
 
-        double t = (tMin >= 0) ? tMin : tMax; // entry if outside, exit if already inside
-        double lpx = lox + t * ldx, lpy = loy + t * ldy;
+        double lpx = lox + tMin * ldx, lpy = loy + tMin * ldy;
 
         // Transform hit point back to world space
         double cosF = cos(ZONE_ANGLE), sinF = sin(ZONE_ANGLE);

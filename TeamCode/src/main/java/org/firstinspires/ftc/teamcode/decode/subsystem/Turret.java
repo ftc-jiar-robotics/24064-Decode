@@ -155,7 +155,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     private void setTracking() {
-        double theta = calculateAngleToGoal(turretPos);
+        setTracking(turretPos);
+    }
+
+    private void setTracking(Pose customTurretPos) {
+        double theta = calculateAngleToGoal(customTurretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
@@ -229,6 +233,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             case IDLE:
 //                targetAngle = 180;
                 setTracking();
+
+//                setTracking(calculateTurretPosition(LaunchZone.getInterceptOrClosestPoint(), Math.toDegrees(robotHeading), -Common.TURRET_OFFSET_Y));
                 differentiator.reset();
                 if (robot.shooter.isBallPresent()) currentState = ODOM_TRACKING;
                 break;

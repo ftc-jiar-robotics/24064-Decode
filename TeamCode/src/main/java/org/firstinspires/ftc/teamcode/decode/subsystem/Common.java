@@ -93,8 +93,8 @@ public final class Common {
     public static double
             MIN_MOVEMENT_SPEED = 0.5,
             ANG_VELOCITY_MULTIPLER = 0.15,
-            FAR_DISTANCE = 120,
-            MID_DISTANCE = 100,
+            FAR_DISTANCE = 110,
+            MID_DISTANCE = 90,
             IMU_YAW_SCALAR = 1.00086,
             SLOW_MODE = 0.55,
             MIN_POWER_INPUT = 0.3,

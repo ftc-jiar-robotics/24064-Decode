@@ -162,7 +162,7 @@ public final class Robot {
     }
 
     public void relocalizeWithArdu(boolean override) {
-        if (!isAuto) {
+        if (!isAuto && !robot.isFar) {
             Pose arduRobotPose = arducam.getTurretPosePedro();
 
             hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;

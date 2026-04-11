@@ -40,14 +40,16 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             RPM_TOLERANCE = 100,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
-            DERIV_TOLERANCE = 200,
+            DERIV_TOLERANCE = 600,
             IDLE_RPM = 1200,
             BB_TOLERANCE = 1000000,
             BB_ENABLE_DISTANCE = 110,
             TARGET_RPM_STEP = 30.0,
             TARGET_RPM_MID_BAND = 9.0,
             SWITCH_PID_DIST = 100, // inches to switch to far PID
-            kS = 0.25;
+            kS = 0.25,
+            CLOSE_ADJUSTMENT_RPM = 25, // added onto rpm curve
+            FAR_ADJUSTMENT_RPM = 40;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
@@ -246,8 +248,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //        }
         if (!isFlywheelManual) {
             double rpmRaw = GEAR_RATIO*(1591.965085639697*(1) + -2.1583397782159177*(distance) + 0.06810134596813792*(distance*distance));
-            if (robot.isFar) rpmRaw+=100;
-            else rpmRaw+=50;
+            if (robot.isFar) rpmRaw+=FAR_ADJUSTMENT_RPM;
+            else rpmRaw+=CLOSE_ADJUSTMENT_RPM;
             shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
 
             velocityController.setSetPoint(shootingRPM);

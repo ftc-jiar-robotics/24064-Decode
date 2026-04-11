@@ -75,12 +75,12 @@ public class MainTeleOp extends LinearOpMode {
         robot = new Robot(hardwareMap);
         robot.shooter.setGoalAlliance();
 
-        waitForStart();
-
         robot.drivetrain.setStartingPose(AUTO_END_POSE);
 
         robot.drivetrain.update();
         robot.drivetrain.startTeleopDrive(true);
+
+        waitForStart();
 
         while (opModeIsActive()) {
             robot.run();
