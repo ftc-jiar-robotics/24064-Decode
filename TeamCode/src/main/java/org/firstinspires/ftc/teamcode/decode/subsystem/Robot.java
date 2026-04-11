@@ -191,8 +191,9 @@ public final class Robot {
 
             Common.telemetry.update();
             Common.dashTelemetry.update();
-        } else {
-            Log.d("loop time (LOOPS): ", "" + LoopUtil.getLoopTimeInHertz());
         }
+
+        Log.d("loop time (LOOPS): ", "" + LoopUtil.getLoopTimeInHertz());
+
     }
 }

@@ -103,6 +103,8 @@ public class AutoGoal18 extends AbstractAuto{
                                 new FollowPathAction(f, path.thirdIntake21, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path
                         ),
 
+                        new SleepAction(.5),
+
                         //shoots first 3 balls
                         RobotActions.shootArtifacts(3, 1),
 
