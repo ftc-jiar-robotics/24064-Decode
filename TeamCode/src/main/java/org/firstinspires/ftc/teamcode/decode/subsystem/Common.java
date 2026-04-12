@@ -95,7 +95,7 @@ public final class Common {
             ANG_VELOCITY_MULTIPLER = 0.15,
             FAR_DISTANCE = 110,
             MID_DISTANCE = 90,
-            IMU_YAW_SCALAR = 1.00086,
+            IMU_YAW_SCALAR = 1.001575,
             SLOW_MODE = 0.55,
             MIN_POWER_INPUT = 0.3,
             LOCALIZATION_X = 10,

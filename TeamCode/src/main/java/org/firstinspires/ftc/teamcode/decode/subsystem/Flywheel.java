@@ -28,8 +28,8 @@ import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0, 0.00002, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0, 0.00002, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0.000, 0.00005, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0.0003, 0.00002, 0.000077);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
     public static final double GEAR_RATIO = 20.0/20;
     public enum FlyWheelStates {
@@ -38,7 +38,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static double
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
-            RPM_TOLERANCE = 100,
+            RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 600,
@@ -50,7 +50,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.25,
             CLOSE_ADJUSTMENT_RPM = 25, // added onto rpm curve
-            FAR_ADJUSTMENT_RPM = 40,
+            FAR_ADJUSTMENT_RPM = 60,
             ROUNDING_POINT = 100;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;

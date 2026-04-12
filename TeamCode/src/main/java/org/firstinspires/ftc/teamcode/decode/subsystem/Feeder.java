@@ -43,7 +43,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         RUNNING_ANGLE = 310,
         MAX_PIN_STATE = 7, // default
         CLOSE_SHOOTING_SPEED = .725,
-        FAR_SHOOTING_SPEED = .4,
+        FAR_SHOOTING_SPEED = .42,
         MID_SHOOTER_SPEED = .55,
         ROUNDING_POINT = 10;
 
