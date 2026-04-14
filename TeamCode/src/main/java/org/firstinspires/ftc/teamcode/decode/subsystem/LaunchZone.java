@@ -173,13 +173,10 @@ public enum LaunchZone {
 
     static LaunchZone getCurrentZone(Pose currentPose) {
 
-        double heading = currentPose.getHeading();
         robotPose.identity();
-        robotPose.rotate(heading);
-        robotPose.translate(
-                currentPose.getX() + (FORWARD_OFFSET_IN * cos(heading)),
-                currentPose.getY() + (FORWARD_OFFSET_IN * sin(heading))
-        );
+        robotPose.translate(FORWARD_OFFSET_IN, 0);
+        robotPose.rotate(currentPose.getHeading());
+        robotPose.translate(currentPose.getX(), currentPose.getY());
 
         return
                 collisionSolver.detect(robotRect, robotPose, nearZoneRect, nearZonePosition) ? NEAR :
