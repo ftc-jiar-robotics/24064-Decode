@@ -36,7 +36,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         IDLE, ARMING, RUNNING
     }
     public static double
-            LAUNCH_DELAY = 2.7,
+            LAUNCH_DELAY = .3,
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
