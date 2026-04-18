@@ -42,6 +42,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
 
     public static double
+            MIN_OFFSET_SPEED = 15,
+            OFFSET_MULTIPLER = 1,
             WRAP_AROUND_THRESHOLD = 5,
             READY_TO_SHOOT_LOOPS = 3,
             SWITCH_Y_POSITION_BIG = 100,
@@ -168,7 +170,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double theta = calculateAngleToGoal(customTurretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
-        alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]);
+        if (robot.isRobotMoving(MIN_OFFSET_SPEED)) alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]) * OFFSET_MULTIPLER;
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
         targetAngle = targetAngleFilter.calculate(targetAngle);

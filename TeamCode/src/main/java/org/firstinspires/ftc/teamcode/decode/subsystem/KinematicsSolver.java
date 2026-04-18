@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.acos;
@@ -7,6 +8,7 @@ import static java.lang.Math.asin;
 import static java.lang.Math.atan;
 import static java.lang.Math.cbrt;
 import static java.lang.Math.cos;
+import static java.lang.Math.round;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 import static java.lang.Math.toRadians;
@@ -29,17 +31,16 @@ import org.firstinspires.ftc.teamcode.decode.control.Ranges;
  */
 @Config
 public final class KinematicsSolver {
-
     public static final Vector2 o_goal = new Vector2(5, -2.5);
     public static double
-            r_rimClearance = 2.5,
+            r_rimClearance = 3,
             admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
     
             θ_launchMax = toRadians(58), // TODO redo
             θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)), // TODO redo
             v_launchMin = 0,
-            v_launchMax = Flywheel.RPMToInchesPerSecond(Flywheel.MAX_RPM);
+            v_launchMax = 500;
 
     private static final double
             a_G = -386.0886,

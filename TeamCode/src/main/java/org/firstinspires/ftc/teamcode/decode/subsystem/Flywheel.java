@@ -22,6 +22,12 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 import org.firstinspires.ftc.teamcode.decode.control.solverscontrol.SolversPIDF;
 import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
+import org.firstinspires.ftc.teamcode.decode.util.LoopUtil;
+import org.firstinspires.ftc.teamcode.decode.util.solverslib.InterpLUT;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Configurable
 @Config
@@ -32,6 +38,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0.0003, 0.00002, 0.000077);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
     public static final double GEAR_RATIO = 20.0/20;
+
+    public static List<Double> distanceValuesLUT = Arrays.asList(0.0, 160.0);  // distance in inches
+    public static List<Double> rpmValuesLUT = Arrays.asList(9.4, 10.8); // in IPS; multipler
+
+    private final InterpLUT rpmInchPerSecLUT = new InterpLUT(distanceValuesLUT, rpmValuesLUT);
 
     public enum FlyWheelStates {
         IDLE, ARMING, RUNNING
@@ -95,6 +106,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         shooterEncoder.setDirection(Motor.Direction.FORWARD);
 
         motorGroup = new CachedMotor[]{shooterMaster, shooterSlave};
+
+        rpmInchPerSecLUT.createLUT();
     }
 
     @Override
@@ -108,6 +121,10 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
     public double getCurrentRPMSmooth() {
         return currentRPMSmooth;
+    }
+
+    public double getTargetRPM() {
+        return shootingRPM;
     }
 
     public void setManualPower(double power) {
@@ -191,12 +208,16 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         velocityController.setSetPoint(shootingRPM);
     }
 
-    public static double inchesPerSecondToRPM(double x) {
-        return x * RPM_PER_SEC_IN;
+    private double getRpmPerSecInLUT() {
+        return rpmInchPerSecLUT.get(robot.shooter.turret.getDistance());
     }
 
-    public static double RPMToInchesPerSecond(double x) {
-        return x / RPM_PER_SEC_IN;
+    public double inchesPerSecondToRPM(double x) {
+        return x * getRpmPerSecInLUT();
+    }
+
+    public double RPMToInchesPerSecond(double x) {
+        return x / getRpmPerSecInLUT();
     }
 
 

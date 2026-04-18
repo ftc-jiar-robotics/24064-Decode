@@ -263,7 +263,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         Common.dashTelemetry.addData("full solve valid (BOOLEAN): ", kinematicsValidFullSolve);
         Common.dashTelemetry.addData("fixed-v solve valid (BOOLEAN): ", kinematicsValidFixedV);
         Common.dashTelemetry.addData("v_launch (IPS): ", kinematicsSolver.v_launch);
-        Common.dashTelemetry.addData("v_launch calculated RPM: ", Flywheel.inchesPerSecondToRPM(kinematicsSolver.v_launch));
+        Common.dashTelemetry.addData("v_launch calculated RPM: ", flywheel.inchesPerSecondToRPM(kinematicsSolver.v_launch));
         Common.dashTelemetry.addData("θ_launch ideal (RAD): ", kinematicsSolver.θ_launch);
         Common.dashTelemetry.addData("θ_launch ideal hood angle (DEG): ", hood.launchRadiansToServoAngle(kinematicsSolver.θ_launch));
         Common.dashTelemetry.addData("θ_launch compensated (RAD): ", launchAngle);
