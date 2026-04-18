@@ -57,22 +57,23 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
             LAUNCH_DELAY = 0.3,
-            LOS_EPS = 1e-6;    // divide by zero guard
+            LOS_EPS = 1e-6,
+            ROUNDING_POINT = 20;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;
 
     private Pose turretPos = new Pose(0, 0);
 
     private double
-            currentAngle = 0.0,
+//            currentAngle = 0.0,
             targetAngle = 0.0,
             targetAngleDebounced = 0.0,
             toleranceCounter = 0,
             robotHeadingTurretDomain = 0.0;
 
     public Turret(HardwareMap hw) {
-        this.turretMaster = new CachedServo(hw, NAME_TURRET_MASTER_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES);
-        this.turretSlave = new CachedServo(hw, NAME_TURRET_SLAVE_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES);
+        this.turretMaster = new CachedServo(hw, NAME_TURRET_MASTER_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES, ROUNDING_POINT);
+        this.turretSlave = new CachedServo(hw, NAME_TURRET_SLAVE_SERVO, SERVO_AXON_MIN, SERVO_AXON_MINI_MK2_MAX, AngleUnit.DEGREES, ROUNDING_POINT);
 
         absoluteEncoder = hw.get(AnalogInput.class, NAME_TURRET_ENCODER);
 
@@ -126,9 +127,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return getDistance(turretPos);
     }
 
-    double getCurrentAngle() {
-        return currentAngle;
-    }
+//    double getCurrentAngle() {
+//        return currentAngle;
+//    }
     private double getPositionTolerance() {
         // Scale based on if the robot is moving
         boolean moving = robot.isRobotMoving();
@@ -224,7 +225,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public void run() {
         goal = setGoal();
 
-        currentAngle = turretMaster.getAngle();
+//        currentAngle = turretMaster.getAngle();
 
         targetAngleFilter.setGains(targetAngleGains);
 
@@ -271,7 +272,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addLine("TURRET");
         dashTelemetry.addData("vision setpoint (RADIANS): ", 0);
 //        dashTelemetry.addData("current vision (RADIANS): ", autoAim.getTargetYawDegrees());
-        dashTelemetry.addData("encoder angle (ANGLE): ", currentAngle);
+        dashTelemetry.addData("encoder angle (ANGLE): ", turretMaster.getAngle());
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("absolute encoder (VOLTAGE): ", absoluteEncoder.getVoltage());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);

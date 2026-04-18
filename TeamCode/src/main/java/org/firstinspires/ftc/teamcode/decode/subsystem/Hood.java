@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.decode.util.CachedServo;
 import java.util.TreeMap;
 
 @Configurable
-public class    Hood extends Subsystem<Double> {
+public class Hood extends Subsystem<Double> {
     private final CachedServo hood;
 
     private double
@@ -48,12 +48,13 @@ public class    Hood extends Subsystem<Double> {
 
     public double getHoodAngleWithDistance(double distance) {
         // in launch radians: 1.03332039 - (0.00620188 * distance) + (0.00001780 * distance * distance);
-        return Range.clip(92.09058425976954*(1) + -0.5688475893964194*(distance) + 0.007004514149670448*(distance*distance) + -1.1458570595006808e-05*(distance*distance*distance), MIN, MAX);
+        return Range.clip(110.35209094986163*(1) + -1.134249848424577*(distance) + 0.011055576786071695*(distance*distance) + -1.071867716505115e-05*(distance*distance*distance), MIN, MAX);
     }
+
     public double getHoodAngleWithRPM(double currentRPM) {
-        currentRPM*=1/GEAR_RATIO;
-        double angle = 223.02768335704332*(1) + -0.2402281345368125*(currentRPM) + 0.00012097296615785684*(currentRPM*currentRPM) + -1.696772841529239e-08*(currentRPM*currentRPM*currentRPM);
-        if(robot.isFar)angle+=4;
+        currentRPM *= 1 / GEAR_RATIO;
+        double angle = 633.1781464272758*(1) + -0.8104906629617021*(currentRPM) + 0.0003741537288974748*(currentRPM*currentRPM) + -5.2131442194449443e-08*(currentRPM*currentRPM*currentRPM);
+//        if (robot.isFar) angle += 15;
         return Range.clip(angle, MIN, MAX);
 
         // in launch radians: 1.46808546 - (0.00054638 * currentRPM) + (0.0000000755 * currentRPM * currentRPM);

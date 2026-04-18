@@ -82,7 +82,7 @@ public final class Common {
 
     public static final Pose
             RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
-            RED_SMALL_TRIANGLE = new Pose(88.125, 7.5, Math.toRadians(90)),
+            RED_SMALL_TRIANGLE = new Pose(89.5, 7.125, Math.toRadians(90)),
             BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror(),
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90));
 
@@ -95,7 +95,7 @@ public final class Common {
             ANG_VELOCITY_MULTIPLER = 0.15,
             FAR_DISTANCE = 110,
             MID_DISTANCE = 90,
-            IMU_YAW_SCALAR = 1.00086,
+            IMU_YAW_SCALAR = 1.001575,
             SLOW_MODE = 0.55,
             MIN_POWER_INPUT = 0.3,
             LOCALIZATION_X = 10,

@@ -51,9 +51,9 @@ public final class Robot {
     public boolean hasArduCamRelocalized = false;
 
     public final boolean isAuto;
-    public boolean isFar;
+    public boolean isFar, isMid;
 
-    public boolean isMid;
+    private double voltage;
 
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
@@ -84,7 +84,7 @@ public final class Robot {
         drivetrain = Constants.createFollower(hardwareMap);
         bulkReader = new BulkReader(hardwareMap);
         actionScheduler = new ActionScheduler();
-        shooter = new Shooter(hardwareMap);
+        shooter = new Shooter(hardwareMap, isAuto);
         intake = new Intake(hardwareMap);
         gateOpener = new GateOpener(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
@@ -92,7 +92,6 @@ public final class Robot {
             arducam = new ArduCam(hardwareMap, "arducam");
 //            gateOpener.set(GateOpener.GateOpenerStates.AUTOMATIC,true);
         }
-
 
 //        ledController.ensureInitialized();
 
@@ -111,9 +110,16 @@ public final class Robot {
         return isRobotMoving;
     }
 
+
+
     // Reads all the necessary sensors (including battery volt.) in one bulk read
     public void readSensors() {
         bulkReader.bulkRead();
+        voltage = batteryVoltageSensor.getVoltage();
+    }
+
+    public double getVoltage(){
+        return voltage;
     }
 
     // Runs all the necessary mechanisms

@@ -35,12 +35,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     private ShooterStates targetState = ShooterStates.IDLE;
 
-    public Shooter(HardwareMap hw) {
+    public Shooter(HardwareMap hw, boolean isAuto) {
         this.hood = new Hood(hw);
         this.flywheel = new Flywheel(hw);
         this.turret = new Turret(hw);
-        this.feeder = new Feeder(hw);
         this.kinematicsSolver = new KinematicsSolver();
+        this.feeder = new Feeder(hw, isAuto);
     }
 
     @Override
@@ -85,9 +85,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     public double getFeederSpeed(){
         return feeder.getSpeed();
     }
-    public double getTurretAngle() {
-        return turret.getCurrentAngle();
-    }
+//    public double getTurretAngle() {
+//        return turret.getCurrentAngle();
+//    }
 
     public void armFlywheel() {
         flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
@@ -159,8 +159,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         hood.set(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
     }
 
-    public void incrementFlywheelRPM(double rpmIncrement) {
-        flywheel.incrementFlywheelRPM(rpmIncrement);
+    public void incrementFlywheelRPM(double rpmIncrement, boolean isIncrementing) {
+        flywheel.incrementFlywheelRPM(rpmIncrement, isIncrementing);
     }
 
 

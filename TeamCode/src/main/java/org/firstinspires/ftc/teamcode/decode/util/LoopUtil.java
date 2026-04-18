@@ -1,17 +1,21 @@
 package org.firstinspires.ftc.teamcode.decode.util;
 
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.MovingAverageFilter;
+import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
+
 public final class LoopUtil {
     private static long lastTime = 0;
     private static int loops = 0;
+    private static final MovingAverageFilter loopTimeFilter = new MovingAverageFilter(new MovingAverageGains(10));
 
     /**
      * @return The nano time between each function call
      */
-    public static long getLoopTime() {
+    public static double getLoopTime() {
         long currentTime = System.nanoTime();
         long delta = currentTime - lastTime;
         lastTime = currentTime;
-        return delta;
+        return loopTimeFilter.calculate(delta) * 1.0;
     }
 
     public static void updateLoopCount() {
