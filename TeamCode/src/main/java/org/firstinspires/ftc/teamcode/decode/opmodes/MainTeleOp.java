@@ -8,6 +8,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.START;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_POWER_INPUT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
@@ -111,6 +112,8 @@ public class MainTeleOp extends LinearOpMode {
             if (trigger1 > 0.1 && robot.shooter.isRobotFullWithBalls()) {
                 gamepadEx1.gamepad.rumble(0.5 , 0.5 , 250);
             }
+
+            if (gamepadEx1.wasJustPressed(START)) robot.relocalizeWithGate();
 
             if (isHoodManual) {
                 if (gamepadEx1.isDown(DPAD_UP)) robot.shooter.setHoodManual(0.5, true);

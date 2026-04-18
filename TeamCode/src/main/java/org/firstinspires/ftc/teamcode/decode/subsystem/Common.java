@@ -81,6 +81,7 @@ public final class Common {
             MAX_VOLTAGE = 14;
 
     public static final Pose
+            RELOCALIZATION_GATE_RED = new Pose(144 - 14.875, 72 + 9.125, Math.toRadians(270)),
             RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
             RED_SMALL_TRIANGLE = new Pose(89.5, 7.125, Math.toRadians(90)),
             BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror(),

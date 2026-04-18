@@ -35,6 +35,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         IDLE, ODOM_TRACKING
     }
 
+    private Differentiator radialVelocity = new Differentiator(); // differentiates radial vel of turret to compensate for deaccel in sotm
     private TurretStates currentState = TurretStates.IDLE;
 
     private final Differentiator differentiator = new Differentiator();
@@ -44,6 +45,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static double
             MIN_OFFSET_SPEED = 15,
             OFFSET_MULTIPLER = 1,
+            RADIAL_ACCEL_MULT = 0.7,
             WRAP_AROUND_THRESHOLD = 5,
             READY_TO_SHOOT_LOOPS = 3,
             SWITCH_Y_POSITION_BIG = 100,
@@ -67,6 +69,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private Pose turretPos = new Pose(0, 0);
 
     private double
+            radialAcceleration = 0.0,
 //            currentAngle = 0.0,
             targetAngle = 0.0,
             targetAngleDebounced = 0.0,
@@ -170,7 +173,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double theta = calculateAngleToGoal(customTurretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
-        if (robot.isRobotMoving(MIN_OFFSET_SPEED)) alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]) * OFFSET_MULTIPLER;
+
+        if (robot.isRobotMoving(MIN_OFFSET_SPEED)) {
+            alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]) * OFFSET_MULTIPLER;
+            alpha += radialAcceleration * RADIAL_ACCEL_MULT;
+        }
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
         targetAngle = targetAngleFilter.calculate(targetAngle);
@@ -227,6 +234,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     @Override
     public void run() {
         goal = setGoal();
+        radialAcceleration = radialVelocity.getDerivative(getDesiredTurretOmegaRadPerSec());
 
 //        currentAngle = turretMaster.getAngle();
 
