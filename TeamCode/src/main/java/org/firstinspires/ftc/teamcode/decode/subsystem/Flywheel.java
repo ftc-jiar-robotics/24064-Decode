@@ -32,13 +32,13 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0.0003, 0.00002, 0.000077);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
     public static final double GEAR_RATIO = 20.0/20;
+
     public enum FlyWheelStates {
         IDLE, ARMING, RUNNING
     }
     public static double
+            MAX_RPM = 4000,
             RPM_PER_SEC_IN = 8.17067, // TODO EMPIRICALLY TUNE
-            LAUNCH_DELAY = 0.3,
-            OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
@@ -50,8 +50,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             TARGET_RPM_MID_BAND = 9.0,
             SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.25,
-            CLOSE_ADJUSTMENT_RPM = 25, // added onto rpm curve
-            FAR_ADJUSTMENT_RPM = 60,
             ROUNDING_POINT = 100;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
@@ -62,10 +60,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     private final IIRLowPassFilter motorPowerFilter = new IIRLowPassFilter(motorPowerGains);
 
+    public boolean
+            movingToFarZone,
+            ballIsPresent;
 
     private double
             currentRPM = 0.0,
-            notInToleranceCounter = 0,
             currentRPMSmooth = 0.0,
             manualPower = 0.0,
             shootingRPM = 4000,
@@ -88,28 +88,13 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         CachedMotor shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE,ROUNDING_POINT);
         MotorEx dummy = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
 
-//        DcMotorEx shooterMaster = hw.get(DcMotorEx.class,NAME_FLYWHEEL_MASTER_MOTOR);
-//        DcMotorEx shooterSlave = hw.get(DcMotorEx.class, NAME_FLYWHEEL_SLAVE_MOTOR);
-
-
         shooterSlave.setInverted(false);
         shooterMaster.setInverted(true);
-//        shooterMaster.setDirection(DcMotorSimple.Direction.REVERSE);
-//
-//        shooterMaster.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        shooterSlave.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//
-//        shooterMaster.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,0));
-//        shooterSlave.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,0));
-
 
         shooterEncoder = dummy.encoder;
         shooterEncoder.setDirection(Motor.Direction.FORWARD);
 
         motorGroup = new CachedMotor[]{shooterMaster, shooterSlave};
-
-       // velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
-//        velocityController.setGains(shootingVelocityGains);
     }
 
     @Override
@@ -125,18 +110,12 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         return currentRPMSmooth;
     }
 
-//    public double getError() {
-//        return velocityController.getError();
-//    }
-
     public void setManualPower(double power) {
         manualPower = power;
     }
 
     public boolean isPIDInTolerance() {
-//        return (velocityController.isInTolerance(new State(currentRPMSmooth, 0, 0, 0), robot.isRobotMoving() ? RPM_TOLERANCE_WHILE_MOVING : RPM_TOLERANCE, DERIV_TOLERANCE));
-
-        velocityController.setTolerance(/*robot.isRobotMoving() ? RPM_TOLERANCE_WHILE_MOVING : */RPM_TOLERANCE, DERIV_TOLERANCE);
+        velocityController.setTolerance(RPM_TOLERANCE, DERIV_TOLERANCE);
 
         return velocityController.atSetPoint();
     }
@@ -155,13 +134,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         switch (targetState) {
             case IDLE:
-//                boolean isRobotCloseToFar = robot.drivetrain.getPose().getY() < 40;
-//                boolean isMagnitudeInPositiveTolerance = robot.drivetrain.getVelocity().getYComponent() > 0.3;
-//                boolean isMagnitudeInNegativeTolerance = robot.drivetrain.getVelocity().getYComponent() < -0.3;
-//
-//                if (isMagnitudeInPositiveTolerance) isDirectionForward = true;
-//                else if (isMagnitudeInNegativeTolerance) isDirectionForward = false;
-
                 if (!isFlywheelManual) {
                     if (robot.shooter.isBallPresent()) quantizeWithMidpointBand(robot.shooter.getCompensatedValues()[0], TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
                     else shootingRPM =  IDLE_RPM;
@@ -185,12 +157,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 FLYWHEEL_PIDF_COEFFICIENTS_CLOSE :
                 FLYWHEEL_PIDF_COEFFICIENTS_FAR;
 
-//        double originalKd = coefficients.d;
         double originalKf = coefficients.f;
-//        double originalKp = coefficients.p;
-//        coefficients.d  = originalKd*(Common.MAX_VOLTAGE / robot.getVoltage());
         coefficients.f  = originalKf*(Common.MAX_VOLTAGE / robot.getVoltage());
-//        coefficients.p  = originalKp*(Common.MAX_VOLTAGE / robot.getVoltage());
 
         velocityController.setCoefficients(coefficients);
 
@@ -199,34 +167,19 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
             currentPower = motorPowerFilter.calculate(currentPower);
-            notInToleranceCounter = 0;
         }
         else {
             motorPowerFilter.reset();
-            notInToleranceCounter++;
         }
 
-//        coefficients.d = originalKd;
         coefficients.f = originalKf;
-//        coefficients.p = originalKp;
-
 
         currentPower = Range.clip(currentPower, feedforwardValue, 1.0);
-
-//        if (robot.shooter.get() == Shooter.ShooterStates.RUNNING) currentPower = motorGroup[0].get();
 
         for (MotorEx m : motorGroup) {
             if (shootingRPM-currentRPMSmooth>BB_TOLERANCE && robot.shooter.turret.getDistance()>BB_ENABLE_DISTANCE) m.set(1);
             else m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
         }
-
-
-//        for (DcMotorEx m : motorGroup) {
-//
-//            m.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,feedforwardValue));
-//            m.setVelocity(shootingRPM*28.0/60.0);
-//        }
-
 
         if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
     }
@@ -246,22 +199,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         return x / RPM_PER_SEC_IN;
     }
 
-    private void chooseShootingRPM(double distance) {
-//        shootingRPM = lutRPM[0];
-//        for (int i = 0; i < lutDistances.length; i++) {
-//            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
-//        }
-        if (!isFlywheelManual) {
-            double rpmRaw = GEAR_RATIO*(1674.6095342210476*(1) + -4.328034369655546*(distance) + 0.08095436010080519*(distance*distance));
-            if (robot.isFar) rpmRaw+=FAR_ADJUSTMENT_RPM;
-            else rpmRaw+=CLOSE_ADJUSTMENT_RPM;
-            shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
-
-            velocityController.setSetPoint(shootingRPM);
-        }
-
-    }
-
 
     public void printTelemetry() {
         telemetry.addLine("FLYWHEEL");
@@ -273,8 +210,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         dashTelemetry.addLine("FLYWHEEL");
         dashTelemetry.addData("current RPM (ROTATIONS PER MINUTE): ", currentRPM);
         dashTelemetry.addData("current RPM Smooth (ROTATIONS PER MINUTE): ", currentRPMSmooth);
-//        dashTelemetry.addData("current power 1 (PERCENTAGE): ", motorGroup[0].getPower());
-//        dashTelemetry.addData("current power 2 (PERCENTAGE): ", motorGroup[1].getPower());
         dashTelemetry.addData("current power (PERCENTAGE): ", currentPower);
 
         dashTelemetry.addData("current pos (TICKS): ", shooterEncoder.getPosition());

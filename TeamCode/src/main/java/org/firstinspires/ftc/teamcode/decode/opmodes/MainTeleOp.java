@@ -126,8 +126,8 @@ public class MainTeleOp extends LinearOpMode {
             }
 
             if (isFlywheelManual) {
-                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5);
-                if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(-5);
+                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5, true);
+                if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(-5, false);
             }
 
 
