@@ -157,6 +157,11 @@ public final class Robot {
         drivetrain.setPose(new Pose(LOCALIZATION_X, LOCALIZATION_Y, Math.toRadians(270)));
     }
 
+    public void relocalizeWithGate() {
+        drivetrain.setPose(isRed ? Common.RELOCALIZATION_GATE_RED : Common.RELOCALIZATION_GATE_RED.mirror());
+    }
+
+
     public void relocalizeWithArdu() {
         relocalizeWithArdu(false);
     }
