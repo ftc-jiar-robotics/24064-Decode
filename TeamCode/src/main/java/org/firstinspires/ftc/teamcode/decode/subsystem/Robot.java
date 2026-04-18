@@ -44,7 +44,8 @@ public final class Robot {
 
     public static double
             MAX_VARIANCE_X = 0.7,
-            MAX_VARIANCE_Y = 0.7;
+            MAX_VARIANCE_Y = 0.7,
+            ARDUCAM_MIN_MOVEMENT_SPEED = 2; //in/s
 
     public LimelightEx limelight;
     public ArduCam arducam;
@@ -59,8 +60,6 @@ public final class Robot {
     public enum ArtifactColor {
         GREEN, PURPLE, NONE
     }
-
-    private boolean isRobotMoving = false;
 
     /**
      * Constructor used in teleOp classes that makes the current pose2d, 0
@@ -107,10 +106,6 @@ public final class Robot {
         shooter.applyOffsets();
     }
 
-    public boolean isRobotMoving() {
-        return isRobotMoving;
-    }
-
 
 
     // Reads all the necessary sensors (including battery volt.) in one bulk read
@@ -135,7 +130,6 @@ public final class Robot {
 
     public void update() {
         readSensors();
-        isRobotMoving = isRobotMoving(MIN_MOVEMENT_SPEED);
 
         isFar = shooter.turret.getDistance() > FAR_DISTANCE;
         isMid = !isFar && shooter.turret.getDistance() > MID_DISTANCE;
@@ -171,7 +165,7 @@ public final class Robot {
         if (!isAuto && !robot.isFar) {
             Pose arduRobotPose = arducam.getTurretPosePedro();
 
-            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving;
+            hasArduCamRelocalized = arduRobotPose != null && arducam.getStaleness() < MAX_STALENESS && arducam.getVariances()[0] < MAX_VARIANCE_X && arducam.getVariances()[1] < MAX_VARIANCE_Y && !isRobotMoving(ARDUCAM_MIN_MOVEMENT_SPEED);
 
             if (arduRobotPose != null && (hasArduCamRelocalized || override)) {
                 drivetrain.setPose(new Pose(arduRobotPose.getX(), arduRobotPose.getY(), drivetrain.getHeading()));

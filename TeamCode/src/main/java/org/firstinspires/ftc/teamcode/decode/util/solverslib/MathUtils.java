@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package org.firstinspires.ftc.teamcode.decode.control.solverscontrol;
+package org.firstinspires.ftc.teamcode.decode.util.solverslib;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
