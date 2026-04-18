@@ -44,8 +44,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public static double
             MIN_OFFSET_SPEED = 15,
-            OFFSET_MULTIPLER = 1,
-            RADIAL_ACCEL_MULT = 0.7,
+            OFFSET_MULTIPLER = 0.5,
+            RADIAL_ACCEL_MULT = 0,
             WRAP_AROUND_THRESHOLD = 5,
             READY_TO_SHOOT_LOOPS = 3,
             SWITCH_Y_POSITION_BIG = 100,

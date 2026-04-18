@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.acos;
@@ -33,6 +32,7 @@ import org.firstinspires.ftc.teamcode.decode.control.Ranges;
 public final class KinematicsSolver {
     public static final Vector2 o_goal = new Vector2(5, -2.5);
     public static double
+            TRAJECTORY_HEIGHT_ADDITION = 0.4,
             r_rimClearance = 3,
             admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
@@ -233,7 +233,7 @@ public final class KinematicsSolver {
     }
     private double θ1(double v, boolean upper, double y_offset) {
         double i = v / (a_G * (s_goal.x - s0.x));
-        return -atan( i*v + (upper ? -1 : 1) * sqrt(i*i*(v*v + 2*a_G*(s_goal.y - s0.y + y_offset)) - 1) );
+        return -atan( i*v + (upper ? -1 : TRAJECTORY_HEIGHT_ADDITION) * sqrt(i*i*(v*v + 2*a_G*(s_goal.y - s0.y + y_offset)) - 1) );
     }
 
     private double θ_3pt(Vector2 target, double y_offset) {

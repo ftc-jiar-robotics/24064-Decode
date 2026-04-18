@@ -40,7 +40,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static final double GEAR_RATIO = 20.0/20;
 
     public static List<Double> distanceValuesLUT = Arrays.asList(0.0, 160.0);  // distance in inches
-    public static List<Double> rpmValuesLUT = Arrays.asList(9.4, 10.8); // in IPS; multipler
+    public static List<Double> rpmValuesLUT = Arrays.asList(8.5, 10.8); // in IPS; multipler
 
     private final InterpLUT rpmInchPerSecLUT = new InterpLUT(distanceValuesLUT, rpmValuesLUT);
 
