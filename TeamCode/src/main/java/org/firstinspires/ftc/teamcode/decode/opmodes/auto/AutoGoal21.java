@@ -282,9 +282,9 @@ public class AutoGoal21 extends AbstractAuto{
                                                         RobotActions.armFlywheel(),
                                                         path.shootPreload21, 0.01, 0, f, "arm_flywheel_0"
                                                 ),
-//                                                new Actions.CallbackAction(
-//                                                        new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.2, 0, f, "arm_flywheel_and_turret_0"
-//                                                ),
+                                                new Actions.CallbackAction(
+                                                        new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.2, 0, f, "arm_flywheel_and_turret_0"
+                                                ),
                                                 new FollowPathAction(f, path.shootPreload21, true)
                                         )),
                                         new InstantAction(() -> f.setMaxPower(1))
