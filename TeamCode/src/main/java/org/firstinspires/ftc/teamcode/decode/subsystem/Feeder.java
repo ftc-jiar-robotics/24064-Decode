@@ -30,6 +30,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     private FeederStates currentState = FeederStates.BLOCKING;
 
+    public boolean isGateEnabled;
+
     private int
             lastPinState = 0,
             currentPinState = 0;
@@ -39,15 +41,15 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     }
 
     public static double
-        BLOCKING_ANGLE = 240,
-        RUNNING_ANGLE = 310,
-        MAX_PIN_STATE = 7, // default
+        BLOCKING_ANGLE = 180,
+        RUNNING_ANGLE = 150,
+        MAX_PIN_STATE = 17, // default
         CLOSE_SHOOTING_SPEED = .725,
         FAR_SHOOTING_SPEED = .42,
         MID_SHOOTER_SPEED = .55,
         ROUNDING_POINT = 10;
 
-    public Feeder(HardwareMap hw) {
+    public Feeder(HardwareMap hw, boolean isAuto) {
         feederGate = new SimpleServoPivot(BLOCKING_ANGLE, RUNNING_ANGLE, SimpleServoPivot.getAxonServo(hw, NAME_FEEDER_GATE_SERVO));
         backFeeder1 = new CachedCRServo(hw, NAME_FEEDER_BACK1_SERVO, ROUNDING_POINT);
         backFeeder2 = new CachedCRServo(hw, NAME_FEEDER_BACK2_SERVO, ROUNDING_POINT);
@@ -58,6 +60,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
         motor = new CachedMotor(hw, NAME_INTAKE_MOTO_MOTOR, Motor.GoBILDA.BARE, ROUNDING_POINT);
         motor.setInverted(true);
+
+        isGateEnabled = !isAuto;
     }
 
     @Override
@@ -89,7 +93,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
 
     @Override
     public void run() {
-        feederGate.setActivated(currentState == FeederStates.RUNNING);
+        feederGate.setActivated(currentState == FeederStates.RUNNING || !isGateEnabled);
         motor.set((Common.MAX_VOLTAGE / robot.getVoltage())*(currentState == FeederStates.RUNNING ? (robot.isFar ? FAR_SHOOTING_SPEED : (robot.isMid ? MID_SHOOTER_SPEED : CLOSE_SHOOTING_SPEED)) : (Math.abs(robot.intake.get()) > 0.1 ? .2 : 0)));
         backFeeder1.setPower(currentState == FeederStates.RUNNING ? motor.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         backFeeder2.setPower(currentState == FeederStates.RUNNING ? motor.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));

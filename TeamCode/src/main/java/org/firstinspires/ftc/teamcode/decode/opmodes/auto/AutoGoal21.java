@@ -32,8 +32,7 @@ public class AutoGoal21 extends AbstractAuto{
             FIRST_INTAKE_BRAKING_STRENGTH = 2,
             FIRST_INTAKE_BRAKING_START = 3,
             THIRD_INTAKE_BRAKING_STRENGTH = 3,
-            THIRD_INTAKE_BRAKING_START = 3,
-            TIME_BEFORE_EMERGENCY = 0.3;
+            THIRD_INTAKE_BRAKING_START = 3;
 
     @Override
     protected Pose getStartPose() {
@@ -75,7 +74,7 @@ public class AutoGoal21 extends AbstractAuto{
                 new FollowPathAction(f, path.goalLeave21, true));
     }
     private void shootThird() {
-        path.thirdIntake21.getPath(2).setTValueConstraint(.9);
+        path.thirdIntake21.getPath(2).setTValueConstraint(.99);
         path.thirdIntake21.getPath(1).setTValueConstraint(0.88);
         path.thirdIntake21.getPath(0).setTValueConstraint(0.88);
 
@@ -110,9 +109,6 @@ public class AutoGoal21 extends AbstractAuto{
                                 //shoots first 3 balls
                                 RobotActions.shootArtifacts(3, 1),
 
-                                new SleepAction(TIME_BEFORE_EMERGENCY),
-                                RobotActions.emergencyShootArtifacts(),
-
                                 new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                         )));
 
@@ -121,7 +117,7 @@ public class AutoGoal21 extends AbstractAuto{
 
     }
     private void shootFirst() {
-        path.firstIntake21.getPath(1).setTValueConstraint(.9);
+        path.firstIntake21.getPath(1).setTValueConstraint(.99);
         path.firstIntake21.getPath(0).setTValueConstraint(0.88);
 
         path.firstIntake21.getPath(1).setBrakingStrength(FIRST_INTAKE_BRAKING_STRENGTH);
@@ -151,10 +147,6 @@ public class AutoGoal21 extends AbstractAuto{
                                 ),
 
                                 RobotActions.shootArtifacts(3, 2),
-
-                                new SleepAction(TIME_BEFORE_EMERGENCY),
-                                RobotActions.emergencyShootArtifacts(),
-
                                 new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                         )
                 ));
@@ -164,7 +156,7 @@ public class AutoGoal21 extends AbstractAuto{
 
     private void shootGateCycle(double offset) {
         path.gateCycleIntake21.getPath(0).setTValueConstraint(0.94);
-        path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.00079);
+        path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.00077);
         path.gateCycleIntake21.getPath(0).setTranslationalConstraint(0.01);
         path.gateCycleShoot21.getPath(0).setTValueConstraint(.95);
 
@@ -173,7 +165,7 @@ public class AutoGoal21 extends AbstractAuto{
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_GATE_CYCLE")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), path.gateCycleIntake21, 0.67, 0, f, "speed_up_2"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), path.gateCycleIntake21, 0.65, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 RobotActions.setIntake(1, 0),
@@ -206,9 +198,6 @@ public class AutoGoal21 extends AbstractAuto{
 
                         //shoots first 3 balls
                         RobotActions.shootArtifacts(3, 2),
-
-                        new SleepAction(TIME_BEFORE_EMERGENCY),
-                        RobotActions.emergencyShootArtifacts(),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_GATE"))
                 )
@@ -245,8 +234,6 @@ public class AutoGoal21 extends AbstractAuto{
 
                         //shoots first 3 balls
                         RobotActions.shootArtifacts(3, 1),
-                        new SleepAction(TIME_BEFORE_EMERGENCY),
-                        RobotActions.emergencyShootArtifacts(),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_SECOND"))
                 ));
@@ -264,16 +251,8 @@ public class AutoGoal21 extends AbstractAuto{
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_PRELOAD")),
                         new ParallelAction(
-                                RobotActions.shootArtifacts(3, 4, false),
                                 new SequentialAction(
                                         new Actions.UntilConditionAction(() -> !robot.shooter.isBallPresent(),new ParallelAction(
-                                                new Actions.CallbackAction(
-                                                        new SequentialAction(
-                                                                RobotActions.emergencyShootArtifacts()
-                                                        ),
-                                                        path.shootPreload21, 0.7, 0, f, "arm_flywheel_and_turret_0"
-
-                                                ),
                                                 new Actions.CallbackAction(
                                                         RobotActions.armTurret(),
                                                         path.shootPreload21, 0.2, 0, f, "arm_turret_0"
@@ -286,7 +265,9 @@ public class AutoGoal21 extends AbstractAuto{
                                                         new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.2, 0, f, "arm_flywheel_and_turret_0"
                                                 ),
                                                 new FollowPathAction(f, path.shootPreload21, true)
+
                                         )),
+                                        RobotActions.shootArtifacts(3, 2, false),
                                         new InstantAction(() -> f.setMaxPower(1))
                                 )
 

@@ -125,13 +125,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 //    double getCurrentAngle() {
 //        return currentAngle;
 //    }
-    private double getPositionTolerance() {
-        // Scale based on if the robot is moving
-        boolean moving = robot.isRobotMoving();
-        double scale = moving ? MOVING_TOLERANCE_SCALE : STATIC_TOLERANCE_SCALE;
-
-        return 1 * scale;
-    }
 
     private double getDesiredTurretOmegaRadPerSec() {
         // Vector from turret to goal (field)

@@ -73,7 +73,7 @@ public class GoalPaths {
             shootAngle = Math.toRadians(-127),
             endIntakeAngleFirst = Math.toRadians(180),
             gateCycleShootAngle = Math.toRadians(215),
-            gateCycleIntakeAngle = Math.toRadians(157.5),
+            gateCycleIntakeAngle = Math.toRadians(158),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
             startIntakeAngleHP = Math.toRadians(180),

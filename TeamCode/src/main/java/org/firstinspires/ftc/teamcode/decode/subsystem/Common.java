@@ -87,6 +87,7 @@ public final class Common {
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90));
 
     public static Pose
+            RELOCALIZATION_GATE_RED = new Pose(144 - 14.875, 72 + 9.125, Math.toRadians(270)),
             BLUE_GOAL = new Pose(2,142),
             RED_GOAL = BLUE_GOAL.mirror();
 
@@ -106,7 +107,6 @@ public final class Common {
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
             MAX_DISTANCE_FEEDER = 90, // TODO mm
-            RELOCALIZE_UPDATE_LOOPS = (1 << 3) - 1,
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 
     public static Robot robot;

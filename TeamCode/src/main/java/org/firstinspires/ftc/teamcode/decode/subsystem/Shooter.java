@@ -31,11 +31,11 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     private ShooterStates targetState = ShooterStates.IDLE;
 
-    public Shooter(HardwareMap hw) {
+    public Shooter(HardwareMap hw, boolean isAuto) {
         this.hood = new Hood(hw);
         this.flywheel = new Flywheel(hw);
         this.turret = new Turret(hw);
-        this.feeder = new Feeder(hw);
+        this.feeder = new Feeder(hw, isAuto);
     }
 
     @Override
@@ -289,7 +289,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 currentPose.getX() + dx,
                 currentPose.getY() + dy,
                 currentPose.getHeading() + dh);
-        return robot.isRobotMoving() ? predictedPose : currentPose;
+        return predictedPose;
     }
 
 

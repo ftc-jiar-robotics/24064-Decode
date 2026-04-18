@@ -20,7 +20,7 @@ public class FeederTest extends LinearOpMode {
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         gamepadEx1 = new GamepadEx(gamepad1);
 
-        feeder = new Feeder(hardwareMap);
+        feeder = new Feeder(hardwareMap, false);
         waitForStart();
         while (opModeIsActive()) {
             gamepadEx1.readButtons();

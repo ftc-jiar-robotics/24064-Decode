@@ -12,6 +12,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.Range;
@@ -22,6 +23,10 @@ import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.MovingAverageGains;
 import org.firstinspires.ftc.teamcode.decode.control.solverscontrol.SolversPIDF;
 import org.firstinspires.ftc.teamcode.decode.util.CachedMotor;
+import org.firstinspires.ftc.teamcode.decode.util.solverslib.InterpLUT;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configurable
 @Config
@@ -31,12 +36,17 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0.000, 0.00005, 0.000077);
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0.0003, 0.00002, 0.000077);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
+
+    private static final List<Double> launcherDistance = Arrays.asList(0.0,  /*59.055,  78.740, 98.425, 118.110, 137.795, 157.480, 177.165,*/ 196.850); // distance from ball leaving robot to when it touches goal for first time (inches)
+    private static final List<Double> shootingTime     = Arrays.asList(0.3, /*0.58375, 0.5,    0.52,    0.70,    0.77,    0.80d,   0.83d,*/   0.86); // time it takes for ball to leave robot to start of goal (seconds)
+
+    private final InterpLUT launchDelayLUT = new InterpLUT(launcherDistance,shootingTime);
     public static final double GEAR_RATIO = 20.0/20;
     public enum FlyWheelStates {
         IDLE, ARMING, RUNNING
     }
     public static double
-            LAUNCH_DELAY = .3,
+            LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
@@ -87,28 +97,15 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         CachedMotor shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE,ROUNDING_POINT);
         MotorEx dummy = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
 
-//        DcMotorEx shooterMaster = hw.get(DcMotorEx.class,NAME_FLYWHEEL_MASTER_MOTOR);
-//        DcMotorEx shooterSlave = hw.get(DcMotorEx.class, NAME_FLYWHEEL_SLAVE_MOTOR);
-
-
         shooterSlave.setInverted(false);
         shooterMaster.setInverted(true);
-//        shooterMaster.setDirection(DcMotorSimple.Direction.REVERSE);
-//
-//        shooterMaster.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        shooterSlave.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//
-//        shooterMaster.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,0));
-//        shooterSlave.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,new PIDFCoefficients(shootingVelocityGains.kP,shootingVelocityGains.kI,shootingVelocityGains.kD,0));
-
 
         shooterEncoder = dummy.encoder;
         shooterEncoder.setDirection(Motor.Direction.FORWARD);
 
         motorGroup = new CachedMotor[]{shooterMaster, shooterSlave};
 
-       // velocityController.setDerivativeMode(PIDController.DerivativeMode.MEASUREMENT);
-//        velocityController.setGains(shootingVelocityGains);
+        launchDelayLUT.createLUT();
     }
 
     @Override
@@ -171,12 +168,27 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
                 break;
             case ARMING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                chooseShootingRPM(
+                        robot.shooter.turret.getDistance(calculateTurretPosition(
+                                robot.shooter.getPredictedPose(
+                                        launchDelayLUT.get(robot.shooter.turret.getDistance())
+                                ),
+                                Math.toDegrees(robot.drivetrain.getHeading()),
+                                -Common.TURRET_OFFSET_Y
+                        ))
+                );
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
                 break;
             case RUNNING:
-                chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.shooter.getPredictedPose(LAUNCH_DELAY), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
-                break;
+                chooseShootingRPM(
+                        robot.shooter.turret.getDistance(calculateTurretPosition(
+                                robot.shooter.getPredictedPose(
+                                        launchDelayLUT.get(robot.shooter.turret.getDistance())
+                                ),
+                                Math.toDegrees(robot.drivetrain.getHeading()),
+                                -Common.TURRET_OFFSET_Y
+                        ))
+                );                break;
         }
 
 
