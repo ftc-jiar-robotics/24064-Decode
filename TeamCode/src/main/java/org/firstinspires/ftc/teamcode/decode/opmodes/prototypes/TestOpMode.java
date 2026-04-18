@@ -29,7 +29,7 @@ public class TestOpMode extends LinearOpMode {
     public void runOpMode() {
         gamepadEx1 = new GamepadEx(gamepad1);
 
-        feeder = new Feeder(hardwareMap);
+        feeder = new Feeder(hardwareMap, false);
         hood = new Hood(hardwareMap);
         flywheel = new Flywheel(hardwareMap);
         intake = new Intake(hardwareMap);

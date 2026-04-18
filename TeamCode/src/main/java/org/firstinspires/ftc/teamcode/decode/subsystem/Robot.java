@@ -85,7 +85,7 @@ public final class Robot {
         drivetrain = Constants.createFollower(hardwareMap);
         bulkReader = new BulkReader(hardwareMap);
         actionScheduler = new ActionScheduler();
-        shooter = new Shooter(hardwareMap);
+        shooter = new Shooter(hardwareMap, isAuto);
         intake = new Intake(hardwareMap);
         gateOpener = new GateOpener(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
@@ -93,7 +93,6 @@ public final class Robot {
             arducam = new ArduCam(hardwareMap, "arducam");
 //            gateOpener.set(GateOpener.GateOpenerStates.AUTOMATIC,true);
         }
-
 
 //        ledController.ensureInitialized();
 
