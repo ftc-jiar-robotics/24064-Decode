@@ -32,11 +32,11 @@ public final class KinematicsSolver {
 
     public static final Vector2 o_goal = new Vector2(5, -2.5);
     public static double
-            r_rimClearance = 0.75,
+            r_rimClearance = 2.5,
             admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
     
-            θ_launchMax = toRadians(68), // TODO redo
+            θ_launchMax = toRadians(58), // TODO redo
             θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)), // TODO redo
             v_launchMin = 0,
             v_launchMax = Flywheel.RPMToInchesPerSecond(Flywheel.MAX_RPM);
@@ -381,7 +381,7 @@ public final class KinematicsSolver {
      */
     public boolean calculateTarget_θ_α(double currentV) {
         double
-                d1 = calculateTarget_θ_α(currentV, true),
+                d1 = calculateTarget_θ_α(currentV, false),
                 v1 = v_launch,
                 θ1 = θ_launch,
                 α1 = α_launch,

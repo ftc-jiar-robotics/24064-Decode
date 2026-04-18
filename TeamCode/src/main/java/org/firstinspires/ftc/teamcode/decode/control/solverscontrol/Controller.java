@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode.control.solverscontrol;
 
+import org.firstinspires.ftc.teamcode.decode.util.solverslib.MathUtils;
+
 public abstract class Controller {
     private double minOutput = 0;
     private double maxOutput = Double.POSITIVE_INFINITY;

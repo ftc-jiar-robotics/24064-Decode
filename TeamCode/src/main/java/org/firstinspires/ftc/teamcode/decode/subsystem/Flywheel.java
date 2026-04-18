@@ -38,7 +38,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
     public static double
             MAX_RPM = 4000,
-            RPM_PER_SEC_IN = 8.17067, // TODO EMPIRICALLY TUNE
+            RPM_PER_SEC_IN = 9.67067, // TODO EMPIRICALLY TUNE
             RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
@@ -135,21 +135,21 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         switch (targetState) {
             case IDLE:
                 if (!isFlywheelManual) {
-                    if (robot.shooter.isBallPresent()) quantizeWithMidpointBand(robot.shooter.getCompensatedValues()[0], TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                    if (robot.shooter.isBallPresent()) shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
                     else shootingRPM =  IDLE_RPM;
                 }
 
-                velocityController.setSetPoint(shootingRPM);
-
                 break;
             case ARMING:
-                quantizeWithMidpointBand(robot.shooter.getCompensatedValues()[0], TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
                 if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
                 break;
             case RUNNING:
-                quantizeWithMidpointBand(robot.shooter.getCompensatedValues()[0], TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
                 break;
         }
+
+        velocityController.setSetPoint(shootingRPM);
 
         double feedforwardValue = 0;
 

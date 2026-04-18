@@ -1,0 +1,38 @@
+package org.firstinspires.ftc.teamcode.decode.opmodes;
+
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
+
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Hood;
+import org.firstinspires.ftc.teamcode.decode.subsystem.KinematicsSolver;
+@Configurable
+@TeleOp(name = "hood kinematics opmode", group = "24064")
+public class HoodKinematicsOpMode extends LinearOpMode {
+    public Hood hood;
+    public GamepadEx gamepadEx1;
+
+    @Override
+    public void runOpMode() {
+        hood = new Hood(hardwareMap);
+        gamepadEx1 = new GamepadEx(gamepad1);
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+            gamepadEx1.readButtons();
+            if (gamepadEx1.wasJustPressed(B)) hood.set(hood.launchRadiansToServoAngle(KinematicsSolver.θ_launchMin));
+            if (gamepadEx1.wasJustPressed(X)) hood.set(hood.launchRadiansToServoAngle(KinematicsSolver.θ_launchMax));
+
+            hood.run();
+            hood.printTelemetry();
+            Common.telemetry.update();
+        }
+    }
+}

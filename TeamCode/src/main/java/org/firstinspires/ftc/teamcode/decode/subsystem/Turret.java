@@ -168,6 +168,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double theta = calculateAngleToGoal(customTurretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
+        alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]);
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
         targetAngle = targetAngleFilter.calculate(targetAngle);
@@ -251,7 +252,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         if (isPIDInTolerance()) toleranceCounter++;
         else toleranceCounter = 0;
 
-        double targetAngleClipped = Range.clip(robot.shooter.kinematicsSolver.getTurretAngle(), TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
+        double targetAngleClipped = Range.clip(targetAngleDebounced, TURRET_CLIP_ANGLE_MIN, TURRET_CLIP_ANGLE_MAX);
 
         turretMaster.turnToAngle(targetAngleClipped);
         turretSlave.turnToAngle(targetAngleClipped);
