@@ -33,12 +33,14 @@ import java.util.List;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0.000, 0.00005, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0.0003, 0.00002, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0029, 0.000, 0.00001, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0038, 0.000, 0.0000, 0.000083);
+
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0.000, 0.00001, 0.000077);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
 
     private static final List<Double> launcherDistance = Arrays.asList(0.0,  /*59.055,  78.740, 98.425, 118.110, 137.795, 157.480, 177.165,*/ 196.850); // distance from ball leaving robot to when it touches goal for first time (inches)
-    private static final List<Double> shootingTime     = Arrays.asList(0.3, /*0.58375, 0.5,    0.52,    0.70,    0.77,    0.80d,   0.83d,*/   0.86); // time it takes for ball to leave robot to start of goal (seconds)
+    private static final List<Double> shootingTime     = Arrays.asList(0.6, /*0.58375, 0.5,    0.52,    0.70,    0.77,    0.80d,   0.83d,*/   0.86); // time it takes for ball to leave robot to start of goal (seconds)
 
     private final InterpLUT launchDelayLUT = new InterpLUT(launcherDistance,shootingTime);
     public static final double GEAR_RATIO = 20.0/20;
@@ -59,8 +61,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             TARGET_RPM_MID_BAND = 9.0,
             SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.25,
-            CLOSE_ADJUSTMENT_RPM = 25, // added onto rpm curve
-            FAR_ADJUSTMENT_RPM = 60,
+            CLOSE_ADJUSTMENT_RPM = 120, // added onto rpm curve
+            FAR_ADJUSTMENT_RPM = 80,
             ROUNDING_POINT = 100;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
@@ -195,7 +197,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         double feedforwardValue = 0;//(shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
 
         PIDFCoefficients coefficients = robot.shooter.turret.getDistance() <= SWITCH_PID_DIST ?
-                FLYWHEEL_PIDF_COEFFICIENTS_CLOSE :
+                (robot.isAuto ? FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON : FLYWHEEL_PIDF_COEFFICIENTS_CLOSE) :
                 FLYWHEEL_PIDF_COEFFICIENTS_FAR;
 
 //        double originalKd = coefficients.d;

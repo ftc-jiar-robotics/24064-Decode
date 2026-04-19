@@ -17,7 +17,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     final Hood hood;
     final Flywheel flywheel;
     final Turret turret;
-    final Feeder feeder;
+    public final Feeder feeder;
 
     private boolean
             didShotOccur,

@@ -7,13 +7,13 @@
             <goBILDA5201SeriesMotor name="intakeFeederMotor" port="2" />
             <goBILDA5201SeriesMotor name="shooterSlave" port="3" />
             <Servo name="gateOpenerBlue" port="0" />
-            <RevColorSensorV3 name="leftDistanceSensorFeeder" port="0" bus="2" />
-            <RevColorSensorV3 name="rightDistanceSensorFeeder" port="0" bus="3" />
         </LynxModule>
         <ServoHub name="Servo Hub 4" port="4">
             <ContinuousRotationServo name="feederBack2" port="0" />
             <Servo name="turretMaster" port="1" />
             <Servo name="turretSlave" port="2" />
+            <Servo name="ptoMaster" port="3" />
+            <Servo name="ptoSlave" port="4" />
             <ContinuousRotationServo name="feederBack1" port="5" />
         </ServoHub>
         <LynxModule name="Control Hub" port="173">
@@ -27,10 +27,13 @@
             <AnalogInput name="turretEncoder" port="0" />
             <DigitalDevice name="leftDistancePin0" port="0" />
             <DigitalDevice name="rightDistancePin0" port="2" />
-            <DigitalDevice name="intakeSensorFront" port="4" />
+            <DigitalDevice name="intakeSensorFront0" port="4" />
+            <DigitalDevice name="intakeSensorFront1" port="5" />
             <DigitalDevice name="intakeSensorBack" port="6" />
-            <ControlHubImuBHI260AP name="imu" port="0" bus="0" />
             <goBILDAPinpoint name="pinpoint" port="0" bus="1" />
+            <OctoQuadFTC name="octoquad" port="0" bus="2" />
+            <RevColorSensorV3 name="intakeFront" port="0" bus="3" />
+
         </LynxModule>
     </LynxUsbDevice>
     <EthernetDevice name="limelight" serialNumber="EthernetOverUsb:eth0:172.29.0.22" name="limelight" port="-1" ipAddress="172.29.0.1" />

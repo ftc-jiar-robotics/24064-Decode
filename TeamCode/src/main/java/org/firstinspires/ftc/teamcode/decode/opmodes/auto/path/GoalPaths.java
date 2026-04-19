@@ -51,19 +51,19 @@ public class GoalPaths {
             midIntakeHP = new Pose(18.300, 10.600),
             controlHP = new Pose(57.300, 17.400),
             preload21 = new Pose(49.800, 93.600),
-            shoot21 = new Pose(53.7, 75.7),
-            shootThird21 = new Pose(52,110),
+            shoot21 = new Pose(54.7, 78.0),
+            shootThird21 = new Pose(55,106),
             intake21Control = new Pose(60.800, 60.100),
             endIntakeSecond21 = new Pose(8.400, 59.100),
-            gateCycleControl21 = new Pose(20.9, 57.900),
+            gateCycleControl21 = new Pose(18.9, 54.900),
             intakeGateCycle21 = new Pose(13, 60),
             intakeGateCycleRed21 = new Pose(13, 60),
             endIntakeFirst21 = new Pose(23.0, 83.900),
             intakeThirdControl21 = new Pose(59.700, 35.900),
             startIntakeThird21 = new Pose(45.200, 35.900),
-            endIntakeThird21 = new Pose(14.400, 36.200),
+            endIntakeThird21 = new Pose(16.400, 36.200),
             preloadShoot21 = new Pose(55, 83.7),
-            leave21 = new Pose(53.8, 66.1);
+            leave21 = new Pose(52.9, 76.3);
 
 
 
@@ -73,12 +73,13 @@ public class GoalPaths {
             shootAngle = Math.toRadians(-127),
             endIntakeAngleFirst = Math.toRadians(180),
             gateCycleShootAngle = Math.toRadians(215),
-            gateCycleIntakeAngle = Math.toRadians(158),
+            gateCycleIntakeAngle = Math.toRadians(159),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
             startIntakeAngleHP = Math.toRadians(180),
             shootHPAngle = Math.toRadians(-114),
             intake21Angle = Math.toRadians(180),
+            leaveAngle = Math.toRadians(-137),
             goHome21Angle = Math.toRadians(-139);
 
 
@@ -128,6 +129,7 @@ public class GoalPaths {
         shootHPAngle = mirrorAngleRad(shootHPAngle);
         intake21Angle = mirrorAngleRad(intake21Angle);
         goHome21Angle = mirrorAngleRad(goHome21Angle);
+        leaveAngle = mirrorAngleRad(leaveAngle);
 
         endIntakeAngleFirst = mirrorAngleRad(endIntakeAngleFirst);
     }
@@ -159,9 +161,9 @@ public class GoalPaths {
                 )
                 .setConstantHeadingInterpolation(intake21Angle)
                 .addPath(
-                        new BezierCurve(
+                        new BezierLine(
                                 endIntakeSecond21,
-                                intake21Control,
+//                                intake21Control,
                                 shoot21
                         )
                 )
@@ -242,7 +244,7 @@ public class GoalPaths {
                         // Path 0
                         new BezierLine(shoot21, leave21)
                 )
-                .setTangentHeadingInterpolation().setReversed()
+                .setConstantHeadingInterpolation(leaveAngle)
                 .build();
 
     }
