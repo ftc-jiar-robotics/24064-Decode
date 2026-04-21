@@ -182,7 +182,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         kinematicsValidFullSolve = kinematicsSolver.calculateTarget_v_θ_α();
         idealVLaunch = kinematicsSolver.v_launch;
 
-        kinematicsValidFixedV = kinematicsSolver.calculateTarget_θ_α(kinematicsSolver.v_launch);
+        kinematicsValidFixedV = kinematicsSolver.calculateTargetWithVelocity_θ_α(kinematicsSolver.v_launch, robot.isFar);
         launchAngle = kinematicsSolver.θ_launch;
         turretOffset = kinematicsSolver.α_launch;
 

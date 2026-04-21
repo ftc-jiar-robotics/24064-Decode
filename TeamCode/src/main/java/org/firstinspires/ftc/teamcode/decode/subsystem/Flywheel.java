@@ -34,8 +34,8 @@ import java.util.List;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0022, 0.000, 0.00005, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.0029, 0.0003, 0.00002, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0029, 0.000, 0.00001, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.008, 0.0003, 0.0000, 0.000087);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
     public static final double GEAR_RATIO = 20.0/20;
 
@@ -49,7 +49,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
     public static double
             MAX_RPM = 4000,
-            RPM_PER_SEC_IN = 9.67067, // TODO EMPIRICALLY TUNE
+            RPM_PER_SEC_IN = 9.26567, // TODO EMPIRICALLY TUNE
             RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
@@ -213,11 +213,11 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     public double inchesPerSecondToRPM(double x) {
-        return x * getRpmPerSecInLUT();
+        return x * RPM_PER_SEC_IN;
     }
 
     public double RPMToInchesPerSecond(double x) {
-        return x / getRpmPerSecInLUT();
+        return x / RPM_PER_SEC_IN;
     }
 
 
