@@ -20,16 +20,18 @@ public class Intake extends Subsystem<Double> {
     private final CachedMotor motor;
     public static float GAIN = 1.0f; //TODO: change gain
     private double power = 0;
-    private final DigitalChannel pin0Front, pin0Back;
+    private final DigitalChannel pin0Front, pin1Front, pin0Back;
     public static double ROUNDING_POINT = 20;
 
     public Intake(HardwareMap hardwareMap) {
         this.motor = new CachedMotor(hardwareMap, NAME_INTAKE_MOTOR, Motor.GoBILDA.RPM_435,ROUNDING_POINT);
         pin0Front = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_FRONT_PIN0);
+        pin1Front = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_FRONT_PIN1);
+
         pin0Back = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_BACK_PIN0);
     }
     public boolean getFrontState() {
-        return pin0Front.getState();
+        return pin0Front.getState() || pin1Front.getState();
 
     }
 
