@@ -220,19 +220,27 @@ public class AutoGoal21 extends AbstractAuto{
                                         new ParallelAction(
                                                 RobotActions.closeGate(),
                                                 RobotActions.armTurret(),
-                                                RobotActions.armFlywheel(),
+//                                                RobotActions.armFlywheel(),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.gateCycleShoot21, 0.01, 0, f, "arm_flywheel_and_turret_2"
                                 ),
+
+                                new Actions.CallbackAction(
+                                        new SequentialAction(
+                                                RobotActions.shootArtifacts(3, 2),
+                                                RobotActions.emergencyShootArtifacts()
+                                        ),
+                                        path.gateCycleShoot21, 0.9, 0, f, "arm_flywheel_and_turret_2"
+                                ),
                                 new FollowPathAction(f, path.gateCycleShoot21, true)
                         ),
 
-                        new SleepAction(.2),
+//                        new SleepAction(.2),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 2),
-
+//                        RobotActions.shootArtifacts(3, 2),
+//
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_GATE"))
                 )
         );

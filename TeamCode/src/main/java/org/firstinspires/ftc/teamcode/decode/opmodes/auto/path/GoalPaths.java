@@ -51,7 +51,7 @@ public class GoalPaths {
             midIntakeHP = new Pose(18.300, 10.600),
             controlHP = new Pose(57.300, 17.400),
             preload21 = new Pose(49.800, 93.600),
-            shoot21 = new Pose(54.7, 78.0),
+            shoot21 = new Pose(55.7, 78.0),
             shootThird21 = new Pose(55,106),
             intake21Control = new Pose(60.800, 70.100),
             endIntakeSecond21 = new Pose(15.00, 59.100),
