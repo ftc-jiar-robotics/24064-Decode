@@ -38,10 +38,10 @@ public class AutoGoal21 extends AbstractAuto{
             THIRD_INTAKE_BRAKING_START = 3,
             OFFSETY_CYCLE_ONE = 0,
             OFFSETY_CYCLE_TWO = 0,
-            OFFSETY_CYCLE_THREE = .5,
+            OFFSETY_CYCLE_THREE = 0.3,
             OFFSETX_CYCLE_ONE = 0,
-            OFFSETX_CYCLE_TWO = .5,
-            OFFSETX_CYCLE_THREE = .5;
+            OFFSETX_CYCLE_TWO = .3,
+            OFFSETX_CYCLE_THREE = .3;
 
     @Override
     protected Pose getStartPose() {
@@ -73,6 +73,7 @@ public class AutoGoal21 extends AbstractAuto{
         shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO);
         shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE);
         shootFirst();
+        shootThird();
         goalLeave();
     }
 
@@ -120,9 +121,9 @@ public class AutoGoal21 extends AbstractAuto{
                                 new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                         )));
 
-        robot.shooter.feeder.isGateEnabled = false;
+//        robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
-        robot.shooter.feeder.isGateEnabled = true;
+//        robot.shooter.feeder.isGateEnabled = true;
 
     }
     private void shootFirst() {
@@ -211,7 +212,7 @@ public class AutoGoal21 extends AbstractAuto{
                                 () -> robot.shooter.isRobotFullWithBalls(),
                                 new SequentialAction(
                                         new InstantAction(() -> f.setMaxPower(1)),
-                                        new SleepAction(2.5) // sleep to let balls roll out of classifier
+                                        new SleepAction(1.5) // sleep to let balls roll out of classifier
                                 )
                         ),
                         new ParallelAction(
@@ -237,9 +238,10 @@ public class AutoGoal21 extends AbstractAuto{
         );
 
 
-        robot.shooter.feeder.isGateEnabled = false;
+//        robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
-        robot.shooter.feeder.isGateEnabled = true;    }
+//        robot.shooter.feeder.isGateEnabled = true;
+    }
 
     private void shootSecond() {
         path.secondIntake21.getPath(1).setTValueConstraint(0.88);

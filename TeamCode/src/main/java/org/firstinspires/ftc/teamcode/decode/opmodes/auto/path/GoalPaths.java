@@ -53,15 +53,15 @@ public class GoalPaths {
             preload21 = new Pose(49.800, 93.600),
             shoot21 = new Pose(54.7, 78.0),
             shootThird21 = new Pose(55,106),
-            intake21Control = new Pose(60.800, 60.100),
-            endIntakeSecond21 = new Pose(8.400, 59.100),
+            intake21Control = new Pose(60.800, 70.100),
+            endIntakeSecond21 = new Pose(15.00, 59.100),
             gateCycleControl21 = new Pose(18.9, 54.900),
             intakeGateCycle21 = new Pose(13, 60),
             intakeGateCycleRed21 = new Pose(13, 60),
-            endIntakeFirst21 = new Pose(23.0, 83.900),
+            endIntakeFirst21 = new Pose(26.0, 83.900),
             intakeThirdControl21 = new Pose(59.700, 35.900),
             startIntakeThird21 = new Pose(45.200, 35.900),
-            endIntakeThird21 = new Pose(16.400, 36.200),
+            endIntakeThird21 = new Pose(17.400, 36.200),
             preloadShoot21 = new Pose(55, 83.7),
             leave21 = new Pose(52.9, 76.3);
 
@@ -80,7 +80,8 @@ public class GoalPaths {
             shootHPAngle = Math.toRadians(-114),
             intake21Angle = Math.toRadians(180),
             leaveAngle = Math.toRadians(-137),
-            goHome21Angle = Math.toRadians(-139);
+            goHome21Angle = Math.toRadians(-139),
+            preloadShoot21Angle = Math.toRadians(260);
 
 
 
@@ -130,6 +131,7 @@ public class GoalPaths {
         intake21Angle = mirrorAngleRad(intake21Angle);
         goHome21Angle = mirrorAngleRad(goHome21Angle);
         leaveAngle = mirrorAngleRad(leaveAngle);
+        preloadShoot21Angle = mirrorAngleRad(preloadShoot21Angle);
 
         endIntakeAngleFirst = mirrorAngleRad(endIntakeAngleFirst);
     }
@@ -145,11 +147,11 @@ public class GoalPaths {
                 .addPath(
                         new BezierLine(start, preload21)
                 )
-                .setLinearHeadingInterpolation(start.getHeading(), intake21Angle)
+                .setLinearHeadingInterpolation(start.getHeading(), preloadShoot21Angle)
                 .addPath(
                         new BezierLine(preload21, preloadShoot21)
                 )
-                .setConstantHeadingInterpolation(intake21Angle)
+                .setConstantHeadingInterpolation(preloadShoot21Angle)
                 .build();
         secondIntake21 = f.pathBuilder()
                 .addPath(
@@ -192,9 +194,8 @@ public class GoalPaths {
                 .build();
         gateCycleShoot21 = f.pathBuilder()
                 .addPath(
-                        new BezierCurve(
+                        new BezierLine(
                                 intakeGateCycle21,
-                                gateCycleControl21,
                                 shoot21
                         )
                 )
