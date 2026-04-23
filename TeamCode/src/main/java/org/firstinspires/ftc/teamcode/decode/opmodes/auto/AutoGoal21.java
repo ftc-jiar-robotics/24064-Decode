@@ -37,10 +37,10 @@ public class AutoGoal21 extends AbstractAuto{
             THIRD_INTAKE_BRAKING_STRENGTH = 3,
             THIRD_INTAKE_BRAKING_START = 3,
             OFFSETY_CYCLE_ONE = 0,
-            OFFSETY_CYCLE_TWO = 0,
-            OFFSETY_CYCLE_THREE = 0.3,
+            OFFSETY_CYCLE_TWO = .3,
+            OFFSETY_CYCLE_THREE = .5,
             OFFSETX_CYCLE_ONE = 0,
-            OFFSETX_CYCLE_TWO = .3,
+            OFFSETX_CYCLE_TWO = 0,
             OFFSETX_CYCLE_THREE = .3;
 
     @Override
@@ -104,26 +104,37 @@ public class AutoGoal21 extends AbstractAuto{
                                         new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdIntake21, 0.01, 2, f, "speed_up_1_post_intake"), // speed up after intake
                                         new Actions.CallbackAction(
                                                 new ParallelAction(
-                                                        RobotActions.armTurret(),
                                                         RobotActions.armFlywheel(),
                                                         RobotActions.setIntake(0.25, 0)
                                                 ),
                                                 path.thirdIntake21, 0.1, 2, f, "arm_flywheel_and_turret_1"
                                         ),
+
+                                        new Actions.CallbackAction(
+                                                new ParallelAction(
+                                                        new InstantAction(() -> f.setMaxPower(.3))
+                                                        ),
+                                                path.thirdIntake21, 0.6, 2, f, "arm_flywheel_and_turret_1"
+                                        ),
+
+                                        new Actions.CallbackAction(
+                                                new ParallelAction(
+                                                        RobotActions.shootArtifacts(3, 1),
+                                                        RobotActions.emergencyShootArtifacts()
+                                                ),
+                                                path.thirdIntake21, 0.9, 2, f, "arm_flywheel_and_turret_1"
+                                        ),
                                         new FollowPathAction(f, path.thirdIntake21, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path
                                 ),
 
-                                new SleepAction(.5),
-
                                 //shoots first 3 balls
-                                RobotActions.shootArtifacts(3, 1),
 
                                 new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                         )));
 
-//        robot.shooter.feeder.isGateEnabled = false;
+        robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
-//        robot.shooter.feeder.isGateEnabled = true;
+        robot.shooter.feeder.isGateEnabled = true;
 
     }
     private void shootFirst() {
@@ -178,11 +189,11 @@ public class AutoGoal21 extends AbstractAuto{
                 .setHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                .2,
+                                .3,
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.2,
+                                0.3,
                                 1,
                                 HeadingInterpolator.constant(GoalPaths.gateCycleIntakeAngle)
                         )
@@ -199,7 +210,7 @@ public class AutoGoal21 extends AbstractAuto{
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_GATE_CYCLE")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.65, 0, f, "speed_up_2"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.73, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 RobotActions.setIntake(1, 0),
@@ -246,9 +257,9 @@ public class AutoGoal21 extends AbstractAuto{
         );
 
 
-//        robot.shooter.feeder.isGateEnabled = false;
+        robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
-//        robot.shooter.feeder.isGateEnabled = true;
+        robot.shooter.feeder.isGateEnabled = true;
     }
 
     private void shootSecond() {
@@ -284,8 +295,10 @@ public class AutoGoal21 extends AbstractAuto{
                 ));
 
 
-        robot.actionScheduler.runBlocking();
 
+        robot.shooter.feeder.isGateEnabled = false;
+        robot.actionScheduler.runBlocking();
+        robot.shooter.feeder.isGateEnabled = true;
     }
 
     private void shootPreload() {
@@ -321,7 +334,10 @@ public class AutoGoal21 extends AbstractAuto{
                 )
         );
 
+
+        robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
+        robot.shooter.feeder.isGateEnabled = true;
         isFuturePoseOn = false;
     }
 }
