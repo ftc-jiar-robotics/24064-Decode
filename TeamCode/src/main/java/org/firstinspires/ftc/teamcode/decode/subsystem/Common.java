@@ -108,7 +108,7 @@ public final class Common {
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
-            MAX_DISTANCE_FEEDER = 90, // TODO mm
+            MAX_DISTANCE_FEEDER = 80, // TODO mm
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 
     public static Robot robot;

@@ -177,11 +177,11 @@ public class AutoPartner18 extends AbstractAuto{
                 .setHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                .2,
+                                .3,
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.2,
+                                0.3,
                                 1,
                                 HeadingInterpolator.constant(GoalPaths.gateCycleIntakeAngle)
                         )
@@ -198,7 +198,7 @@ public class AutoPartner18 extends AbstractAuto{
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_GATE_CYCLE")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.65, 0, f, "speed_up_2"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.73, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 RobotActions.setIntake(1, 0),

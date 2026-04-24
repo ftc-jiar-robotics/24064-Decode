@@ -52,16 +52,17 @@ public class GoalPaths {
             controlHP = new Pose(57.300, 17.400),
             preload21 = new Pose(49.800, 93.600),
             shoot21 = new Pose(55.7, 78.0),
-            shootThird21 = new Pose(59,104),
+            firstShoot21 = new Pose(47, 87.0),
+            shootThird21 = new Pose(59,106),
             intake21Control = new Pose(60.800, 65.100),
             endIntakeSecond21 = new Pose(14.00, 59.100),
             gateCycleControl21 = new Pose(20.9, 56.900),
             intakeGateCycle21 = new Pose(13, 60),
             intakeGateCycleRed21 = new Pose(13, 60),
             endIntakeFirst21 = new Pose(26.0, 83.900),
-            intakeThirdControl21 = new Pose(59.700, 35.900),
-            startIntakeThird21 = new Pose(45.200, 35.900),
-            endIntakeThird21 = new Pose(17.400, 36.200),
+            intakeThirdControl21 = new Pose(45.700, 35.900),
+            startIntakeThird21 = new Pose(30, 35.900),
+            endIntakeThird21 = new Pose(19.00, 36.200),
             preloadShoot21 = new Pose(55, 83.7),
             leave21 = new Pose(52.9, 76.3);
 
@@ -107,6 +108,7 @@ public class GoalPaths {
         controlHP = controlHP.mirror();
         preload21 = preload21.mirror();
         shoot21 = shoot21.mirror();
+        firstShoot21 = firstShoot21.mirror();
         shootThird21 = shootThird21.mirror();
         intake21Control = intake21Control.mirror();
         endIntakeSecond21 = endIntakeSecond21.mirror();
@@ -182,11 +184,11 @@ public class GoalPaths {
                 .setHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                .2,
+                                .3,
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.2,
+                                0.3,
                                 1,
                                 HeadingInterpolator.constant(gateCycleIntakeAngle)
                         )
@@ -204,7 +206,7 @@ public class GoalPaths {
         thirdIntake21 = f.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                shoot21,
+                                firstShoot21,
                                 intakeThirdControl21,
                                 startIntakeThird21
                         )
@@ -237,9 +239,9 @@ public class GoalPaths {
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
-                        new BezierLine(endIntakeFirst21, shoot21)
+                        new BezierLine(endIntakeFirst21, firstShoot21)
                 )
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(f::getHeading, endIntakeAngleFirst, 0.75)).build();
+                .setTangentHeadingInterpolation().setReversed().build();
         goalLeave21 = f.pathBuilder()
                 .addPath(
                         // Path 0

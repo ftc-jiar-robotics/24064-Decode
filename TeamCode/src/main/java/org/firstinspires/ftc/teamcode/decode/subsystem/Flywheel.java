@@ -34,7 +34,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0029, 0.000, 0.00001, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0029, 0.000, 0.00001, 0.000077);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0045, 0.000, 0.00000, 0.000077);
 
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(.008, 0.000, 0.0000, 0.000087);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
@@ -265,7 +265,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         if (!isFlywheelManual) {
             double rpmRaw = GEAR_RATIO*(1674.6095342210476*(1) + -4.328034369655546*(distance) + 0.08095436010080519*(distance*distance));
             if (robot.isFar) rpmRaw+=FAR_ADJUSTMENT_RPM;
-            else rpmRaw+=robot.isAuto ? 0 : CLOSE_ADJUSTMENT_RPM;
+            else rpmRaw+=robot.isAuto ? 50 : CLOSE_ADJUSTMENT_RPM;
             shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
 
             velocityController.setSetPoint(shootingRPM);

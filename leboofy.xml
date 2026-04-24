@@ -33,6 +33,8 @@
             <goBILDAPinpoint name="pinpoint" port="0" bus="1" />
             <OctoQuadFTC name="octoquad" port="0" bus="2" />
             <RevColorSensorV3 name="intakeFront" port="0" bus="3" />
+            <RevColorSensorV3 name="leftDistanceSensorFeeder" port="0" bus="2" />
+            <RevColorSensorV3 name="rightDistanceSensorFeeder" port="0" bus="0" />
 
         </LynxModule>
     </LynxUsbDevice>
