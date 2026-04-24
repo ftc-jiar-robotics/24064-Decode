@@ -39,7 +39,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private TurretStates currentState = TurretStates.IDLE;
 
     private final Differentiator differentiator = new Differentiator();
-    public static LowPassGains targetAngleGains = new LowPassGains(0.40);
+    public static LowPassGains targetAngleGains = new LowPassGains(0);
     private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
 
     public static double

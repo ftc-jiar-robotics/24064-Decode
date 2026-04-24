@@ -199,6 +199,8 @@ public final class Robot {
             Common.telemetry.addData("robot y (DOUBLE): ", drivetrain.getPose().getY());
             Common.telemetry.addData("robot heading (ANGLE): ", Math.toDegrees(drivetrain.getPose().getHeading()));
             Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
+            Common.telemetry.addData("robot velocity x: ", drivetrain.getVelocity().getXComponent());
+            Common.telemetry.addData("robot velocity y: ", drivetrain.getVelocity().getYComponent());
             Drawing.drawDebug(drivetrain);
             Drawing.drawRobot(LaunchZone.getInterceptOrClosestPoint());
 

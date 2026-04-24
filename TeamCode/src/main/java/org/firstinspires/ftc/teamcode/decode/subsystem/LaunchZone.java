@@ -127,7 +127,7 @@ public enum LaunchZone {
         // Transform hit point back to world space
         double cosF = cos(ZONE_ANGLE), sinF = sin(ZONE_ANGLE);
         return new Pose(lpx * cosF - lpy * sinF + cx,
-                        lpx * sinF + lpy * cosF + cy, 0);
+                lpx * sinF + lpy * cosF + cy, 0);
     }
 
     /**
@@ -163,7 +163,7 @@ public enum LaunchZone {
 
         double cosF = cos(ZONE_ANGLE), sinF = sin(ZONE_ANGLE);
         return new Pose(clampedX * cosF - clampedY * sinF + cx,
-                        clampedX * sinF + clampedY * cosF + cy, 0);
+                clampedX * sinF + clampedY * cosF + cy, 0);
     }
 
     private static double dist2(double rx, double ry, Pose p) {
@@ -180,8 +180,8 @@ public enum LaunchZone {
 
         return
                 collisionSolver.detect(robotRect, robotPose, nearZoneRect, nearZonePosition) ? NEAR :
-                collisionSolver.detect(robotRect, robotPose, farZoneRect, farZonePosition) ? FAR :
-                                                                                                                                NONE;
+                        collisionSolver.detect(robotRect, robotPose, farZoneRect, farZonePosition) ? FAR :
+                                NONE;
     }
 
     public static void main(String... args) {

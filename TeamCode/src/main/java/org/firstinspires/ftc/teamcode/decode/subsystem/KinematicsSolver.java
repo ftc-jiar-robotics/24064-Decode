@@ -37,8 +37,8 @@ public final class KinematicsSolver {
             admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
     
-            θ_launchMax = toRadians(58), // TODO redo
-            θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)), // TODO redo
+            θ_launchMax = toRadians(58),
+            θ_launchMin = θ_launchMax - toRadians((Hood.MAX - Hood.MIN) * (13.0/127) * (60.0/20)),
             v_launchMin = 0,
             v_launchMax = 500;
 
