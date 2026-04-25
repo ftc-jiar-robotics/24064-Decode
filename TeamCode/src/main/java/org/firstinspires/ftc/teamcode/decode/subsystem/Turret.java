@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.FIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.decode.control.filter.singlefilter.IIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.decode.control.motion.Differentiator;
@@ -40,12 +41,14 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     private final Differentiator differentiator = new Differentiator();
     public static LowPassGains targetAngleGains = new LowPassGains(0);
+    public static LowPassGains accelerationGains = new LowPassGains(0.9);
     private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
 
+    private final FIRLowPassFilter accelerationFilter = new FIRLowPassFilter(accelerationGains);
+
     public static double
-            MIN_OFFSET_SPEED = 15,
+            ACCEL_TOLERANCE = 100,
             OFFSET_MULTIPLER = 1,
-            RADIAL_ACCEL_MULT = 0,
             WRAP_AROUND_THRESHOLD = 5,
             READY_TO_SHOOT_LOOPS = 3,
             SWITCH_Y_POSITION_BIG = 100,
@@ -174,7 +177,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
 
-        alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]) * OFFSET_MULTIPLER;
+        alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]) * (accelerationFilter.calculate(Math.abs(robot.drivetrain.getAcceleration().getMagnitude())) < ACCEL_TOLERANCE ? OFFSET_MULTIPLER : 0);
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
         targetAngle = targetAngleFilter.calculate(targetAngle);
@@ -231,10 +234,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     @Override
     public void run() {
         goal = setGoal();
-        radialAcceleration = radialVelocity.getDerivative(getDesiredTurretOmegaRadPerSec());
-
-//        currentAngle = turretMaster.getAngle();
-
+        accelerationFilter.setGains(accelerationGains);
         targetAngleFilter.setGains(targetAngleGains);
 
         // turning robot heading to turret heading
@@ -279,7 +279,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         dashTelemetry.addLine("TURRET");
         dashTelemetry.addData("vision setpoint (RADIANS): ", 0);
-//        dashTelemetry.addData("current vision (RADIANS): ", autoAim.getTargetYawDegrees());
         dashTelemetry.addData("encoder angle (ANGLE): ", turretMaster.getAngle());
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("absolute encoder (VOLTAGE): ", absoluteEncoder.getVoltage());

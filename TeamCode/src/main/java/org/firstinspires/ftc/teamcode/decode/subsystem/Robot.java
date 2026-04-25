@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATIO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_Y;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MID_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
@@ -201,6 +202,7 @@ public final class Robot {
             Common.telemetry.addData("robot max power: ", drivetrain.getMaxPowerScaling());
             Common.telemetry.addData("robot velocity x: ", drivetrain.getVelocity().getXComponent());
             Common.telemetry.addData("robot velocity y: ", drivetrain.getVelocity().getYComponent());
+            dashTelemetry.addData("robot acceleration (magnitude): ", drivetrain.getAcceleration().getMagnitude());
             Drawing.drawDebug(drivetrain);
             Drawing.drawRobot(LaunchZone.getInterceptOrClosestPoint());
 

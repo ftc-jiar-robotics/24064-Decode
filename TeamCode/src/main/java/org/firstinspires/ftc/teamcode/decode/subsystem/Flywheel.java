@@ -49,7 +49,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
     public static double
             MAX_RPM = 4000,
-            RPM_PER_SEC_IN = 9.26567, // TODO EMPIRICALLY TUNE
+            RPM_PER_SEC_IN = 9.46567, // TODO EMPIRICALLY TUNE
             RPM_TOLERANCE = 70,
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
