@@ -43,8 +43,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public static double
         BLOCKING_ANGLE = 175,
         RUNNING_ANGLE = 140,
-        MAX_PIN_STATE = 5, // default
-        MAX_PIN_STATE_GATE_ENABLED = 5, // default
+        MAX_PIN_STATE = 6, // default
+        MAX_PIN_STATE_GATE_ENABLED = 6, // default
         CLOSE_SHOOTING_SPEED = .725,
         FAR_SHOOTING_SPEED = .42,
         MID_SHOOTER_SPEED = .55,
@@ -107,7 +107,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
                                 ) : (
                                         Math.abs(robot.intake.get()) > 0.1 ? .2 : 0
                                 )
-                ))* (robot.isAuto?.75:1)
+                ))* (robot.isAuto?.67:1)
         );
         backFeeder1.setPower(currentState == FeederStates.RUNNING ? motor.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));
         backFeeder2.setPower(currentState == FeederStates.RUNNING ? motor.get() : (Math.abs(robot.intake.get()) > 0.1 ? -1 : 0));

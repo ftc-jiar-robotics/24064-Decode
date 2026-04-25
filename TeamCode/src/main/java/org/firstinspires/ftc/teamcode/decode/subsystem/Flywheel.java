@@ -63,7 +63,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             kS = 0.25,
             CLOSE_ADJUSTMENT_RPM = 100, // added onto rpm curve
             FAR_ADJUSTMENT_RPM = 100,
-            ROUNDING_POINT = 100;
+            ROUNDING_POINT = 100,
+            TURRET_ANGLE_MULTIPLIER = .1;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;
 
@@ -266,6 +267,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             double rpmRaw = GEAR_RATIO*(1674.6095342210476*(1) + -4.328034369655546*(distance) + 0.08095436010080519*(distance*distance));
             if (robot.isFar) rpmRaw+=FAR_ADJUSTMENT_RPM;
             else rpmRaw+=robot.isAuto ? 50 : CLOSE_ADJUSTMENT_RPM;
+
             shootingRPM = quantizeWithMidpointBand(rpmRaw, TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
 
             velocityController.setSetPoint(shootingRPM);

@@ -123,6 +123,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return getDistance(turretPos);
     }
 
+    public double getAngle(){
+        return targetAngle;
+    }
+
 //    double getCurrentAngle() {
 //        return currentAngle;
 //    }

@@ -34,10 +34,10 @@ public class AutoPartner21 extends AutoGoal21{
     protected void onRun() {
         shootPreload();
         shootSecond();
-        shootGateCycle(OFFSETY_CYCLE_ONE, OFFSETX_CYCLE_ONE);
-        shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO);
-        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE);
-        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE);
+        shootGateCycle(OFFSETY_CYCLE_ONE, OFFSETX_CYCLE_ONE,.68);
+        shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO,1);
+        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE,1.5);
+        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE,1.5);
         shootFirst();
         goalLeave();
     }
