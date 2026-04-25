@@ -85,7 +85,7 @@ public final class Common {
     public static final Pose
             RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
             RED_SMALL_TRIANGLE = new Pose(89.5, 7.125, Math.toRadians(90)),
-            BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror(),
+            BLUE_BIG_TRIANGLE = new Pose(32,135.75,Math.toRadians(270)),
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90));
 
     public static Pose

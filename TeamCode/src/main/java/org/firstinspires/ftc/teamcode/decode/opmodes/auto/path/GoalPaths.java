@@ -56,12 +56,12 @@ public class GoalPaths {
             shootThird21 = new Pose(59,104),
             intake21Control = new Pose(60.800, 65.100),
             endIntakeSecond21 = new Pose(14.00, 59.100),
-            gateCycleControl21 = new Pose(20.9, 56.900),
-            intakeGateCycle21 = new Pose(12.5, 60),
+            gateCycleControl21 = new Pose(22.9, 56.900),
+            intakeGateCycle21 = new Pose(13.3, 60.6),
             intakeGateCycleRed21 = new Pose(12.5, 60),
             endIntakeFirst21 = new Pose(26.0, 83.900),
-            intakeThirdControl21 = new Pose(36.700, 37.900),
-            startIntakeThird21 = new Pose(30, 35.900),
+            intakeThirdControl21 = new Pose(36.700, 38.900),
+            startIntakeThird21 = new Pose(34, 36.400),
             endIntakeThird21 = new Pose(19.00, 36.200),
             preloadShoot21 = new Pose(55, 83.7),
             leave21 = new Pose(52.9, 76.3);
@@ -74,7 +74,8 @@ public class GoalPaths {
             shootAngle = Math.toRadians(-127),
             endIntakeAngleFirst = Math.toRadians(180),
             gateCycleShootAngle = Math.toRadians(215),
-            gateCycleIntakeAngle = Math.toRadians(162),
+            gateCycleIntakeAngleRed = Math.toRadians(162),
+            gateCycleIntakeAngle = Math.toRadians(163),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
             startIntakeAngleHP = Math.toRadians(180),
@@ -127,7 +128,7 @@ public class GoalPaths {
         gateAngle = mirrorAngleRad(gateAngle);
         endIntakeAngle = mirrorAngleRad(endIntakeAngle);
         startIntakeAngleHP = mirrorAngleRad(startIntakeAngleHP);
-        gateCycleIntakeAngle = mirrorAngleRad(gateCycleIntakeAngle);
+        gateCycleIntakeAngle = isRed ? mirrorAngleRad(gateCycleIntakeAngleRed) : (gateCycleIntakeAngle);
         gateCycleShootAngle = mirrorAngleRad(gateCycleShootAngle);
         shootHPAngle = mirrorAngleRad(shootHPAngle);
         intake21Angle = mirrorAngleRad(intake21Angle);

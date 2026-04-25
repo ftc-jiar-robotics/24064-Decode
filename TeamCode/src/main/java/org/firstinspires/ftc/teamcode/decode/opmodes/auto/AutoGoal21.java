@@ -227,10 +227,12 @@ public class AutoGoal21 extends AbstractAuto{
                                         ),
 
                                         new Actions.CallbackAction(
-                                                new SequentialAction(
+                                                new ParallelAction(
                                                         RobotActions.shootArtifacts(3, 1.5),
-                                                        new SleepAction(.2),
-                                                        RobotActions.emergencyShootArtifacts()
+                                                        new SequentialAction(
+                                                                new SleepAction(.1),
+                                                                RobotActions.emergencyShootArtifacts()
+                                                        )
                                                 ),
                                                 path.firstIntake21, 0.78, 1, f, "arm_flywheel_and_turret_2"
                                         ),
@@ -264,11 +266,11 @@ public class AutoGoal21 extends AbstractAuto{
                 .setHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                .27,
+                                .25,
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.27,
+                                0.25,
                                 1,
                                 HeadingInterpolator.constant(GoalPaths.gateCycleIntakeAngle)
                         )
@@ -287,7 +289,7 @@ public class AutoGoal21 extends AbstractAuto{
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_GATE_CYCLE")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.7, 0, f, "speed_up_2"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.68, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 RobotActions.setIntake(1, 0),
@@ -315,9 +317,12 @@ public class AutoGoal21 extends AbstractAuto{
                                 ),
 
                                 new Actions.CallbackAction(
-                                        new SequentialAction(
+                                        new ParallelAction(
                                                 RobotActions.shootArtifacts(3, 1.5),
-                                                RobotActions.emergencyShootArtifacts()
+                                                new SequentialAction(
+                                                        new SleepAction(.1),
+                                                        RobotActions.emergencyShootArtifacts()
+                                                )
                                         ),
                                         path.gateCycleShoot21, 0.9, 0, f, "arm_flywheel_and_turret_2"
                                 ),
@@ -364,10 +369,12 @@ public class AutoGoal21 extends AbstractAuto{
                                 ),
 
                                 new Actions.CallbackAction(
-                                        new SequentialAction(
+                                        new ParallelAction(
                                                 RobotActions.shootArtifacts(3, 1.5),
-                                                new SleepAction(.2),
-                                                RobotActions.emergencyShootArtifacts()
+                                                new SequentialAction(
+                                                        new SleepAction(.1),
+                                                        RobotActions.emergencyShootArtifacts()
+                                                )
                                         ),
                                         path.secondIntake21, 0.83, 1, f, "arm_flywheel_and_turret_2"
                                 ),
@@ -417,7 +424,7 @@ public class AutoGoal21 extends AbstractAuto{
 //                                                                new InstantAction(() -> f.resumePathFollowing())
 
                                                                 )
-                                                        , path.shootPreload21, .7, 0, f, "arm_flywheel_and_turret_0"
+                                                        , path.shootPreload21, .6, 0, f, "arm_flywheel_and_turret_0"
                                                 ),
                                                 new FollowPathAction(f, path.shootPreload21, true)
 
