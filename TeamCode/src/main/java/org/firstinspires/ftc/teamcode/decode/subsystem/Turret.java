@@ -6,7 +6,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SERVO_AXON_MIN;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SERVO_AXON_MINI_MK2_MAX;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -16,7 +15,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -43,12 +41,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static LowPassGains targetAngleGains = new LowPassGains(0);
     public static LowPassGains accelerationGains = new LowPassGains(0.9);
     private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
-
     private final FIRLowPassFilter accelerationFilter = new FIRLowPassFilter(accelerationGains);
+    private final Differentiator offsetDifferentiator = new Differentiator();
 
     public static double
-            ACCEL_TOLERANCE = 100,
-            OFFSET_MULTIPLER = 1,
+            OFFSET_DERIVATIVE_TOLERANCE = 50,
             WRAP_AROUND_THRESHOLD = 5,
             READY_TO_SHOOT_LOOPS = 3,
             SWITCH_Y_POSITION_BIG = 100,
@@ -72,8 +69,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private Pose turretPos = new Pose(0, 0);
 
     private double
-            radialAcceleration = 0.0,
-//            currentAngle = 0.0,
+            offsetDerivative = 0.0,
             targetAngle = 0.0,
             targetAngleDebounced = 0.0,
             toleranceCounter = 0,
@@ -173,11 +169,19 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     private void setTracking(Pose customTurretPos) {
+        double offset = Math.toDegrees(robot.shooter.getCompensatedValues()[2]);
+        offsetDerivative = offsetDifferentiator.getDerivative(offset);
+
+        boolean isPositiveToZero = offset > 0 && offsetDerivative < -OFFSET_DERIVATIVE_TOLERANCE;
+        boolean isNegativeToZero = offset < 0 && offsetDerivative > OFFSET_DERIVATIVE_TOLERANCE;
+
         double theta = calculateAngleToGoal(customTurretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
 
-        alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]) * (accelerationFilter.calculate(Math.abs(robot.drivetrain.getAcceleration().getMagnitude())) < ACCEL_TOLERANCE ? OFFSET_MULTIPLER : 0);
+        if (isNegativeToZero || isPositiveToZero) alpha -= 0;
+        else alpha -= offset;
+
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
         targetAngle = targetAngleFilter.calculate(targetAngle);
@@ -283,6 +287,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dashTelemetry.addData("absolute encoder (ANGLE): ", getAbsoluteEncoderAngle());
         dashTelemetry.addData("absolute encoder (VOLTAGE): ", absoluteEncoder.getVoltage());
         dashTelemetry.addData("target angle (ANGLE): ", targetAngle);
+
+        dashTelemetry.addData("offset derivative: ", offsetDerivative);
 
         dashTelemetry.addLine("TURRET POSE (VISION/ODO)");
         dashTelemetry.addData("TURRET X (INCHES)", "%.4f", turretPos.getX());

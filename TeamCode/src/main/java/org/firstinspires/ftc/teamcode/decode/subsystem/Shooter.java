@@ -27,7 +27,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private int ballConfidence = 0;
 
     public static double RPM_DROP_ESTIMATE = 400; // TODO TUNE!!
-    private double launchAngle, turretOffset, idealVLaunch;
+    private double launchAngle, idealVLaunch;
 
     public enum ShooterStates {
         IDLE, PREPPING, RUNNING
@@ -71,7 +71,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
      * @return ideal flywheel velocity (0), compensated hood angle (1), compensated turret angle (2)
      */
     public double[] getCompensatedValues() {
-        return new double[]{idealVLaunch, launchAngle, turretOffset};
+        return new double[]{idealVLaunch, launchAngle, kinematicsSolver.α_launch};
     }
 
     public double rpmDropFromCurrentRPM(double rpm) {
@@ -184,7 +184,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
         kinematicsValidFixedV = kinematicsSolver.calculateTargetWithVelocity_θ_α(idealVLaunch, robot.isFar);
         launchAngle = kinematicsSolver.θ_launch;
-        turretOffset = kinematicsSolver.α_launch;
 
         switch (targetState) {
             case IDLE:
@@ -220,10 +219,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 feeder.set(Feeder.FeederStates.RUNNING, true);
 
                 if (didShotOccur) {
-//                    kinematicsSolver.calculateTarget_θ_α(Flywheel.RPMToInchesPerSecond(flywheel.getCurrentRPMSmooth() - RPM_DROP_ESTIMATE));
-//                    compθLaunch = kinematicsSolver.θ_launch;
-//                    compαLaunch = kinematicsSolver.α_launch;
-
                     if (queuedShots <= 0) {
                         targetState = ShooterStates.IDLE;
                         turret.set(Turret.TurretStates.IDLE);
@@ -268,8 +263,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         Common.dashTelemetry.addData("θ_launch ideal hood angle (DEG): ", hood.launchRadiansToServoAngle(kinematicsSolver.θ_launch));
         Common.dashTelemetry.addData("θ_launch compensated (RAD): ", launchAngle);
         Common.dashTelemetry.addData("θ_launch compensated hood angle (DEG): ", hood.launchRadiansToServoAngle(launchAngle));
-        Common.dashTelemetry.addData("α_launch ideal (RAD): ", kinematicsSolver.α_launch);
-        Common.dashTelemetry.addData("α_launch compensated (RAD): ", turretOffset);
-        Common.dashTelemetry.addData("α_launch compensated turret offset (DEG): ", Math.toDegrees(turretOffset));
+        Common.dashTelemetry.addData("α_launch ideal (RAD): ", getCompensatedValues()[2]);
     }
 }
