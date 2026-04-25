@@ -50,7 +50,7 @@ public class Hood extends Subsystem<Double> {
 
     public double getHoodAngleWithDistance(double distance) {
 
-        return Range.clip(110.35209094986163*(1) + -1.134249848424577*(distance) + 0.011055576786071695*(distance*distance) + -1.071867716505115e-05*(distance*distance*distance) + (robot.isFar?FAR_HOOD_ADJUST:CLOSE_HOOD_AJUST), MIN, MAX);
+        return Range.clip(110.35209094986163*(1) + -1.134249848424577*(distance) + 0.011055576786071695*(distance*distance) + -1.071867716505115e-05*(distance*distance*distance) + (robot.isFar?FAR_HOOD_ADJUST:CLOSE_HOOD_AJUST) - 2, MIN, MAX);
     }
 
     public double getHoodAngleWithRPM(double currentRPM) {

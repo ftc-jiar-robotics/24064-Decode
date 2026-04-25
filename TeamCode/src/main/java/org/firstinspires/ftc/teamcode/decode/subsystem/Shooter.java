@@ -67,6 +67,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return queuedShots;
     }
 
+    public void setDontMoveGoalDown(boolean val){
+        turret.dontMoveGoalDown = val;
+    }
+
     public double getFeederSpeed(){
         return feeder.getSpeed();
     }

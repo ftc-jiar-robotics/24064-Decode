@@ -6,7 +6,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_TURRET
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SERVO_AXON_MIN;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SERVO_AXON_MINI_MK2_MAX;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
@@ -16,7 +15,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -41,9 +39,10 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public static LowPassGains targetAngleGains = new LowPassGains(0.40);
     private final IIRLowPassFilter targetAngleFilter = new IIRLowPassFilter(targetAngleGains);
 
+    public boolean dontMoveGoalDown = false;
     public static double
             WRAP_AROUND_THRESHOLD = 5,
-            READY_TO_SHOOT_LOOPS = 3,
+            READY_TO_SHOOT_LOOPS = 2,
             SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
             GOAL_ADDITION_X_BLUE = 4,
@@ -52,7 +51,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 180,
             TURRET_CLIP_ANGLE_MIN = 40,
             TURRET_CLIP_ANGLE_MAX = 340,
-            ANGLE_TOLERANCE = 3,
+            ANGLE_TOLERANCE = 5,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
@@ -81,6 +80,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         turretMaster.setInverted(true);
         turretSlave.setInverted(true);
 
+
+        dontMoveGoalDown = false;
     }
 
 
@@ -89,7 +90,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double x = Common.BLUE_GOAL.getX();
         double y = Common.BLUE_GOAL.getY();
-        if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
+        if (!dontMoveGoalDown && robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
         else if (robot.isAuto || robot.drivetrain.getPose().getY() < SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE), y);
         else newGoal = new Pose(x, y);
 

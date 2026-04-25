@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.decode.opmodes.auto;
 
-import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
@@ -16,15 +15,15 @@ import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.AudiencePaths;
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.GoalPaths;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
-import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
 @Autonomous(name = "AutoGoal21", preselectTeleOp = "Main TeleOp")
@@ -63,6 +62,7 @@ public class AutoGoal21 extends AbstractAuto{
         Common.robot.shooter.setGoalAlliance();
         path.goal21Build();
 
+        f.setConstraints(Constants.pathConstraints);
         robot.limelight.getLimelight().stop();
         robot.limelight.getLimelight().close();
     }
@@ -78,12 +78,12 @@ public class AutoGoal21 extends AbstractAuto{
         goalLeave();
     }
 
-    private void goalLeave() {
+    void goalLeave() {
         path.goalLeave21.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new FollowPathAction(f, path.goalLeave21, true));
     }
-    private void shootThird() {
+    void shootThird() {
         path.thirdIntake21.getPath(2).setTValueConstraint(.85);
         path.thirdIntake21.getPath(1).setTValueConstraint(0.88);
         path.thirdIntake21.getPath(0).setTValueConstraint(0.88);
@@ -120,45 +120,68 @@ public class AutoGoal21 extends AbstractAuto{
 
                                         new Actions.CallbackAction(
                                                 new ParallelAction(
-                                                        new InstantAction(() -> f.setMaxPower(.2)),
-                                                        new InstantAction(() -> path.thirdIntake21.getPath(2).setBrakingStrength(1)),
-                                                        new InstantAction(() -> path.thirdIntake21.getPath(2).setBrakingStart(1))
-                                                        ),
+//                                                        new InstantAction(() -> f.setMaxPower(.3)),
+                                                        new InstantAction(() -> {
+                                                            PathConstraints constraints = f.getConstraints();
+                                                            constraints.setBrakingStart(5);
+                                                            constraints.setBrakingStrength(7);
+                                                            f.setConstraints(constraints);
+                                                        })
+                                                ),
+                                                path.thirdIntake21, 0.5, 2, f, "arm_flywheel_and_turret_1"
+                                        ),
+
+
+                                        new Actions.CallbackAction(
+                                                new ParallelAction(
+//                                                        new InstantAction(() -> f.setMaxPower(.3)),
+                                                        new InstantAction(() -> {
+                                                            PathConstraints constraints = f.getConstraints();
+                                                            constraints.setBrakingStart(1);
+                                                            constraints.setBrakingStrength(.5);
+                                                            f.setConstraints(constraints);
+                                                        })
+                                                ),
                                                 path.thirdIntake21, 0.6, 2, f, "arm_flywheel_and_turret_1"
                                         ),
 
                                         new Actions.CallbackAction(
                                                 new ParallelAction(
 //                                                        new InstantAction(() -> f.setMaxPower(0)),
-//                                                        new InstantAction(() -> isFuturePoseOn = true),
-                                                        RobotActions.shootArtifacts(3, 1)
+                                                        new InstantAction(() -> isFuturePoseOn = true)
+//                                                        RobotActions.shootArtifacts(3, 1)
                                                         ),
-                                                path.thirdIntake21, 0.77, 2, f, "arm_flywheel_and_turret_1"
+                                                path.thirdIntake21, 0.82, 2, f, "arm_flywheel_and_turret_1"
                                         ),
-
-                                        new Actions.CallbackAction(
-                                                new SequentialAction(
-                                                        RobotActions.emergencyShootArtifacts()
-                                                ),
-                                                path.thirdIntake21, .85, 2, f, "arm_flywheel_and_turret_1"
-                                        ),
+//
+//                                        new Actions.CallbackAction(
+//                                                new SequentialAction(
+//                                                        RobotActions.emergencyShootArtifacts()
+//                                                ),
+//                                                path.thirdIntake21, .85, 2, f, "arm_flywheel_and_turret_1"
+//                                        ),
                                         new FollowPathAction(f, path.thirdIntake21, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path
                                 ),
 
                                 //shoots first 3 balls
+                                RobotActions.shootArtifacts(3, 1),
+                                RobotActions.emergencyShootArtifacts(),
+                                new InstantAction(() -> f.setMaxPower(0)),
 
                                 new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                         )));
 
         robot.shooter.feeder.isGateEnabled = true;
+        robot.shooter.setDontMoveGoalDown(false);
         robot.actionScheduler.runBlocking();
-        robot.shooter.feeder.isGateEnabled = true;
+        robot.shooter.feeder.isGateEnabled = false;
+        robot.shooter.setDontMoveGoalDown(false);
 
         isFuturePoseOn = false;
 
     }
-    private void shootFirst() {
-        path.firstIntake21.getPath(1).setTValueConstraint(.9);
+    void shootFirst() {
+        path.firstIntake21.getPath(1).setTValueConstraint(.8);
         path.firstIntake21.getPath(0).setTValueConstraint(0.88);
 
         path.firstIntake21.getPath(1).setBrakingStrength(FIRST_INTAKE_BRAKING_STRENGTH);
@@ -192,16 +215,30 @@ public class AutoGoal21 extends AbstractAuto{
                                         ),
                                         new Actions.CallbackAction(
                                                 new ParallelAction(
-                                                        new InstantAction(() -> f.setMaxPower(.2)),
-                                                        new InstantAction(() -> path.firstIntake21.getPath(1).setBrakingStrength(1)),
-                                                        new InstantAction(() -> path.firstIntake21.getPath(1).setBrakingStart(1))
+                                                        new InstantAction(() -> f.setMaxPower(.5)),
+                                                        new InstantAction(() -> {
+                                                            PathConstraints constraints = f.getConstraints();
+                                                            constraints.setBrakingStart(.1);
+                                                            constraints.setBrakingStrength(1);
+                                                            f.setConstraints(constraints);
+                                                        })
                                                 ),
                                                 path.firstIntake21, 0.6, 1, f, "arm_flywheel_and_turret_1"
+                                        ),
+
+                                        new Actions.CallbackAction(
+                                                new SequentialAction(
+                                                        RobotActions.shootArtifacts(3, 1.5),
+                                                        new SleepAction(.2),
+                                                        RobotActions.emergencyShootArtifacts()
+                                                ),
+                                                path.firstIntake21, 0.78, 1, f, "arm_flywheel_and_turret_2"
                                         ),
                                         new FollowPathAction(f, path.firstIntake21, true)
                                 ),
 
-                                RobotActions.shootArtifacts(3, 1),
+//                                RobotActions.shootArtifacts(3, 1),
+//                                RobotActions.emergencyShootArtifacts(),
                                 new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                         )
                 ));
@@ -209,11 +246,11 @@ public class AutoGoal21 extends AbstractAuto{
 
         robot.shooter.feeder.isGateEnabled = true;
         robot.actionScheduler.runBlocking();
-        robot.shooter.feeder.isGateEnabled = true;
+        robot.shooter.feeder.isGateEnabled = false;
         f.setMaxPower(1);
     }
 
-    private void shootGateCycle(double offsetY, double offsetX) {
+    void shootGateCycle(double offsetY, double offsetX) {
         Pose intakeGateCycle21 = GoalPaths.intakeGateCycle21.withY(GoalPaths.intakeGateCycle21.getY() + offsetY).withX(GoalPaths.intakeGateCycle21.getX() + offsetX * (isRed ? 1 : -1));
 
         PathChain gateCycleIntake21 = f.pathBuilder()
@@ -227,11 +264,11 @@ public class AutoGoal21 extends AbstractAuto{
                 .setHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                .3,
+                                .31,
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.3,
+                                0.31,
                                 1,
                                 HeadingInterpolator.constant(GoalPaths.gateCycleIntakeAngle)
                         )
@@ -248,7 +285,7 @@ public class AutoGoal21 extends AbstractAuto{
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_GATE_CYCLE")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.73, 0, f, "speed_up_2"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.72, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 RobotActions.setIntake(1, 0),
@@ -297,10 +334,10 @@ public class AutoGoal21 extends AbstractAuto{
 
         robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
-        robot.shooter.feeder.isGateEnabled = true;
+        robot.shooter.feeder.isGateEnabled = false;
     }
 
-    private void shootSecond() {
+    void shootSecond() {
         path.secondIntake21.getPath(1).setTValueConstraint(0.88);
         path.secondIntake21.getPath(0).setTValueConstraint(0.88);
 
@@ -328,6 +365,7 @@ public class AutoGoal21 extends AbstractAuto{
 
                         //shoots first 3 balls
                         RobotActions.shootArtifacts(3, 1),
+                        RobotActions.emergencyShootArtifacts(),
 
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_SECOND"))
                 ));
@@ -336,10 +374,10 @@ public class AutoGoal21 extends AbstractAuto{
 
         robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
-        robot.shooter.feeder.isGateEnabled = true;
+        robot.shooter.feeder.isGateEnabled = false;
     }
 
-    private void shootPreload() {
+    void shootPreload() {
         path.shootPreload21.getPath(0).setTValueConstraint(0.88);
         path.shootPreload21.getPath(1).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
@@ -358,19 +396,27 @@ public class AutoGoal21 extends AbstractAuto{
                                                         path.shootPreload21, 0.01, 0, f, "arm_flywheel_0"
                                                 ),
                                                 new Actions.CallbackAction(
-                                                        new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.8, 0, f, "arm_flywheel_and_turret_0"
+                                                        new InstantAction(() -> isFuturePoseOn = true), path.shootPreload21, 0.4, 0, f, "arm_flywheel_and_turret_0"
                                                 ),
 
                                                 new Actions.CallbackAction(
                                                         new SequentialAction(
+                                                                new InstantAction(() -> f.setMaxPower(.2)),
+//                                                                new InstantAction(() -> f.pausePathFollowing()),
+//                                                                new SleepAction(.2),
                                                                 RobotActions.shootArtifacts(3, 2, false),
                                                                 RobotActions.emergencyShootArtifacts()
-                                                        )
-                                                        , path.shootPreload21, .85, 0, f, "arm_flywheel_and_turret_0"
+//                                                                new InstantAction(() -> f.resumePathFollowing())
+
+                                                                )
+                                                        , path.shootPreload21, .2, 1, f, "arm_flywheel_and_turret_0"
                                                 ),
                                                 new FollowPathAction(f, path.shootPreload21, true)
 
                                         )),
+
+
+                                        new InstantAction(() -> f.breakFollowing()),
                                         new InstantAction(() -> f.setMaxPower(1))
                                 )
 
@@ -382,7 +428,7 @@ public class AutoGoal21 extends AbstractAuto{
 
         robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
-        robot.shooter.feeder.isGateEnabled = true;
+        robot.shooter.feeder.isGateEnabled = false;
         isFuturePoseOn = false;
     }
 }
