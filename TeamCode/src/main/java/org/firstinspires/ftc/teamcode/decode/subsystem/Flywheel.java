@@ -61,8 +61,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             TARGET_RPM_MID_BAND = 9.0,
             SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.25,
-            CLOSE_ADJUSTMENT_RPM = 120, // added onto rpm curve
-            FAR_ADJUSTMENT_RPM = 80,
+            CLOSE_ADJUSTMENT_RPM = 100, // added onto rpm curve
+            FAR_ADJUSTMENT_RPM = 100,
             ROUNDING_POINT = 100;
 
     private FlyWheelStates targetState = FlyWheelStates.IDLE;

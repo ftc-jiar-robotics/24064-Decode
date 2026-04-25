@@ -56,7 +56,7 @@ public class GoalPaths {
             intake21Control = new Pose(60.800, 60.100),
             endIntakeSecond21 = new Pose(8.400, 59.100),
             gateCycleControl21 = new Pose(18.9, 54.900),
-            intakeGateCycle21 = new Pose(13, 60),
+            intakeGateCycle21 = new Pose(12.5, 60.3),
             intakeGateCycleRed21 = new Pose(13, 60),
             endIntakeFirst21 = new Pose(23.0, 83.900),
             intakeThirdControl21 = new Pose(59.700, 35.900),
