@@ -25,7 +25,9 @@ public class Hood extends Subsystem<Double> {
     public static double
             PHYSICAL_MAX = 195,
             MAX = 160,
-            MIN = 80;
+            MIN = 80,
+            FAR_HOOD_ADJUST = -10,
+            CLOSE_HOOD_AJUST = 0;
 
 
     public Hood(HardwareMap hw) {
@@ -48,7 +50,7 @@ public class Hood extends Subsystem<Double> {
 
     public double getHoodAngleWithDistance(double distance) {
         // in launch radians: 1.03332039 - (0.00620188 * distance) + (0.00001780 * distance * distance);
-        return Range.clip(110.35209094986163*(1) + -1.134249848424577*(distance) + 0.011055576786071695*(distance*distance) + -1.071867716505115e-05*(distance*distance*distance), MIN, MAX);
+        return Range.clip(110.35209094986163*(1) + -1.134249848424577*(distance) + 0.011055576786071695*(distance*distance) + -1.071867716505115e-05*(distance*distance*distance) + (robot.isFar?FAR_HOOD_ADJUST:CLOSE_HOOD_AJUST) - 2, MIN, MAX);
     }
 
     public double getHoodAngleWithRPM(double currentRPM) {

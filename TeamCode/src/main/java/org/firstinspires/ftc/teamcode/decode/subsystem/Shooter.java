@@ -82,6 +82,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         return queuedShots;
     }
 
+    public void setDontMoveGoalDown(boolean val){
+        turret.dontMoveGoalDown = val;
+    }
+
     public double getFeederSpeed(){
         return feeder.getSpeed();
     }
@@ -189,7 +193,20 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         switch (targetState) {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
-                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                if (!isHoodManual) {
+                    if(robot.isFar){
+                        double distanceI = turret.getDistance();
+                        if (!isHoodManual) hood.set(Hood.MIN);
+                        if (!isHoodManual) {
+                            if (distanceI <= HOOD_DISTANCE_SHOOTER_SWITCH) {
+                                hood.set(hood.getHoodAngleWithDistance(distanceI), true);
+                            } else {
+                                hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                            }
+                        }
+                    }
+                    else hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                }
 
                 if (queuedShots >= 1) {
                     if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
@@ -199,7 +216,16 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case PREPPING:
                 double distance = turret.getDistance();
-                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                if (!isHoodManual) {
+                    if(robot.isFar){
+                        if (distance <= HOOD_DISTANCE_SHOOTER_SWITCH) {
+                            hood.set(hood.getHoodAngleWithDistance(distance), true);
+                        } else {
+                            hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                        }
+                    }
+                    else hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                }
 
                 if ((queuedShots >= 1 &&
                         flywheel.get() == Flywheel.FlyWheelStates.RUNNING &&
@@ -214,7 +240,17 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 }
                 break;
             case RUNNING:
-                if (!isHoodManual) hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                if (!isHoodManual) {
+                    if(robot.isFar){
+                        double distanceR = turret.getDistance();
+                        if (distanceR <= HOOD_DISTANCE_SHOOTER_SWITCH) {
+                            hood.set(hood.getHoodAngleWithDistance(distanceR), true);
+                        } else {
+                            hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                        }
+                    }
+                    else hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                }
 
                 flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
                 feeder.set(Feeder.FeederStates.RUNNING, true);

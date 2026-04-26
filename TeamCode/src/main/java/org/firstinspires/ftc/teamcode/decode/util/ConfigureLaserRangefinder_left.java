@@ -32,7 +32,7 @@ public class ConfigureLaserRangefinder_left extends LinearOpMode {
 //        rightLRF.setDistanceMode(LaserRangefinder.DistanceMode.SHORT);
         leftLRF.setTiming(10, 0);
 //        rightLRF.setTiming(10, 0);
-        leftLRF.setROI(0, 13, 15, 0);
+        leftLRF.setROI(2, 13, 13, 0);
 //        rightLRF.setROI(0, 13, 15, 0);
         leftLRF.setPin0Digital(Common.MIN_DISTANCE_FEEDER, Common.MAX_DISTANCE_FEEDER);
         leftLRF.setPin1Digital(Common.MIN_DISTANCE_FEEDER, Common.MAX_DISTANCE_FEEDER);

@@ -27,7 +27,6 @@ public class Intake extends Subsystem<Double> {
         this.motor = new CachedMotor(hardwareMap, NAME_INTAKE_MOTOR, Motor.GoBILDA.RPM_435,ROUNDING_POINT);
         pin0Front = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_FRONT_PIN0);
         pin1Front = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_FRONT_PIN1);
-
         pin0Back = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_BACK_PIN0);
     }
     public boolean getFrontState() {

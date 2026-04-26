@@ -44,10 +44,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final FIRLowPassFilter accelerationFilter = new FIRLowPassFilter(accelerationGains);
     private final Differentiator offsetDifferentiator = new Differentiator();
 
+    public boolean dontMoveGoalDown = false;
     public static double
             OFFSET_DERIVATIVE_TOLERANCE = 50,
             WRAP_AROUND_THRESHOLD = 5,
-            READY_TO_SHOOT_LOOPS = 3,
+            READY_TO_SHOOT_LOOPS = 2,
             SWITCH_Y_POSITION_BIG = 100,
             SWITCH_Y_POSITION_SMALL = 48,
             GOAL_ADDITION_X_BLUE = 4,
@@ -56,7 +57,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             WRAP_AROUND_ANGLE = 180,
             TURRET_CLIP_ANGLE_MIN = 40,
             TURRET_CLIP_ANGLE_MAX = 340,
-            ANGLE_TOLERANCE = 3,
+            ANGLE_TOLERANCE = 5,
             STATIC_TOLERANCE_SCALE = 1.0,   // when robot is basically still
             MOVING_TOLERANCE_SCALE = 1.8,   // when robot is moving (tune this)
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
@@ -86,6 +87,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         turretMaster.setInverted(true);
         turretSlave.setInverted(true);
 
+
+        dontMoveGoalDown = false;
     }
 
 
@@ -94,7 +97,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double x = Common.BLUE_GOAL.getX();
         double y = Common.BLUE_GOAL.getY();
-        if (robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
+        if (!dontMoveGoalDown && robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
         else if (robot.isAuto || robot.drivetrain.getPose().getY() < SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE), y);
         else newGoal = new Pose(x, y);
 
@@ -131,16 +134,13 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         return getDistance(turretPos);
     }
 
+    public double getAngle(){
+        return targetAngle;
+    }
+
 //    double getCurrentAngle() {
 //        return currentAngle;
 //    }
-    private double getPositionTolerance() {
-        // Scale based on if the robot is moving
-        boolean moving = robot.isRobotMoving();
-        double scale = moving ? MOVING_TOLERANCE_SCALE : STATIC_TOLERANCE_SCALE;
-
-        return 1 * scale;
-    }
 
     private double getDesiredTurretOmegaRadPerSec() {
         // Vector from turret to goal (field)

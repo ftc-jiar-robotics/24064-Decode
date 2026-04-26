@@ -63,7 +63,7 @@ public class Constants {
             150,
             0.95,
             10,
-            .9
+            .95
     );
 
     public static Follower createFollower(HardwareMap hardwareMap) {

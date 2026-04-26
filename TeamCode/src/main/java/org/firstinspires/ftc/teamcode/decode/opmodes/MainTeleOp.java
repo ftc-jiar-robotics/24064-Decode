@@ -9,6 +9,15 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.START;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.START;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.AUTO_END_POSE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_POWER_INPUT;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.SLOW_MODE;
@@ -130,7 +139,7 @@ public class MainTeleOp extends LinearOpMode {
 
             if (isFlywheelManual) {
                 if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5, true);
-                if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(-5, false);
+                if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(5, false);
             }
 
 

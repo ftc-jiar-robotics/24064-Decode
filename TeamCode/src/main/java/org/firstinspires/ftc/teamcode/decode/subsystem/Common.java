@@ -23,8 +23,7 @@ public final class Common {
             NAME_FEEDER_RIGHT_PIN0 = "rightDistancePin0",
             NAME_INTAKE_FRONT_PIN0 = "intakeSensorFront0",
             NAME_INTAKE_FRONT_PIN1 = "intakeSensorFront1",
-
-    NAME_INTAKE_BACK_PIN0 = "intakeSensorBack",
+            NAME_INTAKE_BACK_PIN0 = "intakeSensorBack",
 
             NAME_FLYWHEEL_MASTER_MOTOR = "shooterMaster",
             NAME_FLYWHEEL_SLAVE_MOTOR = "shooterSlave",
@@ -83,13 +82,13 @@ public final class Common {
             MAX_VOLTAGE = 14;
 
     public static final Pose
-            RELOCALIZATION_GATE_RED = new Pose(144 - 14.875, 72 + 9.125, Math.toRadians(270)),
             RED_BIG_TRIANGLE = new Pose(112.2, 135.5, Math.toRadians(270)),
             RED_SMALL_TRIANGLE = new Pose(89.5, 7.125, Math.toRadians(90)),
-            BLUE_BIG_TRIANGLE = RED_BIG_TRIANGLE.mirror(),
+            BLUE_BIG_TRIANGLE = new Pose(32,135.75,Math.toRadians(270)),
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90));
 
     public static Pose
+            RELOCALIZATION_GATE_RED = new Pose(144 - 14.875, 72 + 9.125, Math.toRadians(270)),
             BLUE_GOAL = new Pose(2,142),
             RED_GOAL = BLUE_GOAL.mirror();
 
@@ -108,8 +107,7 @@ public final class Common {
             BLUE_GOAL_ID = 20,
             RED_GOAL_ID  = 24,
             MIN_DISTANCE_FEEDER = 0, // TODO mm
-            MAX_DISTANCE_FEEDER = 90, // TODO mm
-            RELOCALIZE_UPDATE_LOOPS = (1 << 3) - 1,
+            MAX_DISTANCE_FEEDER = 80, // TODO mm
             COLOR_SENSOR_UPDATE_LOOPS = (1 << 2) - 1;
 
     public static Robot robot;

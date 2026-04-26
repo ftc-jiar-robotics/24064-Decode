@@ -11,7 +11,9 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -32,7 +34,9 @@ public class AutoGoal18 extends AbstractAuto{
             FIRST_INTAKE_BRAKING_STRENGTH = 2,
             FIRST_INTAKE_BRAKING_START = 3,
             THIRD_INTAKE_BRAKING_STRENGTH = 3,
-            THIRD_INTAKE_BRAKING_START = 3;
+            THIRD_INTAKE_BRAKING_START = 3,
+            OFFSET_CYCLE_ONE = 0,
+            OFFSET_CYCLE_TWO = 0;
 
     @Override
     protected Pose getStartPose() {
@@ -60,8 +64,8 @@ public class AutoGoal18 extends AbstractAuto{
     protected void onRun() {
         shootPreload();
         shootSecond();
-        shootGateCycle(0);
-        shootGateCycle(0);
+        shootGateCycle(OFFSET_CYCLE_ONE);
+        shootGateCycle(OFFSET_CYCLE_TWO);
         shootFirst();
         shootThird();
 //        goalLeave();
@@ -111,8 +115,9 @@ public class AutoGoal18 extends AbstractAuto{
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_THIRD"))
                 )));
 
-
+        robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
+        robot.shooter.feeder.isGateEnabled = true;
 
     }
     private void shootFirst() {
@@ -154,9 +159,33 @@ public class AutoGoal18 extends AbstractAuto{
     }
 
     private void shootGateCycle(double offset) {
-        path.gateCycleIntake21.getPath(0).setTValueConstraint(0.94);
-        path.gateCycleIntake21.getPath(0).setHeadingConstraint(0.00077);
-        path.gateCycleIntake21.getPath(0).setTranslationalConstraint(0.01);
+        Pose intakeGateCycle21 = GoalPaths.intakeGateCycle21.withY(GoalPaths.intakeGateCycle21.getY() + offset);
+
+        PathChain gateCycleIntake21 = f.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                GoalPaths.shoot21,
+                                GoalPaths.gateCycleControl21,
+                                intakeGateCycle21
+                        )
+                )
+                .setHeadingInterpolation(HeadingInterpolator.piecewise(
+                        new HeadingInterpolator.PiecewiseNode(
+                                0,
+                                .2,
+                                HeadingInterpolator.tangent
+                        ),
+                        new HeadingInterpolator.PiecewiseNode(
+                                0.2,
+                                1,
+                                HeadingInterpolator.constant(GoalPaths.gateCycleIntakeAngle)
+                        )
+                ))
+                .build();
+
+        gateCycleIntake21.getPath(0).setTValueConstraint(0.94);
+        gateCycleIntake21.getPath(0).setHeadingConstraint(0.00077);
+        gateCycleIntake21.getPath(0).setTranslationalConstraint(0.01);
         path.gateCycleShoot21.getPath(0).setTValueConstraint(.95);
 
         f.setMaxPower(1);
@@ -164,14 +193,14 @@ public class AutoGoal18 extends AbstractAuto{
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_GATE_CYCLE")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), path.gateCycleIntake21, 0.65, 0, f, "speed_up_2"),
+                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, .72, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 RobotActions.setIntake(1, 0),
                                                 RobotActions.openGate()
                                         ),
-                                        path.gateCycleIntake21, 0.5, 0, f, "slow_down_2"),
-                                new FollowPathAction(f, path.gateCycleIntake21, true)
+                                        gateCycleIntake21, 0.5, 0, f, "slow_down_2"),
+                                new FollowPathAction(f, gateCycleIntake21, true)
                         ),
                         new Actions.UntilConditionAction(
                                 () -> robot.shooter.isRobotFullWithBalls(),
@@ -202,7 +231,10 @@ public class AutoGoal18 extends AbstractAuto{
                 )
         );
 
+
+        robot.shooter.feeder.isGateEnabled = false;
         robot.actionScheduler.runBlocking();
+        robot.shooter.feeder.isGateEnabled = true;
     }
 
     private void shootSecond() {
