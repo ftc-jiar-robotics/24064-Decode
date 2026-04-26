@@ -33,7 +33,7 @@ public final class KinematicsSolver {
     public static final Vector2 o_goal = new Vector2(2, -2.5);
     public static double
             TRAJECTORY_HEIGHT_ADDITION = 0.487, // reg .4
-            r_rimClearance = 3,
+            r_rimClearance = 2,
             admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
     

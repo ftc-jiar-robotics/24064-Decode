@@ -26,8 +26,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private int queuedShots = 0;
     private int ballConfidence = 0;
 
-    public static double RPM_DROP_ESTIMATE = 400; // TODO TUNE!!
-    private double launchAngle, idealVLaunch;
+    public static double TRAJ_MULT = 1; // 0.862968 TODO TUNE!!
+    private double launchAngle, turretOffset, idealVLaunch;
 
     public enum ShooterStates {
         IDLE, PREPPING, RUNNING
@@ -71,7 +71,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
      * @return ideal flywheel velocity (0), compensated hood angle (1), compensated turret angle (2)
      */
     public double[] getCompensatedValues() {
-        return new double[]{idealVLaunch, launchAngle, kinematicsSolver.α_launch};
+        return new double[]{idealVLaunch, launchAngle, turretOffset};
     }
 
     public double rpmDropFromCurrentRPM(double rpm) {
@@ -182,8 +182,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         kinematicsValidFullSolve = kinematicsSolver.calculateTarget_v_θ_α();
         idealVLaunch = kinematicsSolver.v_launch;
 
-        kinematicsValidFixedV = kinematicsSolver.calculateTargetWithVelocity_θ_α(idealVLaunch, robot.isFar);
+        kinematicsValidFixedV = kinematicsSolver.calculateTargetWithVelocity_θ_α(idealVLaunch * TRAJ_MULT, robot.isFar);
         launchAngle = kinematicsSolver.θ_launch;
+        turretOffset = kinematicsSolver.α_launch;
 
         switch (targetState) {
             case IDLE:

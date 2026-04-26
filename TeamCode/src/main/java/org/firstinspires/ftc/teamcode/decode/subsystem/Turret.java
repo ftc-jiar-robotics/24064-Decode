@@ -169,18 +169,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     }
 
     private void setTracking(Pose customTurretPos) {
-        double offset = Math.toDegrees(robot.shooter.getCompensatedValues()[2]);
-        offsetDerivative = offsetDifferentiator.getDerivative(offset);
-
-        boolean isPositiveToZero = offset > 0 && offsetDerivative < -OFFSET_DERIVATIVE_TOLERANCE;
-        boolean isNegativeToZero = offset < 0 && offsetDerivative > OFFSET_DERIVATIVE_TOLERANCE;
-
         double theta = calculateAngleToGoal(customTurretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
 
-        if (isNegativeToZero || isPositiveToZero) alpha -= 0;
-        else alpha -= offset;
+        alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]);
 
         targetAngle = normalizeToTurretRange(alpha);
         double targetAngleRaw = targetAngle;
