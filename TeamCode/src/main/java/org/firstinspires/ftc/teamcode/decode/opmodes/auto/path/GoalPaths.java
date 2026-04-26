@@ -185,11 +185,11 @@ public class GoalPaths {
                 .setHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                .27,
+                                .3,
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.27,
+                                .3,
                                 1,
                                 HeadingInterpolator.constant(gateCycleIntakeAngle)
                         )

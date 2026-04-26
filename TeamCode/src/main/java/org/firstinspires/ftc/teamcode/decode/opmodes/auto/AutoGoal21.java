@@ -266,11 +266,11 @@ public class AutoGoal21 extends AbstractAuto{
                 .setHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                .25,
+                                .3,
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.25,
+                                .3,
                                 1,
                                 HeadingInterpolator.constant(GoalPaths.gateCycleIntakeAngle)
                         )

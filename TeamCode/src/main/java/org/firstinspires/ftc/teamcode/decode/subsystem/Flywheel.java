@@ -64,7 +64,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 100,
             MAX_RPM = 4000,
-            RPM_PER_SEC_IN = 9.26567, // TODO EMPIRICALLY TUNE
+            RPM_PER_SEC_IN = 9.02567, // TODO EMPIRICALLY TUNE
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 600,

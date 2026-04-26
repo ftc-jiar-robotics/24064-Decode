@@ -9,9 +9,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.START;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.START;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -31,10 +28,6 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isSlowMode;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isStrafePower;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
