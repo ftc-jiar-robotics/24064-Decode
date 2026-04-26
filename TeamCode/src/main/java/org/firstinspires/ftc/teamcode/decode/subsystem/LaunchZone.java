@@ -171,7 +171,7 @@ public enum LaunchZone {
         return dx * dx + dy * dy;
     }
 
-    static LaunchZone getCurrentZone(Pose currentPose) {
+    public static LaunchZone getCurrentZone(Pose currentPose) {
 
         robotPose.identity();
         robotPose.translate(FORWARD_OFFSET_IN, 0);

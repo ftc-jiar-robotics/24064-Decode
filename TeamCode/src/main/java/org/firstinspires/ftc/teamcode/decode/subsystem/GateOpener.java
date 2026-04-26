@@ -25,9 +25,9 @@ public class GateOpener extends Subsystem<GateOpener.GateOpenerStates> {
     public static double
             CLOSED_ANGLE_RED = 50,
             MID_ANGLE_RED = 145,
-            OPEN_ANGLE_RED = 190,
-            CLOSED_ANGLE_BLUE = 230,
-            OPEN_ANGLE_BLUE = 95,
+            OPEN_ANGLE_RED = 165,
+            CLOSED_ANGLE_BLUE = 235,
+            OPEN_ANGLE_BLUE = 115,
             MID_ANGLE_BLUE = 140,
             GATE_OPEN_Y_MIN = 40,
             GATE_OPEN_Y_MAX = 90,

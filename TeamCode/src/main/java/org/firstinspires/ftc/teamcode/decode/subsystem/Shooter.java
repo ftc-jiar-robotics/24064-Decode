@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Shooter extends Subsystem<Shooter.ShooterStates> {
     final Hood hood;
     final Flywheel flywheel;
-    final Turret turret;
+    public final Turret turret;
     public final Feeder feeder;
     final KinematicsSolver kinematicsSolver;
 
@@ -194,7 +194,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case IDLE:
                 feeder.set(Feeder.FeederStates.BLOCKING, true);
                 if (!isHoodManual) {
-                    if(robot.isFar){
+                    if(!robot.usingSotm()){
                         double distanceI = turret.getDistance();
                         if (!isHoodManual) hood.set(Hood.MIN);
                         if (!isHoodManual) {
@@ -217,7 +217,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
             case PREPPING:
                 double distance = turret.getDistance();
                 if (!isHoodManual) {
-                    if(robot.isFar){
+                    if(!robot.usingSotm()){
                         if (distance <= HOOD_DISTANCE_SHOOTER_SWITCH) {
                             hood.set(hood.getHoodAngleWithDistance(distance), true);
                         } else {
@@ -241,7 +241,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 break;
             case RUNNING:
                 if (!isHoodManual) {
-                    if(robot.isFar){
+                    if(!robot.usingSotm()){
                         double distanceR = turret.getDistance();
                         if (distanceR <= HOOD_DISTANCE_SHOOTER_SWITCH) {
                             hood.set(hood.getHoodAngleWithDistance(distanceR), true);

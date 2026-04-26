@@ -67,6 +67,7 @@ public abstract class AbstractAuto extends LinearOpMode {
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         Common.dashTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        robot.shooter.turret.run();
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
@@ -82,6 +83,7 @@ public abstract class AbstractAuto extends LinearOpMode {
             }
             dashTelemetry.update();
         }
+
     }
     protected abstract Pose getStartPose();
     protected abstract void onRun();

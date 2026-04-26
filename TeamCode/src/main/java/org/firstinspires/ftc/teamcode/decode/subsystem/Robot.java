@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATIO
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MID_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
@@ -165,6 +166,10 @@ public final class Robot {
         drivetrain.setPose(isRed ? Common.RELOCALIZATION_GATE_RED : Common.RELOCALIZATION_GATE_RED.mirror());
     }
 
+    public boolean usingSotm (){
+        if(isFuturePoseOn) return !isFar;
+        else return false;
+    }
 
     public void relocalizeWithArdu() {
         relocalizeWithArdu(false);
