@@ -64,7 +64,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 100,
             MAX_RPM = 4000,
-            RPM_PER_SEC_IN = 9.02567, // TODO EMPIRICALLY TUNE
+            RPM_PER_SEC_IN = 9.04567, // TODO EMPIRICALLY TUNE
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 600,
@@ -75,8 +75,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             TARGET_RPM_MID_BAND = 9.0,
             SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.25,
-            CLOSE_ADJUSTMENT_RPM = 20, // added onto rpm curve
-            FAR_ADJUSTMENT_RPM = 100,
+            CLOSE_ADJUSTMENT_RPM = 70, // added onto rpm curve
+            FAR_ADJUSTMENT_RPM = 120,
             TURRET_ANGLE_MULTIPLIER = .1,
             ROUNDING_POINT = 100;
 

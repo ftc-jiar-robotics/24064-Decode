@@ -43,11 +43,11 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public static double
         BLOCKING_ANGLE = 175,
         RUNNING_ANGLE = 140,
-        MAX_PIN_STATE = 6, // default
-        MAX_PIN_STATE_GATE_ENABLED = 6, // default
-        CLOSE_SHOOTING_SPEED = .725,
-        FAR_SHOOTING_SPEED = .42,
-        MID_SHOOTER_SPEED = .55,
+        MAX_PIN_STATE = 5, // default
+        MAX_PIN_STATE_GATE_ENABLED = 5, // default
+        CLOSE_SHOOTING_SPEED = .775,
+        FAR_SHOOTING_SPEED = .55,
+        MID_SHOOTER_SPEED = .65,
         ROUNDING_POINT = 10;
 
     public Feeder(HardwareMap hw, boolean isAuto) {
@@ -96,7 +96,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public void run() {
         feederGate.setActivated(currentState == FeederStates.RUNNING || !isGateEnabled);
         motor.set(
-                ((Common.MAX_VOLTAGE / robot.getVoltage()) * (
+                (/*(Common.MAX_VOLTAGE / robot.getVoltage()) */ (
                         currentState == FeederStates.RUNNING ?
                                 (robot.isFar ?
                                         FAR_SHOOTING_SPEED :

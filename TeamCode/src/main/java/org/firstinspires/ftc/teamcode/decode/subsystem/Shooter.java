@@ -26,7 +26,9 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     private int queuedShots = 0;
     private int ballConfidence = 0;
 
-    public static double TRAJ_MULT = 1; // 0.862968 TODO TUNE!!
+    public static double TRAJ_MULT_TELE = 0.862968; // TODO TUNE!!
+    public static double TRAJ_MULT_AUTON = 1; // 0.862968 TODO TUNE!!
+
     private double launchAngle, turretOffset, idealVLaunch;
 
     public enum ShooterStates {
@@ -186,7 +188,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         kinematicsValidFullSolve = kinematicsSolver.calculateTarget_v_θ_α();
         idealVLaunch = kinematicsSolver.v_launch;
 
-        kinematicsValidFixedV = kinematicsSolver.calculateTargetWithVelocity_θ_α(idealVLaunch * TRAJ_MULT, robot.isFar);
+        if (robot.isFar) kinematicsValidFixedV = kinematicsSolver.calculateTargetWithVelocity_θ_α(idealVLaunch * (robot.isAuto ? TRAJ_MULT_AUTON : TRAJ_MULT_TELE), true);
         launchAngle = kinematicsSolver.θ_launch;
         turretOffset = kinematicsSolver.α_launch;
 

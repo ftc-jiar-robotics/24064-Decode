@@ -53,15 +53,15 @@ public class GoalPaths {
             preload21 = new Pose(49.800, 93.600),
             shoot21 = new Pose(55.7, 78.0),
             firstShoot21 = new Pose(47, 87.0),
-            shootThird21 = new Pose(59,104),
+            shootThird21 = new Pose(59,110),
             intake21Control = new Pose(60.800, 65.100),
             endIntakeSecond21 = new Pose(14.00, 59.100),
-            gateCycleControl21 = new Pose(22.9, 56.900),
-            intakeGateCycle21 = new Pose(12.75, 60.25),
-            intakeGateCycleRed21 = new Pose(12.75, 60.25),
+            gateCycleControl21 = new Pose(20.9, 55.900),
+            intakeGateCycle21 = new Pose(13.9, 61.5),
+            intakeGateCycleRed21 = new Pose(13.9    , 61.5),
             endIntakeFirst21 = new Pose(26.0, 83.900),
-            intakeThirdControl21 = new Pose(36.700, 38.900),
-            startIntakeThird21 = new Pose(34, 36.400),
+            intakeThirdControl21 = new Pose(40.700, 38.900),
+            startIntakeThird21 = new Pose(36, 36.400),
             endIntakeThird21 = new Pose(19.00, 36.200),
             preloadShoot21 = new Pose(55, 83.7),
             leave21 = new Pose(52.9, 76.3);
@@ -74,8 +74,8 @@ public class GoalPaths {
             shootAngle = Math.toRadians(-127),
             endIntakeAngleFirst = Math.toRadians(180),
             gateCycleShootAngle = Math.toRadians(215),
-            gateCycleIntakeAngleRed = Math.toRadians(161),
-            gateCycleIntakeAngle = Math.toRadians(161),
+            gateCycleIntakeAngleRed = Math.toRadians(164),
+            gateCycleIntakeAngle = Math.toRadians(164),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
             startIntakeAngleHP = Math.toRadians(180),
@@ -177,7 +177,7 @@ public class GoalPaths {
         gateCycleIntake21 = f.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                shoot21,
+                                f::getPose,
                                 gateCycleControl21,
                                 intakeGateCycle21
                         )
@@ -220,7 +220,7 @@ public class GoalPaths {
         thirdIntake21 = f.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                firstShoot21,
+                                f::getPose,
                                 intakeThirdControl21,
                                 startIntakeThird21
                         )

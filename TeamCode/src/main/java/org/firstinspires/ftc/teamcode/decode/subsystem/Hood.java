@@ -26,8 +26,8 @@ public class Hood extends Subsystem<Double> {
             PHYSICAL_MAX = 195,
             MAX = 160,
             MIN = 80,
-            FAR_HOOD_ADJUST = -10,
-            CLOSE_HOOD_AJUST = 0;
+            FAR_HOOD_ADJUST = -12,
+            CLOSE_HOOD_AJUST = 3;
 
 
     public Hood(HardwareMap hw) {

@@ -63,7 +63,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             ABSOLUTE_ENCODER_OFFSET = -96.4444,
             LAUNCH_DELAY = 0.3,
             LOS_EPS = 1e-6,
-            ROUNDING_POINT = 20;    // divide by zero guard
+            ROUNDING_POINT = 1000;    // divide by zero guard
 
     private Pose goal = Common.BLUE_GOAL;
 
@@ -172,7 +172,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         double theta = calculateAngleToGoal(customTurretPos);
         double alpha = ((theta - robotHeadingTurretDomain) + 3600) % 360;
         turretPos.setHeading(robot.drivetrain.getHeading()-alpha);
-
         alpha -= Math.toDegrees(robot.shooter.getCompensatedValues()[2]);
 
         targetAngle = normalizeToTurretRange(alpha);

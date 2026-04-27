@@ -32,17 +32,16 @@ public class AutoPartner18 extends AbstractAuto{
     private GoalPaths path;
 
     public static double
-            FIRST_INTAKE_BRAKING_STRENGTH = 2,
-            FIRST_INTAKE_BRAKING_START = 3,
-            THIRD_INTAKE_BRAKING_STRENGTH = 3,
-            THIRD_INTAKE_BRAKING_START = 3,
+            FIRST_INTAKE_BRAKING_STRENGTH = 1,
+            FIRST_INTAKE_BRAKING_START = 1,
+            THIRD_INTAKE_BRAKING_STRENGTH = 2,
+            THIRD_INTAKE_BRAKING_START = 2.7,
             OFFSETY_CYCLE_ONE = 0,
             OFFSETY_CYCLE_TWO = 0,
-            OFFSETY_CYCLE_THREE = .5,
+            OFFSETY_CYCLE_THREE = -.1,
             OFFSETX_CYCLE_ONE = 0,
-            OFFSETX_CYCLE_TWO = .5,
-            OFFSETX_CYCLE_THREE = .5;
-
+            OFFSETX_CYCLE_TWO = 0,
+            OFFSETX_CYCLE_THREE = 0;
     @Override
     protected Pose getStartPose() {
         return GoalPaths.start;
@@ -69,9 +68,9 @@ public class AutoPartner18 extends AbstractAuto{
     protected void onRun() {
         shootPreload();
         shootSecond();
-        shootGateCycle(OFFSETY_CYCLE_ONE, OFFSETX_CYCLE_ONE);
-        shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO);
-        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE);
+        shootGateCycle(OFFSETY_CYCLE_ONE, OFFSETX_CYCLE_ONE,1.5, 26);
+        shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO,1.5, 26);
+        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE,1.5, 26);
         shootFirst();
         goalLeave();
     }
@@ -163,7 +162,7 @@ public class AutoPartner18 extends AbstractAuto{
         robot.actionScheduler.runBlocking();
     }
 
-    private void shootGateCycle(double offsetY, double offsetX) {
+    void shootGateCycle(double offsetY, double offsetX, double waitTime, double slowDownX) {
         Pose intakeGateCycle21 = GoalPaths.intakeGateCycle21.withY(GoalPaths.intakeGateCycle21.getY() + offsetY).withX(GoalPaths.intakeGateCycle21.getX() + offsetX * (isRed ? 1 : -1));
 
         PathChain gateCycleIntake21 = f.pathBuilder()
@@ -181,7 +180,7 @@ public class AutoPartner18 extends AbstractAuto{
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                0.3,
+                                .3,
                                 1,
                                 HeadingInterpolator.constant(GoalPaths.gateCycleIntakeAngle)
                         )
@@ -191,14 +190,26 @@ public class AutoPartner18 extends AbstractAuto{
         gateCycleIntake21.getPath(0).setTValueConstraint(0.94);
         gateCycleIntake21.getPath(0).setHeadingConstraint(0.00077);
         gateCycleIntake21.getPath(0).setTranslationalConstraint(0.01);
-        path.gateCycleShoot21.getPath(0).setTValueConstraint(.95);
+        path.gateCycleShoot21.getPath(0).setTValueConstraint(.92);
+        path.gateCycleShoot21.getPath(0).setBrakingStart(.9);
+        path.gateCycleShoot21.getPath(0).setBrakingStrength(.9);
+
+        gateCycleIntake21.getPath(0).setVelocityConstraint(.02);
+        path.gateCycleShoot21.getPath(0).setVelocityConstraint(.02);
+
 
         f.setMaxPower(1);
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_GATE_CYCLE")),
                         new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(.25)), gateCycleIntake21, 0.73, 0, f, "speed_up_2"),
+                                new Actions.CallbackAction(
+                                        new SequentialAction(
+                                                new Actions.UntilConditionAction(() -> isRed ? f.getPose().getX() > 144-slowDownX : f.getPose().getX() < slowDownX, new SleepAction(3)),
+                                                new InstantAction(() -> f.setMaxPower(.25))
+                                        ),
+
+                                        gateCycleIntake21, 0.1, 0, f, "speed_up_2"),
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 RobotActions.setIntake(1, 0),
@@ -211,36 +222,50 @@ public class AutoPartner18 extends AbstractAuto{
                                 () -> robot.shooter.isRobotFullWithBalls(),
                                 new SequentialAction(
                                         new InstantAction(() -> f.setMaxPower(1)),
-                                        new SleepAction(2.5) // sleep to let balls roll out of classifier
+                                        new SleepAction(waitTime) // sleep to let balls roll out of classifier
                                 )
                         ),
+                        new InstantAction(() -> f.setMaxPower(1)),
                         new ParallelAction(
                                 new Actions.CallbackAction(
                                         new ParallelAction(
                                                 RobotActions.closeGate(),
                                                 RobotActions.armTurret(),
-                                                RobotActions.armFlywheel(),
+//                                                RobotActions.armFlywheel(),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.gateCycleShoot21, 0.01, 0, f, "arm_flywheel_and_turret_2"
                                 ),
+
+                                new Actions.CallbackAction(
+                                        new ParallelAction(
+                                                RobotActions.shootArtifacts(3, 1.5)
+//                                                new SequentialAction(
+//                                                        new SleepAction(.1),
+//                                                        RobotActions.emergencyShootArtifacts()
+//                                                )
+                                        ),
+                                        path.gateCycleShoot21, 0.92, 0, f, "arm_flywheel_and_turret_2"
+                                ),
                                 new FollowPathAction(f, path.gateCycleShoot21, true)
                         ),
 
-                        new SleepAction(.2),
+//                        new SleepAction(.2),
 
                         //shoots first 3 balls
-                        RobotActions.shootArtifacts(3, 2),
-
+//                        RobotActions.shootArtifacts(3, 2),
+//
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_GATE"))
                 )
         );
 
 
         robot.shooter.feeder.isGateEnabled = false;
+        isFuturePoseOn = false;
         robot.actionScheduler.runBlocking();
-        robot.shooter.feeder.isGateEnabled = true;    }
-
+        isFuturePoseOn = true;
+        robot.shooter.feeder.isGateEnabled = false;
+    }
     private void shootSecond() {
         path.secondIntake21.getPath(1).setTValueConstraint(0.88);
         path.secondIntake21.getPath(0).setTValueConstraint(0.88);
