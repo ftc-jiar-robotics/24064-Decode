@@ -22,7 +22,8 @@ public class GateOpenPrototype extends LinearOpMode {
         while (opModeIsActive()) {
             gamepadEx1.readButtons();
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) {
-//                gateOpener.set(!gateOpener.get(), true);
+                gateOpener.set(gateOpener.get() == GateOpener.GateOpenerStates.CLOSE ? GateOpener.GateOpenerStates.OPEN:
+                GateOpener.GateOpenerStates.CLOSE, true);
             }
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) {
                 Common.isRed = !Common.isRed;

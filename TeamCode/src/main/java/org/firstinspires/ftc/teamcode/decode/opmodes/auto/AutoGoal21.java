@@ -44,7 +44,7 @@ public class AutoGoal21 extends AbstractAuto{
             OFFSETY_CYCLE_TWO = -.1,
             OFFSETY_CYCLE_THREE = -0.1,
             OFFSETX_CYCLE_ONE = 0,
-            OFFSETX_CYCLE_TWO = -0.1,
+            OFFSETX_CYCLE_TWO = -0.2,
             OFFSETX_CYCLE_THREE = -0.1;
 
     @Override
@@ -354,13 +354,13 @@ public class AutoGoal21 extends AbstractAuto{
                                 new SequentialAction(
                                         new InstantAction(() -> f.setMaxPower(1)),
                                         new SleepAction(waitTime) // sleep to let balls roll out of classifier
-                                )
+                                        )
                         ),
+                        RobotActions.closeGate() ,
                         new InstantAction(() -> f.setMaxPower(1)),
                         new ParallelAction(
                                 new Actions.CallbackAction(
                                         new ParallelAction(
-                                                RobotActions.closeGate(),
                                                 RobotActions.armTurret(),
 //                                                RobotActions.armFlywheel(),
                                                 RobotActions.setIntake(1, 0)
