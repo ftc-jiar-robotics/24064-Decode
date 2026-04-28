@@ -32,7 +32,7 @@ import org.firstinspires.ftc.teamcode.decode.control.Ranges;
 public final class KinematicsSolver {
     public static final Vector2 o_goal = new Vector2(2, -2.5);
     public static double
-            r_rimClearanceTele = 3.2,
+            r_rimClearanceTele = 3.0,
             r_rimClearanceAuto = 3.2,
             admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
@@ -52,10 +52,7 @@ public final class KinematicsSolver {
             half_F = 141.5/2,
             rim_dist_comparison_error = 0.1;
 
-    private final boolean isAuto;
-    public KinematicsSolver(boolean isAuto) {
-        this.isAuto = isAuto;
-    }
+    private static boolean isAuto;
 
     private static final Vector2
             s_wheel = new Vector2(3.64584291339,10.611220472440944),
