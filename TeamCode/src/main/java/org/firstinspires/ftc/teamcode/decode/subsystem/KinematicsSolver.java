@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.decode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.acos;
@@ -51,8 +52,6 @@ public final class KinematicsSolver {
             c = r_wheel + r_ball,
             half_F = 141.5/2,
             rim_dist_comparison_error = 0.1;
-
-    private static boolean isAuto;
 
     private static final Vector2
             s_wheel = new Vector2(3.64584291339,10.611220472440944),
@@ -216,7 +215,7 @@ public final class KinematicsSolver {
         double dx = x_nearest - s0.x;
         s_rimNearest.set(x_nearest, 0.25*N*dx*dx + M*dx + s0.y);
 
-        s_rimTarget.set(s_rimNearest).subtract(s_rim).setMagnitude(r_ball + (isAuto ? r_rimClearanceAuto : r_rimClearanceTele));
+        s_rimTarget.set(s_rimNearest).subtract(s_rim).setMagnitude(r_ball + (robot.isAuto ? r_rimClearanceAuto : r_rimClearanceTele));
         if (s_rimTarget.y < 0)
             s_rimTarget.negate();
         s_rimTarget.add(s_rim);
@@ -265,7 +264,7 @@ public final class KinematicsSolver {
             computeForwardKinematics();
 
             if (j == 0) {
-                θi = θ_3pt(s_rim, r_ball + (isAuto ? r_rimClearanceAuto : r_rimClearanceTele));
+                θi = θ_3pt(s_rim, r_ball + (robot.isAuto ? r_rimClearanceAuto : r_rimClearanceTele));
                 sin_θi = sin(θi);
                 cos_θi = cos(θi);
                 tan_θi = sin_θi / cos_θi;
@@ -309,7 +308,7 @@ public final class KinematicsSolver {
         return
                 v_launch >= v_launchMin && v_launch < v_launchMax &&
                 s_rimNearest.y >= s_rim.y &&
-                s_rimNearest.distance(s_rim) >= r_ball + (isAuto ? r_rimClearanceAuto : r_rimClearanceTele) - rim_dist_comparison_error &&
+                s_rimNearest.distance(s_rim) >= r_ball + (robot.isAuto ? r_rimClearanceAuto : r_rimClearanceTele) - rim_dist_comparison_error &&
                 abs(s_atGoal.y - s_goal.y) <= admissibleVerticalErrorAtGoal;
     }
 
@@ -365,7 +364,7 @@ public final class KinematicsSolver {
         double rimDist = s_rimNearest.distance(s_rim);
         return
                 s_rimNearest.y >= s_rim.y &&
-                rimDist >= r_ball + (isAuto ? r_rimClearanceAuto : r_rimClearanceTele) - rim_dist_comparison_error &&
+                rimDist >= r_ball + (robot.isAuto ? r_rimClearanceAuto : r_rimClearanceTele) - rim_dist_comparison_error &&
                 abs(s_atGoal.y - s_goal.y) <= admissibleVerticalErrorAtGoal ?
                         rimDist :
                         Double.NaN;
