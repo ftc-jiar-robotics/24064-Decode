@@ -172,6 +172,8 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
     @Override
     public void run() {
+        kinematicsSolver.setRimClearance(robot.isAuto);
+
         kinematicsSolver.setRobotState(robot.drivetrain.getPose(), robot.drivetrain.getVelocity(), robot.drivetrain.getAngularVelocity());
 
         if (isBallInFeeder() && isBallInIntakeFront() && isBallInIntakeBack()) {

@@ -32,7 +32,9 @@ import org.firstinspires.ftc.teamcode.decode.control.Ranges;
 public final class KinematicsSolver {
     public static final Vector2 o_goal = new Vector2(2, -2.5);
     public static double
-            r_rimClearance = 3.2,
+            r_rimClearanceTeleOp = 3.2,
+            r_rimClearanceAuto = 3.0,
+            r_rimClearance = r_rimClearanceTeleOp,
             admissibleVerticalErrorAtGoal = 1,
             y_goal = 40,
     
@@ -84,6 +86,10 @@ public final class KinematicsSolver {
     double θ_launch = (θ_launchMin + θ_launchMax) / 2,
             v_launch = (v_launchMin + v_launchMax) / 2,
             α_launch = 0;
+
+    public void setRimClearance(boolean isAuto) {
+        r_rimClearance = isAuto ? r_rimClearanceAuto : r_rimClearanceTeleOp;
+    }
 
     public void setAlliance(boolean isRedAlliance) {
         double i = isRedAlliance ? 1 : -1;
