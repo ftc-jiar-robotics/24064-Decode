@@ -62,7 +62,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         motor = new CachedMotor(hw, NAME_INTAKE_MOTO_MOTOR, Motor.GoBILDA.BARE, ROUNDING_POINT);
         motor.setInverted(true);
 
-        isGateEnabled = isAuto;
+        isGateEnabled = true;//!isAuto;
     }
 
     @Override
