@@ -21,7 +21,7 @@ public class Constants {
 
 
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(14.0614)
+            .mass(13.3)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.125,0.000025,0.01125,0.025))
             .headingPIDFCoefficients(new PIDFCoefficients(0.9,0,0.015,0.003))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.0076, 0, 0.00004, 0.6, 0.05))

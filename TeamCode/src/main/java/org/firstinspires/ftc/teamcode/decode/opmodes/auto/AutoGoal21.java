@@ -44,8 +44,8 @@ public class AutoGoal21 extends AbstractAuto{
             OFFSETY_CYCLE_TWO = -.1,
             OFFSETY_CYCLE_THREE = -0.1,
             OFFSETX_CYCLE_ONE = 0,
-            OFFSETX_CYCLE_TWO = -0.2,
-            OFFSETX_CYCLE_THREE = -0.1;
+            OFFSETX_CYCLE_TWO = 0,
+            OFFSETX_CYCLE_THREE = -0.1  ;
 
     @Override
     protected Pose getStartPose() {
@@ -337,7 +337,7 @@ public class AutoGoal21 extends AbstractAuto{
                                 new Actions.CallbackAction(
                                         new SequentialAction(
                                                 new Actions.UntilConditionAction(() -> isRed ? f.getPose().getX() > 144-slowDownX : f.getPose().getX() < slowDownX, new SleepAction(3)),
-                                                new InstantAction(() -> f.setMaxPower(.3))
+                                                new InstantAction(() -> f.setMaxPower(.23))
                                         ),
 
                                         gateCycleIntake21, 0.1, 0, f, "speed_up_2"),
@@ -363,7 +363,7 @@ public class AutoGoal21 extends AbstractAuto{
                                         new ParallelAction(
                                                 RobotActions.armTurret(),
 //                                                RobotActions.armFlywheel(),
-                                                RobotActions.setIntake(1, 0)
+                                                RobotActions.setIntake(0.2, 0)
                                         ),
                                         gateCycleShoot21, 0.01, 0, f, "arm_flywheel_and_turret_2"
                                 ),

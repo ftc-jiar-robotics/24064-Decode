@@ -235,7 +235,7 @@ public class AutoGoal18 extends AbstractAuto{
                                                 RobotActions.closeGate(),
                                                 RobotActions.armTurret(),
 //                                                RobotActions.armFlywheel(),
-                                                RobotActions.setIntake(1, 0)
+                                                RobotActions.setIntake(0.2, 0)
                                         ),
                                         path.gateCycleShoot21, 0.01, 0, f, "arm_flywheel_and_turret_2"
                                 ),

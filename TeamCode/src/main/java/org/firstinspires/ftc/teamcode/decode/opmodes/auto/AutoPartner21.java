@@ -30,15 +30,20 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 public class AutoPartner21 extends AutoGoal21{
 
+    public static double
+            OFFSETX_CYCLE_FOUR = -0.1,
+            OFFSETY_CYCLE_FOUR = -.1;
+
+
     @Override
     protected void onRun() {
         shootPreload();
         shootSecond();
-        shootGateCycle(OFFSETY_CYCLE_ONE, OFFSETX_CYCLE_ONE,1.5, 25.85, false);
-        shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO,2, 25.85, false);
+        shootGateCycle(OFFSETY_CYCLE_ONE, OFFSETX_CYCLE_ONE,1.5, 28.5, false);
+        shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO,2, 28.5, false);
         shootFirst();
-        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE,1.5, 25.85, false);
-        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE-.1,2, 25.85, true);
+        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE,1.5, 28.5, false);
+        shootGateCycle(OFFSETY_CYCLE_FOUR,OFFSETX_CYCLE_FOUR,2, 28.5, true);
 //        goalLeave();
     }
 

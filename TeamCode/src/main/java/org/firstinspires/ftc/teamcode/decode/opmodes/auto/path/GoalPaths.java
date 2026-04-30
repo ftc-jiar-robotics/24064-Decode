@@ -56,9 +56,10 @@ public class GoalPaths {
             shootThird21 = new Pose(59,110),
             intake21Control = new Pose(60.800, 65.100),
             endIntakeSecond21 = new Pose(14.00, 59.100),
-            gateCycleControl21 = new Pose(20.9, 55.900),
-            intakeGateCycle21 = new Pose(13.9, 61.4),
-            intakeGateCycleRed21 = new Pose(13.9    , 61.4),
+            gateCycleControl21 = new Pose(20.9, 56.250),
+            intakeGateCycle21 = new Pose(13.5, 61.75),
+            intakeGateCycleRed21 = new Pose(13.5, 61.75),
+            intakeGateCycleBlue21 = new Pose(13.5, 61.75),
             endIntakeFirst21 = new Pose(26.0, 83.900),
             intakeThirdControl21 = new Pose(40.700, 38.900),
             startIntakeThird21 = new Pose(36, 36.400),
@@ -75,6 +76,7 @@ public class GoalPaths {
             endIntakeAngleFirst = Math.toRadians(180),
             gateCycleShootAngle = Math.toRadians(215),
             gateCycleIntakeAngleRed = Math.toRadians(163.5),
+            gateCycleIntakeAngleBlue = Math.toRadians(163.5),
             gateCycleIntakeAngle = Math.toRadians(163.5),
             startIntakeAngle = Math.toRadians(-155),
             endIntakeAngle = Math.toRadians(-150),
@@ -114,7 +116,7 @@ public class GoalPaths {
         intake21Control = intake21Control.mirror();
         endIntakeSecond21 = endIntakeSecond21.mirror();
         gateCycleControl21 = gateCycleControl21.mirror();
-        intakeGateCycle21 = isRed ? intakeGateCycleRed21.mirror() : intakeGateCycle21;
+        intakeGateCycle21 = isRed ? intakeGateCycleRed21.mirror() : intakeGateCycleBlue21;
         endIntakeFirst21 = endIntakeFirst21.mirror();
         intakeThirdControl21 = intakeThirdControl21.mirror();
         startIntakeThird21 = startIntakeThird21.mirror();
@@ -128,7 +130,7 @@ public class GoalPaths {
         gateAngle = mirrorAngleRad(gateAngle);
         endIntakeAngle = mirrorAngleRad(endIntakeAngle);
         startIntakeAngleHP = mirrorAngleRad(startIntakeAngleHP);
-        gateCycleIntakeAngle = isRed ? mirrorAngleRad(gateCycleIntakeAngleRed) : (gateCycleIntakeAngle);
+        gateCycleIntakeAngle = isRed ? mirrorAngleRad(gateCycleIntakeAngleRed) : (gateCycleIntakeAngleBlue);
         gateCycleShootAngle = mirrorAngleRad(gateCycleShootAngle);
         shootHPAngle = mirrorAngleRad(shootHPAngle);
         intake21Angle = mirrorAngleRad(intake21Angle);
