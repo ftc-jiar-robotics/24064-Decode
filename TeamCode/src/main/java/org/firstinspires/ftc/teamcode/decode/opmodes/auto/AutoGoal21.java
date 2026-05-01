@@ -41,11 +41,17 @@ public class AutoGoal21 extends AbstractAuto{
             THIRD_INTAKE_BRAKING_STRENGTH = 2,
             THIRD_INTAKE_BRAKING_START = 2.7,
             OFFSETY_CYCLE_ONE = 0,
-            OFFSETY_CYCLE_TWO = -.1,
-            OFFSETY_CYCLE_THREE = -0.1,
+            OFFSETY_CYCLE_TWO = 0,
             OFFSETX_CYCLE_ONE = 0,
             OFFSETX_CYCLE_TWO = 0,
-            OFFSETX_CYCLE_THREE = -0.1  ;
+            OFFSETX_BLUE_CYCLE_ONE = 1,
+            OFFSETY_BLUE_CYCLE_ONE = -2,
+            OFFSETX_BLUE_CYCLE_TWO = 1,
+            OFFSETY_BLUE_CYCLE_TWO = -2,
+            OFFSETX_CYCLE_THREE = -0.1,
+            OFFSETY_CYCLE_THREE = -0.1, //shouldnt have been changing
+            OFFSETX_BLUE_CYCLE_THREE = 1,
+            OFFSETY_BLUE_CYCLE_THREE = -2;
 
     @Override
     protected Pose getStartPose() {
@@ -271,7 +277,11 @@ public class AutoGoal21 extends AbstractAuto{
     }
 
     void shootGateCycle(double offsetY, double offsetX, double waitTime, double slowDownX, boolean leave) {
-        Pose intakeGateCycle21 = GoalPaths.intakeGateCycle21.withY(GoalPaths.intakeGateCycle21.getY() + offsetY).withX(GoalPaths.intakeGateCycle21.getX() + offsetX * (isRed ? 1 : -1));
+        shootGateCycle(offsetY, offsetX, waitTime, slowDownX, leave, 0, 0);
+    }
+
+    void shootGateCycle(double offsetY, double offsetX, double waitTime, double slowDownX, boolean leave, double blueOffsetY, double blueOffsetX) {
+        Pose intakeGateCycle21 = GoalPaths.intakeGateCycle21.withY(GoalPaths.intakeGateCycle21.getY() + (isRed ? offsetY : blueOffsetY)).withX(GoalPaths.intakeGateCycle21.getX() + (isRed ? offsetX : -blueOffsetX));
 
         PathChain gateCycleIntake21 = f.pathBuilder()
                 .addPath(
@@ -284,11 +294,11 @@ public class AutoGoal21 extends AbstractAuto{
                 .setHeadingInterpolation(HeadingInterpolator.piecewise(
                         new HeadingInterpolator.PiecewiseNode(
                                 0,
-                                .3,
+                                .27,
                                 HeadingInterpolator.tangent
                         ),
                         new HeadingInterpolator.PiecewiseNode(
-                                .3,
+                                .27,
                                 1,
                                 HeadingInterpolator.constant(GoalPaths.gateCycleIntakeAngle)
                         )
@@ -336,7 +346,7 @@ public class AutoGoal21 extends AbstractAuto{
                         new ParallelAction(
                                 new Actions.CallbackAction(
                                         new SequentialAction(
-                                                new Actions.UntilConditionAction(() -> isRed ? f.getPose().getX() > 144-slowDownX : f.getPose().getX() < slowDownX, new SleepAction(3)),
+                                                new Actions.UntilConditionAction(() -> isRed ? f.getPose().getX() > 144-slowDownX : f.getPose().getX() < slowDownX, new SleepAction(10)),
                                                 new InstantAction(() -> f.setMaxPower(.23))
                                         ),
 
