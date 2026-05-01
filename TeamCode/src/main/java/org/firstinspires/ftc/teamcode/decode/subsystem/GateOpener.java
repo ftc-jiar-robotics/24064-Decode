@@ -84,19 +84,19 @@ public class GateOpener extends Subsystem<GateOpener.GateOpenerStates> {
 
     @Override
     public void run() {
-        switch (currentState) {
-            case OPEN:
-                isOpen = true;
-                break;
-            case CLOSE:
-                isOpen = false;
-                break;
-            case AUTOMATIC:
-                isOpen = inGateZone();
-                break;
-        }
-
-        updateOpener();
+//        switch (currentState) {
+//            case OPEN:
+//                isOpen = true;
+//                break;
+//            case CLOSE:
+//                isOpen = false;
+//                break;
+//            case AUTOMATIC:
+//                isOpen = inGateZone();
+//                break;
+//        }
+//
+//        updateOpener();
     }
 
     @Override

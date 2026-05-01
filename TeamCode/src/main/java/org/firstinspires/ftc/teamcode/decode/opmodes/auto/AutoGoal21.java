@@ -40,18 +40,18 @@ public class AutoGoal21 extends AbstractAuto{
             FIRST_INTAKE_BRAKING_START = 1,
             THIRD_INTAKE_BRAKING_STRENGTH = 2,
             THIRD_INTAKE_BRAKING_START = 2.7,
-            OFFSETY_CYCLE_ONE = 0,
-            OFFSETY_CYCLE_TWO = 0,
+            OFFSETY_CYCLE_ONE = .5,
+            OFFSETY_CYCLE_TWO = 1,
             OFFSETX_CYCLE_ONE = 0,
             OFFSETX_CYCLE_TWO = 0,
-            OFFSETX_BLUE_CYCLE_ONE = 1,
-            OFFSETY_BLUE_CYCLE_ONE = -2,
-            OFFSETX_BLUE_CYCLE_TWO = 1,
-            OFFSETY_BLUE_CYCLE_TWO = -2,
-            OFFSETX_CYCLE_THREE = -0.1,
-            OFFSETY_CYCLE_THREE = -0.1, //shouldnt have been changing
-            OFFSETX_BLUE_CYCLE_THREE = 1,
-            OFFSETY_BLUE_CYCLE_THREE = -2;
+            OFFSETX_BLUE_CYCLE_ONE = 0,
+            OFFSETY_BLUE_CYCLE_ONE = 0.25,
+            OFFSETX_BLUE_CYCLE_TWO = 0,
+            OFFSETY_BLUE_CYCLE_TWO = 0,
+            OFFSETX_CYCLE_THREE = .5,
+            OFFSETY_CYCLE_THREE = 1.5, //shouldnt have been changing
+            OFFSETX_BLUE_CYCLE_THREE = .5,
+            OFFSETY_BLUE_CYCLE_THREE = -0.5;
 
     @Override
     protected Pose getStartPose() {

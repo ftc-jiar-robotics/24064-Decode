@@ -88,7 +88,7 @@ public final class Common {
             BLUE_SMALL_TRIANGLE = RED_SMALL_TRIANGLE.mirror().setHeading(Math.toRadians(90));
 
     public static Pose
-            RELOCALIZATION_GATE_RED = new Pose(144 - 14.875, 72 + 9.125, Math.toRadians(270)),
+            RELOCALIZATION_GATE_RED = new Pose(144 - 14.875, 79, Math.toRadians(90)),
             BLUE_GOAL = new Pose(2,142),
             RED_GOAL = BLUE_GOAL.mirror();
 
