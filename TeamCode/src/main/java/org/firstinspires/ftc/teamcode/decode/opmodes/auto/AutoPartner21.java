@@ -41,11 +41,11 @@ public class AutoPartner21 extends AutoGoal21{
     protected void onRun() {
         shootPreload();
         shootSecond();
-        shootGateCycle(OFFSETY_CYCLE_ONE, OFFSETX_CYCLE_ONE,1.5, isRed ? 29.5 : 27.5, false, OFFSETY_BLUE_CYCLE_ONE, OFFSETX_BLUE_CYCLE_ONE);
-        shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO,2, isRed ? 29.5 : 27.5, false, OFFSETY_BLUE_CYCLE_TWO, OFFSETX_BLUE_CYCLE_TWO);
+        shootGateCycle(OFFSETY_CYCLE_ONE, OFFSETX_CYCLE_ONE,1.5, isRed ? 29.5 : 26.5, false, OFFSETY_BLUE_CYCLE_ONE, OFFSETX_BLUE_CYCLE_ONE);
+        shootGateCycle(OFFSETY_CYCLE_TWO, OFFSETX_CYCLE_TWO,2, isRed ? 29.5 : 26.5, false, OFFSETY_BLUE_CYCLE_TWO, OFFSETX_BLUE_CYCLE_TWO);
         shootFirst();
-        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE,1.5, isRed ? 29.5 : 27.5, false, OFFSETY_BLUE_CYCLE_THREE, OFFSETX_BLUE_CYCLE_THREE);
-        shootGateCycle(OFFSETY_CYCLE_FOUR,OFFSETX_CYCLE_FOUR,2, isRed ? 29.5 : 27.5, true, OFFSETY_BLUE_CYCLE_FOUR, OFFSETX_BLUE_CYCLE_FOUR);
+        shootGateCycle(OFFSETY_CYCLE_THREE,OFFSETX_CYCLE_THREE,1.5, isRed ? 29.5 : 26.5, false, OFFSETY_BLUE_CYCLE_THREE, OFFSETX_BLUE_CYCLE_THREE);
+        shootGateCycle(OFFSETY_CYCLE_FOUR,OFFSETX_CYCLE_FOUR,2, isRed ? 29.5 : 26.5, true, OFFSETY_BLUE_CYCLE_FOUR, OFFSETX_BLUE_CYCLE_FOUR);
 //        goalLeave();
     }
 
