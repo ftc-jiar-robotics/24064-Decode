@@ -39,8 +39,8 @@ import java.util.List;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0029, 0.000, 0.00001, 0.000077);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0029, 0.000, 0.00001, 0.000087);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0027, 0.000, 0.0000, 0.00005);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0027, 0.000, 0.0000, 0.00005);
 
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(.008, 0.000, 0.0000, 0.000087);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
@@ -62,9 +62,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public static double
             LAUNCH_DELAY = 0.3,
             OUT_OF_TOLERANCE_LOOPS = 3,
-            RPM_TOLERANCE = 100,
+            RPM_TOLERANCE = 50,
             MAX_RPM = 4000,
-            RPM_PER_SEC_IN = 9.04567, // TODO EMPIRICALLY TUNE
+            RPM_PER_SEC_IN = 9.89567, // TODO EMPIRICALLY TUNE
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 600,
@@ -76,7 +76,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.25,
             CLOSE_ADJUSTMENT_RPM = 70, // added onto rpm curve
-            FAR_ADJUSTMENT_RPM = 120,
+            FAR_ADJUSTMENT_RPM = 300,
             TURRET_ANGLE_MULTIPLIER = .1,
             ROUNDING_POINT = 100;
 
@@ -159,7 +159,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     @Override
     public void run() {
-        currentRPM = (shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
+        currentRPM = -(shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
         currentRPMSmooth = (SMOOTH_RPM_GAIN * currentRPMSmooth) + (1 - SMOOTH_RPM_GAIN) * currentRPM;
         if (currentRPM > 10000) currentRPM = 0;
         if (currentRPMSmooth > 10000) currentRPMSmooth = 0;
