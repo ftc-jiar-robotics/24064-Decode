@@ -39,15 +39,15 @@ public class AudiencePaths {
     public static Pose
 
             start = Common.BLUE_SMALL_TRIANGLE,
-            shootPreload = new Pose(55.5, 11.25),
+            shootPreload = new Pose(54.5, 11.25),
             shoot = new Pose(60.2, 19.4),
             leave = new Pose(40.1, 24.9),
             startIntake1 = new Pose(36.1, 28.4),
             endIntake1 = new Pose(13.500, 30.400),
-            startIntakeHP1 = new Pose(8.000, 8.000),
+            startIntakeHP1 = new Pose(8.000, 6.000),
             audienceControl = new Pose(60.8,8.1),
-            midIntakeHP1 = new Pose(14.300, 8.000),
-            endIntakeHP1 = new Pose(10.300, 8.000);
+            midIntakeHP1 = new Pose(14.300, 6.000),
+            endIntakeHP1 = new Pose(10.300, 6.000);
 
     public static double
             startAngle = Math.toRadians(90),
@@ -145,7 +145,6 @@ public class AudiencePaths {
         }
         path.getPath(0).setTValueConstraint(0.8);
         pathBack.getPath(0).setTValueConstraint(0.75);
-        pathBack.getPath(1).setTValueConstraint(0.8);
         return new SequentialAction(
                 new ParallelAction(
                         new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
@@ -154,10 +153,8 @@ public class AudiencePaths {
                                 path, 0.5, 0, f, "slow_down_hp_2"), // slow down to intake balls
                         new Actions.TimedAction(new FollowPathAction(f, path), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
                 ),
-                new SleepAction(0.1),
                 new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(0)), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
                 new SleepAction(0.1),
-                new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(1)), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
                 new ParallelAction(
                         new Actions.CallbackAction(
                                 new ParallelAction(
@@ -219,11 +216,6 @@ public class AudiencePaths {
                 .setConstantHeadingInterpolation(startIntakeAngleHP1)
                 .build();
         humanPlayerIntake1 = f.pathBuilder()
-                .addPath(
-                        // Path 0
-                        new BezierLine(f::getPose, midIntakeHP1)
-                )
-                .setConstantHeadingInterpolation(startIntakeAngleHP1)
                 .addPath(
                         // Path 0
                         new BezierLine(f::getPose, endIntakeHP1)

@@ -26,7 +26,7 @@ public class Hood extends Subsystem<Double> {
             PHYSICAL_MAX = 195,
             MAX = 160,
             MIN = 80,
-            FAR_HOOD_ADJUST = -12,
+            FAR_HOOD_ADJUST = 5,
             CLOSE_HOOD_AJUST = 3;
 
 

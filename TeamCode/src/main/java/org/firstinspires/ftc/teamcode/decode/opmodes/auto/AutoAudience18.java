@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
-@Autonomous(name = "AutoAudience12", preselectTeleOp = "Main TeleOp")
+@Autonomous(name = "AutoAudience21", preselectTeleOp = "Main TeleOp")
 public class AutoAudience18 extends AbstractAuto{
     private AudiencePaths path;
 
@@ -43,6 +43,7 @@ public class AutoAudience18 extends AbstractAuto{
         path = new AudiencePaths(f);
 
         isFuturePoseOn = true;
+        robot.shooter.feeder.isGateEnabled = false;
 
         if (Common.isRed != AudiencePaths.isPathRed) {
             AudiencePaths.isPathRed = !AudiencePaths.isPathRed;
@@ -90,7 +91,6 @@ public class AutoAudience18 extends AbstractAuto{
     private void shootHP() {
         path.humanPlayerIntake0.getPath(0).setTValueConstraint(0.8);
         path.humanPlayerIntake1.getPath(0).setTValueConstraint(0.775);
-        path.humanPlayerIntake1.getPath(1).setTValueConstraint(0.725);
         path.humanPlayerShoot1.getPath(0).setTValueConstraint(0.88);
         robot.actionScheduler.addAction(
                 new SequentialAction(
@@ -106,10 +106,8 @@ public class AutoAudience18 extends AbstractAuto{
 
                                 new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, false), AudiencePaths.MAX_HP_TIME_MS, "firstHPAudience")
                         ),
-                        new SleepAction(0.1),
                         new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1.getPath(0), false), AudiencePaths.MAX_HP_TIME_MS, "secondHPAudience"),
                         new SleepAction(0.1),
-                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1.getPath(1), false), AudiencePaths.MAX_HP_TIME_MS, "thirdHPAudience"),
                         new ParallelAction(
                                 new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot1, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
                                 new Actions.CallbackAction(

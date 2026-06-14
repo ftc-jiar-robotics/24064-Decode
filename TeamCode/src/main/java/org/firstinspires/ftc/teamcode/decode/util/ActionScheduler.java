@@ -56,7 +56,7 @@ public final class ActionScheduler {
             packet.fieldOverlay().getOperations().addAll(canvas.getOperations());
 
             boolean running = currentAction.run(packet);
-            dash.sendTelemetryPacket(packet);
+//            dash.sendTelemetryPacket(packet);
 
             update.run();
 

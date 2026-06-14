@@ -64,7 +64,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 50,
             MAX_RPM = 4000,
-            RPM_PER_SEC_IN = 9.89567, // TODO EMPIRICALLY TUNE
+            RPM_PER_SEC_IN = 12.00567, // TODO EMPIRICALLY TUNE
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 600,
@@ -76,7 +76,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             SWITCH_PID_DIST = 100, // inches to switch to far PID
             kS = 0.25,
             CLOSE_ADJUSTMENT_RPM = 70, // added onto rpm curve
-            FAR_ADJUSTMENT_RPM = 300,
+            FAR_ADJUSTMENT_RPM = 700,
             TURRET_ANGLE_MULTIPLIER = .1,
             ROUNDING_POINT = 100;
 
@@ -116,8 +116,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         CachedMotor shooterSlave = new CachedMotor(hw, NAME_FLYWHEEL_SLAVE_MOTOR, Motor.GoBILDA.BARE,ROUNDING_POINT);
         MotorEx dummy = new MotorEx(hw, NAME_FLYWHEEL_MASTER_MOTOR, Motor.GoBILDA.BARE);
 
-        shooterSlave.setInverted(false);
-        shooterMaster.setInverted(true);
+        shooterSlave.setInverted(true);
+        shooterMaster.setInverted(false);
 
         shooterEncoder = dummy.encoder;
         shooterEncoder.setDirection(Motor.Direction.FORWARD);
@@ -159,7 +159,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
     @Override
     public void run() {
-        currentRPM = -(shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
+        currentRPM = (shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
         currentRPMSmooth = (SMOOTH_RPM_GAIN * currentRPMSmooth) + (1 - SMOOTH_RPM_GAIN) * currentRPM;
         if (currentRPM > 10000) currentRPM = 0;
         if (currentRPMSmooth > 10000) currentRPMSmooth = 0;
