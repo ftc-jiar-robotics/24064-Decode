@@ -34,7 +34,7 @@ public enum LaunchZone {
     private static final Gjk collisionSolver = new Gjk();
 
     static {
-        double nearZoneSize = SIZE_TILE * Math.sqrt(2) * 3;
+        double nearZoneSize = SIZE_TILE * Math.sqrt(2) * 3.3;
         double farZoneSize = SIZE_TILE * Math.sqrt(2);
         nearHalfSize = nearZoneSize / 2.0;
         farHalfSize  = farZoneSize  / 2.0;
