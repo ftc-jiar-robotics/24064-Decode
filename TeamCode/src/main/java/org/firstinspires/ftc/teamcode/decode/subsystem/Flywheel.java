@@ -259,10 +259,6 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     }
 
     private void chooseShootingRPM(double distance) {
-//        shootingRPM = lutRPM[0];
-//        for (int i = 0; i < lutDistances.length; i++) {
-//            if (Common.robot.shooter.turret.getDistance() >= lutDistances[i]) shootingRPM = lutRPM[i];
-//        }
         if (!isFlywheelManual) {
             double rpmRaw = GEAR_RATIO*(1674.6095342210476*(1) + -4.328034369655546*(distance) + 0.08095436010080519*(distance*distance));
             if (robot.isFar) rpmRaw+=FAR_ADJUSTMENT_RPM;

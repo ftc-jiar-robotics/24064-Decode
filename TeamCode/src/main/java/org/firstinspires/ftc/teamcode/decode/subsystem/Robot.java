@@ -167,8 +167,7 @@ public final class Robot {
     }
 
     public boolean usingSotm (){
-        if(isFuturePoseOn) return !isFar;
-        else return false;
+        return isFuturePoseOn;
     }
 
     public void relocalizeWithArdu() {

@@ -269,7 +269,7 @@ public class AutoGoal21 extends AbstractAuto{
 
 
         robot.shooter.feeder.isGateEnabled = true;
-        isFuturePoseOn = false;
+        isFuturePoseOn = true;
         robot.actionScheduler.runBlocking();
         robot.shooter.feeder.isGateEnabled = false;
         isFuturePoseOn = true;
