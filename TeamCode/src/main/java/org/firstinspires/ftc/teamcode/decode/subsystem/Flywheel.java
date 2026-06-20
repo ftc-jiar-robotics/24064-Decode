@@ -39,10 +39,10 @@ import java.util.List;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0027, 0.000, 0.0000, 0.00005);
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0027, 0.000, 0.0000, 0.00005);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0042, 0.000, 0.0000, 0.00008);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0042, 0.000, 0.0000, 0.00008);
 
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(.008, 0.000, 0.0000, 0.000087);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.004, 0.000, 0.0000, 0.00009);
     private final SolversPIDF velocityController = new SolversPIDF(FLYWHEEL_PIDF_COEFFICIENTS_CLOSE);
 
     private static final List<Double> launcherDistance = Arrays.asList(0.0,  /*59.055,  78.740, 98.425, 118.110, 137.795, 157.480, 177.165,*/ 196.850); // distance from ball leaving robot to when it touches goal for first time (inches)
