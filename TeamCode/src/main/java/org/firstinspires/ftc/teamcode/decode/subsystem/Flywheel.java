@@ -215,7 +215,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         velocityController.setCoefficients(coefficients);
 
-        currentPower = feedforwardValue + kS/*(Common.MAX_VOLTAGE / robot.getVoltage())*/;
+        currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.getVoltage());
         currentPower += velocityController.calculate(currentRPMSmooth);
 
         if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
