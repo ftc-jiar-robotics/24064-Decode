@@ -207,15 +207,15 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
                 FLYWHEEL_PIDF_COEFFICIENTS_FAR;
 
 //        double originalKd = coefficients.d;
-        double originalKf = coefficients.f;
+//        double originalKf = coefficients.f;
 //        double originalKp = coefficients.p;
 //        coefficients.d  = originalKd*(Common.MAX_VOLTAGE / robot.getVoltage());
-        coefficients.f  = originalKf*(Common.MAX_VOLTAGE / robot.getVoltage());
+//        coefficients.f  = originalKf*(Common.MAX_VOLTAGE / robot.getVoltage());
 //        coefficients.p  = originalKp*(Common.MAX_VOLTAGE / robot.getVoltage());
 
         velocityController.setCoefficients(coefficients);
 
-        currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.getVoltage());
+        currentPower = feedforwardValue + kS/*(Common.MAX_VOLTAGE / robot.getVoltage())*/;
         currentPower += velocityController.calculate(currentRPMSmooth);
 
         if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
@@ -226,7 +226,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         }
 
 //        coefficients.d = originalKd;
-        coefficients.f = originalKf;
+//        coefficients.f = originalKf;
 //        coefficients.p = originalKp;
 
 

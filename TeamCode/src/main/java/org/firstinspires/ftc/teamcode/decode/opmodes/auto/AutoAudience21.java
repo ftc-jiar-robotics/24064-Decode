@@ -14,7 +14,6 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.AudiencePaths;
-import org.firstinspires.ftc.teamcode.decode.opmodes.auto.path.GoalPaths;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
@@ -22,7 +21,7 @@ import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
 
 @Configurable
 @Autonomous(name = "AutoAudience21", preselectTeleOp = "Main TeleOp")
-public class AutoAudience18 extends AbstractAuto{
+public class AutoAudience21 extends AbstractAuto{
     private AudiencePaths path;
 
     @Override
