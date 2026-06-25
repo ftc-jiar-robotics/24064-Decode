@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+import org.firstinspires.ftc.teamcode.decode.subsystem.ParkLift;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
@@ -133,6 +134,9 @@ public class MainTeleOp extends LinearOpMode {
             if (isFlywheelManual) {
                 if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5, true);
                 if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(5, false);
+            } else {
+                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.parkLift.set(ParkLift.ParkStates.DOWN, false);
+                if (gamepadEx1.isDown(DPAD_LEFT)) robot.parkLift.set(ParkLift.ParkStates.UP, false);
             }
 
 

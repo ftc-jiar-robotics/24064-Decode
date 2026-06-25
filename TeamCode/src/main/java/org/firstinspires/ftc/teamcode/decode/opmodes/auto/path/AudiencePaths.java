@@ -47,7 +47,7 @@ public class AudiencePaths {
             startIntakeHP1 = new Pose(8.000, 6.000),
             audienceControl = new Pose(60.8,8.1),
             midIntakeHP1 = new Pose(14.300, 6.000),
-            endIntakeHP1 = new Pose(10.300, 6.000);
+            endIntakeHP1 = new Pose(8.000, 7.500);
 
     public static double
             startAngle = Math.toRadians(90),

@@ -37,6 +37,7 @@ public final class Robot {
     public final BulkReader bulkReader;
     public final ActionScheduler actionScheduler;
     public final GateOpener gateOpener;
+    public final ParkLift parkLift;
     public final Shooter shooter;
     public final Intake intake;
     public final VoltageSensor batteryVoltageSensor;
@@ -88,6 +89,7 @@ public final class Robot {
         shooter = new Shooter(hardwareMap, isAuto);
         intake = new Intake(hardwareMap);
         gateOpener = new GateOpener(hardwareMap);
+        parkLift = new ParkLift(hardwareMap);
 //        ledController = new LEDController(hardwareMap);
         if (!isAuto) {
             arducam = new ArduCam(hardwareMap, "arducam");
@@ -131,6 +133,7 @@ public final class Robot {
         intake.run();
         actionScheduler.run();
         gateOpener.run();
+        parkLift.run();
     }
 
     public void update() {
@@ -167,7 +170,8 @@ public final class Robot {
     }
 
     public boolean usingSotm (){
-        return isFuturePoseOn;
+        if (isFuturePoseOn) return !isFar;
+        else return false;
     }
 
     public void relocalizeWithArdu() {

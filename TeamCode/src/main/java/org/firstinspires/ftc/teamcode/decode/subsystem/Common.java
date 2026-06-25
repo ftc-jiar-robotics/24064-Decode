@@ -17,6 +17,8 @@ public final class Common {
             NAME_FEEDER_COLOR_SENSOR = "colorSensorFeeder",
             NAME_GATE_OPENER_RED_SERVO = "gateOpenerRed",
             NAME_GATE_OPENER_BLUE_SERVO = "gateOpenerBlue",
+            NAME_PARK_LIFT_RIGHT_SERVO = "parkLiftRight",
+            NAME_PARK_LIFT_LEFT_SERVO = "parkLiftLeft",
             NAME_FEEDER_LEFT_DISTANCE_SENSOR = "leftDistanceSensorFeeder",
             NAME_FEEDER_RIGHT_DISTANCE_SENSOR = "rightDistanceSensorFeeder",
             NAME_FEEDER_LEFT_PIN0 = "leftDistancePin0",

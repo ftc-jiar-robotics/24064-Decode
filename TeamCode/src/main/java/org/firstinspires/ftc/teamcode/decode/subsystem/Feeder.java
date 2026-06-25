@@ -43,8 +43,8 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     public static double
         BLOCKING_ANGLE = 175,
         RUNNING_ANGLE = 140,
-        MAX_PIN_STATE = 7, // default
-        MAX_PIN_STATE_GATE_ENABLED = 7, // default
+        MAX_PIN_STATE = 9, // default
+        MAX_PIN_STATE_GATE_ENABLED = 9, // default
         CLOSE_SHOOTING_SPEED = .775,
         FAR_SHOOTING_SPEED = .55,
         MID_SHOOTER_SPEED = .65,
@@ -80,7 +80,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
     }
 
     public boolean didShotOccur() {
-        currentPinState += pin0Left.getState() || pin0Right.getState() ? 5:-1;
+        currentPinState += pin0Left.getState() || pin0Right.getState() ? (robot.isAuto ? 9 : 5) :-1;
         currentPinState = (int)Range.clip(currentPinState,0,isGateEnabled ? MAX_PIN_STATE_GATE_ENABLED : MAX_PIN_STATE);
 
         if (lastPinState>0 && currentPinState==0) {
