@@ -166,10 +166,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
         motorPowerFilter.setGains(motorPowerGains);
 
-
-
-        switch (targetState) {
-            case IDLE:
+        if (robot.parkLift.get() != ParkLift.ParkStates.DOWN) {
+            switch (targetState) {
+                case IDLE:
 //                boolean isRobotCloseToFar = robot.drivetrain.getPose().getY() < 40;
 //                boolean isMagnitudeInPositiveTolerance = robot.drivetrain.getVelocity().getYComponent() > 0.3;
 //                boolean isMagnitudeInNegativeTolerance = robot.drivetrain.getVelocity().getYComponent() < -0.3;
@@ -177,34 +176,34 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //                if (isMagnitudeInPositiveTolerance) isDirectionForward = true;
 //                else if (isMagnitudeInNegativeTolerance) isDirectionForward = false;
 
-                if (!isFlywheelManual) {
-                    if (robot.shooter.isBallPresent()) {
-                        if (!robot.usingSotm()) chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(LaunchZone.getInterceptOrClosestPoint(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
-                        else shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                    if (!isFlywheelManual) {
+                        if (robot.shooter.isBallPresent()) {
+                            if (!robot.usingSotm()) chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(LaunchZone.getInterceptOrClosestPoint(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                            else shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                        }
+                        else shootingRPM =  IDLE_RPM;
                     }
-                    else shootingRPM =  IDLE_RPM;
-                }
-                velocityController.setSetPoint(shootingRPM);
+                    velocityController.setSetPoint(shootingRPM);
 
-                break;
-            case ARMING:
-                if (!robot.usingSotm()) chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
-                else shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
-                if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
-                break;
-            case RUNNING:
-                if (!robot.usingSotm()) chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
-                else shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
-                break;
-        }
+                    break;
+                case ARMING:
+                    if (!robot.usingSotm()) chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                    else shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                    if (isPIDInTolerance()) targetState = FlyWheelStates.RUNNING;
+                    break;
+                case RUNNING:
+                    if (!robot.usingSotm()) chooseShootingRPM(robot.shooter.turret.getDistance(calculateTurretPosition(robot.drivetrain.getPose(), Math.toDegrees(robot.drivetrain.getHeading()), -Common.TURRET_OFFSET_Y)));
+                    else shootingRPM = quantizeWithMidpointBand(inchesPerSecondToRPM(robot.shooter.getCompensatedValues()[0]), TARGET_RPM_STEP, TARGET_RPM_MID_BAND);
+                    break;
+            }
 
-        velocityController.setSetPoint(shootingRPM);
+            velocityController.setSetPoint(shootingRPM);
 
-        double feedforwardValue = 0;//(shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
+            double feedforwardValue = 0;//(shootingRPM/MAX_RPM) * (Math.sqrt(Common.MAX_VOLTAGE) / Math.sqrt(robot.batteryVoltageSensor.getVoltage())) * VOLTAGE_SCALER;
 
-        PIDFCoefficients coefficients = robot.shooter.turret.getDistance() <= SWITCH_PID_DIST ?
-                (robot.isAuto ? FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON : FLYWHEEL_PIDF_COEFFICIENTS_CLOSE) :
-                FLYWHEEL_PIDF_COEFFICIENTS_FAR;
+            PIDFCoefficients coefficients = robot.shooter.turret.getDistance() <= SWITCH_PID_DIST ?
+                    (robot.isAuto ? FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON : FLYWHEEL_PIDF_COEFFICIENTS_CLOSE) :
+                    FLYWHEEL_PIDF_COEFFICIENTS_FAR;
 
 //        double originalKd = coefficients.d;
 //        double originalKf = coefficients.f;
@@ -213,33 +212,36 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 //        coefficients.f  = originalKf*(Common.MAX_VOLTAGE / robot.getVoltage());
 //        coefficients.p  = originalKp*(Common.MAX_VOLTAGE / robot.getVoltage());
 
-        velocityController.setCoefficients(coefficients);
+            velocityController.setCoefficients(coefficients);
 
-        currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.getVoltage());
-        currentPower += velocityController.calculate(currentRPMSmooth);
+            currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.getVoltage());
+            currentPower += velocityController.calculate(currentRPMSmooth);
 
-        if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
-            currentPower = motorPowerFilter.calculate(currentPower);
-        }
-        else {
-            motorPowerFilter.reset();
-        }
+            if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
+                currentPower = motorPowerFilter.calculate(currentPower);
+            }
+            else {
+                motorPowerFilter.reset();
+            }
 
 //        coefficients.d = originalKd;
 //        coefficients.f = originalKf;
 //        coefficients.p = originalKp;
 
 
-        currentPower = Range.clip(currentPower, feedforwardValue, 1.0);
+            currentPower = Range.clip(currentPower, feedforwardValue, 1.0);
 
 //        if (robot.shooter.get() == Shooter.ShooterStates.RUNNING) currentPower = motorGroup[0].get();
 
-        for (MotorEx m : motorGroup) {
-            if (shootingRPM-currentRPMSmooth>BB_TOLERANCE && robot.shooter.turret.getDistance()>BB_ENABLE_DISTANCE) m.set(1);
-            else m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
+            for (MotorEx m : motorGroup) {
+                if (shootingRPM-currentRPMSmooth>BB_TOLERANCE && robot.shooter.turret.getDistance()>BB_ENABLE_DISTANCE) m.set(1);
+                else m.set(Math.abs(manualPower) > 0 ? manualPower : currentPower);
+            }
+
+            if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
         }
 
-        if (isPIDInTolerance() && robot.shooter.getQueuedShots() <= 0) velocityController.reset();
+        else for (MotorEx m: motorGroup) m.set(0);
     }
 
     public void incrementFlywheelRPM(double RPM, boolean isIncrementing) {

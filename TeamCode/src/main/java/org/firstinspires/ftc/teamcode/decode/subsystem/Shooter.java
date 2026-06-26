@@ -277,7 +277,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
         turret.run();
         flywheel.ballIsPresent = isBallPresent();
-        if (robot.parkLift.get() != ParkLift.ParkStates.DOWN) flywheel.run();
+        flywheel.run();
         feeder.run();
         hood.run();
     }

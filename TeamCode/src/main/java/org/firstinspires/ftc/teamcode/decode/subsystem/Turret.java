@@ -31,7 +31,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private final AnalogInput absoluteEncoder;
 
     public enum TurretStates {
-        IDLE, ODOM_TRACKING
+        IDLE, ODOM_TRACKING, TILT
     }
 
     private Differentiator radialVelocity = new Differentiator(); // differentiates radial vel of turret to compensate for deaccel in sotm
@@ -46,6 +46,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
     public boolean dontMoveGoalDown = false;
     public static double
+            TILT_ANGLE = 180,
             OFFSET_DERIVATIVE_TOLERANCE = 50,
             WRAP_AROUND_THRESHOLD = 5,
             READY_TO_SHOOT_LOOPS = 2,
@@ -250,6 +251,9 @@ public class Turret extends Subsystem<Turret.TurretStates> {
             case ODOM_TRACKING:
                 setTracking();
                 break;
+            case TILT:
+
+                targetAngleDebounced = TILT_ANGLE;
         }
 
         if (isPIDInTolerance()) toleranceCounter++;
