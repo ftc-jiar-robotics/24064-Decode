@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MID_DISTANC
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.MIN_MOVEMENT_SPEED;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.dashTelemetry;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isFuturePoseOn;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isLoopTimesLogged;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isRed;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.isTelemetryOn;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
@@ -213,7 +214,6 @@ public final class Robot {
             Common.dashTelemetry.update();
         }
 
-        Log.d("loop time (LOOPS): ", "" + LoopUtil.getLoopTimeInHertz());
-
+        if (isLoopTimesLogged) Log.d("loop time (LOOPS): ", "" + LoopUtil.getLoopTimeInHertz());
     }
 }

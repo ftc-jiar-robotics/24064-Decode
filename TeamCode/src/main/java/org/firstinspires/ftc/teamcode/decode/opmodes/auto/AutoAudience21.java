@@ -167,7 +167,6 @@ public class AutoAudience21 extends AbstractAuto{
 
 
         robot.actionScheduler.runBlocking();
-
     }
 
     private void shootPreload() {

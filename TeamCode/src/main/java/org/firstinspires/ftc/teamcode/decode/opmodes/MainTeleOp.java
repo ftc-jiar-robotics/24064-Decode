@@ -81,7 +81,7 @@ public class MainTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             robot.run();
-            robot.relocalizeWithArdu();
+//            robot.relocalizeWithArdu();
             gamepadEx1.readButtons();
 
             if (isSlowMode) robot.drivetrain.setMaxPowerScaling(SLOW_MODE);

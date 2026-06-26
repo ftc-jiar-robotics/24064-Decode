@@ -46,6 +46,7 @@ public final class Common {
     public static boolean
             isFuturePoseOn = false,
             isSlowMode = false,
+            isLoopTimesLogged = false,
             isTelemetryOn = false,
             isForwardPower = false,
             isStrafePower = false,
