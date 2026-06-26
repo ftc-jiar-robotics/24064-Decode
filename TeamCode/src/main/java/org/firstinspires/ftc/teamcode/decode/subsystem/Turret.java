@@ -71,6 +71,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     private Pose turretPos = new Pose(0, 0);
 
     private double
+            goalOffsetX = 0,
+            goalOffsetY = 0,
             offsetDerivative = 0.0,
             targetAngle = 0.0,
             targetAngleDebounced = 0.0,
@@ -88,6 +90,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         turretMaster.setInverted(true);
         turretSlave.setInverted(true);
 
+        setGoalOffset(0, 0);
 
         dontMoveGoalDown = false;
     }
@@ -98,8 +101,8 @@ public class Turret extends Subsystem<Turret.TurretStates> {
 
         double x = Common.BLUE_GOAL.getX();
         double y = Common.BLUE_GOAL.getY();
-        if (!dontMoveGoalDown && robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, y - GOAL_SUBTRACTION_Y);
-        else if (robot.isAuto || robot.drivetrain.getPose().getY() < SWITCH_Y_POSITION_SMALL) newGoal = new Pose(x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE), y);
+        if (!dontMoveGoalDown && robot.drivetrain.getPose().getY() > SWITCH_Y_POSITION_BIG) newGoal = new Pose(x, (y - GOAL_SUBTRACTION_Y) + goalOffsetY);
+        else if (robot.isAuto || robot.drivetrain.getPose().getY() < SWITCH_Y_POSITION_SMALL) newGoal = new Pose((x + (isRed ? GOAL_ADDITION_X_RED : GOAL_ADDITION_X_BLUE)) + goalOffsetX, y);
         else newGoal = new Pose(x, y);
 
 
@@ -269,6 +272,11 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         // We already increment toleranceCounter only when we're in a very tight tolerance
         // So this is basically: "have we been super in-tolerance for a few loops in a row?"
         return toleranceCounter >= READY_TO_SHOOT_LOOPS;
+    }
+
+    public void setGoalOffset(double offsetX, double offsetY) {
+        goalOffsetX = isRed ? -offsetX : offsetX;
+        goalOffsetY = offsetY;
     }
 
     public void printTelemetry() {
