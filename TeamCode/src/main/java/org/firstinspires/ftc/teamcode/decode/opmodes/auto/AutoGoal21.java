@@ -45,7 +45,7 @@ public class AutoGoal21 extends AbstractAuto{
             OFFSETX_CYCLE_ONE = 0,
             OFFSETX_CYCLE_TWO = 0,
             OFFSETX_BLUE_CYCLE_ONE = 0,
-            OFFSETY_BLUE_CYCLE_ONE = 0.25,
+            OFFSETY_BLUE_CYCLE_ONE = 0,
             OFFSETX_BLUE_CYCLE_TWO = 0,
             OFFSETY_BLUE_CYCLE_TWO = 0,
             OFFSETX_CYCLE_THREE = .5,

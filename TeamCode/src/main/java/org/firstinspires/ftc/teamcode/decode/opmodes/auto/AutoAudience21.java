@@ -79,7 +79,7 @@ public class AutoAudience21 extends AbstractAuto{
 //                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3, false), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
 //                        new SleepAction(0.3),
 //                        new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake3_5, false), AudiencePaths.MAX_HP_TIME_MS, "sixthHPAudience"),
-                        RobotActions.shootArtifacts(3, 2.5),
+                        RobotActions.shootArtifacts(3, 1.75),
                         new InstantAction(() -> Log.d("AutoAudience", "END_SHOOT_SECOND"))
                 ))
         );

@@ -104,7 +104,7 @@ public class AudiencePaths {
             double ballDist = Math.tan(Math.toRadians(tx)) * wallDist;
 
             ballDist = isPathRed ? -ballDist : ballDist;
-            wallX += isPathRed ? -10 : 10;
+            wallX += isPathRed ? -5.5 : 5.5;
 
             Pose bigBallPose = new Pose(wallX, Math.min(MAX_Y_DISTANCE , (Math.max(endIntakeHP1.getY(),robotPose.getY() + ballDist))));
 
@@ -153,7 +153,7 @@ public class AudiencePaths {
                                 path, 0.5, 0, f, "slow_down_hp_2"), // slow down to intake balls
                         new Actions.TimedAction(new FollowPathAction(f, path), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
                 ),
-                new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(0)), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
+//                new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(0)), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
                 new SleepAction(0.1),
                 new ParallelAction(
                         new Actions.CallbackAction(

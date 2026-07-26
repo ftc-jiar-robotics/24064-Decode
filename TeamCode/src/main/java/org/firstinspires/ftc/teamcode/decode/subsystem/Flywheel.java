@@ -39,7 +39,7 @@ import java.util.List;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0042, 0.000, 0.0000, 0.00008);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.003, 0.000, 0.0000, 0.00008);
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0042, 0.000, 0.0000, 0.00008);
 
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.004, 0.000, 0.0000, 0.00009);
@@ -93,6 +93,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             ballIsPresent;
 
     private double
+            lastCurrentRPM = 0.0,
+            lastCurrentRPMSmooth = 0.0,
             currentRPM = 0.0,
             currentRPMSmooth = 0.0,
             manualPower = 0.0,
@@ -161,8 +163,8 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     public void run() {
         currentRPM = -(shooterEncoder.getCorrectedVelocity() * 60.0 / 28.0);
         currentRPMSmooth = (SMOOTH_RPM_GAIN * currentRPMSmooth) + (1 - SMOOTH_RPM_GAIN) * currentRPM;
-        if (currentRPM > 10000) currentRPM = 0;
-        if (currentRPMSmooth > 10000) currentRPMSmooth = 0;
+        if (currentRPM > 10000) currentRPM = lastCurrentRPM;
+        if (currentRPMSmooth > 10000) currentRPM = lastCurrentRPMSmooth;
 
         motorPowerFilter.setGains(motorPowerGains);
 
@@ -242,6 +244,9 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         }
 
         else for (MotorEx m: motorGroup) m.set(0);
+
+        lastCurrentRPM = currentRPM;
+        lastCurrentRPMSmooth = currentRPMSmooth;
     }
 
     public void incrementFlywheelRPM(double RPM, boolean isIncrementing) {

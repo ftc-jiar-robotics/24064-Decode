@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_PARK_LIFT_LEFT_SERVO;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.NAME_PARK_LIFT_RIGHT_SERVO;
+import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.telemetry;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -49,6 +50,9 @@ public class ParkLift extends Subsystem<ParkLift.ParkStates> {
             case DOWN:
                 parkLeft.turnToAngle(DOWN_ANGLE_LEFT);
                 parkRight.turnToAngle(DOWN_ANGLE_RIGHT);
+                if (robot != null) {
+                    robot.shooter.clearQueueShots();
+                }
                 break;
             case UP:
                 parkLeft.turnToAngle(UP_ANGLE_LEFT);
