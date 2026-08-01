@@ -32,6 +32,11 @@ Key rules:
 6. **Never use the old `set(...)` API** on a subsystem. It was removed. Use
    `politeSet` (OpModes) or `forceSet` (actions). Note `setXxx(...)` helpers
    (`setQueuedShots`, `setHoodManual`, ...) are unrelated and fine.
+7. **`Robot.java` is outside the mutex boundary.** It lives in its own
+   `<team>/robot` package (not the subsystem package) and must never call
+   `forceSet` / `setLocked`. It is the opmode-facing composition root, so its
+   only way to request state is `politeSet`. If a subsystem refuses a request
+   while locked, that is the scheduler's call, not Robot's.
 
 ## Enforcement
 

@@ -34,6 +34,9 @@ Never assume it: always locate the subsystem package dynamically.
    it is the ground truth for the API surface: `politeSet` (public final),
    `forceSet` (package-private final), `onSet` (package-private abstract),
    `setLocked` (package-private).
+5. Glob for `**/Robot.java`. It must be in its own `<team>/robot` package —
+   **never** inside the privileged package. `Robot` is the opmode-facing
+   composition root; it belongs to the caller side of the boundary.
 
 Internalize the boundary:
 
@@ -78,7 +81,9 @@ For **every** `.java` in the partition, check with Read/Grep:
 3. **Unprivileged files** (opmodes, util, anything outside the subsystem
    package): must reference subsystems **only** through `politeSet`, `get()`,
    and read-only `getXxx()` accessors. Any `forceSet`, `setLocked`, `onSet`,
-   or old `set(...)` call here is a violation.
+   or old `set(...)` call here is a violation. This includes **`Robot.java`**:
+   it lives in `<team>/robot`, outside the boundary, so it must not call
+   `forceSet` / `setLocked` even though it constructs and runs every subsystem.
 
 4. **Structural bypasses** the regex scanner cannot see:
    - a subsystem that gained a `public void` / `public boolean` setter-like

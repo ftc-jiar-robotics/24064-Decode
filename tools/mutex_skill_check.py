@@ -14,7 +14,9 @@ asserts the same invariants the skill depends on:
      (politeSet public final, forceSet package-private final, onSet package-private
      abstract, setLocked package-private) -- located dynamically, so a yearly
      rename of the team package does not break it.
-  5. The workflow actually runs both mutex checks.
+  5. Robot.java lives in its own <team>/robot package (NOT the subsystem
+     package), so it cannot reach the package-private mutex API.
+  6. The workflow actually runs both mutex checks.
 
 Usage:
     python3 tools/mutex_skill_check.py [repo-root]
@@ -89,7 +91,15 @@ def main() -> int:
             if absent and absent in src:
                 problems.append(f"{base.relative_to(root)}: {label} -- found forbidden '{absent}'")
 
-    # 5. Workflow runs both checks.
+    # 5. Robot.java must live outside the subsystem package.
+    robots = list(scan_root.rglob("Robot.java")) if scan_root.exists() else []
+    if len(robots) != 1:
+        problems.append(f"expected exactly one Robot.java under {scan_root}, found {len(robots)}")
+    elif base is not None and robots[0].parent == base.parent:
+        problems.append("Robot.java must not live in the subsystem package -- it is the "
+                        "opmode-facing composition root and must be kept out of the mutex boundary")
+
+    # 6. Workflow runs both checks.
     wf = root / ".github/workflows/mutex-guard.yml"
     if wf.exists():
         text = wf.read_text(encoding="utf-8")

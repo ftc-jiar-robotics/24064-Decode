@@ -7,6 +7,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
+import org.firstinspires.ftc.teamcode.decode.robot.Robot;
 
 @Config
 public final class Common {

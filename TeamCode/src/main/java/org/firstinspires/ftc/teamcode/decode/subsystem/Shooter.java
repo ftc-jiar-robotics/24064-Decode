@@ -98,6 +98,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.queuedShots += i;
     }
 
+    public void setFlywheelMovingToFarZone(boolean isMovingToFarZone) {
+        flywheel.movingToFarZone = isMovingToFarZone;
+    }
+
     public boolean setQueuedShots(int i) {
         if (isLocked()) return false;
         this.queuedShots = i;

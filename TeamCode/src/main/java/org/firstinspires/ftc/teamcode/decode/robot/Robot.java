@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.decode.subsystem;
+package org.firstinspires.ftc.teamcode.decode.robot;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.FAR_DISTANCE;
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.LOCALIZATION_X;
@@ -23,6 +23,13 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.decode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.decode.sensor.ColorSensor;
+import org.firstinspires.ftc.teamcode.decode.subsystem.ActionScheduler;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
+import org.firstinspires.ftc.teamcode.decode.subsystem.GateOpener;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Intake;
+import org.firstinspires.ftc.teamcode.decode.subsystem.LaunchZone;
+import org.firstinspires.ftc.teamcode.decode.subsystem.ParkLift;
+import org.firstinspires.ftc.teamcode.decode.subsystem.Shooter;
 import org.firstinspires.ftc.teamcode.decode.util.ArduCam;
 import org.firstinspires.ftc.teamcode.decode.util.BulkReader;
 import org.firstinspires.ftc.teamcode.decode.util.Drawing;
@@ -126,8 +133,8 @@ public final class Robot {
         update();
         drivetrain.update();
 
-        shooter.flywheel.movingToFarZone = drivetrain.getPose().getY() < 40 &&
-                                            drivetrain.getVelocity().getYComponent() < -0.3;
+        shooter.setFlywheelMovingToFarZone(drivetrain.getPose().getY() < 40 &&
+                                            drivetrain.getVelocity().getYComponent() < -0.3);
 
         shooter.run();
         intake.run();

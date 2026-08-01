@@ -24,9 +24,9 @@ FTC 2025-2026 robot code for team 24064 (DECODE). Android Gradle app deployed to
 - `leboofy.xml` (repo root) is the robot hardware configuration. Hardware device names there must match the config-name strings in `decode/subsystem/Common.java`.
 - Many classes are annotated `@Config` (FTC Dashboard) / `@Configurable` (Bylazar): static fields are live-tunable at `192.168.43.1:8080` on the robot's Wi-Fi. Never hardcode a value that already has a `@Config` field.
 - `Common.java` is the central config: hardware names, field geometry, global flags (`isRed`, `isTelemetryOn`, `inTriangle`, ...). Most tuning happens here, not in the consuming classes.
-- `Robot.java` has two constructors that differ in camera setup: `new Robot(hardwareMap)` (TeleOp → ArduCam, no Limelight) vs `new Robot(hardwareMap, true)` (auto → Limelight, no ArduCam). Use the right one for the OpMode.
+- `Robot.java` (in `decode.robot`, NOT the subsystem package) has two constructors that differ in camera setup: `new Robot(hardwareMap)` (TeleOp → ArduCam, no Limelight) vs `new Robot(hardwareMap, true)` (auto → Limelight, no ArduCam). Use the right one for the OpMode.
 - `Robot.run()` must be called every loop — it drives `bulkReader.bulkRead()` and every subsystem. Do not add per-loop hardware reads outside subsystems.
-- All mechanisms extend `Subsystem<T>`; state changes are blocked while locked (`ActionScheduler` locks subsystems around actions). OpModes use `politeSet(T)` (returns false while locked); only `decode.subsystem` code (actions) may use `forceSet(T)`. See `MUTEX.md`.
+- All mechanisms extend `Subsystem<T>`; state changes are blocked while locked (`ActionScheduler` locks subsystems around actions). OpModes use `politeSet(T)` (returns false while locked); only `decode.subsystem` code (actions) may use `forceSet(T)`. `Robot.java` is outside the boundary — it must never call `forceSet`/`setLocked`. See `MUTEX.md`.
 - **Run `python3 tools/mutex_check.py` after editing subsystems/opmodes and before committing** — it guards the mutex privilege boundary and is enforced by the `mutex-guard` GitHub Actions workflow (push/PR).
 
 ## Workflow
