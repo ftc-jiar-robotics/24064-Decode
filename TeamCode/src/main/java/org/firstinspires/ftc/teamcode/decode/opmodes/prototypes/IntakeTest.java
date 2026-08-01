@@ -18,7 +18,7 @@ public class IntakeTest extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             gamepadEx1.readButtons();
-            intake.set(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER), true);
+            intake.politeSet(gamepadEx1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
             intake.run();
         }
     }

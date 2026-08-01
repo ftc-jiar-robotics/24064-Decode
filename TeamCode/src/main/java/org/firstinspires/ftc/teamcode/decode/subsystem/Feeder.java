@@ -65,8 +65,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         isGateEnabled = isAuto;
     }
 
-    @Override
-    protected void set(FeederStates state) {
+    void onSet(FeederStates state) {
         currentState = state;
     }
 

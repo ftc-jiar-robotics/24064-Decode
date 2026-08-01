@@ -26,14 +26,14 @@ public class HoodFlywheelTest extends LinearOpMode {
         while (opModeIsActive()) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) flywheel.set(Flywheel.FlyWheelStates.RUNNING);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) flywheel.set(Flywheel.FlyWheelStates.ARMING);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.A)) flywheel.politeSet(Flywheel.FlyWheelStates.RUNNING);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.B)) flywheel.politeSet(Flywheel.FlyWheelStates.ARMING);
 
             double currentHoodAngle = 0;
 
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.RIGHT_BUMPER)) currentHoodAngle += 5;
 
-            hood.set(currentHoodAngle);
+            hood.politeSet(currentHoodAngle);
             flywheel.run();
             hood.run();
 

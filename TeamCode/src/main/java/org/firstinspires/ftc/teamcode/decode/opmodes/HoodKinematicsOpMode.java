@@ -27,8 +27,8 @@ public class HoodKinematicsOpMode extends LinearOpMode {
 
         while (opModeIsActive()) {
             gamepadEx1.readButtons();
-            if (gamepadEx1.wasJustPressed(B)) hood.set(hood.launchRadiansToServoAngle(KinematicsSolver.θ_launchMin));
-            if (gamepadEx1.wasJustPressed(X)) hood.set(hood.launchRadiansToServoAngle(KinematicsSolver.θ_launchMax));
+            if (gamepadEx1.wasJustPressed(B)) hood.politeSet(hood.launchRadiansToServoAngle(KinematicsSolver.θ_launchMin));
+            if (gamepadEx1.wasJustPressed(X)) hood.politeSet(hood.launchRadiansToServoAngle(KinematicsSolver.θ_launchMax));
 
             hood.run();
             hood.printTelemetry();

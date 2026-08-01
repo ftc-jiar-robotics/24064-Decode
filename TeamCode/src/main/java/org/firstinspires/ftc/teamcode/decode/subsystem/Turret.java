@@ -95,6 +95,15 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dontMoveGoalDown = false;
     }
 
+    void onSet(TurretStates a) {
+        currentState = a;
+    }
+
+    @Override
+    public TurretStates get() {
+        return currentState;
+    }
+
 
     private Pose setGoal() {
         Pose newGoal;
@@ -112,16 +121,6 @@ public class Turret extends Subsystem<Turret.TurretStates> {
     public void setAlliance() {
         goal = Common.isRed ? Common.BLUE_GOAL.mirror() : Common.BLUE_GOAL;
 //        autoAim.setAlliance();
-    }
-
-    @Override
-    public void set(TurretStates a) {
-        currentState = a;
-    }
-
-    @Override
-    public TurretStates get() {
-        return currentState;
     }
 
     public Pose getTurretPos() {

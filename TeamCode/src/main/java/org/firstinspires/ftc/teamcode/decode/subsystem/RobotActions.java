@@ -22,7 +22,7 @@ public class RobotActions {
 
     public static Action setIntake(double power, double sleepSeconds) {
         return new ParallelAction(
-                new InstantAction(() -> robot.intake.set(power, true)),
+                new InstantAction(() -> robot.intake.forceSet(power)),
                 new SleepAction(sleepSeconds),
                 new InstantAction(() -> robot.shooter.setFeederIdle(Math.abs(power) > 0))
         );
@@ -46,7 +46,7 @@ public class RobotActions {
                 new SequentialAction(
                         new InstantAction(() -> doSetSlowMode = setSlowMode),
                         new InstantAction(() -> robot.shooter.incrementQueuedShots(artifacts)),
-                        new InstantAction(() -> robot.intake.set(1.0)),
+                        new InstantAction(() -> robot.intake.forceSet(1.0)),
                         new Actions.SingleCheckAction(
                                 RobotActions::getDoSetSlowMode,
                                 new InstantAction(() -> {
@@ -56,7 +56,7 @@ public class RobotActions {
                         ),
                         new InstantAction(shotTimer::reset),
                         telemetryPacket -> robot.shooter.getQueuedShots() > 0 && shotTimer.seconds() <= seconds,
-                        new InstantAction(() -> robot.shooter.clearQueueShots()),
+                        new InstantAction(() -> robot.shooter.forceClearQueueShots()),
                         setIntake(0, 0),
                         new Actions.SingleCheckAction(
                                 RobotActions::getDoSetSlowMode,
@@ -72,14 +72,14 @@ public class RobotActions {
     public static Action emergencyShootArtifacts() {
         return new SequentialAction(
                 new InstantAction(() -> robot.shooter.turnOnEmergency()),
-                new InstantAction(() -> robot.intake.set(1.0)),
+                new InstantAction(() -> robot.intake.forceSet(1.0)),
                 new InstantAction(() -> {
                     robot.drivetrain.setMaxPowerScaling(SLOW_MODE);
                     isSlowMode = true;
                 }),
                 new InstantAction(shotTimer::reset),
                 telemetryPacket -> robot.shooter.getQueuedShots() > 0,
-                new InstantAction(() -> robot.shooter.clearQueueShots()),
+                new InstantAction(() -> robot.shooter.forceClearQueueShots()),
                 setIntake(0, 0),
                 new InstantAction(() -> {
                     robot.drivetrain.setMaxPowerScaling(1);
@@ -97,9 +97,9 @@ public class RobotActions {
     }
 
     public static Action openGate() {
-        return new InstantAction(() -> robot.gateOpener.set(GateOpener.GateOpenerStates.OPEN));
+        return new InstantAction(() -> robot.gateOpener.forceSet(GateOpener.GateOpenerStates.OPEN));
     }
     public static Action closeGate() {
-        return new InstantAction(() -> robot.gateOpener.set(GateOpener.GateOpenerStates.CLOSE));
+        return new InstantAction(() -> robot.gateOpener.forceSet(GateOpener.GateOpenerStates.CLOSE));
     }
 }

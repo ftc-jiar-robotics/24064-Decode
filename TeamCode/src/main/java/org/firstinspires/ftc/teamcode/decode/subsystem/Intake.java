@@ -29,6 +29,15 @@ public class Intake extends Subsystem<Double> {
         pin1Front = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_FRONT_PIN1);
         pin0Back = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_BACK_PIN0);
     }
+
+    void onSet(Double power) {
+        this.power = power;
+    }
+
+    @Override
+    public Double get() {
+        return power;
+    }
     public boolean getFrontState() {
         return pin0Front.getState() || pin1Front.getState();
 
@@ -37,15 +46,6 @@ public class Intake extends Subsystem<Double> {
     public boolean getBackState() {
         return pin0Back.getState();
 
-    }
-    @Override
-    public void set(Double power) {
-        this.power = power;
-    }
-
-    @Override
-    public Double get() {
-        return power;
     }
 
     @Override

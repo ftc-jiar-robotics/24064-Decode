@@ -25,9 +25,9 @@ public class TiltTestOpmode extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             gamepadEx1.readButtons();
-            if (gamepadEx1.isDown(DPAD_RIGHT)) tilt.set(ParkLift.ParkStates.DOWN, false);
-            if (gamepadEx1.isDown(DPAD_LEFT)) tilt.set(ParkLift.ParkStates.UP, false);
-            if (gamepadEx1.isDown(DPAD_UP)) tilt.set(ParkLift.ParkStates.RESET, false);
+            if (gamepadEx1.isDown(DPAD_RIGHT)) tilt.politeSet(ParkLift.ParkStates.DOWN);
+            if (gamepadEx1.isDown(DPAD_LEFT)) tilt.politeSet(ParkLift.ParkStates.UP);
+            if (gamepadEx1.isDown(DPAD_UP)) tilt.politeSet(ParkLift.ParkStates.RESET);
 
             tilt.run();
         }

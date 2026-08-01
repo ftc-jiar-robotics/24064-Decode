@@ -111,7 +111,7 @@ public class MainTeleOp extends LinearOpMode {
 //            isSlowMode = robot.shooter.get() == Shooter.ShooterStates.RUNNING || robot.shooter.get() == Shooter.ShooterStates.PREPPING; //true
             isSlowMode = gamepadEx1.isDown(LEFT_BUMPER) ;//!= isSlowMode;
 
-            robot.intake.set(trigger1, false);
+            robot.intake.politeSet(trigger1);
             if (trigger1 > 0.1 && robot.shooter.isRobotFullWithBalls()) {
                 gamepadEx1.gamepad.rumble(0.5 , 0.5 , 250);
             }
@@ -135,8 +135,8 @@ public class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.isDown(DPAD_RIGHT)) robot.shooter.incrementFlywheelRPM(5, true);
                 if (gamepadEx1.isDown(DPAD_LEFT)) robot.shooter.incrementFlywheelRPM(5, false);
             } else {
-                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.parkLift.set(ParkLift.ParkStates.DOWN, false);
-                if (gamepadEx1.isDown(DPAD_LEFT)) robot.parkLift.set(ParkLift.ParkStates.UP, false);
+                if (gamepadEx1.isDown(DPAD_RIGHT)) robot.parkLift.politeSet(ParkLift.ParkStates.DOWN);
+                if (gamepadEx1.isDown(DPAD_LEFT)) robot.parkLift.politeSet(ParkLift.ParkStates.UP);
             }
 
 
@@ -159,7 +159,7 @@ public class MainTeleOp extends LinearOpMode {
                     }
                 }
                 if ((robot.shooter.get() == Shooter.ShooterStates.PREPPING || robot.shooter.get() == Shooter.ShooterStates.RUNNING) && robot.shooter.getQueuedShots() > 0)
-                    robot.intake.set(robot.shooter.getFeederSpeed(), true);
+                    robot.intake.politeSet(robot.shooter.getFeederSpeed());
             } else if (lastInTriangle) {
                 storedShots = robot.shooter.getQueuedShots();
                 robot.shooter.clearQueueShots();

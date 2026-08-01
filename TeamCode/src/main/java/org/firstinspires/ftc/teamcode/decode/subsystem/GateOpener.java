@@ -47,8 +47,7 @@ public class GateOpener extends Subsystem<GateOpener.GateOpenerStates> {
         gateBlue = new CachedServo(hw, NAME_GATE_OPENER_BLUE_SERVO, Common.SERVO_25_KG_MIN, Common.SERVO_25_KG_MAX, AngleUnit.DEGREES);
     }
 
-    @Override
-    protected void set(GateOpenerStates state) {
+    void onSet(GateOpenerStates state) {
         currentState = state;
     }
 

@@ -34,8 +34,8 @@ public class ParkLift extends Subsystem<ParkLift.ParkStates> {
 
         parkLeft.setInverted(true);
     }
-    @Override
-    protected void set(ParkLift.ParkStates state) {
+
+    void onSet(ParkLift.ParkStates state) {
         currentState = state;
     }
 
@@ -51,7 +51,7 @@ public class ParkLift extends Subsystem<ParkLift.ParkStates> {
                 parkLeft.turnToAngle(DOWN_ANGLE_LEFT);
                 parkRight.turnToAngle(DOWN_ANGLE_RIGHT);
                 if (robot != null) {
-                    robot.shooter.clearQueueShots();
+                    robot.shooter.forceClearQueueShots();
                 }
                 break;
             case UP:

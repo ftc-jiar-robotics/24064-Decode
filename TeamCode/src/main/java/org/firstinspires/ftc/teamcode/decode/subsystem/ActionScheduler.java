@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.decode.util;
+package org.firstinspires.ftc.teamcode.decode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.decode.subsystem.Common.robot;
 
@@ -56,7 +56,7 @@ public final class ActionScheduler {
             packet.fieldOverlay().getOperations().addAll(canvas.getOperations());
 
             boolean running = currentAction.run(packet);
-//            dash.sendTelemetryPacket(packet);
+            dash.sendTelemetryPacket(packet);
 
             update.run();
 
@@ -72,6 +72,7 @@ public final class ActionScheduler {
         return new InstantAction(() -> {
             robot.intake.setLocked(true);
             robot.shooter.setLocked(true);
+            robot.gateOpener.setLocked(true);
         });
     }
 
@@ -79,6 +80,7 @@ public final class ActionScheduler {
         return new InstantAction(() -> {
             robot.intake.setLocked(false);
             robot.shooter.setLocked(false);
+            robot.gateOpener.setLocked(false);
         });
     }
 }

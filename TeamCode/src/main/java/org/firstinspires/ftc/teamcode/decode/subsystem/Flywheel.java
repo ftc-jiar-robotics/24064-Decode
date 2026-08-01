@@ -129,8 +129,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         launchDelayLUT.createLUT();
     }
 
-    @Override
-    public void set(FlyWheelStates f) {
+    void onSet(FlyWheelStates f) {
         targetState = f;
     }
 

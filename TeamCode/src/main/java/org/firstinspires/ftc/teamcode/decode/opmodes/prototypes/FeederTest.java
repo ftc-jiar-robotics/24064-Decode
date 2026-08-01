@@ -26,10 +26,10 @@ public class FeederTest extends LinearOpMode {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) {
-                feeder.set(Feeder.FeederStates.RUNNING, false);
+                feeder.politeSet(Feeder.FeederStates.RUNNING);
             }
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.Y)) {
-                feeder.set(Feeder.FeederStates.BLOCKING, false);
+                feeder.politeSet(Feeder.FeederStates.BLOCKING);
             }
 
             feeder.run();

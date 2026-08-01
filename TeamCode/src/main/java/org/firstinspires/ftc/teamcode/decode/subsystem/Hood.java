@@ -34,14 +34,13 @@ public class Hood extends Subsystem<Double> {
         this.hood = new CachedServo(hw, NAME_HOOD_SERVO, Common.SERVO_AXON_MIN, Common.SERVO_AXON_MAX_2, AngleUnit.DEGREES);
     }
 
-    @Override
-    public Double get() {
-        return targetAngle;
+    void onSet(Double a) {
+        targetAngle = Range.clip(a, MIN, MAX);
     }
 
     @Override
-    public void set(Double a) {
-        targetAngle = Range.clip(a, MIN, MAX);
+    public Double get() {
+        return targetAngle;
     }
 
     public void setPhysicalMax() {

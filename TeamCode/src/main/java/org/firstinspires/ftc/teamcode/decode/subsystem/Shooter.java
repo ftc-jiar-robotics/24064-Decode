@@ -45,8 +45,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.feeder = new Feeder(hw, isAuto);
     }
 
-    @Override
-    public void set(ShooterStates t) {
+    void onSet(ShooterStates t) {
         targetState = t;
     }
 
@@ -56,7 +55,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     @Override
-    public void setLocked(boolean isLocked) {
+    void setLocked(boolean isLocked) {
         super.setLocked(isLocked);
         feeder.setLocked(isLocked);
         flywheel.setLocked(isLocked);
@@ -96,15 +95,17 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 //    }
 
     public void armFlywheel() {
-        flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
+        flywheel.forceSet(Flywheel.FlyWheelStates.ARMING);
     }
 
-    public void incrementQueuedShots(int i) {
+    void incrementQueuedShots(int i) {
         this.queuedShots += i;
     }
 
-    public void setQueuedShots(int i) {
+    public boolean setQueuedShots(int i) {
+        if (isLocked()) return false;
         this.queuedShots = i;
+        return true;
     }
 
     public boolean isBallPresent() {
@@ -129,12 +130,18 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 //        turret.closeAutoAim();
 //    }
 
-    public void clearQueueShots() {
+    public boolean clearQueueShots() {
+        if (isLocked()) return false;
+        forceClearQueueShots();
+        return true;
+    }
+
+    void forceClearQueueShots() {
         queuedShots = 0;
         targetState = ShooterStates.IDLE;
-        turret.set(Turret.TurretStates.IDLE);
-        flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-        feeder.set(Feeder.FeederStates.RUNNING, true);
+        turret.forceSet(Turret.TurretStates.IDLE);
+        flywheel.forceSet(Flywheel.FlyWheelStates.IDLE);
+        feeder.forceSet(Feeder.FeederStates.RUNNING);
     }
 
     public void setGoalAlliance() {
@@ -142,31 +149,35 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         kinematicsSolver.setAlliance(Common.isRed);
     }
 
-    public void setFeederIdle(boolean isIdle) {
-        if (isIdle) feeder.set(Feeder.FeederStates.RUNNING, false);
+    void setFeederIdle(boolean isIdle) {
+        if (isIdle) feeder.forceSet(Feeder.FeederStates.RUNNING);
     }
 
-    public void turnOnEmergency() {
+    void turnOnEmergency() {
         if (robot.shooter.get() == ShooterStates.PREPPING) inEmergency = true;
     }
 
-    public void setTurretManual(Turret.TurretStates t) {
-        turret.set(t, true);
+    void setTurretManual(Turret.TurretStates t) {
+        turret.forceSet(t);
     }
 
     public void applyOffsets() {
 //        turret.applyOffset();
     }
-    public void setFlywheelManual(Flywheel.FlyWheelStates f) {
-        flywheel.set(f, true);
+    void setFlywheelManual(Flywheel.FlyWheelStates f) {
+        flywheel.forceSet(f);
     }
 
-    public void setHoodManual(double angleIncrement, boolean isIncrementing) {
-        hood.set(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
+    public boolean setHoodManual(double angleIncrement, boolean isIncrementing) {
+        if (isLocked()) return false;
+        hood.forceSet(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
+        return true;
     }
 
-    public void incrementFlywheelRPM(double rpmIncrement, boolean isIncrementing) {
+    public boolean incrementFlywheelRPM(double rpmIncrement, boolean isIncrementing) {
+        if (isLocked()) return false;
         flywheel.incrementFlywheelRPM(rpmIncrement, isIncrementing);
+        return true;
     }
 
 
@@ -196,26 +207,26 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 
         switch (targetState) {
             case IDLE:
-                feeder.set(Feeder.FeederStates.BLOCKING, true);
+                feeder.forceSet(Feeder.FeederStates.BLOCKING);
                 if (!isHoodManual) {
                     if(!robot.usingSotm()){
                         double distanceI = turret.getDistance();
-                        if (!isHoodManual) hood.set(Hood.MIN);
+                        if (!isHoodManual) hood.forceSet(Hood.MIN);
                         if (!isHoodManual) {
                             if (distanceI <= HOOD_DISTANCE_SHOOTER_SWITCH) {
-                                hood.set(hood.getHoodAngleWithDistance(distanceI), true);
+                                hood.forceSet(hood.getHoodAngleWithDistance(distanceI));
                             } else {
-                                hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                                hood.forceSet(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()));
                             }
                         }
                     }
-                    else hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                    else hood.forceSet(hood.launchRadiansToServoAngle(launchAngle));
                 }
 
                 if (queuedShots >= 1) {
-                    if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.set(Flywheel.FlyWheelStates.ARMING, true);
+                    if (flywheel.get() == Flywheel.FlyWheelStates.IDLE) flywheel.forceSet(Flywheel.FlyWheelStates.ARMING);
                     targetState = ShooterStates.PREPPING;
-                    if (turret.get() != Turret.TurretStates.ODOM_TRACKING) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
+                    if (turret.get() != Turret.TurretStates.ODOM_TRACKING) turret.forceSet(Turret.TurretStates.ODOM_TRACKING);
                 }
                 break;
             case PREPPING:
@@ -223,12 +234,12 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                 if (!isHoodManual) {
                     if(!robot.usingSotm()){
                         if (distance <= HOOD_DISTANCE_SHOOTER_SWITCH) {
-                            hood.set(hood.getHoodAngleWithDistance(distance), true);
+                            hood.forceSet(hood.getHoodAngleWithDistance(distance));
                         } else {
-                            hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                            hood.forceSet(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()));
                         }
                     }
-                    else hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                    else hood.forceSet(hood.launchRadiansToServoAngle(launchAngle));
                 }
 
                 if ((queuedShots >= 1 &&
@@ -237,10 +248,10 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                         (robot.isAuto || distance > MIN_SHOOTING_DISTANCE) &&
                         (distance <= 120 || turret.isReadyToShoot())) || inEmergency) {
                     inEmergency = false;
-                    feeder.set(Feeder.FeederStates.RUNNING, true);
+                    feeder.forceSet(Feeder.FeederStates.RUNNING);
 
                     targetState = ShooterStates.RUNNING;
-                    if (turret.get() != Turret.TurretStates.ODOM_TRACKING) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
+                    if (turret.get() != Turret.TurretStates.ODOM_TRACKING) turret.forceSet(Turret.TurretStates.ODOM_TRACKING);
                 }
                 break;
             case RUNNING:
@@ -248,29 +259,29 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
                     if(!robot.usingSotm()){
                         double distanceR = turret.getDistance();
                         if (distanceR <= HOOD_DISTANCE_SHOOTER_SWITCH) {
-                            hood.set(hood.getHoodAngleWithDistance(distanceR), true);
+                            hood.forceSet(hood.getHoodAngleWithDistance(distanceR));
                         } else {
-                            hood.set(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()), true);
+                            hood.forceSet(hood.getHoodAngleWithRPM(flywheel.getCurrentRPMSmooth()));
                         }
                     }
-                    else hood.set(hood.launchRadiansToServoAngle(launchAngle));
+                    else hood.forceSet(hood.launchRadiansToServoAngle(launchAngle));
                 }
 
-                flywheel.set(Flywheel.FlyWheelStates.RUNNING, true);
-                feeder.set(Feeder.FeederStates.RUNNING, true);
+                flywheel.forceSet(Flywheel.FlyWheelStates.RUNNING);
+                feeder.forceSet(Feeder.FeederStates.RUNNING);
 
                 if (didShotOccur) {
                     if (queuedShots <= 0) {
                         targetState = ShooterStates.IDLE;
-                        turret.set(Turret.TurretStates.IDLE);
-                        flywheel.set(Flywheel.FlyWheelStates.IDLE, true);
-                        feeder.set(Feeder.FeederStates.BLOCKING, true);
+                        turret.forceSet(Turret.TurretStates.IDLE);
+                        flywheel.forceSet(Flywheel.FlyWheelStates.IDLE);
+                        feeder.forceSet(Feeder.FeederStates.BLOCKING);
                     } else {
                         targetState = ShooterStates.RUNNING;
-                        feeder.set(Feeder.FeederStates.RUNNING, true);
+                        feeder.forceSet(Feeder.FeederStates.RUNNING);
                     }
 
-                    if (turret.get() == Turret.TurretStates.IDLE) turret.set(Turret.TurretStates.ODOM_TRACKING, true);
+                    if (turret.get() == Turret.TurretStates.IDLE) turret.forceSet(Turret.TurretStates.ODOM_TRACKING);
                 }
                 break;
         }

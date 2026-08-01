@@ -48,19 +48,19 @@ public class TestOpMode extends LinearOpMode {
 
             if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) {
                 currentHoodAngle += 30;
-                hood.set(currentHoodAngle);
+                hood.politeSet(currentHoodAngle);
             }
 
             if (gamepadEx1.wasJustPressed(Y)) {
                 currentHoodAngle -= 30;
-                hood.set(currentHoodAngle);
+                hood.politeSet(currentHoodAngle);
             }
             
-            if (gamepadEx1.isDown(LEFT_BUMPER)) intake.set(-1.0, true);
-            else intake.set(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), true);
+            if (gamepadEx1.isDown(LEFT_BUMPER)) intake.politeSet(-1.0);
+            else intake.politeSet(gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER));
 
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) feeder.set(Feeder.FeederStates.RUNNING, false);
-            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.Y)) feeder.set(Feeder.FeederStates.BLOCKING, false);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.X)) feeder.politeSet(Feeder.FeederStates.RUNNING);
+            if (gamepadEx1.wasJustPressed(GamepadKeys.Button.Y)) feeder.politeSet(Feeder.FeederStates.BLOCKING);
 
             hood.run();
             intake.run();
