@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Static guard for the Subsystem mutex contract (Team 24064 / DECODE).
 
-The mutex system lets RobotActions + ActionScheduler (inside decode.subsystem)
-lock subsystems and force-set their state, while OpModes (decode.opmodes) can
-only make lock-respecting "polite" requests. This script rejects any change that
-invalidates that privilege boundary. See MUTEX.md for the full contract.
+The mutex system lets RobotActions + ActionScheduler (inside the subsystem
+package) lock subsystems and force-set their state, while OpModes (other team
+packages) can only make lock-respecting "polite" requests. This script rejects
+any change that invalidates that privilege boundary. See MUTEX.md.
+
+The team's root package is NOT hardcoded: the subsystem package is located by
+finding Subsystem.java under teamcode/, so the guard survives yearly renames.
 
 Invariants enforced:
   1. onSet()    is a base-class-only state hook -- never called on an instance.
-  2. forceSet() is package-private -- callable only from decode.subsystem.
-  3. setLocked() is package-private -- callable only from decode.subsystem.
+  2. forceSet() is package-private -- callable only from the subsystem package.
+  3. setLocked() is package-private -- callable only from the subsystem package.
   4. onSet / setLocked / forceSet are never widened to public.
   5. politeSet / forceSet are never re-declared outside Subsystem.java.
   6. The removed old API (subsystem.set(...)) is never reintroduced.
@@ -35,10 +38,10 @@ RULES = [
      "message": "onSet is the base-class state hook; it must never be called on an instance",
      "legal": lambda base, pkg: False},
     {"pattern": re.compile(r"\.forceSet\("),
-     "message": "forceSet is package-private; only decode.subsystem may call it",
+     "message": "forceSet is package-private; only the subsystem package may call it",
      "legal": lambda base, pkg: pkg},
     {"pattern": re.compile(r"\.setLocked\("),
-     "message": "setLocked is package-private; only decode.subsystem may call it",
+     "message": "setLocked is package-private; only the subsystem package may call it",
      "legal": lambda base, pkg: pkg},
     {"pattern": re.compile(r"\bpublic\b[^\n]*\b(onSet|setLocked|forceSet)\s*\("),
      "message": "package-private mutex API was widened to public",
@@ -57,16 +60,29 @@ def is_comment_or_blank(line: str) -> bool:
     return not s or s.startswith(("//", "*"))
 
 
+def find_subsystem_dir(scan_dir: Path) -> Path:
+    """Return the dir holding Subsystem.java (e.g. <team>/subsystem), or None."""
+    for candidate in scan_dir.rglob("subsystem/Subsystem.java"):
+        return candidate.parent
+    return None
+
+
 def main() -> int:
     root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
     scan_dir = (root / "TeamCode" / "src" / "main" / "java"
                 / "org" / "firstinspires" / "ftc" / "teamcode")
-    violations = []
+    subsystem_dir = find_subsystem_dir(scan_dir)
+    if subsystem_dir is None:
+        print("MUTEX CONTRACT BLOCKED: could not locate subsystem/Subsystem.java "
+              "under teamcode/. Cannot determine the privilege boundary.")
+        return 1
+    subsystem_parts = subsystem_dir.relative_to(scan_dir).parts
 
+    violations = []
     for java_file in sorted(scan_dir.rglob("*.java")):
         rel = java_file.relative_to(scan_dir)
-        in_subsystem_pkg = (rel.parts[0] == "decode" and rel.parts[1] == "subsystem")
-        is_base = in_subsystem_pkg and java_file.name == "Subsystem.java"
+        in_subsystem_pkg = rel.parts[:len(subsystem_parts)] == subsystem_parts
+        is_base = java_file == subsystem_dir / "Subsystem.java"
 
         for lineno, raw in enumerate(java_file.read_text(encoding="utf-8").splitlines(), 1):
             if is_comment_or_blank(raw):

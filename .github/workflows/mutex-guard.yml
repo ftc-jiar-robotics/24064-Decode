@@ -21,3 +21,6 @@ jobs:
 
       - name: Run mutex contract check
         run: python3 tools/mutex_check.py
+
+      - name: Run mutex skill/docs consistency check
+        run: python3 tools/mutex_skill_check.py

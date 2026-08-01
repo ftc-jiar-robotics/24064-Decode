@@ -1,26 +1,27 @@
 # Mutex System — Code Guidelines & Enforcement
 
-The `Subsystem<T>` base class (`decode/subsystem/Subsystem.java`) implements a
-mutex so that **only RobotActions / ActionScheduler** may force subsystems into a
-state while an action is running, while OpModes only get a lock-respecting
-request that silently no-ops while the subsystem is locked.
+The `Subsystem<T>` base class (in `<team>/subsystem/Subsystem.java` — the team
+root package, `decode` this season, changes yearly) implements a mutex so that
+**only RobotActions / ActionScheduler** may force subsystems into a state while
+an action is running, while OpModes only get a lock-respecting request that
+silently no-ops while the subsystem is locked.
 
 ## The contract
 
 | Method            | Visibility                  | Who may call                                  |
 |-------------------|-----------------------------|-----------------------------------------------|
 | `politeSet(T)`    | `public final`              | Anyone — rejected (`false`) while locked      |
-| `forceSet(T)`     | package-private `final`     | Only `decode.subsystem` (actions)             |
+| `forceSet(T)`     | package-private `final`     | Only the subsystem package (actions)          |
 | `onSet(T)`        | package-private `abstract`  | Base class only (never call it)               |
-| `setLocked(boolean)` | package-private           | Only `decode.subsystem` (scheduler)           |
+| `setLocked(boolean)` | package-private           | Only the subsystem package (scheduler)        |
 
 Key rules:
 
 1. **`onSet` is a base-class-only hook.** Subclasses *implement* it; nothing
    else may *call* it. A call like `intake.onSet(...)` bypasses the lock.
-2. **`forceSet` is package-private.** Only code whose package is
-   `decode.subsystem` (`Shooter`, `RobotActions`, `ActionScheduler`, ...) may
-   force a state. OpModes in `decode.opmodes` must use `politeSet`.
+2. **`forceSet` is package-private.** Only code in the subsystem package
+   (`Shooter`, `RobotActions`, `ActionScheduler`, ...) may force a state.
+   OpModes in other team packages must use `politeSet`.
 3. **`setLocked` is package-private.** Only the scheduler path may acquire or
    release the lock. Shooter fans the lock out to its children via its own
    package-private override.
@@ -41,7 +42,9 @@ python3 tools/mutex_check.py .        # exit 0 = clean, 1 = violations
 ```
 
 It scans every `.java` under `TeamCode/.../teamcode/`, classifies each file by
-package, and reports `file:line` for every violation. It ignores comments.
+package (locating the subsystem package dynamically via `Subsystem.java`, so a
+yearly rename of the team package does not break it), and reports `file:line`
+for every violation. It ignores comments.
 
 The same script gates check-ins via GitHub Actions
 (`.github/workflows/mutex-guard.yml`): a **push or pull request that introduces
@@ -50,7 +53,7 @@ run it through the `mutex-guard` skill before you commit.
 
 ## When you add a subsystem
 
-- Extend `Subsystem<T>` in `decode/subsystem`.
+- Extend `Subsystem<T>` inside the subsystem package.
 - Implement `onSet(T)` with package-private (no modifier) access — it just
   writes your private state field.
 - Keep `currentState`/`targetState`/`power`/... `private` so only `onSet` (via
