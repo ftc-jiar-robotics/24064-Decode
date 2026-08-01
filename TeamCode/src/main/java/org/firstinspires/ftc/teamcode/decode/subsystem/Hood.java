@@ -43,8 +43,10 @@ public class Hood extends Subsystem<Double> {
         return targetAngle;
     }
 
-    public void setPhysicalMax() {
+    public boolean setPhysicalMax() {
+        if (isLocked()) return false;
         targetAngle = PHYSICAL_MAX;
+        return true;
     }
 
     public double getHoodAngleWithDistance(double distance) {
