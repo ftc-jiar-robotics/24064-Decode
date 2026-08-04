@@ -160,6 +160,142 @@ helper (e.g. `robot.shooter.setFeederIdle(...)`, which internally calls
 
 ---
 
+## The custom actions in `Actions.java`
+
+The action utilities live in `decode/util/Actions.java`. They wrap the base
+RoadRunner `Action` interface to give you the wait / skip / timeout behavior an
+action needs:
+
+| Action | Constructor | What it does |
+|--------|-------------|--------------|
+| `RunnableAction` | `(Callable<Boolean> action)` | Runs the callable every loop; the action keeps running while it returns `true` and finishes when it returns `false`. Ad-hoc work or conditions. |
+| `SingleCheckAction` | `(Callable<Boolean> check, Action action)` | Evaluates `check` once: if `true`, runs `action` to completion; if `false`, finishes instantly (skip). The guard + body primitive — "skip if already done." |
+| `UntilConditionAction` | `(Callable<Boolean> check, Action action)` | Runs `action` while `check` is `false`; stops as soon as `check` is `true` (and breaks path-following if the action is a `FollowPathAction`). "Run until …" |
+| `TimedAction` | `(Action action, long maxTimeMs, String name)` | Wraps an action so it stops after `maxTimeMs` even if it hasn't finished — a time-budgeted action. |
+| `CallbackAction` | `(Action action, PathChain chain, double startCondition, int index, Follower f, String s)` | Waits until a PedroPathing callback at a given index / position along a path fires, then runs `action`. Defer work until the robot reaches a point on a path. |
+
+---
+
+## How to write a RobotAction
+
+### The one rule
+
+**Never assume where the robot is when an action starts.** An action must be
+written to bring the robot from *any* state into a *known* state. If part of
+the goal is already achieved, that part must skip itself.
+
+The scheduler can run your action at any moment: mid-drive, right after another
+action, immediately after tele-op starts. If `score()` assumed "the sample is
+already transferred to the claw," then a score called before any transfer would
+feed nothing and break the cycle. Actions defend against that by checking
+their own prerequisites.
+
+### Guard + body
+
+Every action is a **guard** followed by the **body**. If the guard is true the
+body runs to completion; if it's false the action finishes instantly — nothing
+happens. That is exactly what `Actions.SingleCheckAction` does:
+
+```java
+public static Action transferToClaw() {
+    return new Actions.SingleCheckAction(
+            () -> robot.currentState != Robot.State.TRANSFERRED,  // guard: still needs doing?
+            new SequentialAction(                                  // body
+                    retractForTransfer(),
+                    setWrist(Arm.WristAngle.COLLECTING, WRIST_COLLECTING_TRANSFER_TO_CLAW),
+                    setArm(Arm.ArmAngle.COLLECTING, ARM_COLLECTING_TRANSFER_TO_CLAW),
+                    // ... the rest of the transfer sequence ...
+                    new InstantAction(() -> robot.currentState = Robot.State.TRANSFERRED)
+            )
+    );
+}
+```
+
+Write the guard as *"this still needs doing"*: if the robot is already in
+`TRANSFERRED`, the guard is false and the whole sequence is skipped. Two
+semantics to keep straight:
+
+- `SingleCheckAction` does **not wait** for the guard to become true — it
+  evaluates it and either runs the body or skips. Use it for "skip if
+  already done / skip if the precondition isn't met."
+- If you genuinely need to *wait* for a condition before proceeding, use
+  `UntilConditionAction` instead.
+
+### Compose big actions out of guarded small ones
+
+A big action is just a `SequentialAction` of smaller guarded actions. The
+"scoring requires transfer first" dependency falls out for free:
+
+```java
+public static Action scoreBasket() {
+    return new Actions.SingleCheckAction(
+            () -> robot.currentState != Robot.State.SCORED_SAMPLE,
+            new SequentialAction(
+                    transferToClaw(),        // skips itself if already transferred
+                    setupScoreBasket(true),  // skips itself if already set up
+                    dropSample()             // skips itself if already scored
+            )
+    );
+}
+```
+
+```
+  scoreBasket()
+    │  guard: already SCORED_SAMPLE? ── yes ──▶ skip (finishes instantly)
+    ▼
+    ├─ transferToClaw()        guard: already TRANSFERRED?  ── yes ──▶ skip
+    ├─ setupScoreBasket(true)  guard: already SETUP_SCORE?   ── yes ──▶ skip
+    └─ dropSample()            guard: already NEUTRAL?       ── yes ──▶ skip
+```
+
+Each prerequisite is itself an action with its own guard, so composition is
+safe from any starting state and any call order. This is exactly how the
+previous season's `RobotActions`
+(`24064-IntoTheDeep`) was built — `transferToClaw()` calls
+`retractForTransfer()` first, which skips itself once the robot is already
+transfer-ready.
+
+### Declare the end state
+
+Every action finishes by recording the state it has brought the robot to, so
+the *next* action's guard can decide to skip:
+
+```java
+new InstantAction(() -> robot.currentState = Robot.State.TRANSFERRED)
+```
+
+The end state must be specific enough to reason about: "transferred",
+"setup for basket", "scored" — never a vague "done".
+
+### In this repo
+
+`RobotActions` (in `decode.subsystem`) already uses the same
+`Actions.SingleCheckAction` utility. This season's subsystems expose `get()`
+instead of a global `robot.currentState`, so guards read the subsystem's
+commanded state:
+
+```java
+public static Action openGate() {
+    return new Actions.SingleCheckAction(
+            () -> robot.gateOpener.get() != GateOpener.GateOpenerStates.OPEN,
+            new InstantAction(() -> robot.gateOpener.forceSet(GateOpener.GateOpenerStates.OPEN))
+    );
+}
+```
+
+Rules of thumb:
+
+- Guard on **commanded** state (`get()` / target value), not a raw sensor
+  reading — commanded state is deterministic and won't flicker.
+- If the guard is "still needs doing," the end-state write must be the *last*
+  step of the body.
+- Put independent steps in a `ParallelAction`; keep dependent steps in
+  `SequentialAction` (e.g. always retract before transfer).
+- Never write an action that assumes the robot started in the state it ends
+  in.
+
+---
+
 ## The rules
 
 1. **OpModes use `politeSet(T)` only.** It returns `false` while locked — treat
