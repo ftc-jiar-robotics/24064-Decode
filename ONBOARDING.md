@@ -294,6 +294,11 @@ Rules of thumb:
 - Never write an action that assumes the robot started in the state it ends
   in.
 
+There are 2 ways of writing actions: 
+
+1. Directly control the movments of State Machine-less Subsystems and set their states(most commonly useful in Pick and Place games)
+2. Set stimulus that Subsystems observe and automatically move through their State Machine to fulfill
+
 ---
 
 ## The rules
