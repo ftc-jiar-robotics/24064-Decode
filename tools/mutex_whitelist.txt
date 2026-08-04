@@ -1,0 +1,27 @@
+# Subsystem public-mutator whitelist.
+#
+# The mutex contract forbids public state-mutating access functions on
+# Subsystem subclasses (the mechanisms instantiated by Robot / its composites).
+# Those belong package-private, behind a RobotAction. This file lists the
+# sanctioned exceptions, one per line, as `ClassName::methodName`.
+#
+# A whitelisted function should be fail-safe (lock-aware: checks isLocked() /
+# returns false while locked) or a configuration-type setter. It must NOT be a
+# state-changing or functionality-affecting call that bypasses the mutex.
+#
+# Refactor entries out one at a time: make the method package-private and add a
+# RobotActions action that runs in its place, then delete the line here.
+
+Flywheel::setManualPower
+Flywheel::incrementFlywheelRPM
+Hood::setPhysicalMax
+Turret::setAlliance
+Turret::setGoalOffset
+Shooter::setDontMoveGoalDown
+Shooter::setFlywheelMovingToFarZone
+Shooter::setQueuedShots
+Shooter::clearQueueShots
+Shooter::setGoalAlliance
+Shooter::applyOffsets
+Shooter::setHoodManual
+Shooter::incrementFlywheelRPM

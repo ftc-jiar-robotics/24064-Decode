@@ -1,6 +1,6 @@
 ---
 name: mutex-guard
-description: Use when editing Subsystem, RobotActions, ActionScheduler, or any robot subsystem / opmode code, and before committing or pushing, to verify the Subsystem mutex system was not invalidated. Reads the contract docs and source files and reasons about violations directly (no script). Triggers on "mutex", "politeSet", "forceSet", "setLocked", "onSet", or "code guidelines check".
+description: Use when editing Subsystem, RobotActions, ActionScheduler, or any robot subsystem / opmode code, and before committing or pushing, to verify the Subsystem mutex system was not invalidated. Reads the contract docs and source files and reasons about violations directly (no script). Triggers on "mutex", "politeSet", "forceSet", "setLocked", "onSet_DONOTCALL", or "code guidelines check".
 ---
 
 # Mutex Guard
@@ -32,11 +32,13 @@ Never assume it: always locate the subsystem package dynamically.
    directory defines the **privileged package** for this year (e.g.
    `<team>/subsystem`, where `<team>` is `decode` this season). Read that file —
    it is the ground truth for the API surface: `politeSet` (public final),
-   `forceSet` (package-private final), `onSet` (package-private abstract),
-   `setLocked` (package-private).
+   `forceSet` (package-private final), `onSet_DONOTCALL` (package-private
+   abstract), `setLocked` (package-private).
 5. Glob for `**/Robot.java`. It must be in its own `<team>/robot` package —
    **never** inside the privileged package. `Robot` is the opmode-facing
    composition root; it belongs to the caller side of the boundary.
+6. Read `tools/mutex_whitelist.txt` — the sanctioned exceptions to the
+   "no public mutators on Subsystems" rule (`ClassName::methodName`).
 
 Internalize the boundary:
 
@@ -44,7 +46,7 @@ Internalize the boundary:
 |-----------------|---------------------------|----------------------------------------------|
 | `politeSet(T)`  | everyone                  | anyone — `false` while locked                |
 | `forceSet(T)`   | privileged package only   | actions / composites in that package         |
-| `onSet(T)`      | privileged package only   | **base class only** — subclasses implement, never call |
+| `onSet_DONOTCALL(T)` | privileged package only | **base class only** — subclasses implement, never call |
 | `setLocked(boolean)` | privileged package only | scheduler path (and Shooter's fan-out)    |
 
 ## Step 2 — Enumerate and partition the code
@@ -61,41 +63,49 @@ Use Glob to list every `.java` under the team source root, then partition:
 For **every** `.java` in the partition, check with Read/Grep:
 
 1. **Subsystem subclasses** (`extends Subsystem`):
-   - implements `onSet(...)` as package-private (no modifier, not `public`),
-     and it only writes that subsystem's own private state field;
+   - implements `onSet_DONOTCALL(...)` as package-private (no modifier, not
+     `public`), and it only writes that subsystem's own private state field;
    - does **not** declare `politeSet` / `forceSet` (both `final` in base);
    - does **not** override `setLocked` unless it is a composite like Shooter
      that fans the lock out to children — and that override must stay
      package-private too;
    - exposes **no public method that mutates its state field directly**
      (that is a lock bypass even if `politeSet` is untouched);
+   - exposes **no public mutator** (`setXxx`, `clearXxx`, `resetXxx`,
+     `toggleXxx`, `applyXxx`, `enableXxx`, `disableXxx`, `incrementXxx`,
+     `decrementXxx`) unless it is in `tools/mutex_whitelist.txt` — and even
+     then only if it is fail-safe (lock-aware) or configuration-type, never
+     state-changing or functionality-affecting. Anything else belongs
+     package-private behind a `RobotActions` action;
    - its state field (`currentState`, `targetState`, `power`, `targetAngle`,
      ...) is `private`, so nothing outside the class can write it.
 
 2. **Privileged callers** (the subsystem package): every `forceSet(...)` /
-   `setLocked(...)` / `onSet(...)` reference must be an internal, justified use
-   (an action in RobotActions, the scheduler in ActionScheduler, a composite
-   fan-out in Shooter, or the base class itself). Any use that reads like an
-   OpMode or an ad-hoc shortcut is a violation.
+   `setLocked(...)` / `onSet_DONOTCALL(...)` reference must be an internal,
+   justified use (an action in RobotActions, the scheduler in ActionScheduler,
+   a composite fan-out in Shooter, or the base class itself). Any use that
+   reads like an OpMode or an ad-hoc shortcut is a violation.
 
 3. **Unprivileged files** (opmodes, util, anything outside the subsystem
    package): must reference subsystems **only** through `politeSet`, `get()`,
-   and read-only `getXxx()` accessors. Any `forceSet`, `setLocked`, `onSet`,
-   or old `set(...)` call here is a violation. This includes **`Robot.java`**:
-   it lives in `<team>/robot`, outside the boundary, so it must not call
-   `forceSet` / `setLocked` even though it constructs and runs every subsystem.
+   and read-only `getXxx()` accessors. Any `forceSet`, `setLocked`,
+   `onSet_DONOTCALL`, or old `set(...)` call here is a violation. This includes
+   **`Robot.java`**: it lives in `<team>/robot`, outside the boundary, so it
+   must not call `forceSet` / `setLocked` even though it constructs and runs
+   every subsystem.
 
 4. **Structural bypasses** the regex scanner cannot see:
    - a subsystem that gained a `public void` / `public boolean` setter-like
-     method writing its state field;
+     method writing its state field (must be whitelisted or made
+     package-private);
    - state fields accidentally made package-private or public;
    - a composite exposing children publicly such that an opmode could
      `robot.shooter.flywheel.forceSet(...)` (the force path must stay inside
      the privileged package regardless of reachability);
    - reflection (`Class.forName(...)`, `getDeclaredMethod(...)`) reaching the
      package-private API;
-   - `onSet` invoked through a helper or method reference (`this::onSet`,
-     `subsystem::onSet`).
+   - `onSet_DONOTCALL` invoked through a helper or method reference
+     (`this::onSet_DONOTCALL`, `subsystem::onSet_DONOTCALL`).
 
 ## Step 4 — Report
 
@@ -108,8 +118,9 @@ contract to accommodate a caller.
 Example report entry:
 
 ```
-subsystem/Turret.java:412: onSet called on instance -- rule 1. onSet is a
-    base-class hook; only Subsystem.politeSet/forceSet may invoke it.
+subsystem/Turret.java:412: onSet_DONOTCALL called on instance -- rule 1.
+    onSet_DONOTCALL is a base-class hook; only Subsystem.politeSet/forceSet
+    may invoke it.
 ```
 
 ## Step 5 — Close the loop

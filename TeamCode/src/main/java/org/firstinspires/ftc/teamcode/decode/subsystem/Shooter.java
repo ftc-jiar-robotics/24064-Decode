@@ -45,7 +45,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
         this.feeder = new Feeder(hw, isAuto);
     }
 
-    void onSet(ShooterStates t) {
+    void onSet_DONOTCALL(ShooterStates t) {
         targetState = t;
     }
 
@@ -131,7 +131,6 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
 //    }
 
     public boolean clearQueueShots() {
-        if (isLocked()) return false;
         forceClearQueueShots();
         return true;
     }
@@ -169,9 +168,7 @@ public class Shooter extends Subsystem<Shooter.ShooterStates> {
     }
 
     public boolean setHoodManual(double angleIncrement, boolean isIncrementing) {
-        if (isLocked()) return false;
-        hood.forceSet(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
-        return true;
+        return hood.politeSet(hood.get() + (isIncrementing ? angleIncrement : -angleIncrement));
     }
 
     public boolean incrementFlywheelRPM(double rpmIncrement, boolean isIncrementing) {

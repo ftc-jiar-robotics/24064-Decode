@@ -65,7 +65,7 @@ public class Feeder extends Subsystem<Feeder.FeederStates> {
         isGateEnabled = isAuto;
     }
 
-    void onSet(FeederStates state) {
+    void onSet_DONOTCALL(FeederStates state) {
         currentState = state;
     }
 

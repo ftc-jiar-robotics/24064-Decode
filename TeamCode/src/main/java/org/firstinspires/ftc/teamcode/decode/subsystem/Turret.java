@@ -95,7 +95,7 @@ public class Turret extends Subsystem<Turret.TurretStates> {
         dontMoveGoalDown = false;
     }
 
-    void onSet(TurretStates a) {
+    void onSet_DONOTCALL(TurretStates a) {
         currentState = a;
     }
 

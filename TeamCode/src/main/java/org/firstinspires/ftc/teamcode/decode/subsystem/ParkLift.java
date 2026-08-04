@@ -35,7 +35,7 @@ public class ParkLift extends Subsystem<ParkLift.ParkStates> {
         parkLeft.setInverted(true);
     }
 
-    void onSet(ParkLift.ParkStates state) {
+    void onSet_DONOTCALL(ParkLift.ParkStates state) {
         currentState = state;
     }
 

@@ -129,7 +129,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
         launchDelayLUT.createLUT();
     }
 
-    void onSet(FlyWheelStates f) {
+    void onSet_DONOTCALL(FlyWheelStates f) {
         targetState = f;
     }
 

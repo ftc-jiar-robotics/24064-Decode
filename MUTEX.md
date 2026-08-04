@@ -12,21 +12,23 @@ silently no-ops while the subsystem is locked.
 |-------------------|-----------------------------|-----------------------------------------------|
 | `politeSet(T)`    | `public final`              | Anyone — rejected (`false`) while locked      |
 | `forceSet(T)`     | package-private `final`     | Only the subsystem package (actions)          |
-| `onSet(T)`        | package-private `abstract`  | Base class only (never call it)               |
+| `onSet_DONOTCALL(T)` | package-private `abstract` | Base class only (never call it)            |
 | `setLocked(boolean)` | package-private           | Only the subsystem package (scheduler)        |
 
 Key rules:
 
-1. **`onSet` is a base-class-only hook.** Subclasses *implement* it; nothing
-   else may *call* it. A call like `intake.onSet(...)` bypasses the lock.
+1. **`onSet_DONOTCALL` is a base-class-only hook.** Subclasses *implement* it;
+   nothing else may *call* it. A call like `intake.onSet_DONOTCALL(...)`
+   bypasses the lock.
 2. **`forceSet` is package-private.** Only code in the subsystem package
    (`Shooter`, `RobotActions`, `ActionScheduler`, ...) may force a state.
    OpModes in other team packages must use `politeSet`.
 3. **`setLocked` is package-private.** Only the scheduler path may acquire or
    release the lock. Shooter fans the lock out to its children via its own
    package-private override.
-4. **Never widen the mutex API.** `onSet`, `forceSet`, `setLocked` overrides
-   must stay package-private. A `public` override exposes the mutex to OpModes.
+4. **Never widen the mutex API.** `onSet_DONOTCALL`, `forceSet`, `setLocked`
+   overrides must stay package-private. A `public` override exposes the mutex
+   to OpModes.
 5. **Never re-declare `politeSet` / `forceSet`.** They are `final`; a subclass
    declaring them breaks the base-class enforcement.
 6. **Never use the old `set(...)` API** on a subsystem. It was removed. Use
@@ -37,6 +39,15 @@ Key rules:
    `forceSet` / `setLocked`. It is the opmode-facing composition root, so its
    only way to request state is `politeSet`. If a subsystem refuses a request
    while locked, that is the scheduler's call, not Robot's.
+8. **No public mutators on Subsystems** (`setXxx`, `clearXxx`, `resetXxx`,
+   `toggleXxx`, `applyXxx`, `enableXxx`, `disableXxx`, `incrementXxx`,
+   `decrementXxx`) unless whitelisted. Subsystems must not expose public
+   state-changing / functionality-affecting calls — those belong
+   package-private, behind a `RobotActions` action. The only sanctioned
+   exceptions live in `tools/mutex_whitelist.txt` (format
+   `ClassName::methodName`), and each must be fail-safe (lock-aware) or
+   configuration-type. Adding a whitelist entry is a stopgap: refactor the
+   method package-private + action and delete the line.
 
 ## Enforcement
 
@@ -59,9 +70,13 @@ run it through the `mutex-guard` skill before you commit.
 ## When you add a subsystem
 
 - Extend `Subsystem<T>` inside the subsystem package.
-- Implement `onSet(T)` with package-private (no modifier) access — it just
-  writes your private state field.
-- Keep `currentState`/`targetState`/`power`/... `private` so only `onSet` (via
-  `politeSet`/`forceSet`) can mutate it from outside the class.
+- Implement `onSet_DONOTCALL(T)` with package-private (no modifier) access — it
+  just writes your private state field.
+- Keep `currentState`/`targetState`/`power`/... `private` so only
+  `onSet_DONOTCALL` (via `politeSet`/`forceSet`) can mutate it from outside the
+  class.
 - Do not touch `politeSet` / `forceSet` / `setLocked`.
+- Do not add `public` mutator methods. If OpMode / action logic needs to change
+  subsystem state, expose a `RobotActions` action and keep the mutator
+  package-private.
 - Run `python3 tools/mutex_check.py .` — it must exit 0.

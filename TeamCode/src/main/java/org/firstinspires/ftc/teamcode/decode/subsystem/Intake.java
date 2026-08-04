@@ -30,7 +30,7 @@ public class Intake extends Subsystem<Double> {
         pin0Back = hardwareMap.digitalChannel.get(Common.NAME_INTAKE_BACK_PIN0);
     }
 
-    void onSet(Double power) {
+    void onSet_DONOTCALL(Double power) {
         this.power = power;
     }
 

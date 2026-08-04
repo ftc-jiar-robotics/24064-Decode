@@ -11,12 +11,16 @@ asserts the same invariants the skill depends on:
   2. SKILL.md is well-formed (frontmatter name matches its folder).
   3. AGENTS.md points at the check and the contract doc.
   4. Subsystem.java's mutex API surface exactly matches the documented contract
-     (politeSet public final, forceSet package-private final, onSet package-private
-     abstract, setLocked package-private) -- located dynamically, so a yearly
-     rename of the team package does not break it.
+     (politeSet public final, forceSet package-private final,
+     onSet_DONOTCALL package-private abstract, setLocked package-private) --
+     located dynamically, so a yearly rename of the team package does not break
+     it.
   5. Robot.java lives in its own <team>/robot package (NOT the subsystem
      package), so it cannot reach the package-private mutex API.
-  6. The workflow actually runs both mutex checks.
+  6. tools/mutex_whitelist.txt exists and every entry is well-formed
+     (ClassName::methodName) -- the sanctioned exceptions to the "no public
+     mutators on Subsystems" rule.
+  7. The workflow actually runs both mutex checks.
 
 Usage:
     python3 tools/mutex_skill_check.py [repo-root]
@@ -33,8 +37,8 @@ CONTRACT = [
      "politeSet must be public final (OpMode path)"),
     ("final boolean forceSet(T t)", "public final boolean forceSet",
      "forceSet must be package-private final (actions only)"),
-    ("abstract void onSet(T t)", "public abstract void onSet",
-     "onSet must be package-private abstract (base-class hook)"),
+    ("abstract void onSet_DONOTCALL(T t)", "public abstract void onSet_DONOTCALL",
+     "onSet_DONOTCALL must be package-private abstract (base-class hook)"),
     ("void setLocked(boolean", "public void setLocked",
      "setLocked must be package-private (scheduler only)"),
 ]
@@ -53,6 +57,7 @@ def main() -> int:
         (Path("MUTEX.md"), "MUTEX.md contract doc"),
         (Path("AGENTS.md"), "AGENTS.md agent guide"),
         (Path("tools/mutex_check.py"), "tools/mutex_check.py scanner"),
+        (Path("tools/mutex_whitelist.txt"), "tools/mutex_whitelist.txt"),
         (Path(".opencode/skills/mutex-guard/SKILL.md"), "mutex-guard skill"),
         (Path(".github/workflows/mutex-guard.yml"), "mutex-guard workflow"),
     ]:
@@ -99,7 +104,20 @@ def main() -> int:
         problems.append("Robot.java must not live in the subsystem package -- it is the "
                         "opmode-facing composition root and must be kept out of the mutex boundary")
 
-    # 6. Workflow runs both checks.
+    # 6. Whitelist must exist and be well-formed (ClassName::methodName).
+    wl = root / "tools" / "mutex_whitelist.txt"
+    if wl.exists():
+        for lineno, raw in enumerate(wl.read_text(encoding="utf-8").splitlines(), 1):
+            line = raw.split("#", 1)[0].strip()
+            if not line:
+                continue
+            if re.fullmatch(r"[A-Za-z0-9]+::[A-Za-z0-9]+", line) is None:
+                problems.append(f"tools/mutex_whitelist.txt:{lineno}: malformed entry "
+                                f"(expected ClassName::methodName): {line}")
+    else:
+        problems.append("missing: tools/mutex_whitelist.txt (rule-8 exceptions list)")
+
+    # 7. Workflow runs both checks.
     wf = root / ".github/workflows/mutex-guard.yml"
     if wf.exists():
         text = wf.read_text(encoding="utf-8")
