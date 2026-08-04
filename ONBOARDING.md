@@ -5,6 +5,48 @@ subsystem's state, and the mutex rules you must follow. New developers: read
 this first, then `MUTEX.md` for the full contract and `AGENTS.md` for repo
 gotchas.
 
+Before the architecture, understand the one idea everything is built around.
+
+## The mutex — what it is and why it exists
+
+### What is it?
+
+Every `Subsystem<T>` carries a private lock. `ActionScheduler.addAction(...)`
+wraps each action in three steps:
+
+1. `setLocked(true)`  → the subsystems the action touches are **locked**;
+2. run the action;    → actions can `forceSet` freely;
+3. `setLocked(false)` → released.
+
+While locked, `politeSet(T)` is a no-op that returns `false` — it refuses to
+touch the state. `forceSet(T)` ignores the lock (that's why it's
+package-private).
+
+### Why do we have it?
+
+An action is a **choreographed sequence**. Example: `shootArtifacts(3)`
+ramps the intake, queues shots, arms the flywheel, PID-aims the turret, waits
+for the ball, fires, clears the queue, and restores drive speed — in that
+order. Each step assumes the previous step's state is still in place.
+
+If anything else wrote to those subsystems mid-sequence — a stray gamepad
+trigger, an OpMode loop that flips the intake off, a manual hood angle yanked
+in while the turret is tracking — the choreography desynchronizes:
+
+- the shooter fires at the wrong time or angle,
+- the intake fights the feeder for the ball,
+- a motor stalls against a locked mechanism.
+
+That's not just a lost match: stalled motors and fighting mechanisms are how
+you **strip gears and physically break the robot**. The mutex serializes
+control — while an action owns a subsystem, everyone else's request is
+politely ignored. The action's sequence cannot be corrupted from outside.
+
+Everything below — the package layout, the diagram, and the rules — exists to
+make that guarantee hold.
+
+---
+
 ## Where things live
 
 All team code is under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/decode/`:
@@ -115,43 +157,6 @@ The parent drives its children from inside `run()`:
 `forceSet`s a child either — it goes through the parent's package-private
 helper (e.g. `robot.shooter.setFeederIdle(...)`, which internally calls
 `feeder.forceSet(...)`).
-
----
-
-## The mutex — what it is and why it exists
-
-### What is it?
-
-Every `Subsystem<T>` carries a private lock. `ActionScheduler.addAction(...)`
-wraps each action in three steps:
-
-1. `setLocked(true)`  → the subsystems the action touches are **locked**;
-2. run the action;    → actions can `forceSet` freely;
-3. `setLocked(false)` → released.
-
-While locked, `politeSet(T)` is a no-op that returns `false` — it refuses to
-touch the state. `forceSet(T)` ignores the lock (that's why it's
-package-private).
-
-### Why do we have it?
-
-An action is a **choreographed sequence**. Example: `shootArtifacts(3)`
-ramps the intake, queues shots, arms the flywheel, PID-aims the turret, waits
-for the ball, fires, clears the queue, and restores drive speed — in that
-order. Each step assumes the previous step's state is still in place.
-
-If anything else wrote to those subsystems mid-sequence — a stray gamepad
-trigger, an OpMode loop that flips the intake off, a manual hood angle yanked
-in while the turret is tracking — the choreography desynchronizes:
-
-- the shooter fires at the wrong time or angle,
-- the intake fights the feeder for the ball,
-- a motor stalls against a locked mechanism.
-
-That's not just a lost match: stalled motors and fighting mechanisms are how
-you **strip gears and physically break the robot**. The mutex serializes
-control — while an action owns a subsystem, everyone else's request is
-politely ignored. The action's sequence cannot be corrupted from outside.
 
 ---
 
