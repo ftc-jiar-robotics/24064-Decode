@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
+import org.firstinspires.ftc.teamcode.decode.util.PathBuilder;
 
 @Configurable
 @Autonomous(name = "AutoGoal15", preselectTeleOp = "Main TeleOp")
@@ -65,23 +66,22 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_HP")),
-                        new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake0, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
-                                new Actions.CallbackAction(
+                        PathBuilder.buildPath(path.humanPlayerIntake0, f, true, GoalPaths.MAX_HP_GOING_MS,
+                                new PathBuilder.PathBuilderCallback(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerIntake0, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
-                                        path.humanPlayerIntake0, 0.3, 0, f, "slow_down_hp"), // slow down to intake balls
-                                new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake0, true), GoalPaths.MAX_HP_GOING_MS, "firstHPGoal")
+                                        path.humanPlayerIntake0, 0.3, 0, f, "slow_down_hp") // slow down to intake balls
                         ),
                         new SleepAction(0.3),
                         new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1, true), GoalPaths.MAX_HP_TIME_MS, "firstHPGoal"),
                         new SleepAction(0.3),
                         new Actions.TimedAction(new FollowPathAction(f, path.humanPlayerIntake1_5, false), GoalPaths.MAX_HP_TIME_MS, "secondHPGoal"),
-                        new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
-                                new Actions.CallbackAction(
+                        new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, PathBuilder.buildPath(path.humanPlayerShoot, f, true,
+                                new PathBuilder.PathBuilderCallback(new InstantAction(() -> f.setMaxPower(1)), path.humanPlayerShoot, .01, 0, f, "speed_up_hp_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
@@ -89,8 +89,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.setIntake(0.25, 0)
                                         ),
                                         path.humanPlayerShoot, 0.01, 0, f, "arm_flywheel_and_turret_hp"
-                                ),
-                                new FollowPathAction(f, path.humanPlayerShoot, true)
+                                )
                         )),
                         new Actions.UntilConditionAction(() -> getRuntime() > GoalPaths.LEAVE_TIME, RobotActions.shootArtifacts(3)),
                         new FollowPathAction(f, path.goalLeave),
@@ -108,16 +107,16 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_THIRD")),
-                        new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 0, f, "speed_up_3"), // speed up to dash to third set of balls
-                                new Actions.CallbackAction(
+                        PathBuilder.buildPath(path.thirdShoot, f, true,
+                                new PathBuilder.PathBuilderCallback(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 0, f, "speed_up_3"), // speed up to dash to third set of balls
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.thirdShoot, 0.3, 0, f, "slow_down_3"), // slow down to intake balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 2, f, "speed_up_3_post_intake"), // speed up to dash back to close triangle and start shooting procedure
-                                new Actions.CallbackAction(
+                                new PathBuilder.PathBuilderCallback(new InstantAction(() -> f.setMaxPower(1)), path.thirdShoot, .01, 2, f, "speed_up_3_post_intake"), // speed up to dash back to close triangle and start shooting procedure
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
@@ -125,8 +124,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.setIntake(0.25, 0)
                                         ),
                                         path.thirdShoot, 0.01, 2, f, "arm_flywheel_and_turret_3"
-                                ),
-                                new FollowPathAction(f, path.thirdShoot, true)
+                                )
                         ),
 
                         RobotActions.shootArtifacts(3, 1.5),
@@ -145,20 +143,19 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_SECOND")),
-                        new ParallelAction(
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 0, f, "speed_up_2"), // speed up to dash to second balls
-                                new Actions.CallbackAction(
+                        PathBuilder.buildPath(path.secondIntake, f, false,
+                                new PathBuilder.PathBuilderCallback(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 0, f, "speed_up_2"), // speed up to dash to second balls
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.secondIntake, 0.3, 0, f, "slow_down_2"), // slow down to intake balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 2, f, "speed_up_2_post_intake"), // lets go fast after intake balls, back to triangle to shoot
-                                new FollowPathAction(f, path.secondIntake)//dashes to second 3 balls, slows down and starts intake at halfway point in path
+                                new PathBuilder.PathBuilderCallback(new InstantAction(() -> f.setMaxPower(1)), path.secondIntake, 0.01, 2, f, "speed_up_2_post_intake") // lets go fast after intake balls, back to triangle to shoot
                         ),
                         new SleepAction(0.6), // sleep to let balls roll out of classifier
-                        new ParallelAction(
-                                new Actions.CallbackAction(
+                        PathBuilder.buildPath(path.secondShoot, f, false,
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
@@ -166,8 +163,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.setIntake(0.25, 0)
                                         ),
                                         path.secondShoot, 0.01, 0, f, "arm_flywheel_and_turret_2"
-                                ),
-                                new FollowPathAction(f, path.secondShoot) // goes from gate to shoot second set
+                                )
                         ),
 
                         //shoots first 3 balls
@@ -188,15 +184,15 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
         robot.actionScheduler.addAction(
                 new SequentialAction(
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_FIRST")),
-                        new ParallelAction(
-                                new Actions.CallbackAction(
+                        PathBuilder.buildPath(path.firstIntake, f, true,
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.setIntake(1, 0)
                                         ),
                                         path.firstIntake, 0.3, 0, f, "slow_down_1"), // slow down to intake balls
-                                new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path.firstIntake, 0.01, 2, f, "speed_up_1_post_intake"), // speed up after intake
-                                new Actions.CallbackAction(
+                                new PathBuilder.PathBuilderCallback(new InstantAction(() -> f.setMaxPower(1)), path.firstIntake, 0.01, 2, f, "speed_up_1_post_intake"), // speed up after intake
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
@@ -204,8 +200,7 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
                                                 RobotActions.setIntake(0.25, 0)
                                         ),
                                         path.firstIntake, 0.01, 2, f, "arm_flywheel_and_turret_1"
-                                ),
-                                new FollowPathAction(f, path.firstIntake, true) // dashes to first 3 balls, starts intake and slows down near halfway points of path
+                                )
                         ),
 
                         //shoots first 3 balls
@@ -225,17 +220,15 @@ private void shootHP() { //shoot hp? :whatwasyourauton:
         robot.actionScheduler.addAction(
                 new SequentialAction( //dashes to line and shoots preloaded 3 balls
                         new InstantAction(() -> Log.d("AutoGoal", "START_SHOOT_PRELOAD")),
-                        new ParallelAction(
-                                new Actions.CallbackAction(
+                        PathBuilder.buildPath(path.shootPreload, f, true,
+                                new PathBuilder.PathBuilderCallback(
                                         new ParallelAction(
                                                 new InstantAction(() -> f.setMaxPower(1)),
                                                 RobotActions.armTurret(),
                                                 RobotActions.armFlywheel()
                                         ),
                                         path.shootPreload, 0.01, 0, f, "arm_flywheel_and_turret_0"
-                                ),
-                                new FollowPathAction(f, path.shootPreload, true)
-
+                                )
                         ),
                         RobotActions.shootArtifacts(3, 4),
                         new InstantAction(() -> Log.d("AutoGoal", "END_SHOOT_PRELOAD"))

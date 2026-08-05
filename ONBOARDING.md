@@ -218,8 +218,6 @@ semantics to keep straight:
 - `SingleCheckAction` does **not wait** for the guard to become true — it
   evaluates it and either runs the body or skips. Use it for "skip if
   already done / skip if the precondition isn't met."
-- If you genuinely need to *wait* for a condition before proceeding, use
-  `UntilConditionAction` instead.
 
 ### Compose big actions out of guarded small ones
 

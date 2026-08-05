@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.decode.subsystem.Common;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
+import org.firstinspires.ftc.teamcode.decode.util.PathBuilder;
 
 public class AudiencePaths {
     private final Follower f;
@@ -146,17 +147,16 @@ public class AudiencePaths {
         path.getPath(0).setTValueConstraint(0.8);
         pathBack.getPath(0).setTValueConstraint(0.75);
         return new SequentialAction(
-                new ParallelAction(
-                        new Actions.CallbackAction(new InstantAction(() -> f.setMaxPower(1)), path, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
-                        new Actions.CallbackAction(
+                PathBuilder.buildPath(path, f, false, AudiencePaths.MAX_HP_GOING_MS,
+                        new PathBuilder.PathBuilderCallback(new InstantAction(() -> f.setMaxPower(1)), path, .01, 0, f, "speed_up_hp"), // speed up to dash to third set of balls
+                        new PathBuilder.PathBuilderCallback(
                                 RobotActions.setIntake(1, 0),
-                                path, 0.5, 0, f, "slow_down_hp_2"), // slow down to intake balls
-                        new Actions.TimedAction(new FollowPathAction(f, path), AudiencePaths.MAX_HP_GOING_MS, "fourthHPAudience")
+                                path, 0.5, 0, f, "slow_down_hp_2") // slow down to intake balls
                 ),
 //                new Actions.TimedAction(new FollowPathAction(f, pathBack.getPath(0)), AudiencePaths.MAX_HP_TIME_MS, "fifthHPAudience"),
                 new SleepAction(0.1),
-                new ParallelAction(
-                        new Actions.CallbackAction(
+                PathBuilder.buildPath(pathShoot, f, true,
+                        new PathBuilder.PathBuilderCallback(
                                 new ParallelAction(
                                         new InstantAction(() -> f.setMaxPower(1)),
                                         RobotActions.armTurret(),
@@ -164,11 +164,10 @@ public class AudiencePaths {
                                 ),
                                 pathShoot, 0.01, 0, f, "arm_flywheel_and_turret_hp_2"
                         ),
-                        new Actions.CallbackAction(
+                        new PathBuilder.PathBuilderCallback(
                                 RobotActions.setIntake(0, 0),
                                 pathShoot, 0.01, 0, f, "stop_intake"
-                        ),
-                        new FollowPathAction(f, pathShoot, true)
+                        )
                 )
         );
     }

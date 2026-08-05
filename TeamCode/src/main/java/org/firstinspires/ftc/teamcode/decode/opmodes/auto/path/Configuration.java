@@ -16,6 +16,7 @@ import com.pedropathing.paths.PathChain;
 import org.firstinspires.ftc.teamcode.decode.subsystem.RobotActions;
 import org.firstinspires.ftc.teamcode.decode.util.Actions;
 import org.firstinspires.ftc.teamcode.decode.util.FollowPathAction;
+import org.firstinspires.ftc.teamcode.decode.util.PathBuilder;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -83,10 +84,9 @@ public class Configuration {
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_HP_START")),
                     new Actions.UntilConditionAction(
                             () -> robot.drivetrain.isRobotStuck(),
-                            new ParallelAction(
-                                    new Actions.CallbackAction(new InstantAction(() -> robot.drivetrain.setMaxPower(1)), paths.intakeHP, .01, 0, robot.drivetrain, "INTAKE_HP_SPEED_UP"),
-                                    new Actions.CallbackAction(RobotActions.setIntake(1, 0), paths.intakeHP, 0.3, 0, robot.drivetrain, "INTAKE_HP_OBTAIN_BALLS"),
-                                    new FollowPathAction(robot.drivetrain, paths.intakeHP, false)
+                            PathBuilder.buildPath(paths.intakeHP, robot.drivetrain, false,
+                                    new PathBuilder.PathBuilderCallback(new InstantAction(() -> robot.drivetrain.setMaxPower(1)), paths.intakeHP, .01, 0, robot.drivetrain, "INTAKE_HP_SPEED_UP"),
+                                    new PathBuilder.PathBuilderCallback(RobotActions.setIntake(1, 0), paths.intakeHP, 0.3, 0, robot.drivetrain, "INTAKE_HP_OBTAIN_BALLS")
                             )
                     ),
                     new Actions.TimedAction(new FollowPathAction(robot.drivetrain, paths.intakeHPBack, false), ConfigPaths.MAX_HP_TIME_MS, "INTAKE_HP_SECOND_TRY_BACK"),
@@ -105,14 +105,13 @@ public class Configuration {
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_FIRST_START")),
                     new Actions.UntilConditionAction(
                             () -> robot.shooter.isBallInFeeder() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder(),
-                            new ParallelAction(
-                                    new Actions.CallbackAction(
+                            PathBuilder.buildPath(paths.intakeFirst, robot.drivetrain, false,
+                                    new PathBuilder.PathBuilderCallback(
                                             new ParallelAction(
                                                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
                                                     RobotActions.setIntake(1, 0)
                                             ),
-                                            paths.intakeFirst, 0.3, 0, robot.drivetrain, "INTAKE_FIRST_OBTAIN_BALLS"),
-                                    new FollowPathAction(robot.drivetrain, paths.intakeFirst, false)
+                                            paths.intakeFirst, 0.3, 0, robot.drivetrain, "INTAKE_FIRST_OBTAIN_BALLS")
                             )
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_FIRST_END"))
@@ -128,14 +127,13 @@ public class Configuration {
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_SECOND_START")),
                     new Actions.UntilConditionAction(
                             () -> robot.shooter.isBallInFeeder() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder(),
-                            new ParallelAction(
-                                    new Actions.CallbackAction(
+                            PathBuilder.buildPath(paths.intakeSecond, robot.drivetrain, false,
+                                    new PathBuilder.PathBuilderCallback(
                                             new ParallelAction(
                                                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
                                                     RobotActions.setIntake(1, 0)
                                             ),
-                                            paths.intakeSecond, 0.3, 0, robot.drivetrain, "INTAKE_SECOND_OBTAIN_BALLS"),
-                                    new FollowPathAction(robot.drivetrain, paths.intakeSecond, false)
+                                            paths.intakeSecond, 0.3, 0, robot.drivetrain, "INTAKE_SECOND_OBTAIN_BALLS")
                             )
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_SECOND_END"))
@@ -151,14 +149,13 @@ public class Configuration {
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_THIRD_START")),
                     new Actions.UntilConditionAction(
                             () -> robot.shooter.isBallInFeeder() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder(),
-                            new ParallelAction(
-                                    new Actions.CallbackAction(
+                            PathBuilder.buildPath(paths.intakeThird, robot.drivetrain, false,
+                                    new PathBuilder.PathBuilderCallback(
                                             new ParallelAction(
                                                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
                                                     RobotActions.setIntake(1, 0)
                                             ),
-                                            paths.intakeThird, 0.3, 0, robot.drivetrain, "INTAKE_THIRD_OBTAIN_BALLS"),
-                                    new FollowPathAction(robot.drivetrain, paths.intakeThird, false)
+                                            paths.intakeThird, 0.3, 0, robot.drivetrain, "INTAKE_THIRD_OBTAIN_BALLS")
                             )
                     ),
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_THIRD_END"))
@@ -172,10 +169,9 @@ public class Configuration {
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "INTAKE_GATE_START")),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
-                    new ParallelAction(
-                            new Actions.CallbackAction(new InstantAction(() -> robot.drivetrain.setMaxPower(0.3)), paths.intakeGate, 0.9125, 0, robot.drivetrain, "GATE_INTAKE_SLOW_DOWN"),
-                            new Actions.CallbackAction(RobotActions.setIntake(1, 0), paths.intakeGate, 0.01, 1, robot.drivetrain, "GATE_INTAKE_OBTAIN_BALLS"),
-                            new FollowPathAction(robot.drivetrain, paths.intakeGate, false)
+                    PathBuilder.buildPath(paths.intakeGate, robot.drivetrain, false,
+                            new PathBuilder.PathBuilderCallback(new InstantAction(() -> robot.drivetrain.setMaxPower(0.3)), paths.intakeGate, 0.9125, 0, robot.drivetrain, "GATE_INTAKE_SLOW_DOWN"),
+                            new PathBuilder.PathBuilderCallback(RobotActions.setIntake(1, 0), paths.intakeGate, 0.01, 1, robot.drivetrain, "GATE_INTAKE_OBTAIN_BALLS")
                     ),
                     new Actions.RunnableAction(() -> !(robot.shooter.isBallInFeeder() && robot.shooter.isBallInIntakeFront() && robot.shooter.isBallInFeeder())),
                     new FollowPathAction(robot.drivetrain, paths.intakeGateBack, false),
@@ -205,16 +201,15 @@ public class Configuration {
             return new SequentialAction(
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_START")),
                     new InstantAction(() -> robot.drivetrain.setMaxPower(1)),
-                    new ParallelAction(
-                            new Actions.CallbackAction(
+                    PathBuilder.buildPath(paths.shoot, robot.drivetrain, true,
+                            new PathBuilder.PathBuilderCallback(
                                     new ParallelAction(
                                             RobotActions.armTurret(),
                                             RobotActions.armFlywheel(),
                                             RobotActions.setIntake(0.25, 0)
                                     ),
                                     paths.shoot, 0.01, 0, robot.drivetrain, "SHOOT_ARM_FLYWHEEL_AND_TURRET"
-                            ),
-                            new FollowPathAction(robot.drivetrain, paths.shoot, true)
+                            )
                     ),
                     RobotActions.shootArtifacts(3, 2.5),
                     new InstantAction(() -> Log.d("ConfigAuto", "SHOOT_END"))
