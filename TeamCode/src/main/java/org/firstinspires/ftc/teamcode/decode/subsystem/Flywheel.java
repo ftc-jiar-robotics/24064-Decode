@@ -39,7 +39,7 @@ import java.util.List;
 public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
     private final CachedMotor[] motorGroup;
     private final Motor.Encoder shooterEncoder;
-    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.003, 0.000, 0.0000, 0.00008);
+    public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE = new PIDFCoefficients(0.0042, 0.000, 0.0000, 0.00008);
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_CLOSE_AUTON = new PIDFCoefficients(0.0042, 0.000, 0.0000, 0.00008);
 
     public static PIDFCoefficients FLYWHEEL_PIDF_COEFFICIENTS_FAR = new PIDFCoefficients(0.004, 0.000, 0.0000, 0.00009);
@@ -64,7 +64,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
             OUT_OF_TOLERANCE_LOOPS = 3,
             RPM_TOLERANCE = 50,
             MAX_RPM = 4000,
-            RPM_PER_SEC_IN = 12.00567, // TODO EMPIRICALLY TUNE
+            RPM_PER_SEC_IN = 11.9, // TODO EMPIRICALLY TUNE
             LOW_PASS_FILTER_RPM_TOLERANCE = 250,
             SMOOTH_RPM_GAIN = 0,
             DERIV_TOLERANCE = 600,
@@ -216,7 +216,7 @@ public class Flywheel extends Subsystem<Flywheel.FlyWheelStates> {
 
             velocityController.setCoefficients(coefficients);
 
-            currentPower = feedforwardValue + kS*(Common.MAX_VOLTAGE / robot.getVoltage());
+            currentPower = feedforwardValue + kS;/*(Common.MAX_VOLTAGE / robot.getVoltage());*/
             currentPower += velocityController.calculate(currentRPMSmooth);
 
             if (Math.abs(currentRPMSmooth - shootingRPM) < LOW_PASS_FILTER_RPM_TOLERANCE) {
